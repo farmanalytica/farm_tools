@@ -3,14 +3,14 @@ name=FARM tools
 qgisMinimumVersion=3.28
 description=Analysis of Vegetation Indices Time Series and download of multispectral imagery
 description_pt=Análise de séries temporais de índices de vegetação e download de imagens multiespectrais
-version=7.0
+version=1.0
 author=Bruna da Silva Brito Ribeiro, Caio Arantes, Isabella Alves da Cunha, Leandro Eloi, Lívia Scopel, Lucas Rios do Amaral, Mateus Pinto da Silva, Mateus Pinto da Silva
 email=caio.arantes@farmanalytica.com.br
 
 about=FARM tools is a QGIS plugin designed to integrate Google Earth Engine (GEE) resources, enabling efficient processing and visualization of geospatial data. Utilizing the Sentinel-2 harmonized surface reflectance catalog, the plugin supports time series vegetation index calculations and download of multispectral imagery. These features make it a tool for students, researchers, farmers, and professionals working in agriculture, land monitoring, or environmental management. / O FARM tools é um plugin do QGIS projetado para integrar recursos do Google Earth Engine (GEE), permitindo o processamento e a visualização eficientes de dados geoespaciais. Utilizando o catálogo de reflectância de superfície harmonizada do Sentinel-2, o plugin suporta cálculos de séries temporais de índices de vegetação e download de imagens multiespectrais. Esses recursos tornam-no uma ferramenta para estudantes, pesquisadores, agricultores e profissionais que trabalham com agricultura, monitoramento da terra ou gestão ambiental.
 
-tracker=https://github.com/farmanalytica/ravi-qgis-plugin/issues
-repository=https://github.com/farmanalytica/ravi-qgis-plugin
+tracker=https://github.com/farmanalytica/farm_tools/issues
+repository=https://github.com/farmanalytica/farm_tools
 # End of mandatory metadata
 
 # Recommended items:
@@ -18,17 +18,12 @@ repository=https://github.com/farmanalytica/ravi-qgis-plugin
 hasProcessingProvider=no
 # Uncomment the following line and add your changelog:
 changelog=
-    7.0 - UI improvements and onboarding pages
-    6.0 - New feature - Acess to SAR data (Sentinel-1)
-    5.2 - New feature - synthetic soil image (SYSI) generation
-    4.1 - fix for selected VI menu
-    4.0 - proxy setttings, and Digital Elevation Model added
-    3.2 - Batch download feature added
+    1.0 - Initial release (fork of RAVI)
 
 # Tags are comma separated with spaces allowed
 tags=remote sensing, sentinel-2, google earth engine, vegetation index, ndvi, time series, agriculture, raster, sar, dem
 
-homepage=https://www.raviqgis.org
+homepage=https://www.farmanalytica.com.br
 category=Plugins
 icon=icon.png
 # experimental flag
