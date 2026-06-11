@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Radar (SAR) data page for the RAVI dialog.
+Radar (SAR) data page for the FARM tools dialog.
 
 Two-tab layout: Inputs (parameters) → Results (output).
 Signal connections will be wired externally by ``farm_tools.py`` once the
@@ -315,8 +315,8 @@ def _section_panel():
 
 _INTRO_I18N = {
     "pt": {
-        "title": "🛰️ Módulo SAR - RAVI",
-        "desc": 'O módulo SAR do RAVI fornece uma interface gráfica para processar dados Sentinel-1 usando o <a href="https://www.mdpi.com/2072-4292/13/10/1954">Sentinel-1 SAR Backscatter Analysis Ready Data</a> no Google Earth Engine, sem necessidade de programação.',
+        "title": "🛰️ Módulo SAR - FARM tools",
+        "desc": 'O módulo SAR do FARM tools fornece uma interface gráfica para processar dados Sentinel-1 usando o <a href="https://www.mdpi.com/2072-4292/13/10/1954">Sentinel-1 SAR Backscatter Analysis Ready Data</a> no Google Earth Engine, sem necessidade de programação.',
         "workflow_h": "📋 Fluxo de Trabalho",
         "wf": ["<b>Inputs:</b> Selecione a área (AOI), datas e parâmetros de processamento", "<b>Run:</b> Execute o processamento para gerar a série temporal", "<b>Results:</b> Visualize gráficos, filtre datas e exporte os resultados"],
         "features_h": "✨ Principais Funcionalidades",
@@ -333,8 +333,8 @@ _INTRO_I18N = {
         "cite_intro": "Qualquer trabalho publicado que utilize este plugin deve citar:",
     },
     "en": {
-        "title": "🛰️ SAR Module - RAVI",
-        "desc": 'The RAVI SAR module provides a graphical interface to process Sentinel-1 data using the <a href="https://www.mdpi.com/2072-4292/13/10/1954">Sentinel-1 SAR Backscatter Analysis Ready Data</a> in Google Earth Engine, without requiring any coding.',
+        "title": "🛰️ SAR Module - FARM tools",
+        "desc": 'The FARM tools SAR module provides a graphical interface to process Sentinel-1 data using the <a href="https://www.mdpi.com/2072-4292/13/10/1954">Sentinel-1 SAR Backscatter Analysis Ready Data</a> in Google Earth Engine, without requiring any coding.',
         "workflow_h": "📋 Workflow",
         "wf": ["<b>Inputs:</b> Select area (AOI), dates, and processing parameters", "<b>Run:</b> Execute processing to generate time series", "<b>Results:</b> View charts, filter dates, and export results"],
         "features_h": "✨ Main Features",
@@ -351,8 +351,8 @@ _INTRO_I18N = {
         "cite_intro": "Any published work using this plugin must cite:",
     },
     "fr": {
-        "title": "🛰️ Module SAR - RAVI",
-        "desc": "Le module SAR d'RAVI fournit une interface graphique pour traiter les données Sentinel-1 dans Google Earth Engine, sans aucune programmation.",
+        "title": "🛰️ Module SAR - FARM tools",
+        "desc": "Le module SAR d'FARM tools fournit une interface graphique pour traiter les données Sentinel-1 dans Google Earth Engine, sans aucune programmation.",
         "workflow_h": "📋 Flux de Travail",
         "wf": ["<b>Inputs :</b> Sélectionnez la zone (AOI), les dates et les paramètres", "<b>Run :</b> Lancez le traitement pour générer la série chronologique", "<b>Results :</b> Affichez les graphiques, filtrez les dates et exportez les résultats"],
         "features_h": "✨ Principales Fonctionnalités",
@@ -369,8 +369,8 @@ _INTRO_I18N = {
         "cite_intro": "Tout travail publié utilisant ce plugin doit citer :",
     },
     "es": {
-        "title": "🛰️ Módulo SAR - RAVI",
-        "desc": "El módulo SAR de RAVI proporciona una interfaz gráfica para procesar datos Sentinel-1 en Google Earth Engine, sin necesidad de programación.",
+        "title": "🛰️ Módulo SAR - FARM tools",
+        "desc": "El módulo SAR de FARM tools proporciona una interfaz gráfica para procesar datos Sentinel-1 en Google Earth Engine, sin necesidad de programación.",
         "workflow_h": "📋 Flujo de Trabajo",
         "wf": ["<b>Inputs:</b> Selecciona el área (AOI), fechas y parámetros", "<b>Run:</b> Ejecuta el procesamiento para generar la serie temporal", "<b>Results:</b> Visualiza gráficos, filtra fechas y exporta los resultados"],
         "features_h": "✨ Funcionalidades Principales",
@@ -387,8 +387,8 @@ _INTRO_I18N = {
         "cite_intro": "Cualquier trabajo publicado que utilice este plugin debe citar:",
     },
     "it": {
-        "title": "🛰️ Modulo SAR - RAVI",
-        "desc": "Il modulo SAR di RAVI fornisce un'interfaccia grafica per elaborare i dati Sentinel-1 in Google Earth Engine, senza necessità di programmazione.",
+        "title": "🛰️ Modulo SAR - FARM tools",
+        "desc": "Il modulo SAR di FARM tools fornisce un'interfaccia grafica per elaborare i dati Sentinel-1 in Google Earth Engine, senza necessità di programmazione.",
         "workflow_h": "📋 Flusso di Lavoro",
         "wf": ["<b>Inputs:</b> Seleziona l'area (AOI), le date e i parametri", "<b>Run:</b> Esegui l'elaborazione per generare la serie temporale", "<b>Results:</b> Visualizza i grafici, filtra le date ed esporta i risultati"],
         "features_h": "✨ Funzionalità Principali",

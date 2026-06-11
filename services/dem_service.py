@@ -31,7 +31,7 @@ class DEMService:
             )
 
         safe_dataset_name = dataset_name.replace(" ", "_").replace("/", "-")
-        filename = f"RAVI_{safe_dataset_name}.tif"
+        filename = f"FARM_tools_{safe_dataset_name}.tif"
 
         target_dir = (
             output_folder

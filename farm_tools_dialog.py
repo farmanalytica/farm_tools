@@ -233,7 +233,7 @@ class FarmToolsDialog(QDialog):
         loading_layout.setSpacing(12)
         loading_layout.addStretch()
 
-        title = QLabel(_tr("Setting up RAVI…"))
+        title = QLabel(_tr("Setting up FARM tools…"))
         title.setStyleSheet("color: #1b6b39; font-size: 14px; font-weight: bold;")
         title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         loading_layout.addWidget(title)
