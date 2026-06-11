@@ -35,6 +35,21 @@ def _tr(text):
     return QCoreApplication.translate("RAVI", text)
 
 
+def _read_plugin_version() -> str:
+    """Read ``version=`` from the plugin's metadata.txt; empty string if missing."""
+    plugin_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    metadata_path = os.path.join(plugin_dir, "metadata.txt")
+    try:
+        with open(metadata_path, "r", encoding="utf-8") as handle:
+            for line in handle:
+                stripped = line.strip()
+                if stripped.startswith("version="):
+                    return stripped.split("=", 1)[1].strip()
+    except OSError:
+        pass
+    return ""
+
+
 SIDEBAR_COLLAPSED_WIDTH = 64
 SIDEBAR_EXPANDED_WIDTH = 184
 SIDEBAR_GREEN = "#1F6B3A"
@@ -167,6 +182,20 @@ class Sidebar(QFrame):
 
         lay.addStretch()
 
+        self._version = _read_plugin_version()
+        self.version_label = QLabel()
+        self.version_label.setObjectName("sidebarVersion")
+        self.version_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.version_label.setStyleSheet("""
+            QLabel#sidebarVersion {
+                background: transparent;
+                color: rgba(255, 255, 255, 120);
+                font-size: 10px;
+                letter-spacing: 0.3px;
+            }
+        """)
+        lay.addWidget(self.version_label)
+
     def _build_brand_panel(self) -> QWidget:
         panel = QWidget()
         panel.setObjectName("sidebarBrand")
@@ -268,6 +297,12 @@ class Sidebar(QFrame):
         self.brand_block.setFixedWidth(156 if expanded else 42)
         self.brand_text.setVisible(expanded)
         self.brand_divider.setFixedWidth(156 if expanded else 28)
+
+        if self._version:
+            self.version_label.setText(
+                _tr("Version {0}").format(self._version) if expanded
+                else "v{0}".format(self._version)
+            )
         self._sync_brand_visibility()
 
         self.setStyleSheet(self._stylesheet(expanded))
