@@ -45,6 +45,7 @@ from .managers.settings_manager import SettingsManager
 
 from .view.auth import setup_auth_page
 from .view.download_dem import setup_download_dem_page
+from .view.fieldguide import setup_fieldguide_page
 from .view.landsat import setup_landsat_page
 from .view.optical import setup_optical_page
 from .view.radar import setup_radar_page
@@ -177,6 +178,7 @@ class FarmToolsDialog(QDialog):
         self.sidebar.radar_requested.connect(self._nav_to_radar)
         self.sidebar.dem_requested.connect(self._nav_to_dem)
         self.sidebar.landsat_requested.connect(self._nav_to_landsat)
+        self.sidebar.fieldguide_requested.connect(self._nav_to_fieldguide)
         body_layout.addWidget(self.sidebar)
 
         content_container = QWidget()
@@ -203,6 +205,7 @@ class FarmToolsDialog(QDialog):
         self.radar_page = QWidget()
         self.dem_page = QWidget()
         self.landsat_page = QWidget()
+        self.fieldguide_page = QWidget()
 
         setup_auth_page(self, self.auth_page)
         setup_optical_page(self, self.optical_page)
@@ -210,6 +213,7 @@ class FarmToolsDialog(QDialog):
         setup_radar_page(self, self.radar_page)
         setup_download_dem_page(self, self.dem_page)
         setup_landsat_page(self, self.landsat_page)
+        setup_fieldguide_page(self, self.fieldguide_page)
 
         self.stack.addWidget(self.loading_page)
         self.stack.addWidget(self.auth_page)
@@ -218,6 +222,7 @@ class FarmToolsDialog(QDialog):
         self.stack.addWidget(self.radar_page)
         self.stack.addWidget(self.dem_page)
         self.stack.addWidget(self.landsat_page)
+        self.stack.addWidget(self.fieldguide_page)
         self.stack.currentChanged.connect(self._sync_page_state)
 
         self.stack.setCurrentWidget(self.auth_page)
@@ -452,6 +457,10 @@ class FarmToolsDialog(QDialog):
         """Switch the stacked widget to the Landsat Super-Resolution page."""
         self.stack.setCurrentWidget(self.landsat_page)
 
+    def show_fieldguide_page(self):
+        """Switch the stacked widget to the Field Guide page."""
+        self.stack.setCurrentWidget(self.fieldguide_page)
+
     def _nav_to_auth(self):
         """Sidebar auth button — always navigates to the auth page."""
         self.show_auth_page()
@@ -478,6 +487,10 @@ class FarmToolsDialog(QDialog):
     def _nav_to_landsat(self):
         """Sidebar Landsat button — always navigates to the Landsat page."""
         self.show_landsat_page()
+
+    def _nav_to_fieldguide(self):
+        """Sidebar Field Guide button — always navigates to the Field Guide page."""
+        self.show_fieldguide_page()
 
     def _sync_page_state(self, index):
         """Keep header and sidebar state aligned with the current stack page."""
@@ -525,6 +538,12 @@ class FarmToolsDialog(QDialog):
         if current is self.landsat_page:
             self._header_title.setText(_tr("Landsat Super-Resolution"))
             self.sidebar.set_active_page("landsat")
+            self.footer.setVisible(False)
+            return
+
+        if current is self.fieldguide_page:
+            self._header_title.setText(_tr("Field Guide"))
+            self.sidebar.set_active_page("fieldguide")
             self.footer.setVisible(False)
 
 

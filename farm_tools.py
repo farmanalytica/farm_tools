@@ -138,6 +138,12 @@ class FarmTools:
 
     def unload(self):
         """Remove the plugin from QGIS."""
+        if getattr(self, "fieldguide_ctrl", None) is not None:
+            # Release the capture tool and remove canvas markers/labels.
+            try:
+                self.fieldguide_ctrl.cleanup()
+            except Exception:
+                pass
         QCoreApplication.removeTranslator(self._translator)
         for action in self.actions:
             self.interface.removePluginMenu("&FARM tools", action)
@@ -151,6 +157,7 @@ class FarmTools:
         from .controllers.optical_ctrl import OpticalCtrl
         from .controllers.landsat_ctrl import LandsatCtrl
         from .controllers.sysi_ctrl import SYSICtrl
+        from .controllers.fieldguide_ctrl import FieldGuideCtrl
 
         self._services_ready = True
         self.gee_service = GEEService()
@@ -160,6 +167,7 @@ class FarmTools:
         self.optical_ctrl = OpticalCtrl(self.dialog, self.interface, self.gee_service)
         self.landsat_ctrl = LandsatCtrl(self.dialog, self.interface, self.gee_service)
         self.sysi_ctrl = SYSICtrl(self.dialog, self.interface, self.gee_service)
+        self.fieldguide_ctrl = FieldGuideCtrl(self.dialog, self.interface)
 
         saved_project_id = self.gee_service.get_saved_project_id()
         if saved_project_id:
@@ -365,6 +373,50 @@ class FarmTools:
         )
         self.dialog.sysi_layer_combo.layerChanged.connect(
             self.sysi_ctrl.handle_layer_changed
+        )
+
+        self.dialog.fg_btn_capture.toggled.connect(
+            self.fieldguide_ctrl.handle_capture_toggled
+        )
+        self.dialog.fg_btn_hybrid_layer.clicked.connect(
+            self.dem_ctrl.handle_hybrid_layer
+        )
+        self.dialog.fg_btn_mark_samples.clicked.connect(
+            self.fieldguide_ctrl.handle_mark_samples
+        )
+        self.dialog.fg_btn_remove_last.clicked.connect(
+            self.fieldguide_ctrl.handle_remove_last
+        )
+        self.dialog.fg_btn_delete_selected.clicked.connect(
+            self.fieldguide_ctrl.handle_delete_selected
+        )
+        self.dialog.fg_btn_clear.clicked.connect(
+            self.fieldguide_ctrl.handle_clear_marks
+        )
+        self.dialog.fg_btn_add_manual.clicked.connect(
+            self.fieldguide_ctrl.handle_add_manual
+        )
+        self.dialog.fg_lon_input.returnPressed.connect(
+            self.fieldguide_ctrl.handle_add_manual
+        )
+        self.dialog.fg_btn_route.clicked.connect(self.fieldguide_ctrl.handle_route)
+        self.dialog.fg_btn_import_csv.clicked.connect(
+            self.fieldguide_ctrl.handle_import_csv
+        )
+        self.dialog.fg_btn_export_csv.clicked.connect(
+            self.fieldguide_ctrl.handle_export_csv
+        )
+        self.dialog.fg_btn_export_gpx.clicked.connect(
+            self.fieldguide_ctrl.handle_export_gpx
+        )
+        self.dialog.fg_btn_temp_layer.clicked.connect(
+            self.fieldguide_ctrl.handle_temp_layer
+        )
+        self.dialog.fg_btn_pdf.clicked.connect(
+            self.fieldguide_ctrl.handle_generate_pdf
+        )
+        self.dialog.fg_points_list.itemSelectionChanged.connect(
+            self.fieldguide_ctrl.handle_selection_changed
         )
 
         self.auth_ctrl.refresh_auth_status()

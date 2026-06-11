@@ -92,6 +92,7 @@ class Sidebar(QFrame):
         radar_requested: emitted when the user clicks Radar (SAR) data.
         dem_requested: emitted when the user clicks Download DEM.
         landsat_requested: emitted when the user clicks Landsat (Super-Res).
+        fieldguide_requested: emitted when the user clicks Field Guide.
     """
 
     auth_requested = pyqtSignal()
@@ -100,6 +101,7 @@ class Sidebar(QFrame):
     radar_requested = pyqtSignal()
     dem_requested = pyqtSignal()
     landsat_requested = pyqtSignal()
+    fieldguide_requested = pyqtSignal()
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -171,6 +173,10 @@ class Sidebar(QFrame):
         self.btn_landsat.clicked.connect(self.landsat_requested.emit)
         lay.addWidget(self.btn_landsat)
 
+        self.btn_fieldguide = self._make_button(_tr("Field Guide"), "fieldguide")
+        self.btn_fieldguide.clicked.connect(self.fieldguide_requested.emit)
+        lay.addWidget(self.btn_fieldguide)
+
         self._group = QButtonGroup(self)
         self._group.setExclusive(True)
         self._group.addButton(self.btn_auth)
@@ -179,6 +185,7 @@ class Sidebar(QFrame):
         self._group.addButton(self.btn_radar)
         self._group.addButton(self.btn_download)
         self._group.addButton(self.btn_landsat)
+        self._group.addButton(self.btn_fieldguide)
 
         lay.addStretch()
 
@@ -263,7 +270,7 @@ class Sidebar(QFrame):
         return btn
 
     def set_active_page(self, page: str) -> None:
-        """Highlight the button matching ``page`` (``'auth'``, ``'optical'``, ``'sysi'``, ``'radar'``, ``'download'`` or ``'landsat'``)."""
+        """Highlight the button matching ``page`` (``'auth'``, ``'optical'``, ``'sysi'``, ``'radar'``, ``'download'``, ``'landsat'`` or ``'fieldguide'``)."""
         self._active_page = page
         self.btn_auth.setChecked(page == "auth")
         self.btn_optical.setChecked(page == "optical")
@@ -271,6 +278,7 @@ class Sidebar(QFrame):
         self.btn_radar.setChecked(page == "radar")
         self.btn_download.setChecked(page == "download")
         self.btn_landsat.setChecked(page == "landsat")
+        self.btn_fieldguide.setChecked(page == "fieldguide")
         self._sync_brand_visibility()
 
     def enterEvent(self, event) -> None:
@@ -288,7 +296,7 @@ class Sidebar(QFrame):
         side_margin = 14 if expanded else 11
         self._layout.setContentsMargins(side_margin, 18, side_margin, 18)
 
-        for btn in (self.btn_auth, self.btn_optical, self.btn_sysi, self.btn_radar, self.btn_download, self.btn_landsat):
+        for btn in (self.btn_auth, self.btn_optical, self.btn_sysi, self.btn_radar, self.btn_download, self.btn_landsat, self.btn_fieldguide):
             btn.setText(btn.property("navText") if expanded else "")
             btn.setToolTip("" if expanded else btn.property("navText"))
             btn.setFixedWidth(156 if expanded else 42)
@@ -473,6 +481,15 @@ class Sidebar(QFrame):
             painter.drawLine(3, 7, 11, 7)
             painter.drawArc(QRectF(10, 10, 6, 6), 0, 360 * 16)
             painter.drawLine(15, 15, 18, 18)
+        elif kind == "fieldguide":
+            # Map pin with a center dot — evokes field point capture.
+            painter.setPen(pen)
+            painter.drawEllipse(QPointF(10, 8), 4.5, 4.5)
+            painter.drawLine(QPointF(6.4, 11.0), QPointF(10, 17))
+            painter.drawLine(QPointF(13.6, 11.0), QPointF(10, 17))
+            painter.setPen(Qt.PenStyle.NoPen)
+            painter.setBrush(QColor(color))
+            painter.drawEllipse(QPointF(10, 8), 1.4, 1.4)
         else:
             painter.setPen(pen)
             painter.drawLine(10, 3, 10, 12)
