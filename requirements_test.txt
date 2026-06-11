@@ -1,0 +1,9 @@
+# Test-only deps. Install into the QGIS Python for the qgis-tier tests,
+# or any venv for the headless unit tier.
+pytest>=7.0
+pytest-cov
+pytest-mock
+# Real libs used by pure-logic tests (stubbed automatically if absent):
+numpy
+pandas
+requests

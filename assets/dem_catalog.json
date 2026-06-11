@@ -1,0 +1,578 @@
+[
+  {
+    "name": "Netherlands AHN2 0.5m (Interpolated)",
+    "collection": "AHN/AHN2_05M_INT",
+    "band": "elevation",
+    "is_collection": false,
+    "is_global": false,
+    "resolution": 0.5,
+    "coverage": "Netherlands",
+    "source": "AHN / Rijkswaterstaat",
+    "description": "0.5m LiDAR DEM for the Netherlands with void interpolation applied (2007-2012)",
+    "info": "<b>Resolution:</b> 0.5 meters <br><b>Coverage:</b> Netherlands <br>The AHN2 (Actueel Hoogtebestand Nederland 2) is the second-generation national airborne LiDAR elevation dataset for the Netherlands, acquired between 2007 and 2012. The interpolated variant (INT) fills data voids using bilinear interpolation to produce a complete, continuous bare-earth surface. It is essential for the Netherlands' flood risk management, dike monitoring, and land subsidence tracking given the country's low-lying topography. (<a href='https://developers.google.com/earth-engine/datasets/catalog/AHN_AHN2_05M_INT'>Source</a>)",
+    "coverage_bbox": [
+      3.0,
+      50.5,
+      7.3,
+      53.7
+    ]
+  },
+  {
+    "name": "Netherlands AHN2 0.5m (Non-interpolated)",
+    "collection": "AHN/AHN2_05M_NON",
+    "band": "elevation",
+    "is_collection": false,
+    "is_global": false,
+    "resolution": 0.5,
+    "coverage": "Netherlands",
+    "source": "AHN / Rijkswaterstaat",
+    "description": "0.5m LiDAR DEM for the Netherlands without void interpolation (2007-2012)",
+    "info": "<b>Resolution:</b> 0.5 meters <br><b>Coverage:</b> Netherlands <br>The AHN2 non-interpolated variant (NON) retains data voids where no LiDAR returns were recorded, such as on open water, dense vegetation, or areas affected by sensor issues. This version is preferred when distinguishing between measured and estimated elevations is important, or when downstream processing will apply custom void-filling. Part of the AHN2 national LiDAR acquisition program (2007â€“2012). (<a href='https://developers.google.com/earth-engine/datasets/catalog/AHN_AHN2_05M_NON'>Source</a>)",
+    "coverage_bbox": [
+      3.0,
+      50.5,
+      7.3,
+      53.7
+    ]
+  },
+  {
+    "name": "Netherlands AHN2 0.5m (Raw Samples)",
+    "collection": "AHN/AHN2_05M_RUW",
+    "band": "elevation",
+    "is_collection": false,
+    "is_global": false,
+    "resolution": 0.5,
+    "coverage": "Netherlands",
+    "source": "AHN / Rijkswaterstaat",
+    "description": "0.5m raw LiDAR sample points rasterized for the Netherlands (2007-2012)",
+    "info": "<b>Resolution:</b> 0.5 meters <br><b>Coverage:</b> Netherlands <br>The AHN2 raw samples variant (RUW) is a rasterization of unfiltered LiDAR point cloud returns before classification or ground filtering. Unlike the bare-earth DTM versions, it includes returns from buildings, trees, and other above-ground objects. Useful for canopy height estimation, building volume analysis, or research requiring access to the original unprocessed LiDAR signal. Part of the AHN2 acquisition program (2007â€“2012). (<a href='https://developers.google.com/earth-engine/datasets/catalog/AHN_AHN2_05M_RUW'>Source</a>)",
+    "coverage_bbox": [
+      3.0,
+      50.5,
+      7.3,
+      53.7
+    ]
+  },
+  {
+    "name": "Netherlands AHN3 0.5m",
+    "collection": "AHN/AHN3",
+    "band": "dtm",
+    "is_collection": true,
+    "is_global": false,
+    "resolution": 0.5,
+    "coverage": "Netherlands",
+    "source": "AHN / Rijkswaterstaat",
+    "description": "0.5m LiDAR DTM and DSM for the Netherlands, third acquisition cycle (2014-2019)",
+    "info": "<b>Resolution:</b> 0.5 meters <br><b>Coverage:</b> Netherlands <br>AHN3 is the third-generation Dutch national airborne LiDAR elevation dataset, acquired between 2014 and 2019 at higher point density than AHN2. It provides both a Digital Terrain Model (DTM, bare earth) and Digital Surface Model (DSM, including buildings and vegetation) at 0.5m resolution. Comparison with AHN2 enables detection of terrain changes such as land subsidence, coastal erosion, and urban development over the past decade. (<a href='https://developers.google.com/earth-engine/datasets/catalog/AHN_AHN3'>Source</a>)",
+    "coverage_bbox": [
+      3.0,
+      50.5,
+      7.3,
+      53.7
+    ]
+  },
+  {
+    "name": "Netherlands AHN4 0.5m",
+    "collection": "AHN/AHN4",
+    "band": "dtm",
+    "is_collection": true,
+    "is_global": false,
+    "resolution": 0.5,
+    "coverage": "Netherlands",
+    "source": "AHN / Rijkswaterstaat",
+    "description": "0.5m LiDAR DTM and DSM for the Netherlands, fourth acquisition cycle (2020-2022)",
+    "info": "<b>Resolution:</b> 0.5 meters <br><b>Coverage:</b> Netherlands <br>AHN4 is the most recent generation of the Dutch national airborne LiDAR elevation dataset, acquired between 2020 and 2022 with the highest point density of any AHN cycle. DTM and DSM products are provided at 0.5m resolution, reflecting the current state of the Netherlands' terrain and built environment. AHN4 enables precise monitoring of land subsidence, infrastructure change, and climate adaptation needs in this low-lying delta country. (<a href='https://developers.google.com/earth-engine/datasets/catalog/AHN_AHN4'>Source</a>)",
+    "coverage_bbox": [
+      3.0,
+      50.5,
+      7.3,
+      53.7
+    ]
+  },
+  {
+    "name": "USGS 3DEP 1m",
+    "collection": "USGS/3DEP/1m",
+    "band": "elevation",
+    "is_collection": true,
+    "is_global": false,
+    "resolution": 1,
+    "coverage": "USA (partial coverage)",
+    "source": "USGS",
+    "description": "3D Elevation Program LiDAR-derived 1m DTM for available areas of the United States",
+    "info": "<b>Resolution:</b> 1 meter <br><b>Coverage:</b> USA (partial coverage) <br>The USGS 3D Elevation Program (3DEP) 1m dataset is the highest-resolution terrain data publicly available for the United States, derived from high-density airborne LiDAR surveys. Each tile is a Digital Terrain Model (DTM) representing bare-earth elevation with vegetation and structures removed. Coverage is partial and expanding as new LiDAR acquisitions are completed. Ideal for detailed hydrological, geomorphological, infrastructure, and urban planning applications. (<a href='https://developers.google.com/earth-engine/datasets/catalog/USGS_3DEP_1m'>Source</a>)",
+    "coverage_bbox": [
+      -170.0,
+      18.0,
+      -65.0,
+      72.0
+    ]
+  },
+  {
+    "name": "NEON DEM",
+    "collection": "projects/neon-prod-earthengine/assets/DEM/001",
+    "band": "DTM",
+    "is_collection": true,
+    "is_global": false,
+    "resolution": 1,
+    "coverage": "USA (NEON sites)",
+    "source": "NSF NEON",
+    "description": "National Ecological Observatory Network 1m LiDAR DEM for ecological field sites across the USA",
+    "info": "<b>Resolution:</b> 1 meter <br><b>Coverage:</b> USA (NEON sites) <br>The National Ecological Observatory Network (NEON) Digital Elevation Model is a 1m LiDAR-derived terrain product covering NEON's 81 field sites distributed across the United States. Funded by the National Science Foundation, NEON collects long-term ecological data to understand ecosystem change. Each site's DEM is produced from high-density airborne LiDAR data acquired by NEON's Airborne Observation Platform (AOP), providing precise bare-earth terrain for ecological and hydrological research. (<a href='https://www.neonscience.org/data-collection/airborne-remote-sensing'>Source</a>)",
+    "coverage_bbox": [
+      -170.0,
+      18.0,
+      -65.0,
+      72.0
+    ]
+  },
+  {
+    "name": "England 1m Terrain (DTM)",
+    "collection": "UK/EA/ENGLAND_1M_TERRAIN/2022",
+    "band": "dtm",
+    "is_collection": false,
+    "is_global": false,
+    "resolution": 1,
+    "coverage": "England (99% coverage)",
+    "source": "Environment Agency (UK)",
+    "description": "1m composite DTM and DSM for England from airborne LiDAR surveys (2000-2022)",
+    "info": "<b>Resolution:</b> 1 meter <br><b>Coverage:</b> England (99% coverage) <br>The Environment Agency's 1m Composite Terrain Model (CTM) provides near-complete coverage of England from airborne LiDAR surveys collected between 2000 and 2022. The bare-earth DTM removes above-ground features such as buildings and vegetation. Available as both DTM (bare earth) and DSM (surface including objects), it is widely used for flood risk assessment, coastal management, planning applications, and environmental monitoring across England. (<a href='https://developers.google.com/earth-engine/datasets/catalog/UK_EA_ENGLAND_1M_TERRAIN_2022'>Source</a>)",
+    "coverage_bbox": [
+      -6.0,
+      49.8,
+      2.0,
+      55.9
+    ]
+  },
+  {
+    "name": "France RGE ALTI 1m",
+    "collection": "IGN/RGE_ALTI/1M/2_0",
+    "band": "MNT",
+    "is_collection": true,
+    "is_global": false,
+    "resolution": 1,
+    "coverage": "Metropolitan France",
+    "source": "IGN France",
+    "description": "1m national DTM for Metropolitan France from airborne LiDAR and aerial surveys (2009-2021)",
+    "info": "<b>Resolution:</b> 1 meter <br><b>Coverage:</b> Metropolitan France <br>The RGE ALTI (RÃ©fÃ©rentiel Ã  Grande Ã‰chelle ALTImÃ©trique) is the French national 1m Digital Terrain Model produced by the Institut National de l'information GÃ©ographique et ForestiÃ¨re (IGN). Version 2.0 was built from airborne LiDAR surveys and aerial photogrammetry conducted between 2009 and 2021. It provides bare-earth elevation data for all of Metropolitan France and serves as the official elevation reference used by French public services. (<a href='https://developers.google.com/earth-engine/datasets/catalog/IGN_RGE_ALTI_1M_2_0'>Source</a>)",
+    "coverage_bbox": [
+      -5.5,
+      41.0,
+      9.5,
+      51.5
+    ]
+  },
+  {
+    "name": "ArcticDEM Mosaic V4.1 (2m)",
+    "collection": "UMN/PGC/ArcticDEM/V4/2m_mosaic",
+    "band": "elevation",
+    "is_collection": false,
+    "is_global": false,
+    "resolution": 2,
+    "coverage": "Arctic (50â€“90°N)",
+    "source": "University of Minnesota PGC / NSF",
+    "description": "2m resolution mosaic DEM for the Arctic from stereo satellite imagery (2012-2020)",
+    "info": "<b>Resolution:</b> 2 meters <br><b>Coverage:</b> Arctic (50â€“90°N) <br>ArcticDEM is produced by the Polar Geospatial Center (PGC) at the University of Minnesota using high-resolution commercial stereo satellite imagery from DigitalGlobe. The V4.1 mosaic represents the best-available composite 2m elevation surface for the Arctic, compiled from imagery acquired between 2012 and 2020. Particularly useful for monitoring permafrost dynamics, glacier change, and coastal erosion. Funded by the National Science Foundation (NSF). (<a href='https://developers.google.com/earth-engine/datasets/catalog/UMN_PGC_ArcticDEM_V4_2m_mosaic'>Source</a>)",
+    "coverage_bbox": [
+      -180,
+      50,
+      180,
+      90
+    ]
+  },
+  {
+    "name": "ArcticDEM Strips V3 (2m)",
+    "collection": "UMN/PGC/ArcticDEM/V3/2m",
+    "band": "elevation",
+    "is_collection": true,
+    "is_global": false,
+    "resolution": 2,
+    "coverage": "Arctic (50â€“90°N)",
+    "source": "University of Minnesota PGC / NSF",
+    "description": "Individual 2m strip DEMs for the Arctic from stereo satellite imagery (2009-2017)",
+    "info": "<b>Resolution:</b> 2 meters <br><b>Coverage:</b> Arctic (50â€“90°N) <br>ArcticDEM Strips V3 consists of individual 2m resolution DEM strips derived from commercial stereo satellite imagery by the Polar Geospatial Center (PGC) at the University of Minnesota. Unlike the mosaic product, each strip retains its acquisition timestamp (2009â€“2017), enabling temporal change detection and time-series analysis of Arctic terrain changes such as thermokarst formation, ice loss, and permafrost thaw. Funded by the National Science Foundation. (<a href='https://developers.google.com/earth-engine/datasets/catalog/UMN_PGC_ArcticDEM_V3_2m'>Source</a>)",
+    "coverage_bbox": [
+      -180,
+      50,
+      180,
+      90
+    ]
+  },
+  {
+    "name": "REMA Strips v1 (2m)",
+    "collection": "UMN/PGC/REMA/V1/2m",
+    "band": "elevation",
+    "is_collection": true,
+    "is_global": false,
+    "resolution": 2,
+    "coverage": "Antarctica (south of 60°S)",
+    "source": "University of Minnesota PGC / NSF",
+    "description": "Individual 2m strip DEMs for Antarctica from stereo optical imagery (2009-2018)",
+    "info": "<b>Resolution:</b> 2 meters <br><b>Coverage:</b> Antarctica (south of 60°S) <br>REMA Strips V1 at 2m resolution consists of individual time-stamped DEM strips for Antarctica, produced by the Polar Geospatial Center (PGC) from commercial stereo imagery acquired between 2009 and 2018. Each strip preserves the original acquisition date, enabling temporal change detection at very high resolution. Suitable for detailed local studies of glacier dynamics, surface mass balance, and ice shelf evolution across Antarctica. (<a href='https://developers.google.com/earth-engine/datasets/catalog/UMN_PGC_REMA_V1_2m'>Source</a>)",
+    "coverage_bbox": [
+      -180,
+      -90,
+      180,
+      -60
+    ]
+  },
+  {
+    "name": "Australia 5m DEM",
+    "collection": "AU/GA/AUSTRALIA_5M_DEM",
+    "band": "elevation",
+    "is_collection": true,
+    "is_global": false,
+    "resolution": 5,
+    "coverage": "Australia",
+    "source": "Geoscience Australia",
+    "description": "High-resolution 5m DEM for Australia derived from LiDAR and photogrammetry data",
+    "info": "<b>Resolution:</b> 5 meters <br><b>Coverage:</b> Australia <br>The Geoscience Australia 5m DEM is a high-resolution terrain model produced from airborne LiDAR surveys and photogrammetric data across Australia. It is part of the National Elevation Data Framework (NEDF) initiative, which aims to provide consistent, high-accuracy elevation data for Australia. Coverage continues to expand as new LiDAR surveys are completed, particularly in coastal, floodplain, and densely populated areas. (<a href='https://developers.google.com/earth-engine/datasets/catalog/AU_GA_AUSTRALIA_5M_DEM'>Source</a>)",
+    "coverage_bbox": [
+      112.0,
+      -44.0,
+      154.0,
+      -10.0
+    ]
+  },
+  {
+    "name": "REMA Mosaic v1.1 (8m)",
+    "collection": "UMN/PGC/REMA/V1_1/8m",
+    "band": "elevation",
+    "is_collection": false,
+    "is_global": false,
+    "resolution": 8,
+    "coverage": "Antarctica (south of 60°S)",
+    "source": "University of Minnesota PGC / NSF",
+    "description": "Reference Elevation Model of Antarctica 8m mosaic from stereo optical imagery (2009-2018)",
+    "info": "<b>Resolution:</b> 8 meters <br><b>Coverage:</b> Antarctica (south of 60°S) <br>The Reference Elevation Model of Antarctica (REMA) is produced by the Polar Geospatial Center (PGC) at the University of Minnesota from DigitalGlobe stereo satellite imagery. The V1.1 mosaic at 8m resolution provides nearly complete coverage of Antarctica south of 60°S and is the most detailed and accurate DEM available for the continent. Essential for ice sheet dynamics, subglacial topography research, and climate change impact studies. Funded by the National Science Foundation. (<a href='https://developers.google.com/earth-engine/datasets/catalog/UMN_PGC_REMA_V1_1_8m'>Source</a>)",
+    "coverage_bbox": [
+      -180,
+      -90,
+      180,
+      -60
+    ]
+  },
+  {
+    "name": "REMA Strips v1 (8m)",
+    "collection": "UMN/PGC/REMA/V1/8m",
+    "band": "elevation",
+    "is_collection": true,
+    "is_global": false,
+    "resolution": 8,
+    "coverage": "Antarctica (south of 60°S)",
+    "source": "University of Minnesota PGC / NSF",
+    "description": "Individual 8m strip DEMs for Antarctica from stereo optical imagery (2009-2018)",
+    "info": "<b>Resolution:</b> 8 meters <br><b>Coverage:</b> Antarctica (south of 60°S) <br>REMA Strips V1 at 8m resolution provides individual time-stamped DEM strips covering Antarctica, produced by the Polar Geospatial Center (PGC) from DigitalGlobe stereo imagery between 2009 and 2018. This dataset combines broader temporal coverage with sufficient resolution for monitoring ice sheet changes, glacier surface velocities, and regional surface mass balance at the continental scale. (<a href='https://developers.google.com/earth-engine/datasets/catalog/UMN_PGC_REMA_V1_8m'>Source</a>)",
+    "coverage_bbox": [
+      -180,
+      -90,
+      180,
+      -60
+    ]
+  },
+  {
+    "name": "USGS 3DEP 10m",
+    "collection": "USGS/3DEP/10m_collection",
+    "band": "elevation",
+    "is_collection": true,
+    "is_global": false,
+    "resolution": 10,
+    "coverage": "USA (contiguous + Alaska + Hawaii)",
+    "source": "USGS",
+    "description": "3D Elevation Program 10m DEM for the contiguous US, Alaska, and Hawaii",
+    "info": "<b>Resolution:</b> 10 meters (1/3 arc-second) <br><b>Coverage:</b> USA (contiguous + Alaska + Hawaii) <br>The USGS 3D Elevation Program (3DEP) 10m dataset provides near-complete elevation coverage of the conterminous United States, Hawaii, and Alaska at 1/3 arc-second resolution. It is compiled from multiple sources including LiDAR, IfSAR, and photogrammetric surveys. This collection supersedes the legacy National Elevation Dataset (NED) and serves as the standard national elevation reference for the United States. (<a href='https://developers.google.com/earth-engine/datasets/catalog/USGS_3DEP_10m_collection'>Source</a>)",
+    "coverage_bbox": [
+      -170.0,
+      18.0,
+      -65.0,
+      72.0
+    ]
+  },
+  {
+    "name": "Canadian Digital Elevation Model (CDEM)",
+    "collection": "NRCan/CDEM",
+    "band": "elevation",
+    "is_collection": true,
+    "is_global": false,
+    "resolution": 23,
+    "coverage": "Canada (41â€“84°N, 142â€“52°W)",
+    "source": "Natural Resources Canada",
+    "description": "Multi-resolution mosaic DEM for Canada derived from various sources (1945-2011)",
+    "info": "<b>Resolution:</b> ~23 meters (0.75 arc-second) <br><b>Coverage:</b> Canada (41â€“84°N, 142â€“52°W) <br>The Canadian Digital Elevation Model (CDEM) is produced by Natural Resources Canada and provides topographic information for the entire Canadian landmass. Derived from a variety of sources including 1:50,000 and 1:250,000 topographic maps and digital survey data collected between 1945 and 2011, the resolution varies from 0.75 to 3 arc-seconds depending on latitude and data availability. It is the national reference elevation dataset for Canada. (<a href='https://developers.google.com/earth-engine/datasets/catalog/NRCan_CDEM'>Source</a>)",
+    "coverage_bbox": [
+      -141.0,
+      41.7,
+      -52.0,
+      83.1
+    ]
+  },
+  {
+    "name": "Copernicus GLO-30",
+    "collection": "COPERNICUS/DEM/GLO30",
+    "band": "DEM",
+    "is_collection": true,
+    "is_global": true,
+    "resolution": 30,
+    "coverage": "Global",
+    "source": "ESA / Copernicus",
+    "description": "Copernicus DEM GLO-30 at 30m resolution, derived from TanDEM-X radar data (2011-2015)",
+    "info": "<b>Resolution:</b> 30 meters <br><b>Coverage:</b> Global <br>The Copernicus DEM is a Digital Surface Model (DSM) which represents the surface of the Earth including buildings, infrastructure and vegetation. This DEM is derived from an edited DSM named WorldDEM™, i.e. flattening of water bodies and consistent flow of rivers has been included. Editing of shore- and coastlines, special features such as airports and implausible terrain structures has also been applied. The WorldDEM product is based on radar satellite data acquired during the TanDEM-X Mission (2011â€“2015), funded by a Public Private Partnership between the German Aerospace Centre (DLR) and Airbus Defence and Space. (<a href='https://developers.google.com/earth-engine/datasets/catalog/COPERNICUS_DEM_GLO30'>Source</a>)",
+    "coverage_bbox": [
+      -180,
+      -90,
+      180,
+      90
+    ]
+  },
+  {
+    "name": "NASADEM",
+    "collection": "NASA/NASADEM_HGT/001",
+    "band": "elevation",
+    "is_collection": false,
+    "is_global": true,
+    "resolution": 30,
+    "coverage": "Global (60°N to 56°S)",
+    "source": "NASA / USGS",
+    "description": "Reprocessed SRTM data with improved void filling and vertical accuracy (2000)",
+    "info": "<b>Resolution:</b> 30 meters <br><b>Coverage:</b> Global (60°N to 56°S) <br>NASADEM is a reprocessed version of the Shuttle Radar Topography Mission (SRTM) data, produced using updated algorithms and auxiliary data to improve elevation accuracy and reduce data voids. The reprocessing leveraged ICESat/GLAS altimetry, PRISM optical data, and DTED to fill voids present in the original SRTM release. Data was originally acquired during the 11-day Space Shuttle Endeavour mission in February 2000. (<a href='https://developers.google.com/earth-engine/datasets/catalog/NASA_NASADEM_HGT_001'>Source</a>)",
+    "coverage_bbox": [
+      -180,
+      -56,
+      180,
+      60
+    ]
+  },
+  {
+    "name": "SRTM GL1 v003",
+    "collection": "USGS/SRTMGL1_003",
+    "band": "elevation",
+    "is_collection": false,
+    "is_global": true,
+    "resolution": 30,
+    "coverage": "Global (60°N to 56°S)",
+    "source": "NASA / USGS",
+    "description": "Shuttle Radar Topography Mission 1 arc-second global DEM (2000)",
+    "info": "<b>Resolution:</b> 30 meters <br><b>Coverage:</b> Global (60°N to 56°S) <br>The Shuttle Radar Topography Mission (SRTM) obtained near-global elevation data during an 11-day Space Shuttle Endeavour mission in February 2000 using a specially modified interferometric radar system. This dataset provides the 1 arc-second (~30m) global coverage Digital Elevation Model at version 3, which includes improved void filling. One of the most widely used global DEMs for terrain analysis and hydrological applications. (<a href='https://developers.google.com/earth-engine/datasets/catalog/USGS_SRTMGL1_003'>Source</a>)",
+    "coverage_bbox": [
+      -180,
+      -56,
+      180,
+      60
+    ]
+  },
+  {
+    "name": "CGIAR SRTM v4",
+    "collection": "CGIAR/SRTM90_V4",
+    "band": "elevation",
+    "is_collection": false,
+    "is_global": true,
+    "resolution": 90,
+    "coverage": "Global (60°N to 56°S)",
+    "source": "CGIAR-CSI",
+    "description": "SRTM 90m DEM with void-filling applied by CGIAR (2000)",
+    "info": "<b>Resolution:</b> 90 meters <br><b>Coverage:</b> Global (60°N to 56°S) <br>The CGIAR-CSI SRTM Version 4 is an enhanced version of the original NASA SRTM data at 3 arc-second (~90m) resolution. CGIAR-CSI applied a suite of void-filling algorithms using auxiliary data sources including ASTER GDEM, ICESat/GLAS, and interpolation methods to eliminate the data voids present in the original SRTM release. Version 4 provides near-complete global coverage and remains one of the most widely used 90m global terrain datasets. (<a href='https://developers.google.com/earth-engine/datasets/catalog/CGIAR_SRTM90_V4'>Source</a>)",
+    "coverage_bbox": [
+      -180,
+      -56,
+      180,
+      60
+    ]
+  },
+  {
+    "name": "ASTER GDEM v3",
+    "collection": "projects/sat-io/open-datasets/ASTER/GDEM",
+    "band": "b1",
+    "is_collection": false,
+    "is_global": true,
+    "resolution": 30,
+    "coverage": "Global (83°N to 83°S)",
+    "source": "NASA / METI (JAXA)",
+    "description": "Advanced Spaceborne Thermal Emission and Reflection Radiometer Global DEM v3 (1999-2011)",
+    "info": "<b>Resolution:</b> 30 meters <br><b>Coverage:</b> Global (83°N to 83°S) <br>The ASTER Global Digital Elevation Model Version 3 (GDEM V3) is a product of NASA and Japan's Ministry of Economy, Trade and Industry (METI). Generated from stereoscopic optical imagery collected by the ASTER sensor aboard the Terra satellite between 1999 and 2011, GDEM V3 improves on previous versions with additional stereo pairs and enhanced artifact reduction algorithms. Available as a community asset via Awesome GEE Community Catalog. (<a href='https://gee-community-catalog.org/projects/aster/'>Source</a>)",
+    "coverage_bbox": [
+      -180,
+      -83,
+      180,
+      83
+    ]
+  },
+  {
+    "name": "ALOS AW3D30 v4.1",
+    "collection": "JAXA/ALOS/AW3D30/V4_1",
+    "band": "DSM",
+    "is_collection": true,
+    "is_global": true,
+    "resolution": 30,
+    "coverage": "Global (82°N to 82°S)",
+    "source": "JAXA",
+    "description": "ALOS World 3D 30m DSM derived from PRISM optical stereo imagery (2006-2011)",
+    "info": "<b>Resolution:</b> 30 meters <br><b>Coverage:</b> Global (82°N to 82°S) <br>The ALOS World 3D â€“ 30m (AW3D30) is a global Digital Surface Model (DSM) produced by the Japan Aerospace Exploration Agency (JAXA) from panchromatic stereo images acquired by the PRISM sensor aboard the ALOS satellite between 2006 and 2011. Version 4.1 features improved void reduction and accuracy over earlier versions. As a DSM, it captures the top of surface features including vegetation and buildings, making it complementary to bare-earth DEMs. (<a href='https://developers.google.com/earth-engine/datasets/catalog/JAXA_ALOS_AW3D30_V4_1'>Source</a>)",
+    "coverage_bbox": [
+      -180,
+      -82,
+      180,
+      82
+    ]
+  },
+  {
+    "name": "Greenland GIMP DEM",
+    "collection": "OSU/GIMP/DEM",
+    "band": "elevation",
+    "is_collection": false,
+    "is_global": false,
+    "resolution": 30,
+    "coverage": "Greenland",
+    "source": "Ohio State University / NASA",
+    "description": "Greenland Ice Mapping Project DEM at 30m from ASTER and SPOT-5 imagery",
+    "info": "<b>Resolution:</b> 30 meters <br><b>Coverage:</b> Greenland <br>The Greenland Ice Mapping Project (GIMP) DEM is a 30m digital elevation model of the Greenland ice sheet and surrounding land areas, produced by Ohio State University with NASA support. Generated from ASTER and SPOT-5 stereo imagery collected between 2003 and 2009, it is a fundamental reference dataset for ice sheet mass balance studies, glaciological modelling, and monitoring changes in Greenland's ice sheet extent and outlet glacier dynamics. (<a href='https://developers.google.com/earth-engine/datasets/catalog/OSU_GIMP_DEM'>Source</a>)",
+    "coverage_bbox": [
+      -73,
+      59,
+      -12,
+      83
+    ]
+  },
+  {
+    "name": "Australia DEM-S (Smoothed)",
+    "collection": "AU/GA/DEM_1SEC/v10/DEM-S",
+    "band": "elevation",
+    "is_collection": false,
+    "is_global": false,
+    "resolution": 30,
+    "coverage": "Australia",
+    "source": "Geoscience Australia",
+    "description": "1 arc-second (~30m) smoothed DEM of Australia, hydrologically conditioned surface",
+    "info": "<b>Resolution:</b> 30 meters (1 arc-second) <br><b>Coverage:</b> Australia <br>The Geoscience Australia 1 arc-second DEM-S (Smoothed) is a hydrologically conditioned terrain model providing full national coverage of Australia at approximately 30m resolution. It has been smoothed to reduce noise while preserving terrain features, making it well suited for surface flow analysis, watershed delineation, and hydrological modelling across the continent. Derived from SRTM data with supplementary local sources. (<a href='https://developers.google.com/earth-engine/datasets/catalog/AU_GA_DEM_1SEC_v10_DEM-S'>Source</a>)",
+    "coverage_bbox": [
+      112.0,
+      -44.0,
+      154.0,
+      -10.0
+    ]
+  },
+  {
+    "name": "Australia DEM-H (Hydrologically Enforced)",
+    "collection": "AU/GA/DEM_1SEC/v10/DEM-H",
+    "band": "elevation",
+    "is_collection": false,
+    "is_global": false,
+    "resolution": 30,
+    "coverage": "Australia",
+    "source": "Geoscience Australia",
+    "description": "1 arc-second (~30m) hydrologically enforced DEM of Australia with stream and catchment consistency",
+    "info": "<b>Resolution:</b> 30 meters (1 arc-second) <br><b>Coverage:</b> Australia <br>The Geoscience Australia 1 arc-second DEM-H (Hydrologically Enforced) is a terrain model where stream networks and catchment boundaries have been explicitly enforced to guarantee hydrological consistency. Water flows correctly downhill and drainage divides are accurately represented throughout. This is the preferred dataset for catchment delineation, flood modelling, and streamflow analysis across Australia. (<a href='https://developers.google.com/earth-engine/datasets/catalog/AU_GA_DEM_1SEC_v10_DEM-H'>Source</a>)",
+    "coverage_bbox": [
+      112.0,
+      -44.0,
+      154.0,
+      -10.0
+    ]
+  },
+  {
+    "name": "GLOBathy Global Lakes Bathymetry",
+    "collection": "projects/sat-io/open-datasets/GLOBathy/GLOBathy_bathymetry",
+    "band": "b1",
+    "is_collection": false,
+    "is_global": true,
+    "resolution": 30,
+    "coverage": "Global (1.4 million waterbodies)",
+    "source": "GLOBathy / sat-io",
+    "description": "30m maximum depth bathymetry for 1.4 million global lakes and reservoirs (2022)",
+    "info": "<b>Resolution:</b> 30 meters <br><b>Coverage:</b> Global (1.4 million waterbodies) <br>GLOBathy is a global lake bathymetry dataset providing estimated maximum water depth for approximately 1.4 million lakes and reservoirs worldwide. Derived from HydroLAKES polygon boundaries and modelled using morphological relationships between lake shape and depth, it enables global-scale studies of freshwater storage, limnology, and aquatic ecosystems. Published in 2022 and available as a community asset via Awesome GEE Community Catalog. (<a href='https://gee-community-catalog.org/projects/globathy/'>Source</a>)",
+    "coverage_bbox": [
+      -180,
+      -90,
+      180,
+      90
+    ]
+  },
+  {
+    "name": "MERIT DEM v1.0.3",
+    "collection": "MERIT/DEM/v1_0_3",
+    "band": "dem",
+    "is_collection": false,
+    "is_global": true,
+    "resolution": 90,
+    "coverage": "Global (90°N to 60°S)",
+    "source": "University of Tokyo",
+    "description": "Multi-Error-Removed Improved-Terrain DEM with noise and artifact removal (SRTM/AW3D30 base)",
+    "info": "<b>Resolution:</b> 90 meters <br><b>Coverage:</b> Global (90°N to 60°S) <br>The Multi-Error-Removed Improved-Terrain (MERIT) DEM was developed at the University of Tokyo by removing multiple error components from SRTM and AW3D30 data, including absolute bias, stripe noise, speckle noise, and vegetation bias using satellite-based auxiliary datasets. The result is a high-accuracy global terrain model particularly suited for hydrological applications such as river network delineation, flood modelling, and catchment analysis. (<a href='https://developers.google.com/earth-engine/datasets/catalog/MERIT_DEM_v1_0_3'>Source</a>)",
+    "coverage_bbox": [
+      -180,
+      -60,
+      180,
+      90
+    ]
+  },
+  {
+    "name": "GMTED2010",
+    "collection": "USGS/GMTED2010_FULL",
+    "band": "be75",
+    "is_collection": false,
+    "is_global": true,
+    "resolution": 250,
+    "coverage": "Global (84°N to 56°S)",
+    "source": "USGS / NGA",
+    "description": "Global Multi-resolution Terrain Elevation Data 2010 at 7.5 arc-second resolution",
+    "info": "<b>Resolution:</b> 250 meters (7.5 arc-seconds) <br><b>Coverage:</b> Global (84°N to 56°S) <br>The Global Multi-resolution Terrain Elevation Data 2010 (GMTED2010) was developed jointly by the USGS and the National Geospatial-Intelligence Agency (NGA) as the successor to GTOPO30. Produced from multiple sources including SRTM, NED, CDED, and regional DEMs, it is available at 7.5, 15, and 30 arc-second resolutions. Seven statistical measures are provided per pixel (mean, minimum, maximum, median, standard deviation, systematic subsample, and breakline emphasis). (<a href='https://developers.google.com/earth-engine/datasets/catalog/USGS_GMTED2010_FULL'>Source</a>)",
+    "coverage_bbox": [
+      -180,
+      -56,
+      180,
+      84
+    ]
+  },
+  {
+    "name": "GTOPO30",
+    "collection": "USGS/GTOPO30",
+    "band": "elevation",
+    "is_collection": false,
+    "is_global": true,
+    "resolution": 1000,
+    "coverage": "Global",
+    "source": "USGS EROS",
+    "description": "Global 30 arc-second (~1km) DEM compiled from various raster and vector sources (1996)",
+    "info": "<b>Resolution:</b> 1000 meters (30 arc-seconds) <br><b>Coverage:</b> Global <br>GTOPO30 is a global digital elevation model with a horizontal grid spacing of 30 arc-seconds (approximately 1 km), completed in 1996 by the USGS EROS Data Center. It was compiled from multiple raster and vector sources of topographic information. Although superseded by SRTM and GMTED2010, GTOPO30 remains useful for global-scale analyses requiring full pole-to-pole coverage, since SRTM does not extend beyond 60°N or 56°S. (<a href='https://developers.google.com/earth-engine/datasets/catalog/USGS_GTOPO30'>Source</a>)",
+    "coverage_bbox": [
+      -180,
+      -90,
+      180,
+      90
+    ]
+  },
+  {
+    "name": "CryoSat-2 Antarctica DEM",
+    "collection": "CPOM/CryoSat2/ANTARCTICA_DEM",
+    "band": "elevation",
+    "is_collection": false,
+    "is_global": false,
+    "resolution": 1000,
+    "coverage": "Antarctica (south of 60°S)",
+    "source": "ESA CryoSat-2 / CPOM",
+    "description": "1km DEM of Antarctica derived from CryoSat-2 radar altimetry (2010-2016)",
+    "info": "<b>Resolution:</b> 1000 meters <br><b>Coverage:</b> Antarctica (south of 60°S) <br>This DEM of Antarctica is derived from radar altimetry data acquired by ESA's CryoSat-2 satellite between 2010 and 2016. Produced by the Centre for Polar Observation and Modelling (CPOM) at the University of Leeds, it provides continuous surface elevation measurements including areas of steep terrain where optical stereo sensors are limited. Useful for ice sheet mass balance studies and for comparing elevation change with earlier altimetry missions such as ICESat. (<a href='https://developers.google.com/earth-engine/datasets/catalog/CPOM_CryoSat2_ANTARCTICA_DEM'>Source</a>)",
+    "coverage_bbox": [
+      -180,
+      -90,
+      180,
+      -60
+    ]
+  },
+  {
+    "name": "ETOPO1",
+    "collection": "NOAA/NGDC/ETOPO1",
+    "band": "bedrock",
+    "is_collection": false,
+    "is_global": true,
+    "resolution": 1800,
+    "coverage": "Global (land + ocean)",
+    "source": "NOAA NGDC",
+    "description": "1 arc-minute global relief model of Earth's surface including ocean bathymetry (2008)",
+    "info": "<b>Resolution:</b> 1800 meters (1 arc-minute) <br><b>Coverage:</b> Global (land + ocean) <br>ETOPO1 is a 1 arc-minute global relief model that integrates land topography and ocean bathymetry, published by NOAA's National Geophysical Data Center in 2008. It is available in two versions: Ice Surface (top of Antarctic and Greenland ice sheets) and Bedrock (base of the ice sheets). Widely used for global geophysical, oceanographic, and climate applications where full-Earth relief including ocean floor is required. (<a href='https://developers.google.com/earth-engine/datasets/catalog/NOAA_NGDC_ETOPO1'>Source</a>)",
+    "coverage_bbox": [
+      -180,
+      -90,
+      180,
+      90
+    ]
+  }
+]

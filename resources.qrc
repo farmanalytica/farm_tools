@@ -1,5 +1,5 @@
 <RCC>
-    <qresource prefix="/plugins/farm_tools" >
+    <qresource prefix="/plugins/ravi" >
         <file>icon.png</file>
     </qresource>
 </RCC>

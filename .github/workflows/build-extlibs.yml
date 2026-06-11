@@ -1,0 +1,94 @@
+name: Build extlibs
+
+# Builds the tagged dependency bundles (extlibs-<cpXY>-<platform>.zip) that
+# extlibs_manager downloads at runtime. Run manually from the Actions tab.
+# Set "commit" = true to push the built zips back to main; otherwise they are
+# uploaded as workflow artifacts for manual review/commit.
+
+on:
+  workflow_dispatch:
+    inputs:
+      commit:
+        description: "Commit the built zips to main"
+        type: boolean
+        default: false
+
+jobs:
+  build:
+    name: ${{ matrix.os }} / py${{ matrix.py }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Windows — matches OSGeo4W QGIS (3.34/3.40/3.44 LTR=3.12, 3.46+=3.13).
+          # Python 3.9 (QGIS 3.28 LTR) is unsupported: agrigee-lite requires >=3.10.
+          - { os: windows-latest, py: "3.11" }
+          - { os: windows-latest, py: "3.12" }
+          - { os: windows-latest, py: "3.13" }
+          # Linux — distro QGIS (manylinux wheels work across distros)
+          - { os: ubuntu-latest, py: "3.11" }
+          - { os: ubuntu-latest, py: "3.12" }
+          - { os: ubuntu-latest, py: "3.13" }
+          # macOS (arm64 runner)
+          - { os: macos-latest, py: "3.12" }
+          - { os: macos-latest, py: "3.13" }
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.py }}
+
+      # macOS: the runner is arm64, but QGIS ships a universal2 Python that
+      # reports macosx-10.13-universal2. _PYTHON_HOST_PLATFORM makes
+      # sysconfig.get_platform() (and thus the bundle tag) match QGIS, and
+      # build_extlibs_zip.py forwards it to pip as --platform so universal2
+      # wheels are downloaded instead of the runner's arm64 wheels.
+      - name: Build tagged extlibs zip
+        env:
+          _PYTHON_HOST_PLATFORM: ${{ runner.os == 'macOS' && 'macosx-10.13-universal2' || '' }}
+        run: python build_extlibs_zip.py
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v5
+        with:
+          name: extlibs-${{ matrix.os }}-py${{ matrix.py }}
+          path: extlibs-*.zip
+          if-no-files-found: error
+
+  publish:
+    name: Commit zips to main
+    needs: build
+    # always() so a single flaky/unsupported target doesn't block committing the
+    # bundles that DID build; runtime pip fallback covers any missing tag.
+    if: ${{ always() && inputs.commit }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Download all build artifacts
+        uses: actions/download-artifact@v5
+        with:
+          path: _extlibs_dl
+          merge-multiple: true
+
+      - name: Move zips to repo root
+        run: |
+          cp _extlibs_dl/extlibs-*.zip .
+          rm -rf _extlibs_dl
+          ls -lh extlibs-*.zip
+
+      - name: Commit & push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add extlibs-*.zip
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "ci: rebuild extlibs bundles"
+            git push
+          fi
