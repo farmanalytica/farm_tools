@@ -43,9 +43,8 @@ Install from the QGIS Plugin Manager, or clone into the QGIS plugin directory:
 <QGIS profile>/python/plugins/farm_tools
 ```
 
-On first activation FARM tools provisions its dependency bundle from the zip
-shipped in the plugin folder (or downloads / pip-installs as a fallback), then
-prompts for Earth Engine sign-in.
+On first activation FARM tools downloads its dependency bundle (or pip-installs
+as a fallback), then prompts for Earth Engine sign-in.
 
 ---
 
@@ -221,9 +220,8 @@ FARM tools needs packages **not shipped with QGIS** (`earthengine-api`, `agrigee
 version, so a single bundle breaks across QGIS releases. `extlibs_manager.py`
 resolves this at runtime, in order:
 
-1. **Use a tagged prebuilt bundle** — `extlibs-<cpXY>-<platform>.zip` matching the
-   running interpreter (`cp312-win_amd64`, …). The bundle shipped in the plugin
-   folder is used first; if absent, the matching tagged bundle is downloaded.
+1. **Download a tagged prebuilt bundle** — `extlibs-<cpXY>-<platform>.zip`
+   matching the running interpreter (`cp312-win_amd64`, …) from the repository.
 2. **Fallback to pip** — install `requirements.txt` into `extlibs/` using the
    QGIS Python.
 3. Otherwise show manual instructions.

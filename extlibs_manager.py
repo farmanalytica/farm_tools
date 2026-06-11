@@ -28,7 +28,7 @@ import zipfile
 
 from qgis.PyQt.QtCore import QThread, pyqtSignal
 
-BASE_URL = "https://github.com/farmanalytica/ravi-qgis-plugin/raw/main/"
+BASE_URL = "https://github.com/farmanalytica/farm_tools/raw/main/"
 _PLUGIN_DIR = os.path.dirname(__file__)
 EXTLIBS_PATH = os.path.join(_PLUGIN_DIR, "extlibs")
 _SENTINEL = os.path.join(EXTLIBS_PATH, ".ready")
@@ -151,16 +151,6 @@ class ExtlibsDownloader(QThread):
 
     # -- step 1: tagged prebuilt zip ------------------------------------
     def _try_tagged_zip(self) -> bool:
-        # Prefer the zip bundled in the plugin folder (offline, self-contained);
-        # fall back to downloading the tagged zip from the repo.
-        local_zip = os.path.join(_PLUGIN_DIR, f"extlibs-{current_tag()}.zip")
-        if os.path.isfile(local_zip):
-            try:
-                self._extract_zip(local_zip)
-                return True
-            except Exception:
-                pass
-
         url = BASE_URL + f"extlibs-{current_tag()}.zip"
         if not url.startswith("https://"):
             return False
@@ -168,7 +158,13 @@ class ExtlibsDownloader(QThread):
         try:
             with urllib.request.urlopen(url) as resp, open(zip_path, "wb") as f:  # nosec B310
                 f.write(resp.read())
-            self._extract_zip(zip_path)
+            with zipfile.ZipFile(zip_path, "r") as zf:
+                names = zf.namelist()
+                if names and names[0].startswith("extlibs/"):
+                    zf.extractall(_PLUGIN_DIR)
+                else:
+                    os.makedirs(EXTLIBS_PATH, exist_ok=True)
+                    zf.extractall(EXTLIBS_PATH)
             return True
         except Exception:
             return False
@@ -178,15 +174,6 @@ class ExtlibsDownloader(QThread):
                     os.remove(zip_path)
                 except OSError:
                     pass
-
-    def _extract_zip(self, zip_path: str) -> None:
-        with zipfile.ZipFile(zip_path, "r") as zf:
-            names = zf.namelist()
-            if names and names[0].startswith("extlibs/"):
-                zf.extractall(_PLUGIN_DIR)
-            else:
-                os.makedirs(EXTLIBS_PATH, exist_ok=True)
-                zf.extractall(EXTLIBS_PATH)
 
     # -- step 2: runtime pip into extlibs/ ------------------------------
     def _try_pip(self) -> bool:
