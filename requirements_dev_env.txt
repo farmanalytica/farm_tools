@@ -1,0 +1,11 @@
+ee-s1-ard>=1.0.5
+earthengine-api
+geemap
+geopandas
+ipython
+nbformat>=4.2.0
+numpy
+pandas
+plotly
+requests
+scipy

@@ -1,0 +1,10 @@
+#earthengine-api>=0.1.335
+#ee-s1-ard>=1.0.5
+# Pinned to 3.0.0: 3.0.1 hard-depends on geopolars==0.1.0a4, whose wheel ships
+# invalid metadata (`pyarrow>=4.0.*`) that pip>=24.1 rejects, and NO pip version
+# supports both Python 3.13 and that metadata -> 3.0.1 cannot build cleanly.
+# 3.0.0 requires pandas>=3.0.0, and pandas 3.x ships no universal2 macOS wheel
+# (only arm64/x86_64). pandas is QGIS-provided and stripped, so the macOS
+# universal2 build in build_extlibs_zip.py adds arch-platform fallbacks purely
+# to let pip resolve it. Linux/Windows resolve cleanly.
+agrigee-lite==3.0.0
