@@ -88,14 +88,14 @@ def _build_intro_section():
     lay.setContentsMargins(18, 14, 18, 14)
     lay.setSpacing(10)
 
-    title = QLabel(_tr("Welcome to RAVI"))
+    title = QLabel(_tr("Welcome to FARM tools"))
     title.setStyleSheet("color: #1a1a1a; font-size: 18px; font-weight: bold;")
     lay.addWidget(title)
 
     story = QLabel(
         _tr(
-            "<b>RAVI</b> (Remote Analysis of Vegetation Indices) began as the "
-            "undergraduate thesis of "
+            "<b>FARM tools</b> (formerly RAVI — Remote Analysis of Vegetation Indices) "
+            "began as the undergraduate thesis of "
             "<a href='{caio}' style='{ls}'>Caio Arantes</a>, supervised by "
             "<a href='{lucas}' style='{ls}'>Prof. Dr. Lucas dos Rios Amaral</a>, "
             "and is now an open-source project maintained with the support of "
