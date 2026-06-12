@@ -92,6 +92,22 @@ def _strip(target):
                     pass
 
 
+def patch_climdex(target):
+    """climdex uses the deprecated '1M' offset; pandas 3.x rejects it and 9 of
+    17 indices fail silently. Replace with 'ME'. Idempotent."""
+    base = os.path.join(target, "climdex")
+    for name in ("precipitation.py", "temperature.py"):
+        f = os.path.join(base, name)
+        if not os.path.isfile(f):
+            continue
+        with open(f, "r", encoding="utf-8") as fh:
+            c = fh.read()
+        if "'1M'" in c:
+            with open(f, "w", encoding="utf-8") as fh:
+                fh.write(c.replace("'1M'", "'ME'"))
+            print(f"Patched climdex/{name} ('1M' -> 'ME')")
+
+
 def full_build():
     tag = current_tag()
     # Write to the plugin root (committed + served by the raw GitHub URL that
@@ -121,6 +137,7 @@ def full_build():
             print(f"cross-target platform {pip_plat} (resolve via {plats})")
         subprocess.run(cmd, check=True)
         _strip(build)
+        patch_climdex(build)
         zip_dir(build, out)
         print(f"Done: extlibs-{tag}.zip")
     finally:

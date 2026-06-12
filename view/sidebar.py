@@ -93,6 +93,7 @@ class Sidebar(QFrame):
         dem_requested: emitted when the user clicks Download DEM.
         landsat_requested: emitted when the user clicks Landsat (Super-Res).
         fieldguide_requested: emitted when the user clicks Field Guide.
+        climaplots_requested: emitted when the user clicks ClimaPlots.
     """
 
     auth_requested = pyqtSignal()
@@ -102,6 +103,7 @@ class Sidebar(QFrame):
     dem_requested = pyqtSignal()
     landsat_requested = pyqtSignal()
     fieldguide_requested = pyqtSignal()
+    climaplots_requested = pyqtSignal()
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -177,6 +179,10 @@ class Sidebar(QFrame):
         self.btn_fieldguide.clicked.connect(self.fieldguide_requested.emit)
         lay.addWidget(self.btn_fieldguide)
 
+        self.btn_climaplots = self._make_button(_tr("ClimaPlots"), "climaplots")
+        self.btn_climaplots.clicked.connect(self.climaplots_requested.emit)
+        lay.addWidget(self.btn_climaplots)
+
         self._group = QButtonGroup(self)
         self._group.setExclusive(True)
         self._group.addButton(self.btn_auth)
@@ -186,6 +192,7 @@ class Sidebar(QFrame):
         self._group.addButton(self.btn_download)
         self._group.addButton(self.btn_landsat)
         self._group.addButton(self.btn_fieldguide)
+        self._group.addButton(self.btn_climaplots)
 
         lay.addStretch()
 
@@ -279,6 +286,7 @@ class Sidebar(QFrame):
         self.btn_download.setChecked(page == "download")
         self.btn_landsat.setChecked(page == "landsat")
         self.btn_fieldguide.setChecked(page == "fieldguide")
+        self.btn_climaplots.setChecked(page == "climaplots")
         self._sync_brand_visibility()
 
     def enterEvent(self, event) -> None:
@@ -296,7 +304,7 @@ class Sidebar(QFrame):
         side_margin = 14 if expanded else 11
         self._layout.setContentsMargins(side_margin, 18, side_margin, 18)
 
-        for btn in (self.btn_auth, self.btn_optical, self.btn_sysi, self.btn_radar, self.btn_download, self.btn_landsat, self.btn_fieldguide):
+        for btn in (self.btn_auth, self.btn_optical, self.btn_sysi, self.btn_radar, self.btn_download, self.btn_landsat, self.btn_fieldguide, self.btn_climaplots):
             btn.setText(btn.property("navText") if expanded else "")
             btn.setToolTip("" if expanded else btn.property("navText"))
             btn.setFixedWidth(156 if expanded else 42)
@@ -490,6 +498,21 @@ class Sidebar(QFrame):
             painter.setPen(Qt.PenStyle.NoPen)
             painter.setBrush(QColor(color))
             painter.drawEllipse(QPointF(10, 8), 1.4, 1.4)
+        elif kind == "climaplots":
+            # Sun with rays + raindrop — evokes climate analysis.
+            painter.setPen(pen)
+            painter.drawEllipse(QPointF(7, 7), 3.0, 3.0)
+            painter.drawLine(QPointF(7, 1.5), QPointF(7, 3.0))
+            painter.drawLine(QPointF(1.5, 7), QPointF(3.0, 7))
+            painter.drawLine(QPointF(3.1, 3.1), QPointF(4.2, 4.2))
+            painter.drawLine(QPointF(10.9, 3.1), QPointF(9.8, 4.2))
+            painter.drawLine(QPointF(3.1, 10.9), QPointF(4.2, 9.8))
+            # Raindrop: rounded body with a peak at the top.
+            drop = QPainterPath()
+            drop.moveTo(13.5, 9.5)
+            drop.cubicTo(11.0, 13.0, 11.0, 15.0, 13.5, 17.0)
+            drop.cubicTo(16.0, 15.0, 16.0, 13.0, 13.5, 9.5)
+            painter.drawPath(drop)
         else:
             painter.setPen(pen)
             painter.drawLine(10, 3, 10, 12)

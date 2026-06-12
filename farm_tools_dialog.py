@@ -44,6 +44,7 @@ from qgis.PyQt.QtWidgets import (
 from .managers.settings_manager import SettingsManager
 
 from .view.auth import setup_auth_page
+from .view.climaplots import setup_climaplots_page
 from .view.download_dem import setup_download_dem_page
 from .view.fieldguide import setup_fieldguide_page
 from .view.landsat import setup_landsat_page
@@ -179,6 +180,7 @@ class FarmToolsDialog(QDialog):
         self.sidebar.dem_requested.connect(self._nav_to_dem)
         self.sidebar.landsat_requested.connect(self._nav_to_landsat)
         self.sidebar.fieldguide_requested.connect(self._nav_to_fieldguide)
+        self.sidebar.climaplots_requested.connect(self._nav_to_climaplots)
         body_layout.addWidget(self.sidebar)
 
         content_container = QWidget()
@@ -206,6 +208,7 @@ class FarmToolsDialog(QDialog):
         self.dem_page = QWidget()
         self.landsat_page = QWidget()
         self.fieldguide_page = QWidget()
+        self.climaplots_page = QWidget()
 
         setup_auth_page(self, self.auth_page)
         setup_optical_page(self, self.optical_page)
@@ -214,6 +217,7 @@ class FarmToolsDialog(QDialog):
         setup_download_dem_page(self, self.dem_page)
         setup_landsat_page(self, self.landsat_page)
         setup_fieldguide_page(self, self.fieldguide_page)
+        setup_climaplots_page(self, self.climaplots_page)
 
         self.stack.addWidget(self.loading_page)
         self.stack.addWidget(self.auth_page)
@@ -223,6 +227,7 @@ class FarmToolsDialog(QDialog):
         self.stack.addWidget(self.dem_page)
         self.stack.addWidget(self.landsat_page)
         self.stack.addWidget(self.fieldguide_page)
+        self.stack.addWidget(self.climaplots_page)
         self.stack.currentChanged.connect(self._sync_page_state)
 
         self.stack.setCurrentWidget(self.auth_page)
@@ -461,6 +466,10 @@ class FarmToolsDialog(QDialog):
         """Switch the stacked widget to the Field Guide page."""
         self.stack.setCurrentWidget(self.fieldguide_page)
 
+    def show_climaplots_page(self):
+        """Switch the stacked widget to the ClimaPlots page."""
+        self.stack.setCurrentWidget(self.climaplots_page)
+
     def _nav_to_auth(self):
         """Sidebar auth button — always navigates to the auth page."""
         self.show_auth_page()
@@ -492,12 +501,17 @@ class FarmToolsDialog(QDialog):
         """Sidebar Field Guide button — always navigates to the Field Guide page."""
         self.show_fieldguide_page()
 
+    def _nav_to_climaplots(self):
+        """Sidebar ClimaPlots button — always navigates to the ClimaPlots page."""
+        self.show_climaplots_page()
+
     def _sync_page_state(self, index):
         """Keep header and sidebar state aligned with the current stack page."""
         current = self.stack.widget(index)
 
-        # Proxy settings are only relevant on the auth page (network setup).
-        self.proxy_btn.setVisible(current is self.auth_page)
+        # Proxy settings matter on the auth page (network setup) and on the
+        # ClimaPlots page (its data fetchers honor the same proxy).
+        self.proxy_btn.setVisible(current in (self.auth_page, self.climaplots_page))
 
         if current is self.loading_page:
             self._header_title.setText(_tr("Setting up…"))
@@ -544,6 +558,12 @@ class FarmToolsDialog(QDialog):
         if current is self.fieldguide_page:
             self._header_title.setText(_tr("Field Guide"))
             self.sidebar.set_active_page("fieldguide")
+            self.footer.setVisible(False)
+            return
+
+        if current is self.climaplots_page:
+            self._header_title.setText(_tr("ClimaPlots"))
+            self.sidebar.set_active_page("climaplots")
             self.footer.setVisible(False)
 
 

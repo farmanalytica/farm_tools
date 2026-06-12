@@ -144,6 +144,12 @@ class FarmTools:
                 self.fieldguide_ctrl.cleanup()
             except Exception:
                 pass
+        if getattr(self, "climaplots_ctrl", None) is not None:
+            # Release the pick tool, markers, temp charts, and any worker.
+            try:
+                self.climaplots_ctrl.cleanup()
+            except Exception:
+                pass
         QCoreApplication.removeTranslator(self._translator)
         for action in self.actions:
             self.interface.removePluginMenu("&FARM tools", action)
@@ -158,6 +164,7 @@ class FarmTools:
         from .controllers.landsat_ctrl import LandsatCtrl
         from .controllers.sysi_ctrl import SYSICtrl
         from .controllers.fieldguide_ctrl import FieldGuideCtrl
+        from .controllers.climaplots_ctrl import ClimaPlotsCtrl
 
         self._services_ready = True
         self.gee_service = GEEService()
@@ -168,6 +175,7 @@ class FarmTools:
         self.landsat_ctrl = LandsatCtrl(self.dialog, self.interface, self.gee_service)
         self.sysi_ctrl = SYSICtrl(self.dialog, self.interface, self.gee_service)
         self.fieldguide_ctrl = FieldGuideCtrl(self.dialog, self.interface)
+        self.climaplots_ctrl = ClimaPlotsCtrl(self.dialog, self.interface)
 
         saved_project_id = self.gee_service.get_saved_project_id()
         if saved_project_id:
@@ -384,6 +392,18 @@ class FarmTools:
         self.dialog.fg_btn_mark_samples.clicked.connect(
             self.fieldguide_ctrl.handle_mark_samples
         )
+        self.dialog.fg_layer_combo.layerChanged.connect(
+            self.fieldguide_ctrl.handle_polygon_layer_changed
+        )
+        self.dialog.fg_raster_layer_combo.layerChanged.connect(
+            self.fieldguide_ctrl.handle_raster_layer_changed
+        )
+        self.dialog.fg_raster_band_selector.valueChanged.connect(
+            self.fieldguide_ctrl.handle_raster_band_changed
+        )
+        self.dialog.fg_use_raster_selection_checkbox.toggled.connect(
+            self.fieldguide_ctrl.handle_use_raster_selection_toggled
+        )
         self.dialog.fg_btn_remove_last.clicked.connect(
             self.fieldguide_ctrl.handle_remove_last
         )
@@ -417,6 +437,74 @@ class FarmTools:
         )
         self.dialog.fg_points_list.itemSelectionChanged.connect(
             self.fieldguide_ctrl.handle_selection_changed
+        )
+
+        self.dialog.cp_btn_pick_a.toggled.connect(
+            self.climaplots_ctrl.handle_pick_a_toggled
+        )
+        self.dialog.cp_btn_pick_b.toggled.connect(
+            self.climaplots_ctrl.handle_pick_b_toggled
+        )
+        self.dialog.cp_btn_copy_a_to_b.clicked.connect(
+            self.climaplots_ctrl.handle_copy_a_to_b
+        )
+        self.dialog.cp_btn_clear_marker.clicked.connect(
+            self.climaplots_ctrl.handle_clear_marker
+        )
+        self.dialog.cp_btn_hybrid_layer.clicked.connect(
+            self.dem_ctrl.handle_hybrid_layer
+        )
+        self.dialog.cp_btn_run.clicked.connect(self.climaplots_ctrl.handle_run)
+        self.dialog.cp_source_combo_a.currentIndexChanged.connect(
+            self.climaplots_ctrl.handle_sync_year_range
+        )
+        self.dialog.cp_source_combo_b.currentIndexChanged.connect(
+            self.climaplots_ctrl.handle_sync_year_range
+        )
+        self.dialog.cp_var_combo.currentTextChanged.connect(
+            self.climaplots_ctrl.plots1
+        )
+        self.dialog.cp_var_combo.currentTextChanged.connect(
+            self.climaplots_ctrl.handle_update_var_desc
+        )
+        self.dialog.cp_index_combo.currentTextChanged.connect(
+            self.climaplots_ctrl.plots3
+        )
+        self.dialog.cp_index_combo.currentTextChanged.connect(
+            self.climaplots_ctrl.handle_update_index_desc
+        )
+        self.dialog.cp_btn_browser_trends.clicked.connect(
+            lambda: self.climaplots_ctrl.handle_open_in_browser(1)
+        )
+        self.dialog.cp_btn_browser_thermo.clicked.connect(
+            lambda: self.climaplots_ctrl.handle_open_in_browser(2)
+        )
+        self.dialog.cp_btn_browser_indices.clicked.connect(
+            lambda: self.climaplots_ctrl.handle_open_in_browser(3)
+        )
+        self.dialog.cp_btn_csv_trends.clicked.connect(
+            self.climaplots_ctrl.handle_save_csv_trends
+        )
+        self.dialog.cp_btn_csv_thermo.clicked.connect(
+            self.climaplots_ctrl.handle_save_csv_thermo
+        )
+        self.dialog.cp_btn_csv_indices.clicked.connect(
+            self.climaplots_ctrl.handle_save_csv_indices
+        )
+        self.dialog.cp_btn_csv_raw.clicked.connect(
+            self.climaplots_ctrl.handle_save_csv_raw
+        )
+        self.dialog.cp_btn_png_trends.clicked.connect(
+            lambda: self.climaplots_ctrl.handle_save_png(1)
+        )
+        self.dialog.cp_btn_png_thermo.clicked.connect(
+            lambda: self.climaplots_ctrl.handle_save_png(2)
+        )
+        self.dialog.cp_btn_png_indices.clicked.connect(
+            lambda: self.climaplots_ctrl.handle_save_png(3)
+        )
+        self.dialog.cp_btn_export_all.clicked.connect(
+            self.climaplots_ctrl.handle_export_all
         )
 
         self.auth_ctrl.refresh_auth_status()
