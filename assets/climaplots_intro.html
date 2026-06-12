@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<style>
+  html, body { margin: 0; padding: 0; background: #ffffff; }
+  body {
+    font-family: "Segoe UI", Arial, sans-serif;
+    color: #424242; font-size: 13px; line-height: 1.55;
+    padding: 18px 26px;
+  }
+  h1 { color: #1b6b39; font-size: 22px; margin: 0 0 2px; }
+  .sub { color: #1e7d42; font-size: 13px; margin: 0 0 16px; }
+  h2 {
+    color: #1b6b39; font-size: 14px; margin: 18px 0 6px;
+    border-bottom: 1px solid #e0e0e0; padding-bottom: 3px;
+  }
+  p { margin: 6px 0; }
+  ol { margin: 6px 0 6px 4px; padding-left: 20px; }
+  li { margin: 4px 0; }
+  b { color: #1b6b39; }
+  .cite {
+    margin-top: 18px; padding: 12px 14px;
+    background: #e8f5e9; border: 1px solid #a5d6a7; border-radius: 8px;
+    font-size: 12px;
+  }
+  .cite a { color: #1b6b39; font-weight: bold; text-decoration: none; }
+  code {
+    background: #f1f5f2; border-radius: 4px; padding: 1px 5px;
+    font-size: 12px; color: #1b6b39;
+  }
+</style>
+</head>
+<body>
+  <h1>ClimaPlots</h1>
+  <p class="sub">Climate analysis from NASA POWER and Open-Meteo (ERA5), inside QGIS.</p>
+
+  <p>
+    ClimaPlots fetches decades of daily climate data for any point on the map
+    and turns it into interactive charts &mdash; no coding required. Choose
+    between two data sources: <b>NASA POWER</b> (from 1981) and
+    <b>Open-Meteo (ERA5)</b> (from 1940).
+  </p>
+
+  <h2>What it produces</h2>
+  <p><b>Annual trends</b> for temperature, precipitation, relative humidity,
+     irradiation, wind speed, reference ET&#8320; and growing degree days, each
+     annotated with <b>Mann&ndash;Kendall</b> trend and <b>Pettitt</b>
+     homogeneity tests.</p>
+  <p><b>Thermo-pluviometric diagram</b> &mdash; the mean monthly precipitation
+     and temperature regime of the location.</p>
+  <p><b>Climate indices</b> &mdash; ETCCDI temperature and precipitation indices
+     plus the Standardized Precipitation Index (SPI).</p>
+
+  <h2>Compare two locations or two sources</h2>
+  <p>Add an optional <b>comparison point B</b> to overlay a second series on the
+     Trends chart, with trend statistics reported for both points. B can use its
+     own data source, so the <i>same</i> location can be compared across NASA
+     POWER and Open-Meteo &mdash; use <b>Same location as A</b> to copy point A's
+     coordinates without re-clicking the map.</p>
+
+  <h2>Quick start</h2>
+  <ol>
+    <li>Open the <b>Coordinates</b> tab and pick a <b>data source</b>.</li>
+    <li>Click <b>Pick point on map</b> and click a location on the canvas
+        (or type the longitude/latitude manually).</li>
+    <li>Optionally set a <b>comparison point B</b> &mdash; pick it on the map,
+        or press <b>Same location as A</b>.</li>
+    <li>Press <b>Run Analysis</b> and wait while the data is downloaded.</li>
+    <li>Browse the <b>Trends</b>, <b>Thermo-pluviometric</b> and
+        <b>Climate Indices</b> tabs. Use <b>Open in browser</b> for a
+        full-screen chart, or <b>Save chart data</b> to export a CSV.</li>
+  </ol>
+  <p>Behind a corporate network? Set a proxy via <b>Proxy settings</b> in the
+     top-right corner.</p>
+
+  <div class="cite">
+    <b>Citation</b> &mdash; publications that use this tool must cite:<br>
+    <a href="https://doi.org/10.1590/1678-4499.20250223">
+      https://doi.org/10.1590/1678-4499.20250223</a>
+  </div>
+</body>
+</html>

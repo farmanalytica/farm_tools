@@ -17,6 +17,7 @@ Strategy, in order:
 The active build is recorded in ``extlibs/.ready`` together with its tag, so a
 QGIS Python upgrade (different tag) re-provisions automatically.
 """
+import hashlib
 import importlib
 import os
 import shutil
@@ -49,6 +50,19 @@ def current_tag() -> str:
     return f"cp{sys.version_info.major}{sys.version_info.minor}-{plat}"
 
 
+def _req_fingerprint() -> str:
+    """Short hash of requirements.txt so a dependency change re-provisions."""
+    try:
+        with open(_REQUIREMENTS, "rb") as f:
+            return hashlib.md5(f.read()).hexdigest()[:8]  # nosec B324
+    except Exception:
+        return ""
+
+
+def _expected_sentinel() -> str:
+    return current_tag() + "|" + _req_fingerprint()
+
+
 def _read_ready_tag():
     try:
         with open(_SENTINEL, "r", encoding="utf-8") as f:
@@ -58,12 +72,15 @@ def _read_ready_tag():
 
 
 def is_ready() -> bool:
-    """Provisioned for THIS interpreter (tag matches)."""
+    """Provisioned for THIS interpreter AND this requirements set.
+
+    Legacy sentinels (empty or bare interpreter tag) predate the requirements
+    fingerprint and force a one-time re-provision so newly added packages are
+    picked up.
+    """
     if not os.path.isfile(_SENTINEL):
         return False
-    tag = _read_ready_tag()
-    # Legacy sentinels were empty; treat empty as ready (old single-target build).
-    return tag in ("", None, current_tag()) if tag is not None else False
+    return _read_ready_tag() == _expected_sentinel()
 
 
 def needs_provision() -> bool:
@@ -130,6 +147,26 @@ def _strip_qgis_provided(target):
         pass
 
 
+def _patch_climdex():
+    """climdex uses the deprecated '1M' offset; pandas 3.x rejects it and 9 of
+    17 indices fail silently. Replace with 'ME'. Idempotent. Applied after a
+    pip fallback, which pulls the UNPATCHED climdex (the prebuilt zips are
+    already patched by build_extlibs_zip.py)."""
+    base = os.path.join(EXTLIBS_PATH, "climdex")
+    for name in ("precipitation.py", "temperature.py"):
+        f = os.path.join(base, name)
+        if not os.path.isfile(f):
+            continue
+        try:
+            with open(f, "r", encoding="utf-8") as fh:
+                c = fh.read()
+            if "'1M'" in c:
+                with open(f, "w", encoding="utf-8") as fh:
+                    fh.write(c.replace("'1M'", "'ME'"))
+        except Exception:
+            pass
+
+
 class ExtlibsDownloader(QThread):
     download_done = pyqtSignal(bool, str)  # success, message
 
@@ -191,11 +228,12 @@ class ExtlibsDownloader(QThread):
         except Exception:
             return False
         _strip_qgis_provided(EXTLIBS_PATH)
+        _patch_climdex()
         return True
 
     def _finish_ok(self):
         os.makedirs(EXTLIBS_PATH, exist_ok=True)
         with open(_SENTINEL, "w", encoding="utf-8") as f:
-            f.write(current_tag())
+            f.write(_expected_sentinel())
         ensure_on_path()
         self.download_done.emit(True, "")

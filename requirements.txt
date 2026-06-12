@@ -8,3 +8,13 @@
 # universal2 build in build_extlibs_zip.py adds arch-platform fallbacks purely
 # to let pip resolve it. Linux/Windows resolve cleanly.
 agrigee-lite==3.0.0
+
+# ClimaPlots page: ETCCDI climate indices + trend/homogeneity statistics.
+# xarray and bottleneck are transitive deps of pyclimdex; listed explicitly so
+# the extlibs bundle stays deterministic. climdex needs the '1M'->'ME' pandas-3
+# patch applied by build_extlibs_zip.py / extlibs_manager.py after install.
+pymannkendall>=1.4.3
+pyhomogeneity>=1.1
+pyclimdex>=0.0.1
+xarray
+bottleneck
