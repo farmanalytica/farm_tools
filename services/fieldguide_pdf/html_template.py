@@ -15,8 +15,12 @@ def build_points_html(mark_items):
     return build_points_html_with_routes(mark_items, route_items=[])
 
 
-def build_points_html_with_routes(mark_items, route_items):
-    """Build styled HTML with optional all-stops route link cards."""
+def build_points_html_with_routes(mark_items, route_items, footer_note=None):
+    """Build styled HTML with optional all-stops route link cards.
+
+    ``footer_note`` (optional) renders as a muted footer paragraph after the
+    point list, e.g. for raster-based selection metadata.
+    """
     generated_at = datetime.now().strftime("%d/%m/%Y %H:%M")
 
     items_html = []
@@ -111,6 +115,13 @@ def build_points_html_with_routes(mark_items, route_items):
           border-radius: 9px;
           padding: 8px 14px;
         }}
+        .footer-note {{
+          font-size: 9pt;
+          color: #555;
+          border-top: 1px solid #ccc;
+          margin-top: 18px;
+          padding-top: 8px;
+        }}
       </style>
     </head>
     <body>
@@ -119,6 +130,7 @@ def build_points_html_with_routes(mark_items, route_items):
         <p class=\"meta\">{generated_at_label}: {generated_at} | {total_points_label}: {total}</p>
         {routes_section}
         <ul class=\"mark-list\">{items}</ul>
+        {footer_section}
       </div>
     </body>
     </html>
@@ -134,4 +146,9 @@ def build_points_html_with_routes(mark_items, route_items):
             else ''
         ),
         items="".join(items_html),
+        footer_section=(
+            '<p class="footer-note">{}</p>'.format(footer_note)
+            if footer_note
+            else ''
+        ),
     )
