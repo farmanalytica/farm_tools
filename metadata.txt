@@ -1,13 +1,13 @@
 [general]
 name=FARM tools
 qgisMinimumVersion=3.28
-description=Analysis of Vegetation Indices Time Series and download of multispectral imagery
-description_pt=Análise de séries temporais de índices de vegetação e download de imagens multiespectrais
-version=1.0
+description=Swiss-army toolbox of geo-analytics modules for research, education, agriculture, and land monitoring: vegetation index time series, multispectral/SAR/DEM downloads, bare-soil composites, climate plots, and field sampling
+description_pt=Canivete suíço de módulos de geoanálise para pesquisa, ensino, agricultura e monitoramento da terra: séries temporais de índices de vegetação, downloads multiespectrais/SAR/DEM, composições de solo exposto, gráficos climáticos e amostragem de campo
+version=1.1
 author=Bruna da Silva Brito Ribeiro, Caio Arantes, Isabella Alves da Cunha, Leandro Eloi, Lívia Scopel, Lucas Rios do Amaral, Mateus Pinto da Silva, Mateus Pinto da Silva
 email=caio.arantes@farmanalytica.com.br
 
-about=FARM tools is a QGIS plugin designed to integrate Google Earth Engine (GEE) resources, enabling efficient processing and visualization of geospatial data. Utilizing the Sentinel-2 harmonized surface reflectance catalog, the plugin supports time series vegetation index calculations and download of multispectral imagery. These features make it a tool for students, researchers, farmers, and professionals working in agriculture, land monitoring, or environmental management. / O FARM tools é um plugin do QGIS projetado para integrar recursos do Google Earth Engine (GEE), permitindo o processamento e a visualização eficientes de dados geoespaciais. Utilizando o catálogo de reflectância de superfície harmonizada do Sentinel-2, o plugin suporta cálculos de séries temporais de índices de vegetação e download de imagens multiespectrais. Esses recursos tornam-no uma ferramenta para estudantes, pesquisadores, agricultores e profissionais que trabalham com agricultura, monitoramento da terra ou gestão ambiental.
+about=FARM tools is a Swiss-army toolbox of geo-analytics modules for QGIS, bringing together the plugins supported by FARM Analytica in a single interface powered by Google Earth Engine (GEE). Modules include: Optical (Sentinel-2 vegetation index time series and multispectral imagery download), Landsat (long-term time series and imagery), SAR (Sentinel-1 radar analysis), DEM (elevation data download and terrain products), SYSI (synthetic bare-soil image composites), ClimaPlots (climate data charts), and Field Guide (field point capture, polygon sampling, raster-based optimal sampling points, and CSV/GPX/PDF exports). Built for students, researchers, farmers, and professionals working in agriculture, land monitoring, or environmental management. / O FARM tools é um canivete suíço de módulos de geoanálise para o QGIS, reunindo os plugins suportados pela FARM Analytica em uma única interface integrada ao Google Earth Engine (GEE). Os módulos incluem: Óptico (séries temporais de índices de vegetação Sentinel-2 e download de imagens multiespectrais), Landsat (séries temporais longas e imagens), SAR (análise de radar Sentinel-1), DEM (download de dados de elevação e produtos de terreno), SYSI (composições sintéticas de solo exposto), ClimaPlots (gráficos de dados climáticos) e Guia de Campo (captura de pontos em campo, amostragem de polígonos, pontos ótimos baseados em raster e exportações CSV/GPX/PDF). Desenvolvido para estudantes, pesquisadores, agricultores e profissionais que trabalham com agricultura, monitoramento da terra ou gestão ambiental.
 
 tracker=https://github.com/farmanalytica/farm_tools/issues
 repository=https://github.com/farmanalytica/farm_tools
@@ -18,12 +18,19 @@ repository=https://github.com/farmanalytica/farm_tools
 hasProcessingProvider=no
 # Uncomment the following line and add your changelog:
 changelog=
+    1.1 - Field Guide: raster-based optimal point selection (one point per
+          polygon at the location of maximum raster value, e.g. NDVI peak),
+          with band selection, no-data/sub-pixel/CRS edge-case handling, and
+          raster metadata in CSV/GPX/PDF exports. Field Guide documentation
+          added (docs/fieldguide.md). Plugin repositioned as a multi-module
+          geo-analytics toolbox (Optical, Landsat, SAR, DEM, SYSI, ClimaPlots,
+          Field Guide).
     1.0 - Initial release (fork of RAVI)
 
 # Tags are comma separated with spaces allowed
-tags=remote sensing, sentinel-2, google earth engine, vegetation index, ndvi, time series, agriculture, raster, sar, dem
+tags=remote sensing, sentinel-2, sentinel-1, landsat, google earth engine, vegetation index, ndvi, time series, agriculture, precision agriculture, field sampling, soil, climate, raster, sar, dem
 
-homepage=https://www.farmanalytica.com.br
+homepage=https://farmanalytica.github.io/farm_tools/
 category=Plugins
 icon=icon.png
 # experimental flag
