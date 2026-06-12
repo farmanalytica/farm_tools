@@ -10,12 +10,14 @@ logic to ``services/fieldguide_service.py``.
 import csv
 import os
 import traceback
+from datetime import datetime, timezone
 
 from qgis.core import Qgis, QgsMessageLog
-from qgis.PyQt.QtCore import QCoreApplication, QStandardPaths, QUrl
+from qgis.PyQt.QtCore import QCoreApplication, QStandardPaths, QUrl, Qt
 from qgis.PyQt.QtGui import QDesktopServices
-from qgis.PyQt.QtWidgets import QFileDialog, QMessageBox
+from qgis.PyQt.QtWidgets import QApplication, QFileDialog, QMessageBox
 
+from ..services import raster_analysis
 from ..services.fieldguide_service import FieldGuideService, parse_decimal
 from ..services.fieldguide_pdf import PdfReportComposer
 from ..services.fieldguide_pdf.links import build_google_maps_directions_url
@@ -37,6 +39,9 @@ class FieldGuideCtrl:
         self.marker_tool = CanvasMarkerTool(interface)
         self.marker_tool.on_deactivated = self._on_capture_deactivated
         self.pdf_composer = PdfReportComposer(interface)
+        # Metadata about the last raster-based optimal point selection run,
+        # consumed by the CSV/GPX/PDF exports; None while in manual mode.
+        self._raster_session = None
 
         self.marker_tool.coordinates_changed.connect(self.update_points)
         self.dialog.stack.currentChanged.connect(self._on_page_changed)
@@ -192,6 +197,7 @@ class FieldGuideCtrl:
                 return
 
         self.marker_tool.clear()
+        self._raster_session = None
         self._push_message(_tr("{0} mark(s) removed.").format(n), Qgis.Info, 3)
 
     def handle_remove_last(self):
@@ -241,6 +247,10 @@ class FieldGuideCtrl:
 
     def handle_mark_samples(self):
         """Place one or more sample marks for every feature in the selected layer."""
+        if self.dialog.fg_use_raster_selection_checkbox.isChecked():
+            self.extract_sample_points_with_raster()
+            return
+
         layer = self.dialog.fg_layer_combo.currentLayer()
         if layer is None:
             self._push_message(
@@ -293,6 +303,7 @@ class FieldGuideCtrl:
 
         if merge_mode == 'replace':
             self.marker_tool.clear()
+            self._raster_session = None
 
         self.marker_tool.add_wgs84_points(sampled_points)
 
@@ -407,6 +418,268 @@ class FieldGuideCtrl:
         ):
             return _tr("centroid mark(s)")
         return _tr("sample mark(s)")
+
+    # ------------------------------------------------------------------
+    # Raster-based optimal point selection
+    # ------------------------------------------------------------------
+
+    def handle_raster_layer_changed(self, layer):
+        """Validate the chosen raster and sync the band selector range."""
+        band_selector = self.dialog.fg_raster_band_selector
+        band_selector.blockSignals(True)
+        if layer is None or not raster_analysis.raster_layer_supports_analysis(layer):
+            band_selector.setRange(1, 1)
+            band_selector.setValue(1)
+            if (
+                layer is not None
+                and self.dialog.fg_use_raster_selection_checkbox.isChecked()
+            ):
+                self._push_message(
+                    _tr(
+                        "Layer {0} cannot be analyzed: web/tile rasters have "
+                        "no readable pixel grid. Choose a file-based raster."
+                    ).format(layer.name()),
+                    Qgis.Warning,
+                    5,
+                )
+        else:
+            band_count = max(1, layer.bandCount())
+            band_selector.setRange(1, band_count)
+            if band_selector.value() > band_count:
+                band_selector.setValue(1)
+        band_selector.blockSignals(False)
+        self._update_raster_status()
+
+    def handle_raster_band_changed(self, _band_index):
+        """Refresh the raster status line when the analyzed band changes."""
+        self._update_raster_status()
+
+    def handle_polygon_layer_changed(self, _layer):
+        """Refresh the raster status line when the sampled polygon layer changes."""
+        self._update_raster_status()
+
+    def handle_use_raster_selection_toggled(self, checked):
+        """Switch between manual marking and raster-based optimal selection."""
+        self._update_raster_status()
+        if not checked:
+            return
+
+        polygon_layer = self.dialog.fg_layer_combo.currentLayer()
+        raster_layer = self.dialog.fg_raster_layer_combo.currentLayer()
+        if polygon_layer is None or raster_layer is None:
+            self._push_message(
+                _tr(
+                    "Select a polygon layer and a raster layer, then use "
+                    "Mark optimal points (raster)."
+                ),
+                Qgis.Info,
+                5,
+            )
+            return
+
+        if not self.extract_sample_points_with_raster():
+            checkbox = self.dialog.fg_use_raster_selection_checkbox
+            checkbox.setChecked(False)
+
+    def extract_sample_points_with_raster(self):
+        """Compute and mark one optimal point per polygon from the raster.
+
+        Returns True when points were marked, False on any validation
+        failure, computation error, or user cancellation.
+        """
+        polygon_layer = self.dialog.fg_layer_combo.currentLayer()
+        if polygon_layer is None:
+            self._push_message(
+                _tr("Select a polygon layer from the current project first."),
+                Qgis.Warning,
+                4,
+            )
+            return False
+
+        raster_layer = self.dialog.fg_raster_layer_combo.currentLayer()
+        if raster_layer is None:
+            self._push_message(
+                _tr("Select a raster layer for optimal point selection."),
+                Qgis.Warning,
+                4,
+            )
+            return False
+
+        band_index = int(self.dialog.fg_raster_band_selector.value())
+
+        QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
+        try:
+            sampled_points, point_values, skipped_count = (
+                self.service.extract_optimal_points_from_raster(
+                    polygon_layer,
+                    raster_layer,
+                    band_index,
+                )
+            )
+        except ValueError as exc:
+            self._push_message(str(exc), Qgis.Warning, 6)
+            return False
+        except Exception:
+            QgsMessageLog.logMessage(
+                traceback.format_exc(), "FARM tools", level=Qgis.Critical
+            )
+            self._push_message(
+                _tr("Error computing optimal points from raster {0}.").format(
+                    raster_layer.name()
+                ),
+                Qgis.Critical,
+                6,
+            )
+            return False
+        finally:
+            QApplication.restoreOverrideCursor()
+
+        if not sampled_points:
+            self._push_message(
+                _tr(
+                    "No valid optimal points found: raster {0} has no usable "
+                    "data inside the polygons of {1}."
+                ).format(raster_layer.name(), polygon_layer.name()),
+                Qgis.Warning,
+                6,
+            )
+            return False
+
+        merge_mode = 'append'
+        existing_points = len(self.marker_tool.coordinates)
+        if existing_points > 0:
+            merge_mode = self._choose_points_merge_mode(
+                existing_points,
+                _tr("Mark optimal points (raster)"),
+                _tr(
+                    "Choose whether to append the generated marks or replace "
+                    "the current list."
+                ),
+            )
+            if merge_mode is None:
+                return False
+
+        if merge_mode == 'replace':
+            self.marker_tool.clear()
+            self._raster_session = None
+
+        self.marker_tool.add_wgs84_points(sampled_points)
+        self._store_raster_session(
+            polygon_layer,
+            raster_layer,
+            band_index,
+            sampled_points,
+            point_values,
+            skipped_count,
+        )
+        self._update_raster_status()
+
+        if skipped_count > 0:
+            self._push_message(
+                _tr(
+                    "{0} optimal point(s) added from {1} (band {2}); "
+                    "{3} feature(s) skipped without valid raster data."
+                ).format(
+                    len(sampled_points),
+                    raster_layer.name(),
+                    band_index,
+                    skipped_count,
+                ),
+                Qgis.Info,
+                6,
+            )
+        else:
+            self._push_message(
+                _tr("{0} optimal point(s) added from {1} (band {2}).").format(
+                    len(sampled_points), raster_layer.name(), band_index
+                ),
+                Qgis.Success,
+                5,
+            )
+        return True
+
+    def _store_raster_session(
+        self,
+        polygon_layer,
+        raster_layer,
+        band_index,
+        sampled_points,
+        point_values,
+        skipped_count,
+    ):
+        """Persist raster selection metadata and per-point values for exports."""
+        extent = raster_layer.extent()
+        values = {}
+        if self._raster_session is not None:
+            values = dict(self._raster_session.get('values', {}))
+        for (latitude, longitude), value in zip(sampled_points, point_values):
+            values[(round(longitude, 8), round(latitude, 8))] = value
+
+        self._raster_session = {
+            'raster_selection_enabled': True,
+            'raster_layer_name': raster_layer.name(),
+            'raster_layer_crs': raster_layer.crs().authid(),
+            'raster_band_index': band_index,
+            'raster_extent': (
+                extent.xMinimum(),
+                extent.yMinimum(),
+                extent.xMaximum(),
+                extent.yMaximum(),
+            ),
+            'polygon_layer_name': polygon_layer.name(),
+            'timestamp': datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ'),
+            'skipped_features': skipped_count,
+            'notes': 'Local maximum detection with 3x3 morphological kernel',
+            'source_label': '{}:band_{}'.format(raster_layer.name(), band_index),
+            'method_label': 'Local maximum (raster-based)',
+            'values': values,
+        }
+
+    def _update_raster_status(self):
+        """Refresh the raster status label from the current widget state."""
+        status_label = self.dialog.fg_raster_status_label
+        if not self.dialog.fg_use_raster_selection_checkbox.isChecked():
+            status_label.setText(
+                _tr(
+                    "Manual marking mode. Enable raster selection to compute "
+                    "optimal points."
+                )
+            )
+            return
+
+        raster_layer = self.dialog.fg_raster_layer_combo.currentLayer()
+        if raster_layer is None:
+            status_label.setText(
+                _tr("Select a raster layer to compute optimal points.")
+            )
+            return
+
+        if not raster_analysis.raster_layer_supports_analysis(raster_layer):
+            status_label.setText(
+                _tr(
+                    "Raster {0} cannot be analyzed (web/tile layer). Choose a "
+                    "file-based raster."
+                ).format(raster_layer.name())
+            )
+            return
+
+        band_index = int(self.dialog.fg_raster_band_selector.value())
+        polygon_layer = self.dialog.fg_layer_combo.currentLayer()
+        if polygon_layer is None:
+            status_label.setText(
+                _tr("Raster selected: {0} Band {1} | Select a polygon layer").format(
+                    raster_layer.name(), band_index
+                )
+            )
+            return
+
+        status_label.setText(
+            _tr(
+                "Raster selected: {0} Band {1} | Ready to sample {2} feature(s)"
+            ).format(
+                raster_layer.name(), band_index, polygon_layer.featureCount()
+            )
+        )
 
     # ------------------------------------------------------------------
     # Manual coordinate
@@ -544,14 +817,36 @@ class FieldGuideCtrl:
         if not output_path:
             return
 
+        raster_session = self._raster_session
         try:
             with open(output_path, mode='w', newline='', encoding='utf-8') as csv_file:
                 writer = csv.writer(csv_file)
-                writer.writerow(['order', 'longitude', 'latitude'])
+                header = ['order', 'longitude', 'latitude']
+                if raster_session is not None:
+                    header += [
+                        'raster_source',
+                        'selection_method',
+                        'raster_value_at_point',
+                    ]
+                writer.writerow(header)
                 for index, (longitude, latitude) in enumerate(coordinates, start=1):
-                    writer.writerow(
-                        [index, '{:.8f}'.format(longitude), '{:.8f}'.format(latitude)]
-                    )
+                    row = [
+                        index,
+                        '{:.8f}'.format(longitude),
+                        '{:.8f}'.format(latitude),
+                    ]
+                    if raster_session is not None:
+                        signature = (round(longitude, 8), round(latitude, 8))
+                        value = raster_session['values'].get(signature)
+                        if value is not None:
+                            row += [
+                                raster_session['source_label'],
+                                raster_session['method_label'],
+                                '{:.6f}'.format(value),
+                            ]
+                        else:
+                            row += ['', '', '']
+                    writer.writerow(row)
         except Exception:
             QgsMessageLog.logMessage(
                 traceback.format_exc(), "FARM tools", level=Qgis.Critical
@@ -581,8 +876,18 @@ class FieldGuideCtrl:
         if not output_path.lower().endswith('.gpx'):
             output_path += '.gpx'
 
+        raster_metadata = None
+        if self._raster_session is not None:
+            raster_metadata = {
+                'source': self._raster_session['source_label'],
+                'method': self._raster_session['method_label'],
+                'values': self._raster_session['values'],
+            }
+
         try:
-            self.service.write_marks_gpx(output_path, coordinates)
+            self.service.write_marks_gpx(
+                output_path, coordinates, raster_metadata=raster_metadata
+            )
         except Exception:
             QgsMessageLog.logMessage(
                 traceback.format_exc(), "FARM tools", level=Qgis.Critical
@@ -670,6 +975,7 @@ class FieldGuideCtrl:
 
         if import_mode == 'replace':
             self.marker_tool.clear()
+            self._raster_session = None
 
         self.marker_tool.add_wgs84_points(valid_points)
 
@@ -709,8 +1015,21 @@ class FieldGuideCtrl:
         if not output_path:
             return
 
+        footer_note = None
+        if self._raster_session is not None:
+            footer_note = _tr(
+                "Points selected using raster-based optimal location: {0} "
+                "(Band {1}). Local maximum detection applied within each "
+                "polygon boundary."
+            ).format(
+                self._raster_session['raster_layer_name'],
+                self._raster_session['raster_band_index'],
+            )
+
         try:
-            final_path = self.pdf_composer.generate(coordinates, output_path)
+            final_path = self.pdf_composer.generate(
+                coordinates, output_path, footer_note=footer_note
+            )
         except Exception as exc:
             QgsMessageLog.logMessage(
                 traceback.format_exc(), "FARM tools", level=Qgis.Critical

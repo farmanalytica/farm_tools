@@ -11,6 +11,7 @@ import-export actions.  Signal connections are wired externally by
 from qgis.PyQt.QtCore import Qt, QCoreApplication
 from qgis.PyQt.QtWidgets import (
     QAbstractItemView,
+    QCheckBox,
     QComboBox,
     QDoubleSpinBox,
     QFrame,
@@ -195,6 +196,60 @@ def setup_fieldguide_page(dialog, page):
     dialog.fg_layer_combo.setFixedHeight(28)
     scroll_lay.addWidget(dialog.fg_layer_combo)
 
+    # ------------------------------------------------------------------
+    # Raster-based optimal point selection
+    # ------------------------------------------------------------------
+    dialog.fg_use_raster_selection_checkbox = QCheckBox(
+        _tr("Use raster-based optimal point selection")
+    )
+    dialog.fg_use_raster_selection_checkbox.setChecked(False)
+    dialog.fg_use_raster_selection_checkbox.setToolTip(
+        _tr(
+            "Place one mark per polygon at the location of maximum raster "
+            "value (e.g. NDVI peak) instead of geometric sampling"
+        )
+    )
+    scroll_lay.addWidget(dialog.fg_use_raster_selection_checkbox)
+
+    raster_grid = QGridLayout()
+    raster_grid.setContentsMargins(0, 0, 0, 0)
+    raster_grid.setHorizontalSpacing(8)
+    raster_grid.setVerticalSpacing(6)
+
+    dialog.fg_raster_layer_lbl = QLabel(
+        _tr("Raster layer for optimal point selection")
+    )
+    raster_grid.addWidget(dialog.fg_raster_layer_lbl, 0, 0)
+    dialog.fg_raster_layer_combo = QgsMapLayerComboBox()
+    dialog.fg_raster_layer_combo.setObjectName("fgRasterLayerCombo")
+    dialog.fg_raster_layer_combo.setFilters(QgsMapLayerProxyModel.RasterLayer)
+    dialog.fg_raster_layer_combo.setAllowEmptyLayer(True)
+    dialog.fg_raster_layer_combo.setFixedHeight(28)
+    dialog.fg_raster_layer_combo.setToolTip(
+        _tr(
+            "Choose a single-band or multi-band raster (e.g., NDVI composite) "
+            "to identify the location of maximum vegetation value within "
+            "each polygon"
+        )
+    )
+    raster_grid.addWidget(dialog.fg_raster_layer_combo, 0, 1)
+
+    dialog.fg_raster_band_lbl = QLabel(_tr("Band"))
+    raster_grid.addWidget(dialog.fg_raster_band_lbl, 1, 0)
+    dialog.fg_raster_band_selector = QSpinBox()
+    dialog.fg_raster_band_selector.setRange(1, 1)
+    dialog.fg_raster_band_selector.setValue(1)
+    dialog.fg_raster_band_selector.setFixedHeight(26)
+    raster_grid.addWidget(dialog.fg_raster_band_selector, 1, 1)
+
+    raster_grid.setColumnStretch(1, 1)
+    scroll_lay.addLayout(raster_grid)
+
+    dialog.fg_raster_status_label = _hint_label(
+        _tr("Manual marking mode. Enable raster selection to compute optimal points.")
+    )
+    scroll_lay.addWidget(dialog.fg_raster_status_label)
+
     sampling_grid = QGridLayout()
     sampling_grid.setContentsMargins(0, 0, 0, 0)
     sampling_grid.setHorizontalSpacing(8)
@@ -246,6 +301,40 @@ def setup_fieldguide_page(dialog, page):
 
     def _update_sampling_controls(*_args):
         """Refresh polygon sampling hints and control states from current values."""
+        raster_mode = dialog.fg_use_raster_selection_checkbox.isChecked()
+        dialog.fg_raster_layer_lbl.setEnabled(raster_mode)
+        dialog.fg_raster_layer_combo.setEnabled(raster_mode)
+        dialog.fg_raster_band_lbl.setEnabled(raster_mode)
+        dialog.fg_raster_band_selector.setEnabled(raster_mode)
+
+        if raster_mode:
+            for widget in (
+                dialog.fg_quantity_mode_lbl,
+                dialog.fg_quantity_mode_combo,
+                dialog.fg_samples_lbl,
+                dialog.fg_samples_spin,
+                dialog.fg_density_lbl,
+                dialog.fg_density_spin,
+                dialog.fg_distribution_lbl,
+                dialog.fg_distribution_combo,
+            ):
+                widget.setEnabled(False)
+            dialog.fg_sampling_hint_lbl.setText(
+                _tr(
+                    "Places exactly one mark per polygon at the pixel of "
+                    "maximum raster value (local-maximum detection with "
+                    "no-data and edge handling)."
+                )
+            )
+            dialog.fg_btn_mark_samples.setText(_tr("Mark optimal points (raster)"))
+            dialog.fg_btn_mark_samples.setEnabled(
+                dialog.fg_layer_combo.currentLayer() is not None
+                and dialog.fg_raster_layer_combo.currentLayer() is not None
+            )
+            return
+
+        dialog.fg_quantity_mode_lbl.setEnabled(True)
+        dialog.fg_quantity_mode_combo.setEnabled(True)
         quantity_mode = dialog.fg_quantity_mode_combo.currentData()
         sample_count = int(dialog.fg_samples_spin.value())
         density_value = float(dialog.fg_density_spin.value())
@@ -315,6 +404,8 @@ def setup_fieldguide_page(dialog, page):
     dialog.fg_density_spin.valueChanged.connect(_update_sampling_controls)
     dialog.fg_distribution_combo.currentIndexChanged.connect(_update_sampling_controls)
     dialog.fg_layer_combo.layerChanged.connect(_update_sampling_controls)
+    dialog.fg_use_raster_selection_checkbox.toggled.connect(_update_sampling_controls)
+    dialog.fg_raster_layer_combo.layerChanged.connect(_update_sampling_controls)
     _update_sampling_controls()
 
     scroll_lay.addSpacing(6)

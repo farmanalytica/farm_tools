@@ -12,16 +12,20 @@ import xml.etree.ElementTree as ET
 
 from qgis.PyQt.QtCore import QCoreApplication, QVariant
 from qgis.core import (
+    Qgis,
     QgsCoordinateReferenceSystem,
     QgsCoordinateTransform,
     QgsDistanceArea,
     QgsFeature,
     QgsField,
     QgsGeometry,
+    QgsMessageLog,
     QgsPointXY,
     QgsProject,
     QgsVectorLayer,
 )
+
+from . import raster_analysis
 
 
 def _tr(text):
@@ -789,6 +793,117 @@ class FieldGuideService:
         return (round(point.x(), 9), round(point.y(), 9))
 
     # ------------------------------------------------------------------
+    # Raster-based optimal point selection
+    # ------------------------------------------------------------------
+
+    def extract_optimal_points_from_raster(
+        self,
+        polygon_layer,
+        raster_layer,
+        band_index,
+    ):
+        """Compute one optimal (highest raster value) point per polygon feature.
+
+        For each polygon the raster is clipped to the feature bounding box,
+        masked to the exact polygon geometry, cleaned of no-data pixels, and
+        the maximum-value pixel (after 3x3 morphological opening of the mask
+        and 3x3 mean smoothing of the values) becomes the sampling point.
+        Polygons are reprojected to the raster CRS before masking; points are
+        transformed to WGS84 only at the end, in a single transform.
+
+        Returns ``(sampled_points, point_values, skipped_count)`` where
+        ``sampled_points`` is a list of ``(latitude, longitude)`` tuples in
+        WGS84, ``point_values`` the raw raster value at each point (aligned
+        by index), and ``skipped_count`` the number of features without
+        valid raster data.
+        """
+        if polygon_layer is None or not polygon_layer.isValid():
+            raise ValueError(_tr('Invalid polygon layer.'))
+        if not raster_analysis.raster_layer_supports_analysis(raster_layer):
+            raise ValueError(
+                _tr('The raster layer cannot be analyzed (no readable pixel grid).')
+            )
+        band_index = int(band_index)
+        if band_index < 1 or band_index > raster_layer.bandCount():
+            raise ValueError(
+                _tr('Band {0} is out of range for raster {1}.').format(
+                    band_index, raster_layer.name()
+                )
+            )
+
+        raster_crs = raster_layer.crs()
+        to_raster_crs = None
+        if polygon_layer.crs() != raster_crs:
+            to_raster_crs = QgsCoordinateTransform(
+                polygon_layer.crs(), raster_crs, self.project
+            )
+        to_wgs84 = QgsCoordinateTransform(raster_crs, self.wgs84, self.project)
+
+        sampled_points = []
+        point_values = []
+        skipped_count = 0
+
+        for feature in polygon_layer.getFeatures():
+            geometry = feature.geometry()
+            if geometry is None or geometry.isEmpty():
+                skipped_count += 1
+                continue
+
+            try:
+                raster_geometry = QgsGeometry(geometry)
+                if to_raster_crs is not None:
+                    raster_geometry.transform(to_raster_crs)
+
+                result = raster_analysis.find_polygon_maximum(
+                    raster_layer, raster_geometry, band_index
+                )
+            except Exception:
+                skipped_count += 1
+                continue
+
+            if result is None:
+                skipped_count += 1
+                QgsMessageLog.logMessage(
+                    'Field Guide raster sampling: feature {} skipped '
+                    '(no valid raster data inside polygon).'.format(feature.id()),
+                    'FARM tools',
+                    level=Qgis.Warning,
+                )
+                continue
+
+            if result['sub_pixel']:
+                QgsMessageLog.logMessage(
+                    'Field Guide raster sampling: feature {} is smaller than '
+                    'the raster resolution; point placed at pixel center.'.format(
+                        feature.id()
+                    ),
+                    'FARM tools',
+                    level=Qgis.Warning,
+                )
+            if result['no_data_pixels'] > 0:
+                QgsMessageLog.logMessage(
+                    'Field Guide raster sampling: feature {} contains {} '
+                    'no-data pixel(s) excluded from the search.'.format(
+                        feature.id(), result['no_data_pixels']
+                    ),
+                    'FARM tools',
+                    level=Qgis.Info,
+                )
+
+            try:
+                wgs84_point = to_wgs84.transform(
+                    QgsPointXY(result['x'], result['y'])
+                )
+            except Exception:
+                skipped_count += 1
+                continue
+
+            sampled_points.append((wgs84_point.y(), wgs84_point.x()))
+            point_values.append(result['value'])
+
+        return sampled_points, point_values, skipped_count
+
+    # ------------------------------------------------------------------
     # Routes
     # ------------------------------------------------------------------
 
@@ -859,8 +974,15 @@ class FieldGuideService:
         """Return a short waypoint name that works well on handheld GPS units."""
         return 'FG{:03d}'.format(index)
 
-    def write_marks_gpx(self, output_path, coordinates):
-        """Write the captured marks as GPS waypoints and an optional ordered route."""
+    def write_marks_gpx(self, output_path, coordinates, raster_metadata=None):
+        """Write the captured marks as GPS waypoints and an optional ordered route.
+
+        ``raster_metadata`` (optional) describes raster-based optimal point
+        selection: ``{'source': str, 'method': str, 'values': dict}`` where
+        ``values`` maps ``(round(lon, 8), round(lat, 8))`` signatures to the
+        raster value at that point. Matching waypoints get the selection
+        metadata appended to their description.
+        """
         gpx = ET.Element(
             'gpx',
             attrib={
@@ -877,9 +999,15 @@ class FieldGuideService:
 
         metadata = ET.SubElement(gpx, 'metadata')
         ET.SubElement(metadata, 'name').text = 'Field Guide Marks'
-        ET.SubElement(metadata, 'desc').text = (
-            'Captured marks exported from the FARM tools Field Guide.'
-        )
+        metadata_desc = 'Captured marks exported from the FARM tools Field Guide.'
+        if raster_metadata:
+            metadata_desc += ' Selection: {} | Source: {}.'.format(
+                raster_metadata.get('method', ''),
+                raster_metadata.get('source', ''),
+            )
+        ET.SubElement(metadata, 'desc').text = metadata_desc
+
+        raster_values = (raster_metadata or {}).get('values', {})
 
         for index, (longitude, latitude) in enumerate(coordinates, start=1):
             waypoint = ET.SubElement(
@@ -893,10 +1021,15 @@ class FieldGuideService:
             waypoint_name = self.portable_waypoint_name(index)
             ET.SubElement(waypoint, 'name').text = waypoint_name
             ET.SubElement(waypoint, 'cmt').text = 'Field Guide mark {}'.format(index)
-            ET.SubElement(
-                waypoint,
-                'desc',
-            ).text = 'Mark {} ({:.8f}, {:.8f})'.format(index, latitude, longitude)
+            description = 'Mark {} ({:.8f}, {:.8f})'.format(index, latitude, longitude)
+            point_signature = (round(longitude, 8), round(latitude, 8))
+            if raster_metadata and point_signature in raster_values:
+                description += ' | {} | {} | value: {:.6f}'.format(
+                    raster_metadata.get('method', ''),
+                    raster_metadata.get('source', ''),
+                    raster_values[point_signature],
+                )
+            ET.SubElement(waypoint, 'desc').text = description
             ET.SubElement(waypoint, 'sym').text = 'Waypoint'
             ET.SubElement(waypoint, 'type').text = 'user'
 

@@ -21,8 +21,12 @@ class PdfReportComposer:
     def __init__(self, iface):
         self.iface = iface
 
-    def generate(self, coordinates, output_path):
-        """Generate a PDF report from captured WGS84 coordinates."""
+    def generate(self, coordinates, output_path, footer_note=None):
+        """Generate a PDF report from captured WGS84 coordinates.
+
+        ``footer_note`` (optional) is rendered below the point list, e.g. to
+        document raster-based optimal point selection metadata.
+        """
         if not coordinates:
             raise ValueError(_tr("There are no marked points to generate the PDF."))
 
@@ -35,7 +39,9 @@ class PdfReportComposer:
             )
             mark_items = build_mark_items(coordinates)
             route_items = build_route_items(coordinates)
-            points_html = build_points_html_with_routes(mark_items, route_items)
+            points_html = build_points_html_with_routes(
+                mark_items, route_items, footer_note=footer_note
+            )
             write_report_to_pdf(snapshot_path, points_html, output_path)
         finally:
             self._cleanup_temp_file(snapshot_path)
