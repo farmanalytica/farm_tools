@@ -82,15 +82,20 @@ Full suite (qgis tests skip if QGIS absent):
 & "<plugin>\.venv\Scripts\python.exe" -m pytest
 ```
 
-QGIS tier under the real QGIS Python (Windows — sets the QGIS env first):
+QGIS tier under the real QGIS Python (Windows — sets the QGIS env first).
+Just run `tests/run_qgis_tests.bat`: it auto-detects the install (QGIS 4 →
+`python-qgis.bat`, QGIS 3 LTR → `python-qgis-ltr.bat`), preferring the newer
+one. Override with `set QGIS_ROOT=...` before calling. First time, install the
+deps into that interpreter:
 
 ```bat
+REM QGIS 4 (Qt6)
+call "C:\QGIS 4.0.3\bin\python-qgis.bat" -m pip install pytest pytest-mock
+REM QGIS 3 LTR (Qt5)
 call "C:\QGIS 3.44.10\bin\python-qgis-ltr.bat" -m pip install pytest pytest-mock
-call "C:\QGIS 3.44.10\bin\python-qgis-ltr.bat" -m pytest -m qgis
 ```
 
-(or run `tests/run_qgis_tests.bat`). Markers: `qgis`, `ee`, `gui`, `net`
-(`net` is opt-in: `pytest -m net`).
+Markers: `qgis`, `ee`, `gui`, `net` (`net` is opt-in: `pytest -m net`).
 
 ## Coverage
 

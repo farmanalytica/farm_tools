@@ -9,11 +9,9 @@ Thermo-pluviometric | Climate Indices), mirroring the hand-built tab idiom of
 """
 
 import datetime
-import os
 
-from qgis.PyQt.QtCore import QCoreApplication, Qt, QUrl
-from qgis.PyQt.QtGui import QDesktopServices
-from qgis.PyQt.QtWebKitWidgets import QWebPage, QWebView
+from qgis.PyQt.QtCore import QCoreApplication, Qt
+from qgis.PyQt.QtGui import QDoubleValidator
 from qgis.PyQt.QtWidgets import (
     QComboBox,
     QFrame,
@@ -22,6 +20,7 @@ from qgis.PyQt.QtWidgets import (
     QLabel,
     QLineEdit,
     QPushButton,
+    QScrollArea,
     QSizePolicy,
     QSpinBox,
     QStackedWidget,
@@ -34,14 +33,12 @@ from .radar import (
     _TAB_INACTIVE,
 )
 from .styles import STYLE_BTN_PRIMARY, STYLE_BTN_SECONDARY
+from .webcompat import QWebView
 
 
 def _tr(text):
     return QCoreApplication.translate("RAVI", text)
 
-
-_PLUGIN_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-_ASSETS = os.path.join(_PLUGIN_DIR, "assets")
 
 _MIN_YEAR = 1981
 _MAX_YEAR = datetime.date.today().year - 1
@@ -159,7 +156,7 @@ def setup_climaplots_page(dialog, page):
     """
     Populate the ClimaPlots page with a five-tab layout.
 
-    Exposes on dialog (cp_* prefix): cp_stack, cp_set_tab, cp_intro_view,
+    Exposes on dialog (cp_* prefix): cp_stack, cp_set_tab,
     cp_btn_get_started, cp_source_combo_a/_b, cp_lon_a/cp_lat_a/cp_lon_b/
     cp_lat_b, cp_btn_pick_a/_b, cp_btn_copy_a_to_b, cp_btn_clear_marker,
     cp_btn_hybrid_layer, cp_start_year/cp_end_year, cp_btn_run, cp_var_combo/
@@ -225,7 +222,7 @@ def setup_climaplots_page(dialog, page):
 
     tab_buttons = []
     for label in (
-        _tr("About"),
+        _tr("Intro"),
         _tr("Coordinates"),
         _tr("Trends"),
         _tr("Thermo-pluviometric"),
@@ -280,7 +277,18 @@ def setup_climaplots_page(dialog, page):
 
 
 # --------------------------------------------------------------------- about
+def _about_label(html, style=""):
+    lbl = QLabel(html)
+    lbl.setWordWrap(True)
+    lbl.setOpenExternalLinks(True)
+    lbl.setTextFormat(Qt.TextFormat.RichText)
+    if style:
+        lbl.setStyleSheet(style)
+    return lbl
+
+
 def _build_about_tab(dialog, page):
+    """Native-widget intro explaining the ClimaPlots module (no WebView)."""
     page.setObjectName("cpAboutTab")
     page.setStyleSheet("QWidget#cpAboutTab { background-color: #ffffff; }")
 
@@ -288,13 +296,154 @@ def _build_about_tab(dialog, page):
     outer.setContentsMargins(0, 0, 0, 0)
     outer.setSpacing(0)
 
-    # Explainer / usage guide / citation rendered from assets/climaplots_intro.html.
-    view = _make_webview()
-    view.page().setLinkDelegationPolicy(QWebPage.DelegateAllLinks)
-    view.linkClicked.connect(QDesktopServices.openUrl)  # open DOI etc. externally
-    view.load(QUrl.fromLocalFile(os.path.join(_ASSETS, "climaplots_intro.html")))
-    outer.addWidget(view, 1)
-    dialog.cp_intro_view = view
+    scroll = QScrollArea()
+    scroll.setWidgetResizable(True)
+    scroll.setFrameShape(QFrame.Shape.NoFrame)
+    scroll.setStyleSheet("QScrollArea { background: #ffffff; border: none; }")
+
+    w = QWidget()
+    w.setStyleSheet("background: #ffffff;")
+    lay = QVBoxLayout(w)
+    lay.setContentsMargins(24, 16, 24, 16)
+    lay.setSpacing(4)
+
+    def _h1(text):
+        return _about_label(
+            text, "font-size:15px;font-weight:bold;color:#1b6b39;margin-bottom:4px;"
+        )
+
+    def _h2(text):
+        return _about_label(
+            text,
+            "font-size:12px;font-weight:bold;color:#2a5d84;"
+            "padding-bottom:3px;margin-top:12px;margin-bottom:2px;",
+        )
+
+    def _para(html):
+        return _about_label(html, "font-size:12px;color:#333;")
+
+    def _divider():
+        line = QFrame()
+        line.setFrameShape(QFrame.Shape.HLine)
+        line.setStyleSheet("color:#e6f2fa;")
+        return line
+
+    lay.addWidget(_h1(_tr("🌦️ ClimaPlots")))
+    lay.addSpacing(2)
+    lay.addWidget(
+        _para(
+            _tr(
+                "ClimaPlots fetches decades of daily climate data for any point on "
+                "the map and turns it into interactive charts — no coding required. "
+                "Choose between two data sources: <b>NASA POWER</b> (from 1981) and "
+                "<b>Open-Meteo (ERA5)</b> (from 1940)."
+            )
+        )
+    )
+
+    lay.addWidget(_h2(_tr("📊 What it produces")))
+    lay.addWidget(_divider())
+    lay.addWidget(
+        _para(
+            _tr(
+                "<b>Annual trends</b> for temperature, precipitation, relative "
+                "humidity, irradiation, wind speed, reference ET₀ and growing degree "
+                "days, each annotated with <b>Mann–Kendall</b> trend and "
+                "<b>Pettitt</b> homogeneity tests."
+            )
+        )
+    )
+    lay.addWidget(
+        _para(
+            _tr(
+                "<b>Thermo-pluviometric diagram</b> — the mean monthly precipitation "
+                "and temperature regime of the location."
+            )
+        )
+    )
+    lay.addWidget(
+        _para(
+            _tr(
+                "<b>Climate indices</b> — ETCCDI temperature and precipitation "
+                "indices plus the Standardized Precipitation Index (SPI)."
+            )
+        )
+    )
+
+    lay.addWidget(_h2(_tr("🔀 Compare two locations or two sources")))
+    lay.addWidget(_divider())
+    lay.addWidget(
+        _para(
+            _tr(
+                "Add an optional <b>comparison point B</b> to overlay a second series "
+                "on the Trends chart, with trend statistics reported for both points. "
+                "B can use its own data source, so the <i>same</i> location can be "
+                "compared across NASA POWER and Open-Meteo — use <b>Same location as "
+                "A</b> to copy point A's coordinates without re-clicking the map."
+            )
+        )
+    )
+
+    lay.addWidget(_h2(_tr("🚀 Quick start")))
+    lay.addWidget(_divider())
+    qs_frame = QFrame()
+    qs_frame.setStyleSheet("QFrame{background:#f0f8ff;border-radius:4px;padding:4px;}")
+    qs_lay = QVBoxLayout(qs_frame)
+    qs_lay.setContentsMargins(12, 6, 12, 6)
+    qs_lay.setSpacing(4)
+    for i, text in enumerate(
+        [
+            _tr("Open the <b>Coordinates</b> tab and pick a <b>data source</b>."),
+            _tr(
+                "Click <b>Pick a point on the map</b> and click a location on the "
+                "canvas (or type the longitude/latitude manually)."
+            ),
+            _tr(
+                "Optionally set a <b>comparison point B</b> — pick it on the map, or "
+                "press <b>Same location as A</b>."
+            ),
+            _tr("Press <b>Run analysis</b> and wait while the data is downloaded."),
+            _tr(
+                "Browse the <b>Trends</b>, <b>Thermo-pluviometric</b> and "
+                "<b>Climate Indices</b> tabs. Use <b>Open in browser</b> for a "
+                "full-screen chart, or <b>Save chart data</b> to export a CSV."
+            ),
+        ],
+        1,
+    ):
+        qs_lay.addWidget(_para(f"{i}. {text}"))
+    lay.addWidget(qs_frame)
+    lay.addWidget(
+        _para(
+            _tr(
+                "Behind a corporate network? Set a proxy via <b>Proxy settings</b> in "
+                "the top-right corner."
+            )
+        )
+    )
+
+    lay.addWidget(_h2(_tr("📖 Citation")))
+    lay.addWidget(_divider())
+    lay.addWidget(_para(_tr("Publications that use this tool must cite:")))
+    cite_frame = QFrame()
+    cite_frame.setStyleSheet(
+        "QFrame{background:#e8f5e9;border-left:4px solid #1b6b39;border-radius:3px;}"
+    )
+    cite_lay = QVBoxLayout(cite_frame)
+    cite_lay.setContentsMargins(12, 8, 12, 8)
+    cite_lay.addWidget(
+        _about_label(
+            '<a href="https://doi.org/10.1590/1678-4499.20250223" '
+            'style="color:#1b6b39;font-weight:bold;text-decoration:none;">'
+            "https://doi.org/10.1590/1678-4499.20250223</a>",
+            "font-size:12px;background:transparent;",
+        )
+    )
+    lay.addWidget(cite_frame)
+
+    lay.addStretch(1)
+    scroll.setWidget(w)
+    outer.addWidget(scroll, 1)
 
     btn_row = QHBoxLayout()
     btn_row.setContentsMargins(0, 10, 0, 8)
@@ -333,10 +482,12 @@ def _build_coords_tab(dialog, page):
     grid.setVerticalSpacing(3)
     dialog.cp_lon_a = QLineEdit()
     dialog.cp_lon_a.setPlaceholderText("e.g. -47.06")
-    dialog.cp_lon_a.setToolTip(_tr("Longitude in decimal degrees (WGS84)"))
+    dialog.cp_lon_a.setToolTip(_tr("Longitude in decimal degrees (WGS84), −180 to 180"))
+    dialog.cp_lon_a.setValidator(QDoubleValidator(-180.0, 180.0, 6))
     dialog.cp_lat_a = QLineEdit()
     dialog.cp_lat_a.setPlaceholderText("e.g. -22.90")
-    dialog.cp_lat_a.setToolTip(_tr("Latitude in decimal degrees (WGS84)"))
+    dialog.cp_lat_a.setToolTip(_tr("Latitude in decimal degrees (WGS84), −90 to 90"))
+    dialog.cp_lat_a.setValidator(QDoubleValidator(-90.0, 90.0, 6))
     grid.addWidget(QLabel(_tr("Longitude")), 0, 0)
     grid.addWidget(QLabel(_tr("Latitude")), 0, 1)
     grid.addWidget(dialog.cp_lon_a, 1, 0)
@@ -387,8 +538,10 @@ def _build_coords_tab(dialog, page):
     grid_b.setVerticalSpacing(3)
     dialog.cp_lon_b = QLineEdit()
     dialog.cp_lon_b.setPlaceholderText("e.g. -44.00")
+    dialog.cp_lon_b.setValidator(QDoubleValidator(-180.0, 180.0, 6))
     dialog.cp_lat_b = QLineEdit()
     dialog.cp_lat_b.setPlaceholderText("e.g. -20.00")
+    dialog.cp_lat_b.setValidator(QDoubleValidator(-90.0, 90.0, 6))
     grid_b.addWidget(QLabel(_tr("Longitude")), 0, 0)
     grid_b.addWidget(QLabel(_tr("Latitude")), 0, 1)
     grid_b.addWidget(dialog.cp_lon_b, 1, 0)

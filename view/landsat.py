@@ -16,7 +16,6 @@ are exposed on ``dialog`` as ``ls_*`` attributes.
 from qgis.core import QgsMapLayerProxyModel
 from qgis.gui import QgsMapLayerComboBox
 from qgis.PyQt.QtCore import Qt, QCoreApplication, QDate
-from qgis.PyQt.QtWebKitWidgets import QWebView
 from qgis.PyQt.QtWidgets import (
     QCheckBox,
     QComboBox,
@@ -50,6 +49,7 @@ from .radar import (
     _section_panel,
 )
 from .styles import STYLE_BTN_PRIMARY, STYLE_BTN_SECONDARY, STYLE_CHECKBOX
+from .webcompat import QWebView
 from ..services.landsat_service import (
     LANDSAT_INDEX_ORDER,
     MULTISPECTRAL_MODES,

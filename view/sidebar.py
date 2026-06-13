@@ -137,8 +137,11 @@ class Sidebar(QFrame):
         brand_block_lay.setContentsMargins(0, 0, 0, 0)
         brand_block_lay.setSpacing(0)
 
-        self.brand_panel = self._build_brand_panel()
-        brand_block_lay.addWidget(self.brand_panel, 0, Qt.AlignmentFlag.AlignHCenter)
+        # The brand is a real nav button (logo only): same group, selection
+        # indicator and wiring as the other pages — it navigates to Welcome.
+        self.btn_welcome = self._build_brand_panel()
+        self.btn_welcome.clicked.connect(self.welcome_requested.emit)
+        brand_block_lay.addWidget(self.btn_welcome, 0, Qt.AlignmentFlag.AlignHCenter)
         brand_block_lay.addSpacing(8)
         self.brand_divider = QFrame()
         self.brand_divider.setObjectName("sidebarBrandDivider")
@@ -151,10 +154,6 @@ class Sidebar(QFrame):
         """)
         brand_block_lay.addWidget(self.brand_divider, 0, Qt.AlignmentFlag.AlignHCenter)
         brand_block_lay.addSpacing(10)
-        # Clicking the brand returns to the Welcome page.
-        self.brand_block.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.brand_block.setToolTip(_tr("Back to Welcome"))
-        self.brand_block.mousePressEvent = self._on_brand_clicked
         lay.addWidget(self.brand_block)
 
         self.btn_auth = self._make_button(_tr("Auth"), "auth")
@@ -173,7 +172,7 @@ class Sidebar(QFrame):
         self.btn_radar.clicked.connect(self.radar_requested.emit)
         lay.addWidget(self.btn_radar)
 
-        self.btn_download = self._make_button(_tr("Download DEM"), "download")
+        self.btn_download = self._make_button(_tr("EasyDEM"), "download")
         self.btn_download.clicked.connect(self.dem_requested.emit)
         lay.addWidget(self.btn_download)
 
@@ -191,6 +190,7 @@ class Sidebar(QFrame):
 
         self._group = QButtonGroup(self)
         self._group.setExclusive(True)
+        self._group.addButton(self.btn_welcome)
         self._group.addButton(self.btn_auth)
         self._group.addButton(self.btn_optical)
         self._group.addButton(self.btn_sysi)
@@ -216,58 +216,32 @@ class Sidebar(QFrame):
         """)
         lay.addWidget(self.version_label)
 
-    def _build_brand_panel(self) -> QWidget:
-        panel = QWidget()
-        panel.setObjectName("sidebarBrand")
-        panel.setFixedHeight(42)
-        panel.setStyleSheet("background: transparent;")
+    def _build_brand_panel(self) -> QPushButton:
+        """Brand as a logo-only nav button (no wordmark).
 
-        brand_lay = QHBoxLayout(panel)
-        brand_lay.setContentsMargins(0, 0, 0, 0)
-        brand_lay.setSpacing(8)
+        Shares ``sidebarNavButton`` styling and ``SidebarNavButton``'s checked
+        indicator, so it looks and behaves exactly like the other nav buttons.
+        """
+        btn = SidebarNavButton("")
+        btn.setObjectName("sidebarNavButton")
+        btn.setProperty("navText", "")
+        btn.setCheckable(True)
+        btn.setCursor(Qt.CursorShape.PointingHandCursor)
+        btn.setFixedHeight(42)
+        btn.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+        btn.setToolTip(_tr("Welcome"))
 
-        self.brand_icon = QLabel()
-        self.brand_icon.setObjectName("sidebarBrandIcon")
-        self.brand_icon.setFixedSize(32, 32)
-        self.brand_icon.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.brand_icon.setStyleSheet("""
-            QLabel#sidebarBrandIcon {
-                background-color: rgba(255, 255, 255, 24);
-                border: 1px solid rgba(255, 255, 255, 42);
-                border-radius: 16px;
-            }
-        """)
         pix = self._load_brand_pixmap()
         if pix is not None:
-            self.brand_icon.setPixmap(pix)
+            icon = QIcon()
+            icon.addPixmap(pix, QIcon.Mode.Normal, QIcon.State.Off)
+            icon.addPixmap(pix, QIcon.Mode.Normal, QIcon.State.On)
+            icon.addPixmap(pix, QIcon.Mode.Active, QIcon.State.Off)
+            btn.setIcon(icon)
+            btn.setIconSize(QSize(30, 30))
         else:
-            self.brand_icon.setText("E")
-            self.brand_icon.setStyleSheet("""
-                QLabel#sidebarBrandIcon {
-                    background-color: rgba(255, 255, 255, 24);
-                    border: 1px solid rgba(255, 255, 255, 42);
-                    border-radius: 16px;
-                    color: #ffffff;
-                    font-size: 14px;
-                    font-weight: bold;
-                }
-            """)
-        brand_lay.addWidget(self.brand_icon)
-
-        self.brand_text = QLabel("FARM tools")
-        self.brand_text.setObjectName("sidebarBrandText")
-        self.brand_text.setStyleSheet("""
-            QLabel#sidebarBrandText {
-                background: transparent;
-                color: #ffffff;
-                font-size: 13px;
-                font-weight: bold;
-                letter-spacing: 0.4px;
-            }
-        """)
-        brand_lay.addWidget(self.brand_text)
-        brand_lay.addStretch()
-        return panel
+            btn.setText("FARM")
+        return btn
 
     def _make_button(self, text: str, icon_kind: str) -> QPushButton:
         btn = SidebarNavButton(text)
@@ -285,6 +259,12 @@ class Sidebar(QFrame):
     def set_active_page(self, page: str) -> None:
         """Highlight the button matching ``page`` (``'auth'``, ``'optical'``, ``'sysi'``, ``'radar'``, ``'download'``, ``'landsat'`` or ``'fieldguide'``)."""
         self._active_page = page
+        # An exclusive QButtonGroup ignores setChecked(False) on the currently
+        # checked button, so it could never reach a no-selection state (needed
+        # when the brand/Welcome page is active). Drop exclusivity while syncing,
+        # then restore it.
+        self._group.setExclusive(False)
+        self.btn_welcome.setChecked(page == "welcome")
         self.btn_auth.setChecked(page == "auth")
         self.btn_optical.setChecked(page == "optical")
         self.btn_sysi.setChecked(page == "sysi")
@@ -293,12 +273,8 @@ class Sidebar(QFrame):
         self.btn_landsat.setChecked(page == "landsat")
         self.btn_fieldguide.setChecked(page == "fieldguide")
         self.btn_climaplots.setChecked(page == "climaplots")
+        self._group.setExclusive(True)
         self._sync_brand_visibility()
-
-    def _on_brand_clicked(self, event) -> None:
-        """Brand panel acts as a Home button to the Welcome page."""
-        if event.button() == Qt.MouseButton.LeftButton:
-            self.welcome_requested.emit()
 
     def enterEvent(self, event) -> None:
         """Expand the navigation rail while the pointer is over it."""
@@ -320,9 +296,8 @@ class Sidebar(QFrame):
             btn.setToolTip("" if expanded else btn.property("navText"))
             btn.setFixedWidth(156 if expanded else 42)
 
-        self.brand_panel.setFixedWidth(156 if expanded else 32)
+        self.btn_welcome.setFixedWidth(156 if expanded else 42)
         self.brand_block.setFixedWidth(156 if expanded else 42)
-        self.brand_text.setVisible(expanded)
         self.brand_divider.setFixedWidth(156 if expanded else 28)
 
         if self._version:
@@ -434,25 +409,16 @@ class Sidebar(QFrame):
             return None
 
         raw = QPixmap(icon_path)
-        crop_top = int(raw.height() * 0.11)
-        cropped = raw.copy(0, crop_top, raw.width(), raw.height() - crop_top)
-        square = cropped.scaled(
-            26,
-            26,
-            Qt.AspectRatioMode.IgnoreAspectRatio,
+        if raw.isNull():
+            return None
+
+        # Show the full logo undistorted, scaled to fill the 40 px brand label.
+        return raw.scaled(
+            40,
+            40,
+            Qt.AspectRatioMode.KeepAspectRatio,
             Qt.TransformationMode.SmoothTransformation,
         )
-        rounded = QPixmap(26, 26)
-        rounded.fill(Qt.GlobalColor.transparent)
-
-        painter = QPainter(rounded)
-        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
-        path = QPainterPath()
-        path.addEllipse(0, 0, 26, 26)
-        painter.setClipPath(path)
-        painter.drawPixmap(0, 0, square)
-        painter.end()
-        return rounded
 
     def _draw_icon(self, kind: str, color: str) -> QPixmap:
         pix = QPixmap(20, 20)

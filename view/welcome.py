@@ -23,12 +23,15 @@ from qgis.PyQt.QtWidgets import (
     QHBoxLayout,
     QLabel,
     QLayout,
+    QLineEdit,
     QPushButton,
     QScrollArea,
     QSizePolicy,
     QVBoxLayout,
     QWidget,
 )
+
+from .styles import STYLE_BTN_SECONDARY
 
 
 def _tr(text):
@@ -247,7 +250,8 @@ def _draw_module_icon(kind: str, color: str, size: int = 30) -> QPixmap:
 
 
 _CARD_WIDTH = 268
-_CARD_HEIGHT = 84
+# Tall enough for a one-line title plus a three-line wrapped description.
+_CARD_HEIGHT = 98
 
 
 def _build_module_card(dialog, kind, name, desc, nav_attr):
@@ -391,6 +395,85 @@ def _build_about_section():
     return frame
 
 
+def _build_folder_section(dialog):
+    """Download-folder picker, shared by every module's export action.
+
+    Exposes ``dialog.folder_input``, ``dialog.btn_clear_folder`` and
+    ``dialog.btn_browse_folder`` — wired by ``farm_tools.py``.
+    """
+    frame = QFrame()
+    frame.setObjectName("folderCard")
+    frame.setStyleSheet("""
+        QFrame#folderCard {
+            background-color: #ffffff;
+            border: 1px solid #e4e7e5;
+            border-radius: 12px;
+        }
+        QFrame#folderCard QLabel { background: transparent; border: none; }
+    """)
+    folder_lay = QVBoxLayout(frame)
+    folder_lay.setContentsMargins(20, 14, 20, 14)
+    folder_lay.setSpacing(8)
+
+    folder_lbl = QLabel(_tr("Download folder"))
+    folder_lbl.setStyleSheet("color: #616161; font-size: 11px; font-weight: bold;")
+    folder_lay.addWidget(folder_lbl)
+
+    folder_input_row = QHBoxLayout()
+    folder_input_row.setContentsMargins(0, 0, 0, 0)
+    folder_input_row.setSpacing(8)
+
+    dialog.folder_input = QLineEdit()
+    dialog.folder_input.setReadOnly(True)
+    dialog.folder_input.setPlaceholderText(_tr("System temp (default)"))
+    dialog.folder_input.setFixedHeight(28)
+    dialog.folder_input.setStyleSheet("""
+        QLineEdit {
+            background-color: #f5f5f5;
+            color: #424242;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            padding: 2px 8px;
+            font-size: 12px;
+        }
+    """)
+    folder_input_row.addWidget(dialog.folder_input, 1)
+
+    dialog.btn_clear_folder = QPushButton("✕")
+    dialog.btn_clear_folder.setFixedSize(28, 28)
+    dialog.btn_clear_folder.setToolTip(_tr("Clear download folder"))
+    dialog.btn_clear_folder.setStyleSheet("""
+        QPushButton {
+            background-color: transparent;
+            color: #bdbdbd;
+            border: none;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+        QPushButton:hover:enabled {
+            color: #c62828;
+            background-color: #fdecea;
+        }
+        QPushButton:disabled { color: #eeeeee; }
+    """)
+    folder_input_row.addWidget(dialog.btn_clear_folder)
+
+    dialog.btn_browse_folder = QPushButton(_tr("Browse"))
+    dialog.btn_browse_folder.setFixedHeight(28)
+    dialog.btn_browse_folder.setStyleSheet(STYLE_BTN_SECONDARY)
+    folder_input_row.addWidget(dialog.btn_browse_folder)
+
+    folder_lay.addLayout(folder_input_row)
+
+    def _sync_clear_enabled(text):
+        dialog.btn_clear_folder.setEnabled(bool(text))
+
+    dialog.folder_input.textChanged.connect(_sync_clear_enabled)
+    _sync_clear_enabled(dialog.folder_input.text())
+
+    return frame
+
+
 def _build_hub_section(dialog):
     """Header strip + responsive grid of module cards."""
     container = QWidget()
@@ -417,6 +500,8 @@ def _build_hub_section(dialog):
     for kind, name, desc, nav_attr in _MODULES:
         grid.addWidget(_build_module_card(dialog, kind, name, desc, nav_attr))
     outer.addWidget(grid_host)
+    outer.addSpacing(16)
+    outer.addWidget(_build_folder_section(dialog))
     outer.addSpacing(16)
     outer.addWidget(_build_about_section())
     outer.addStretch(1)
