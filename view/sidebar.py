@@ -7,6 +7,7 @@ in ``farm_tools_dialog.py`` so the dialog can keep header and active state in sy
 """
 
 import os
+import re
 
 from qgis.PyQt.QtCore import (
     QCoreApplication,
@@ -21,12 +22,14 @@ from qgis.PyQt.QtCore import QPointF
 from qgis.PyQt.QtGui import QColor, QFont, QIcon, QPainter, QPainterPath, QPen, QPixmap
 from qgis.PyQt.QtWidgets import (
     QButtonGroup,
+    QDialog,
     QFrame,
     QHBoxLayout,
     QLabel,
     QPushButton,
     QScrollArea,
     QSizePolicy,
+    QTextBrowser,
     QVBoxLayout,
     QWidget,
 )
@@ -49,6 +52,47 @@ def _read_plugin_version() -> str:
     except OSError:
         pass
     return ""
+
+
+def _read_plugin_changelog() -> str:
+    """Read the ``changelog=`` block from the plugin's metadata.txt.
+
+    Re-reads the file on every call so the dialog always reflects the current
+    metadata.txt. Returns the de-indented changelog text, empty if missing.
+    """
+    plugin_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    metadata_path = os.path.join(plugin_dir, "metadata.txt")
+    raw_lines = []
+    try:
+        with open(metadata_path, "r", encoding="utf-8") as handle:
+            in_block = False
+            for raw in handle:
+                line = raw.rstrip("\n")
+                if not in_block:
+                    if line.strip().startswith("changelog="):
+                        in_block = True
+                        first = line.split("=", 1)[1].strip()
+                        if first:
+                            raw_lines.append(first)
+                    continue
+                # Continuation lines are indented; an unindented line ends the
+                # block (next metadata key, comment, or section header).
+                if line.strip() and not line[:1].isspace():
+                    break
+                raw_lines.append(line.strip())
+    except OSError:
+        return ""
+
+    # Each version entry starts with "<n>.<n> - ..."; following indented lines
+    # are soft-wrapped continuations of that same entry, so re-join them into
+    # one paragraph per version.
+    entries = []
+    for line in raw_lines:
+        if re.match(r"^\d+\.\d+\s*-", line):
+            entries.append(line)
+        elif line and entries:
+            entries[-1] += " " + line
+    return "\n".join(entries).strip()
 
 
 SIDEBAR_COLLAPSED_WIDTH = 64
@@ -255,6 +299,27 @@ class Sidebar(QFrame):
             self.version_label.setText("v{0}".format(self._version))
         lay.addWidget(self.version_label)
 
+        # Discreet "What's new" link below the version: opens a dialog that
+        # re-reads the changelog from metadata.txt on every click.
+        self.whats_new_label = QLabel()
+        self.whats_new_label.setObjectName("sidebarWhatsNew")
+        self.whats_new_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.whats_new_label.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.whats_new_label.setText(
+            '<a href="#whatsnew" style="color: rgba(255,255,255,150); '
+            'text-decoration: none;">{0}</a>'.format(_tr("What's new"))
+        )
+        self.whats_new_label.setStyleSheet("""
+            QLabel#sidebarWhatsNew {
+                background: transparent;
+                font-size: 10px;
+                letter-spacing: 0.3px;
+            }
+        """)
+        self.whats_new_label.linkActivated.connect(self._show_changelog)
+        self.whats_new_label.setVisible(False)
+        lay.addWidget(self.whats_new_label)
+
     def _build_brand_panel(self) -> QPushButton:
         """Brand as a logo-only nav button (no wordmark).
 
@@ -316,6 +381,44 @@ class Sidebar(QFrame):
         self._group.setExclusive(True)
         self._sync_brand_visibility()
 
+    def _show_changelog(self) -> None:
+        """Open a modal dialog with the changelog, re-read from metadata.txt."""
+        changelog = _read_plugin_changelog()
+        dlg = QDialog(self)
+        dlg.setWindowTitle(_tr("What's new"))
+        dlg.setMinimumSize(560, 420)
+        dlg_lay = QVBoxLayout(dlg)
+        dlg_lay.setContentsMargins(0, 0, 0, 0)
+        dlg_lay.setSpacing(0)
+
+        browser = QTextBrowser(dlg)
+        browser.setOpenExternalLinks(True)
+        if changelog:
+            entries = []
+            for entry in changelog.split("\n"):
+                match = re.match(r"^(\d+\.\d+)\s*-\s*(.*)$", entry)
+                if match:
+                    entries.append(
+                        "<p style='margin:0 0 14px 0;'>"
+                        "<b style='color:#1F6B3A;'>v{0}</b> &mdash; {1}</p>".format(
+                            match.group(1), match.group(2)
+                        )
+                    )
+                else:
+                    entries.append(
+                        "<p style='margin:0 0 14px 0;'>{0}</p>".format(entry)
+                    )
+            browser.setHtml(
+                "<div style='font-size:13px; line-height:1.45;'>{0}</div>".format(
+                    "".join(entries)
+                )
+            )
+        else:
+            browser.setPlainText(_tr("No changelog available."))
+        dlg_lay.addWidget(browser)
+
+        dlg.exec()
+
     def enterEvent(self, event) -> None:
         """Expand the navigation rail while the pointer is over it."""
         self._apply_expanded_state(True)
@@ -355,6 +458,8 @@ class Sidebar(QFrame):
                 _tr("Version {0}").format(self._version) if expanded
                 else "v{0}".format(self._version)
             )
+        # The link only fits the expanded rail; collapsed shows version alone.
+        self.whats_new_label.setVisible(expanded)
         self._sync_brand_visibility()
 
         self.setStyleSheet(self._stylesheet(expanded))
