@@ -9,7 +9,7 @@ Modules:
     plot_service        - plotly figure builders (returns PlotResult)
     orchestrator        - sequences fetch + indices into one ClimateData
     export_service      - xlsx / zip-of-CSV workbook export
-    disk_cache          - on-disk pickle cache for fetched series
+    disk_cache          - on-disk CSV cache for fetched series
     types               - ClimateData / PlotResult dataclasses
 
 IMPORTANT: no eager submodule imports here. ``indices_service``,
