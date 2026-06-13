@@ -178,7 +178,19 @@ const MODULES = [
       <p class="sec-label">{{ t('about.label') }}</p>
       <h2>{{ t('about.title') }}</h2>
       <div class="about-box">
-        <p>{{ t('about.text') }}</p>
+        <p>
+          {{ t('about.textPre') }}<a
+            class="about-link"
+            href="https://www.linkedin.com/in/caioarantes/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >Caio Arantes</a>{{ t('about.textMid') }}<a
+            class="about-link"
+            href="https://www.linkedin.com/in/lucas-rios-do-amaral-bb302449/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >Prof. Dr. Lucas dos Rios Amaral</a>{{ t('about.textPost') }}
+        </p>
         <div class="partner-row">
           <img class="partner-logo" src="/farm_icon.png" alt="FARM Analytica logo" />
           <div class="partner-info">
@@ -206,24 +218,6 @@ const MODULES = [
             </a>
           </div>
         </div>
-        <p class="about-ref">
-          <span>{{ t('about.supervisorsPrefix') }}</span>
-          <a
-            href="https://www.linkedin.com/in/lucas-rios-do-amaral-bb302449/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Prof. Dr. Lucas Rios do Amaral
-          </a>
-          <span>{{ t('about.supervisorsAnd') }}</span>
-          <a
-            href="https://www.linkedin.com/in/isabella-alves-da-cunha-a110011b9/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            M.Sc. Isabella Alves da Cunha
-          </a>.
-        </p>
       </div>
     </div>
   </section>
@@ -360,6 +354,13 @@ const MODULES = [
   margin-bottom: 1.5rem;
 }
 
+.about-link {
+  color: var(--primary);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
 .partner-row {
   display: flex;
   align-items: flex-start;
@@ -416,22 +417,6 @@ const MODULES = [
   text-underline-offset: 3px;
   margin-top: 0.1rem;
   display: inline-block;
-}
-
-.about-ref {
-  font-size: 0.93rem;
-  color: var(--text-soft);
-  line-height: 1.65;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.3rem;
-}
-
-.about-ref a {
-  color: var(--primary);
-  font-weight: 600;
-  text-decoration: underline;
-  text-underline-offset: 3px;
 }
 
 @media (max-width: 900px) {

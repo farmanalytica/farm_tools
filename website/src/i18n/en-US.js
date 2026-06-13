@@ -147,13 +147,13 @@ export default {
   about: {
     label: 'Project',
     title: 'About the Project',
-    text: 'FARM tools began as the undergraduate final project (TCC) of Caio Arantes, developed under the supervision of Prof. Dr. Lucas dos Rios Amaral. Today it is a free and open-source project maintained with the support of FARM Analytica, committed to technology diffusion and the open-source philosophy.',
+    textPre: 'FARM tools began as the undergraduate final project (TCC) of ',
+    textMid: ', developed under the supervision of ',
+    textPost: '. Today it is a free and open-source project maintained with the support of FARM Analytica, committed to technology diffusion and the open-source philosophy.',
     sponsorLabel: 'Supported by',
     sponsorDesc: 'Technology and field intelligence working together to support practical operations.',
     whatsapp: 'Talk on WhatsApp',
     sponsorCta: 'Speak with FARM about exclusive custom solutions',
-    supervisorsPrefix: 'Academic supervision by',
-    supervisorsAnd: 'and',
   },
   tutorials: {
     label: 'Tutorials',
