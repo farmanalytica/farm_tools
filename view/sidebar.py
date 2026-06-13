@@ -25,6 +25,7 @@ from qgis.PyQt.QtWidgets import (
     QHBoxLayout,
     QLabel,
     QPushButton,
+    QScrollArea,
     QSizePolicy,
     QVBoxLayout,
     QWidget,
@@ -95,6 +96,7 @@ class Sidebar(QFrame):
         landsat_requested: emitted when the user clicks Landsat (Super-Res).
         fieldguide_requested: emitted when the user clicks Field Guide.
         climaplots_requested: emitted when the user clicks ClimaPlots.
+        mapbiomas_requested: emitted when the user clicks MapBiomas.
     """
 
     welcome_requested = pyqtSignal()
@@ -106,6 +108,7 @@ class Sidebar(QFrame):
     landsat_requested = pyqtSignal()
     fieldguide_requested = pyqtSignal()
     climaplots_requested = pyqtSignal()
+    mapbiomas_requested = pyqtSignal()
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -156,37 +159,72 @@ class Sidebar(QFrame):
         brand_block_lay.addSpacing(10)
         lay.addWidget(self.brand_block)
 
+        # Nav buttons live in a scroll area so the rail never imposes a tall
+        # minimum height on the dialog as more modules are added — it scrolls
+        # instead. Brand stays pinned above, version below.
+        self.nav_scroll = QScrollArea()
+        self.nav_scroll.setObjectName("sidebarNavScroll")
+        self.nav_scroll.setWidgetResizable(True)
+        self.nav_scroll.setFrameShape(QFrame.Shape.NoFrame)
+        self.nav_scroll.setHorizontalScrollBarPolicy(
+            Qt.ScrollBarPolicy.ScrollBarAlwaysOff
+        )
+        # Vertical scrollbar is shown only in expanded mode (see
+        # _apply_expanded_state); collapsed rail stays clean and is still
+        # wheel-scrollable.
+        self.nav_scroll.setVerticalScrollBarPolicy(
+            Qt.ScrollBarPolicy.ScrollBarAlwaysOff
+        )
+        self.nav_scroll.setSizePolicy(
+            QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Expanding
+        )
+        self.nav_scroll.viewport().setStyleSheet("background: transparent;")
+
+        nav_container = QWidget()
+        nav_container.setObjectName("sidebarNavContainer")
+        nav_lay = QVBoxLayout(nav_container)
+        nav_lay.setContentsMargins(0, 0, 0, 0)
+        nav_lay.setSpacing(8)
+
         self.btn_auth = self._make_button(_tr("Auth"), "auth")
         self.btn_auth.clicked.connect(self.auth_requested.emit)
-        lay.addWidget(self.btn_auth)
+        nav_lay.addWidget(self.btn_auth)
 
         self.btn_optical = self._make_button(_tr("Optical (Sentinel-2)"), "optical")
         self.btn_optical.clicked.connect(self.optical_requested.emit)
-        lay.addWidget(self.btn_optical)
+        nav_lay.addWidget(self.btn_optical)
 
         self.btn_sysi = self._make_button(_tr("SYSI"), "sysi")
         self.btn_sysi.clicked.connect(self.sysi_requested.emit)
-        lay.addWidget(self.btn_sysi)
+        nav_lay.addWidget(self.btn_sysi)
 
         self.btn_radar = self._make_button(_tr("Radar (SAR) data"), "radar")
         self.btn_radar.clicked.connect(self.radar_requested.emit)
-        lay.addWidget(self.btn_radar)
+        nav_lay.addWidget(self.btn_radar)
 
         self.btn_download = self._make_button(_tr("EasyDEM"), "download")
         self.btn_download.clicked.connect(self.dem_requested.emit)
-        lay.addWidget(self.btn_download)
+        nav_lay.addWidget(self.btn_download)
 
         self.btn_landsat = self._make_button(_tr("Landsat (Super-Res)"), "landsat")
         self.btn_landsat.clicked.connect(self.landsat_requested.emit)
-        lay.addWidget(self.btn_landsat)
+        nav_lay.addWidget(self.btn_landsat)
 
         self.btn_fieldguide = self._make_button(_tr("Field Guide"), "fieldguide")
         self.btn_fieldguide.clicked.connect(self.fieldguide_requested.emit)
-        lay.addWidget(self.btn_fieldguide)
+        nav_lay.addWidget(self.btn_fieldguide)
 
         self.btn_climaplots = self._make_button(_tr("ClimaPlots"), "climaplots")
         self.btn_climaplots.clicked.connect(self.climaplots_requested.emit)
-        lay.addWidget(self.btn_climaplots)
+        nav_lay.addWidget(self.btn_climaplots)
+
+        self.btn_mapbiomas = self._make_button(_tr("MapBiomas"), "mapbiomas")
+        self.btn_mapbiomas.clicked.connect(self.mapbiomas_requested.emit)
+        nav_lay.addWidget(self.btn_mapbiomas)
+
+        nav_lay.addStretch(1)
+        self.nav_scroll.setWidget(nav_container)
+        lay.addWidget(self.nav_scroll, 1)
 
         self._group = QButtonGroup(self)
         self._group.setExclusive(True)
@@ -199,8 +237,7 @@ class Sidebar(QFrame):
         self._group.addButton(self.btn_landsat)
         self._group.addButton(self.btn_fieldguide)
         self._group.addButton(self.btn_climaplots)
-
-        lay.addStretch()
+        self._group.addButton(self.btn_mapbiomas)
 
         self._version = _read_plugin_version()
         self.version_label = QLabel()
@@ -273,6 +310,7 @@ class Sidebar(QFrame):
         self.btn_landsat.setChecked(page == "landsat")
         self.btn_fieldguide.setChecked(page == "fieldguide")
         self.btn_climaplots.setChecked(page == "climaplots")
+        self.btn_mapbiomas.setChecked(page == "mapbiomas")
         self._group.setExclusive(True)
         self._sync_brand_visibility()
 
@@ -291,7 +329,7 @@ class Sidebar(QFrame):
         side_margin = 14 if expanded else 11
         self._layout.setContentsMargins(side_margin, 18, side_margin, 18)
 
-        for btn in (self.btn_auth, self.btn_optical, self.btn_sysi, self.btn_radar, self.btn_download, self.btn_landsat, self.btn_fieldguide, self.btn_climaplots):
+        for btn in (self.btn_auth, self.btn_optical, self.btn_sysi, self.btn_radar, self.btn_download, self.btn_landsat, self.btn_fieldguide, self.btn_climaplots, self.btn_mapbiomas):
             btn.setText(btn.property("navText") if expanded else "")
             btn.setToolTip("" if expanded else btn.property("navText"))
             btn.setFixedWidth(156 if expanded else 42)
@@ -299,6 +337,16 @@ class Sidebar(QFrame):
         self.btn_welcome.setFixedWidth(156 if expanded else 42)
         self.brand_block.setFixedWidth(156 if expanded else 42)
         self.brand_divider.setFixedWidth(156 if expanded else 28)
+
+        # Scrollbar only while expanded; collapsed rail stays clean (wheel still
+        # scrolls). Snap back to the top when collapsing so the icon rail always
+        # starts at Auth.
+        self.nav_scroll.setVerticalScrollBarPolicy(
+            Qt.ScrollBarPolicy.ScrollBarAsNeeded if expanded
+            else Qt.ScrollBarPolicy.ScrollBarAlwaysOff
+        )
+        if not expanded:
+            self.nav_scroll.verticalScrollBar().setValue(0)
 
         if self._version:
             self.version_label.setText(
@@ -365,6 +413,31 @@ class Sidebar(QFrame):
         }}
         QPushButton#sidebarNavButton:disabled {{
             color: {SIDEBAR_MUTED};
+        }}
+        QScrollArea#sidebarNavScroll, QWidget#sidebarNavContainer {{
+            background: transparent;
+            border: none;
+        }}
+        QScrollArea#sidebarNavScroll QScrollBar:vertical {{
+            background: transparent;
+            width: 5px;
+            margin: 0;
+        }}
+        QScrollArea#sidebarNavScroll QScrollBar::handle:vertical {{
+            background: rgba(255, 255, 255, 60);
+            border-radius: 2px;
+            min-height: 24px;
+        }}
+        QScrollArea#sidebarNavScroll QScrollBar::handle:vertical:hover {{
+            background: rgba(255, 255, 255, 110);
+        }}
+        QScrollArea#sidebarNavScroll QScrollBar::add-line:vertical,
+        QScrollArea#sidebarNavScroll QScrollBar::sub-line:vertical {{
+            height: 0;
+        }}
+        QScrollArea#sidebarNavScroll QScrollBar::add-page:vertical,
+        QScrollArea#sidebarNavScroll QScrollBar::sub-page:vertical {{
+            background: transparent;
         }}
         """
 
@@ -490,6 +563,18 @@ class Sidebar(QFrame):
             drop.cubicTo(11.0, 13.0, 11.0, 15.0, 13.5, 17.0)
             drop.cubicTo(16.0, 15.0, 16.0, 13.0, 13.5, 9.5)
             painter.drawPath(drop)
+        elif kind == "mapbiomas":
+            # Land-cover mosaic — a map tile split into patches, one filled.
+            painter.setPen(pen)
+            painter.drawRect(QRectF(3, 4, 14, 12))
+            painter.drawLine(QPointF(9, 4), QPointF(9, 16))
+            painter.drawLine(QPointF(3, 10), QPointF(17, 10))
+            # A meandering boundary (river/field edge) across a patch.
+            edge = QPainterPath()
+            edge.moveTo(9, 7)
+            edge.cubicTo(12, 7.5, 11, 9.5, 14, 10)
+            painter.drawPath(edge)
+            painter.fillRect(QRectF(3.6, 10.6, 4.8, 4.8), QColor(color))
         else:
             painter.setPen(pen)
             painter.drawLine(10, 3, 10, 12)
