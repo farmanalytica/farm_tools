@@ -17,10 +17,12 @@ def isolated_settings(tmp_path):
     """Point QSettings at a throwaway ini file for the duration of the test."""
     from qgis.PyQt.QtCore import QSettings
 
-    QSettings.setDefaultFormat(QSettings.IniFormat)
-    QSettings.setPath(
-        QSettings.IniFormat, QSettings.UserScope, str(tmp_path)
-    )
+    # Qt6 (QGIS 4) scopes enums under their type; Qt5 (QGIS 3) exposes them flat.
+    ini_format = getattr(QSettings.Format, "IniFormat", None) or QSettings.IniFormat
+    user_scope = getattr(QSettings.Scope, "UserScope", None) or QSettings.UserScope
+
+    QSettings.setDefaultFormat(ini_format)
+    QSettings.setPath(ini_format, user_scope, str(tmp_path))
     yield
 
 

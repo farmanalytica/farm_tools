@@ -17,7 +17,6 @@ from qgis.PyQt.QtCore import (
     QRect,
     QSize,
 )
-from qgis.PyQt.QtWebKitWidgets import QWebView
 from qgis.PyQt.QtWidgets import (
     QCheckBox,
     QComboBox,
@@ -38,6 +37,7 @@ from qgis.PyQt.QtWidgets import (
 )
 
 from .styles import STYLE_BTN_PRIMARY, STYLE_BTN_SECONDARY, STYLE_CHECKBOX
+from .webcompat import QWebView
 
 
 def _tr(text):

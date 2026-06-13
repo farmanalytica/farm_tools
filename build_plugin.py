@@ -42,12 +42,18 @@ INCLUDE_DIRS = [
     "renderers",
     "tools",
     "workers",
-    "assets",
+]
+
+# Assets are handpicked, not globbed: only the files loaded at runtime ship.
+# Source artwork (logo.svg, farm.svg, ravi.svg, farm_icon.png), website-only
+# images (whatsapp.svg) and orphaned pages (intro_sar.html) stay out of the zip.
+INCLUDE_ASSETS = [
+    "assets/dem_catalog.json",       # services/dem_registry.py
+    "assets/farm_analytica_logo.svg",  # dialog footer logo
+    "assets/plotly-1.58.5.min.js",   # view/plotly_render.py, view/sar_plot.py
 ]
 
 SKIP = {"__pycache__", ".git", ".github", "dist", ".mypy_cache", ".pytest_cache"}
-
-SKIP_FILES = {"assets/screenshot.png"}
 
 
 def step(msg: str) -> None:
@@ -115,10 +121,7 @@ def compile_translations() -> None:
 
 def _skip(path: Path, relative_to: Path) -> bool:
     rel = path.relative_to(relative_to)
-    if any(part in SKIP for part in rel.parts):
-        return True
-    rel_from_root = path.relative_to(ROOT)
-    return rel_from_root.as_posix() in SKIP_FILES
+    return any(part in SKIP for part in rel.parts)
 
 
 def build_zip() -> None:
@@ -136,6 +139,14 @@ def build_zip() -> None:
                 print(f"  + {filename}")
             else:
                 print(f"  ! MISSING: {filename}")
+
+        for asset in INCLUDE_ASSETS:
+            src = ROOT / asset
+            if src.exists():
+                zf.write(src, f"{PLUGIN_FOLDER}/{asset}")
+                print(f"  + {asset}")
+            else:
+                print(f"  ! MISSING: {asset}")
 
         i18n_dir = ROOT / "i18n"
         if i18n_dir.exists():

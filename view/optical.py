@@ -16,7 +16,6 @@ layer is in place. All interactive widgets are exposed on ``dialog`` as
 from qgis.core import QgsMapLayerProxyModel
 from qgis.gui import QgsMapLayerComboBox
 from qgis.PyQt.QtCore import Qt, QCoreApplication, QDate
-from qgis.PyQt.QtWebKitWidgets import QWebView
 from qgis.PyQt.QtWidgets import (
     QCheckBox,
     QComboBox,
@@ -60,6 +59,7 @@ from .optical_index_info import (
     INDEX_ORDER,
     VEGETATION_INDICES,
 )
+from .webcompat import QWebView
 from ..tools.indexes import load_custom_indexes
 
 
@@ -691,7 +691,7 @@ def _build_results_tab(dialog, parent):
             " padding: 0px 4px; font-size: 13px; font-weight: 600; min-width: 36px;"
             "}"
         )
-        spinbox.setAlignment(Qt.AlignCenter)
+        spinbox.setAlignment(Qt.AlignmentFlag.AlignCenter)
         spinbox.setFixedHeight(height)
 
         _btn_base = (
@@ -721,7 +721,7 @@ def _build_results_tab(dialog, parent):
         )
         for b in (btn_m, btn_p):
             b.setFixedHeight(height)
-            b.setFocusPolicy(Qt.NoFocus)
+            b.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         btn_m.clicked.connect(spinbox.stepDown)
         btn_p.clicked.connect(spinbox.stepUp)
         wrap = QWidget()
