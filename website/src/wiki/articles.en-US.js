@@ -215,6 +215,28 @@ export default [
     ],
   },
   {
+    slug: 'mapbiomas',
+    icon: '🗺️',
+    title: 'MapBiomas',
+    summary: 'Brazilian land-use/land-cover by year and configurable transition analysis.',
+    sections: [
+      { p: 'MapBiomas brings the MapBiomas Brasil Collection 9 annual land-use / land-cover archive into QGIS. Browse any year inside the module, download a year to QGIS as a styled classification raster, or analyze how the land changed over time. Coverage is Brazil-only and runs through Google Earth Engine.' },
+      { h2: 'Coverage' },
+      { list: [
+        'Browse every year (1985–2023) in-module with a year slider, beside the official 63-class legend.',
+        'Download any single year to QGIS as a single-band classification raster styled with the official MapBiomas palette — real class IDs, so pixels stay queryable and analyzable.',
+      ] },
+      { h2: 'Transition analysis' },
+      { p: 'Map the first year each pixel changed from a source land-use to a target land-use, and chart the converted area per year.' },
+      { list: [
+        'Presets: Pasture → Crop, Deforestation (forest → anthropic), Forest regrowth, Agricultural expansion, and Urban expansion.',
+        'Custom: pick any combination of source and target classes.',
+        'A year-range slider filters the chart live and limits the exported transition layer, which loads into QGIS classed by transition year.',
+      ] },
+      { note: 'MapBiomas Collection 9 covers Brazil only — areas outside Brazil return empty results. Requires Google Earth Engine authentication, like the other GEE modules.' },
+    ],
+  },
+  {
     slug: 'exports-downloads',
     icon: '💾',
     title: 'Exports & Downloads',
@@ -231,6 +253,7 @@ export default [
           ['SYSI', 'Synthetic bare-soil composite as a rendered layer / GeoTIFF'],
           ['ClimaPlots', 'Climate series charts and data'],
           ['Field Guide', 'CSV, GPX, temporary QGIS layer, PDF report, Google Maps routes'],
+          ['MapBiomas', 'Classification GeoTIFF per year and transition GeoTIFF (classed by transition year), styled paletted layers'],
         ],
       } },
       { h2: 'Download folder & proxy' },
