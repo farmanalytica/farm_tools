@@ -11,6 +11,7 @@ const MODULES = [
   { key: 'sysi', icon: '🟤', wiki: 'sysi' },
   { key: 'climaplots', icon: '🌦️', wiki: 'climaplots' },
   { key: 'fieldguide', icon: '📍', wiki: 'fieldguide' },
+  { key: 'mapbiomas', icon: '🗺️', wiki: 'mapbiomas' },
 ]
 </script>
 

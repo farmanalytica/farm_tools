@@ -215,6 +215,28 @@ export default [
     ],
   },
   {
+    slug: 'mapbiomas',
+    icon: '🗺️',
+    title: 'MapBiomas',
+    summary: 'Uso e cobertura da terra do Brasil por ano e análise configurável de transições.',
+    sections: [
+      { p: 'O MapBiomas traz o acervo anual de uso e cobertura da terra da Coleção 9 do MapBiomas Brasil para o QGIS. Explore qualquer ano dentro do módulo, baixe um ano para o QGIS como raster de classificação estilizado, ou analise como a terra mudou ao longo do tempo. A cobertura é apenas do Brasil e usa o Google Earth Engine.' },
+      { h2: 'Cobertura' },
+      { list: [
+        'Explore todos os anos (1985–2023) no módulo com um controle deslizante de ano, ao lado da legenda oficial de 63 classes.',
+        'Baixe qualquer ano para o QGIS como um raster de classificação de banda única estilizado com a paleta oficial do MapBiomas — IDs de classe reais, mantendo os pixels consultáveis e analisáveis.',
+      ] },
+      { h2: 'Análise de transição' },
+      { p: 'Mapeie o primeiro ano em que cada pixel mudou de um uso de origem para um uso de destino, e visualize a área convertida por ano.' },
+      { list: [
+        'Predefinições: Pastagem → Lavoura, Desmatamento (floresta → antrópico), Regeneração florestal, Expansão agrícola e Expansão urbana.',
+        'Personalizado: escolha qualquer combinação de classes de origem e destino.',
+        'Um controle de intervalo de anos filtra o gráfico em tempo real e limita a camada de transição exportada, que carrega no QGIS classificada por ano de transição.',
+      ] },
+      { note: 'A Coleção 9 do MapBiomas cobre apenas o Brasil — áreas fora do Brasil retornam resultados vazios. Requer autenticação no Google Earth Engine, como os demais módulos GEE.' },
+    ],
+  },
+  {
     slug: 'exports-downloads',
     icon: '💾',
     title: 'Exportações & Downloads',
@@ -231,6 +253,7 @@ export default [
           ['SYSI', 'Composição sintética de solo exposto como camada renderizada / GeoTIFF'],
           ['ClimaPlots', 'Gráficos e dados de séries climáticas'],
           ['Guia de Campo', 'CSV, GPX, camada temporária QGIS, relatório PDF, rotas Google Maps'],
+          ['MapBiomas', 'GeoTIFF de classificação por ano e GeoTIFF de transição (classificado por ano de transição), camadas estilizadas por paleta'],
         ],
       } },
       { h2: 'Pasta de download & proxy' },

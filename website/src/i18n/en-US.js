@@ -14,7 +14,7 @@ export default {
     ctaWiki: 'Read the wiki',
     ctaGithub: 'View on GitHub',
     previewTitle: 'FARM tools',
-    previewSubtitle: 'Seven modules, one QGIS plugin',
+    previewSubtitle: 'Eight modules, one QGIS plugin',
     previewLabel: 'Modules',
     previewItems: [
       'Optical & Landsat imagery',
@@ -62,6 +62,10 @@ export default {
         title: 'Field Guide',
         desc: 'Capture field points, sample polygons, and auto-pick raster-optimal locations (e.g. NDVI peaks) — export to CSV, GPX, and PDF.',
       },
+      mapbiomas: {
+        title: 'MapBiomas',
+        desc: 'Browse Brazilian Collection 9 land-use/land-cover by year and run configurable land-use transition analysis (e.g. pasture → crop, deforestation).',
+      },
     },
   },
   how: {
@@ -75,7 +79,7 @@ export default {
       },
       {
         title: 'Pick a module & configure',
-        desc: 'Choose a module — Optical, Landsat, SAR, DEM, SYSI, ClimaPlots, or Field Guide — set your area and parameters, then run.',
+        desc: 'Choose a module — Optical, Landsat, SAR, DEM, SYSI, ClimaPlots, Field Guide, or MapBiomas — set your area and parameters, then run.',
       },
       {
         title: 'Visualize & Export',

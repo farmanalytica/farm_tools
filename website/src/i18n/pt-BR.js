@@ -14,7 +14,7 @@ export default {
     ctaWiki: 'Ler a wiki',
     ctaGithub: 'Ver no GitHub',
     previewTitle: 'FARM tools',
-    previewSubtitle: 'Sete módulos, um plugin QGIS',
+    previewSubtitle: 'Oito módulos, um plugin QGIS',
     previewLabel: 'Módulos',
     previewItems: [
       'Imagens Óptico & Landsat',
@@ -62,6 +62,10 @@ export default {
         title: 'Guia de Campo',
         desc: 'Capture pontos em campo, amostre polígonos e selecione automaticamente locais ótimos por raster (ex.: picos de NDVI) — exporte para CSV, GPX e PDF.',
       },
+      mapbiomas: {
+        title: 'MapBiomas',
+        desc: 'Explore o uso e cobertura da terra da Coleção 9 do Brasil por ano e execute análises configuráveis de transição de uso (ex.: pastagem → lavoura, desmatamento).',
+      },
     },
   },
   how: {
@@ -75,7 +79,7 @@ export default {
       },
       {
         title: 'Escolher módulo & configurar',
-        desc: 'Escolha um módulo — Óptico, Landsat, SAR, DEM, SYSI, ClimaPlots ou Guia de Campo — defina sua área e parâmetros, e execute.',
+        desc: 'Escolha um módulo — Óptico, Landsat, SAR, DEM, SYSI, ClimaPlots, Guia de Campo ou MapBiomas — defina sua área e parâmetros, e execute.',
       },
       {
         title: 'Visualizar & Exportar',
