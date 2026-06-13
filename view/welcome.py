@@ -74,6 +74,9 @@ _MODULES = [
     ("fieldguide", "Field Guide",
      "Per-feature and per-point analysis with adjustable buffer and value extraction",
      "show_fieldguide_page"),
+    ("mapbiomas", "MapBiomas",
+     "Brazilian land-use/land-cover by year plus pasture-to-crop transition mapping",
+     "show_mapbiomas_page"),
     ("auth", "GEE Configuration",
      "Connect to Google Earth Engine — sign in and set your project ID",
      "show_auth_page"),
@@ -238,6 +241,17 @@ def _draw_module_icon(kind: str, color: str, size: int = 30) -> QPixmap:
         drop.cubicTo(11.0, 13.0, 11.0, 15.0, 13.5, 17.0)
         drop.cubicTo(16.0, 15.0, 16.0, 13.0, 13.5, 9.5)
         painter.drawPath(drop)
+    elif kind == "mapbiomas":
+        # Land-cover mosaic — a map tile split into patches, one filled.
+        painter.setPen(pen)
+        painter.drawRect(QRect(3, 4, 14, 12))
+        painter.drawLine(9, 4, 9, 16)
+        painter.drawLine(3, 10, 17, 10)
+        edge = QPainterPath()
+        edge.moveTo(9, 7)
+        edge.cubicTo(12, 7.5, 11, 9.5, 14, 10)
+        painter.drawPath(edge)
+        painter.fillRect(QRect(4, 11, 4, 4), QColor(color))
     else:
         painter.setPen(pen)
         painter.drawLine(10, 3, 10, 12)
