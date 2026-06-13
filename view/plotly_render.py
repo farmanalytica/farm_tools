@@ -26,6 +26,8 @@ import numpy as np
 
 from qgis.PyQt.QtCore import QUrl
 
+from .webcompat import USING_WEBENGINE
+
 _PLOTLY_JS_PATH = os.path.join(
     os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
     "assets",
@@ -107,6 +109,46 @@ def show_in_webview(web_view, fig, config, previous_path=None):
         f.write(html)
     web_view.load(QUrl.fromLocalFile(path))
     return path
+
+
+def run_js(web_view, js):
+    """Execute ``js`` in an already-loaded view, cross-backend.
+
+    WebEngine exposes ``page().runJavaScript``; QtWebKit uses
+    ``page().mainFrame().evaluateJavaScript``. Best-effort — silently no-ops if
+    the page isn't ready or the backend rejects the call.
+    """
+    try:
+        if USING_WEBENGINE:
+            web_view.page().runJavaScript(js)
+        else:
+            web_view.page().mainFrame().evaluateJavaScript(js)
+    except Exception:
+        pass
+
+
+def restyle_bar_colors(web_view, colors):
+    """Live-update the first bar trace's per-point colors without reloading.
+
+    ``Plotly.restyle`` mutates the existing chart in place, so this is cheap
+    enough to call on every slider tick (unlike ``show_in_webview``, which
+    rebuilds and reloads the whole page). ``colors`` is one CSS color per bar.
+
+    The JS is wrapped in try/catch and returns a status string so ``run_js``'s
+    callback reveals whether ``Plotly`` / the ``'chart'`` div were available.
+    """
+    payload = json.dumps({"marker.color": [colors]})
+    js = (
+        "(function(){{"
+        "  try {{"
+        "    if (typeof Plotly === 'undefined') return 'no-plotly';"
+        "    if (!document.getElementById('chart')) return 'no-div';"
+        "    Plotly.restyle('chart', {0}, [0]);"
+        "    return 'ok';"
+        "  }} catch (e) {{ return 'ERR: ' + e; }}"
+        "}})();"
+    ).format(payload)
+    run_js(web_view, js)
 
 
 def open_in_browser(fig, config):

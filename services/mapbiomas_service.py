@@ -226,23 +226,62 @@ class MapBiomasService:
         """Render every coverage year to a PNG in *output_dir*.
 
         Returns ``{year: png_path}``. ``progress_cb(message, done, total)`` is
-        called per year; ``cancel_cb()`` (if given) aborts the loop when truthy.
+        called as each year completes; ``cancel_cb()`` (if given) stops queuing
+        new years when truthy.
+
+        The 39 ``getThumbURL`` round-trips run concurrently — each blocking
+        EE-URL-resolve + ``requests.get`` + write is offloaded with
+        ``asyncio.to_thread`` and a ``Semaphore`` caps the in-flight count, so
+        the whole batch transfers in parallel instead of one year at a time
+        (same fan-out as ``LandsatService.download_superres_batch``). The PNG
+        output is byte-identical to the previous serial loop.
         """
+        import asyncio
+
         os.makedirs(output_dir, exist_ok=True)
         region = MapBiomasService._region(aoi)
         years = list(range(MAPBIOMAS_FIRST_YEAR, MAPBIOMAS_LATEST_YEAR + 1))
         total = len(years)
-        images = {}
-        for done, year in enumerate(years):
-            if cancel_cb and cancel_cb():
-                break
-            if progress_cb:
-                progress_cb(f"MapBiomas {year}", done, total)
+
+        # Cap simultaneous EE round-trips / byte transfers. Mirrors the optical
+        # fan-out; well under EE's per-request concurrency ceiling.
+        max_parallel = 20
+
+        def _cancelled():
+            return cancel_cb is not None and cancel_cb()
+
+        def _download_one(year):
             path = os.path.join(output_dir, f"coverage_{year}.png")
             MapBiomasService._download_thumb(
                 MapBiomasService._coverage_visualized(aoi, year), region, path
             )
-            images[year] = path
+            return path
+
+        async def _fetch(year, semaphore, counter, images):
+            async with semaphore:
+                if _cancelled():
+                    return
+                try:
+                    path = await asyncio.wait_for(
+                        asyncio.to_thread(_download_one, year), timeout=240
+                    )
+                    images[year] = path
+                except Exception:
+                    path = None
+                counter["done"] += 1
+                if progress_cb:
+                    progress_cb(f"MapBiomas {year}", counter["done"], total)
+
+        async def _run():
+            semaphore = asyncio.Semaphore(max_parallel)
+            counter = {"done": 0}
+            images = {}
+            await asyncio.gather(*[
+                _fetch(year, semaphore, counter, images) for year in years
+            ])
+            return images
+
+        images = asyncio.run(_run())
         if progress_cb:
             progress_cb("Done", total, total)
         return images
@@ -278,11 +317,19 @@ class MapBiomasService:
 
         if progress_cb:
             progress_cb("Computing statistics", 1, 2)
+        # agrigee_lite's adaptive pixel cap (absolute count here, so identical to
+        # the previous 1e9 for normal AOIs) plus ``bestEffort=True``: an AOI that
+        # would exceed the cap is auto-coarsened by EE instead of raising
+        # "Too many pixels", so oversized fields still return stats. Farm-sized
+        # AOIs stay far under the cap and are unaffected.
+        from agrigee_lite.ee_utils import ee_get_number_of_pixels
+
         histogram = first_year.reduceRegion(
             reducer=ee.Reducer.frequencyHistogram(),
             geometry=aoi.geometry(),
             scale=30,
-            maxPixels=int(1e9),
+            maxPixels=ee_get_number_of_pixels(aoi.geometry(), 1e9, 30),
+            bestEffort=True,
         ).get("first_year")
         raw_hist = histogram.getInfo() or {}
 
@@ -300,6 +347,50 @@ class MapBiomasService:
             progress_cb("Done", 2, 2)
         stats = {"total_hectares": round(total_ha, 3), "per_year": per_year}
         return path, stats
+
+    @staticmethod
+    def render_transition_map(
+        aoi, output_dir, source_classes, target_classes,
+        year_min=None, year_max=None, progress_cb=None,
+    ):
+        """Render only the transition PNG for a year window (no stats).
+
+        Same first-transition-year image as :meth:`download_transition`, but when
+        *year_min* / *year_max* narrow the full span the out-of-window pixels are
+        masked so the map shows only the selected transition years. The color
+        scale stays pinned to the full 1986–2023 range, so a pixel keeps the same
+        year color regardless of the window. Returns the PNG path.
+
+        Used to keep the in-module transition map in sync with the year-range
+        slider; stats are unchanged (the chart filters client-side), so this
+        re-renders the image alone.
+        """
+        os.makedirs(output_dir, exist_ok=True)
+        region = MapBiomasService._region(aoi)
+        first_year = MapBiomasService._build_first_transition_year_image(
+            aoi, source_classes, target_classes
+        )
+        if year_min is not None and year_max is not None and (
+            year_min > MAPBIOMAS_TRANSITION_FIRST_YEAR
+            or year_max < MAPBIOMAS_TRANSITION_LAST_YEAR
+        ):
+            in_range = first_year.gte(year_min).And(first_year.lte(year_max))
+            first_year = first_year.updateMask(in_range)
+
+        if progress_cb:
+            progress_cb("Rendering transition map", 0, 1)
+        visualized = first_year.visualize(
+            min=MAPBIOMAS_TRANSITION_FIRST_YEAR,
+            max=MAPBIOMAS_TRANSITION_LAST_YEAR,
+            palette=MAPBIOMAS_TRANSITION_PALETTE,
+        )
+        path = os.path.join(
+            output_dir, "transition_{0}_{1}.png".format(year_min, year_max)
+        )
+        MapBiomasService._download_thumb(visualized, region, path, timeout=240)
+        if progress_cb:
+            progress_cb("Done", 1, 1)
+        return path
 
     # ------------------------------------------------------------------
     # GeoTIFF download (single year → QGIS layer)

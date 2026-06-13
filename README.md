@@ -26,7 +26,7 @@ FARM tools is a fork of the RAVI plugin with a distinct plugin identity (folder
 | **SYSI** | Synthetic Soil Image (bare-soil reflectance composite) generation |
 | **ClimaPlots** | Climate trends, indices and thermo diagrams from NASA POWER / Open-Meteo daily data |
 | **Field Guide** | Per-feature / per-point raster sampling with adjustable buffer + PDF report export |
-| **MapBiomas** | In-module MapBiomas Brasil Collection 9 land-use/land-cover viewer: annual coverage (1985–2023) browsed by a year slider, plus pasture→crop first-transition year + converted-area bar chart |
+| **MapBiomas** | In-module MapBiomas Brasil Collection 9 land-use/land-cover viewer: annual coverage (1985–2023) browsed by a year slider, plus configurable source→target first-transition analysis (presets + custom classes) with a converted-area bar chart and map that filter live to a year-range slider. Export any coverage year, or the range-limited transition, to QGIS as a styled raster. See [docs/mapbiomas.md](docs/mapbiomas.md) |
 | **GEE Configuration** | GEE sign-in — personal OAuth **and** service-account key |
 
 ## Requirements
