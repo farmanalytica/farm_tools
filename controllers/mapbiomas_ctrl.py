@@ -19,12 +19,14 @@ import os
 import shutil
 import tempfile
 
-from qgis.PyQt.QtCore import QCoreApplication, Qt
+from qgis.PyQt.QtCore import QCoreApplication, Qt, QTimer
 from qgis.PyQt.QtGui import QColor, QPixmap
 from qgis.core import (
+    Qgis,
     QgsCoordinateReferenceSystem,
     QgsCoordinateTransform,
     QgsLayerTreeLayer,
+    QgsMessageLog,
     QgsPalettedRasterRenderer,
     QgsProject,
     QgsRasterLayer,
@@ -81,6 +83,14 @@ class MapBiomasCtrl:
         self._tx_tmp_path = None    # temp html for the chart web view
         self._tx_label = ""         # active transition label (chart title)
         self._tx_per_year = []      # full per-year stats (for live range redraw)
+
+        # Debounce range-slider redraws: dragging emits many ticks, but the
+        # QtWebKit chart is heavy to re-render, so coalesce into one redraw once
+        # the slider settles.
+        self._tx_redraw_timer = QTimer(self.dialog)
+        self._tx_redraw_timer.setSingleShot(True)
+        self._tx_redraw_timer.setInterval(250)
+        self._tx_redraw_timer.timeout.connect(self._draw_tx_chart)
 
         # Keep the displayed image in sync with the slider once loaded.
         self.dialog.mb_cov_slider.valueChanged.connect(self._on_slider_changed)
@@ -421,13 +431,8 @@ class MapBiomasCtrl:
                     class_id, QColor("#" + hex_color), class_label
                 )
             )
-        layer.setRenderer(QgsPalettedRasterRenderer(layer.dataProvider(), 1, classes))
-
-        QgsProject.instance().addMapLayer(layer, False)
-        QgsProject.instance().layerTreeRoot().insertChildNode(
-            0, QgsLayerTreeLayer(layer)
-        )
-        layer.triggerRepaint()
+        self._apply_paletted(layer, classes)
+        self._add_layer_to_qgis(layer)
         if self.interface:
             self.interface.messageBar().pushMessage(
                 "FARM tools",
@@ -463,18 +468,61 @@ class MapBiomasCtrl:
             QgsPalettedRasterRenderer.Class(year, QColor(colors[i]), str(year))
             for i, year in enumerate(years)
         ]
-        layer.setRenderer(QgsPalettedRasterRenderer(layer.dataProvider(), 1, classes))
-
-        QgsProject.instance().addMapLayer(layer, False)
-        QgsProject.instance().layerTreeRoot().insertChildNode(
-            0, QgsLayerTreeLayer(layer)
-        )
-        layer.triggerRepaint()
+        self._apply_paletted(layer, classes)
+        self._add_layer_to_qgis(layer)
         if self.interface:
             self.interface.messageBar().pushMessage(
                 "FARM tools",
                 _tr("Transition layer loaded into QGIS: {0}").format(name),
             )
+
+    # ------------------------------------------------------------------
+    # Shared QGIS layer helpers
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def _apply_paletted(layer, classes):
+        """Apply a categorical paletted renderer, logging (not raising) on error."""
+        try:
+            renderer = QgsPalettedRasterRenderer(layer.dataProvider(), 1, classes)
+            layer.setRenderer(renderer)
+        except Exception as exc:  # keep the layer's default renderer as a fallback
+            QgsMessageLog.logMessage(
+                "MapBiomas paletted renderer failed: {0}".format(exc),
+                "FARM tools", Qgis.Warning,
+            )
+
+    def _add_layer_to_qgis(self, layer):
+        """Add *layer* to the project/tree and zoom the canvas to its extent.
+
+        The downloaded raster is in EPSG:4326; zooming (with reprojection to the
+        canvas CRS) guarantees it is visible instead of sitting off-screen.
+        """
+        QgsProject.instance().addMapLayer(layer, False)
+        QgsProject.instance().layerTreeRoot().insertChildNode(
+            0, QgsLayerTreeLayer(layer)
+        )
+        layer.triggerRepaint()
+        if not self.interface:
+            return
+        canvas = self.interface.mapCanvas()
+        try:
+            extent = layer.extent()
+            if layer.crs() != canvas.mapSettings().destinationCrs():
+                transform = QgsCoordinateTransform(
+                    layer.crs(),
+                    canvas.mapSettings().destinationCrs(),
+                    QgsProject.instance(),
+                )
+                extent = transform.transformBoundingBox(extent)
+            if not extent.isEmpty():
+                canvas.setExtent(extent)
+        except Exception as exc:
+            QgsMessageLog.logMessage(
+                "MapBiomas zoom-to-layer failed: {0}".format(exc),
+                "FARM tools", Qgis.Warning,
+            )
+        canvas.refresh()
 
     # ------------------------------------------------------------------
     # Transition display
@@ -520,12 +568,12 @@ class MapBiomasCtrl:
         return lo, hi
 
     def handle_tx_range_changed(self, _value=None):
-        """Year-range slider moved — redraw the chart for the new window."""
+        """Year-range slider moved — update the label now, redraw when settled."""
         self.dialog.mb_tx_range_lbl.setText(
             _tr("Years: {0}–{1}").format(*self._tx_range())
         )
         if self._tx_per_year:
-            self._draw_tx_chart()
+            self._tx_redraw_timer.start()  # debounced; see __init__
 
     def _draw_tx_chart(self):
         """(Re)build the per-year bar chart, emphasizing the in-range years."""
@@ -622,6 +670,7 @@ class MapBiomasCtrl:
 
     def cleanup(self):
         """Release the draw tool, temp files, and any running worker."""
+        self._tx_redraw_timer.stop()
         if self._draw_tool is not None and self.interface:
             try:
                 self.interface.mapCanvas().unsetMapTool(self._draw_tool)
