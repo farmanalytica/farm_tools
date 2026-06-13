@@ -81,6 +81,14 @@ class MapBiomasWorker(QThread):
                     year_min=self._year_min, year_max=self._year_max,
                 )
                 self.finished.emit({"mode": "download_transition", "path": path})
+            elif self._mode == "transition_map":
+                path = MapBiomasService.render_transition_map(
+                    self._aoi, self._output_dir,
+                    self._source_classes, self._target_classes,
+                    year_min=self._year_min, year_max=self._year_max,
+                    progress_cb=self._emit_progress,
+                )
+                self.finished.emit({"mode": "transition_map", "image": path})
             else:
                 path, stats = MapBiomasService.download_transition(
                     self._aoi, self._output_dir,

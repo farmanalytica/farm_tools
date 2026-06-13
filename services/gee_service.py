@@ -14,6 +14,14 @@ import ee
 from qgis.PyQt.QtCore import QCoreApplication, QSettings
 
 
+# Earth Engine's high-volume endpoint, built for many concurrent requests
+# (parallel getThumbURL / getDownloadURL). The plugin's MapBiomas and Landsat
+# pages fan out dozens of simultaneous round-trips, so initializing against this
+# endpoint raises throughput and avoids the default endpoint's tighter rate
+# limits. Same data, same results — only the request router differs.
+_EE_HIGH_VOLUME_URL = "https://earthengine-highvolume.googleapis.com"
+
+
 def _tr(text):
     return QCoreApplication.translate("RAVI", text)
 
@@ -59,7 +67,7 @@ class GEEService:
             return False
 
         try:
-            ee.Initialize(project=project_id)
+            ee.Initialize(project=project_id, opt_url=_EE_HIGH_VOLUME_URL)
             ee.data.listAssets({"parent": f"projects/{project_id}/assets/"})
             self.is_authenticated = True
             return True
@@ -133,7 +141,11 @@ class GEEService:
             self.is_authenticated = False
             return False
         try:
-            ee.Initialize(self._build_sa_credentials(key_path), project=project_id)
+            ee.Initialize(
+                self._build_sa_credentials(key_path),
+                project=project_id,
+                opt_url=_EE_HIGH_VOLUME_URL,
+            )
             ee.data.listAssets({"parent": f"projects/{project_id}/assets/"})
             self.is_authenticated = True
             return True
@@ -149,7 +161,7 @@ class GEEService:
         """
         try:
             credentials = self._build_sa_credentials(key_path)
-            ee.Initialize(credentials, project=project_id)
+            ee.Initialize(credentials, project=project_id, opt_url=_EE_HIGH_VOLUME_URL)
             ee.data.listAssets({"parent": f"projects/{project_id}/assets/"})
             self.is_authenticated = True
         except ValueError as e:
@@ -172,11 +184,11 @@ class GEEService:
         should_cancel = should_cancel or (lambda: False)
         try:
             try:
-                ee.Initialize(project=project_id)
+                ee.Initialize(project=project_id, opt_url=_EE_HIGH_VOLUME_URL)
 
             except ee.EEException:
                 self._run_local_auth_flow(timeout, should_cancel, on_browser_open)
-                ee.Initialize(project=project_id)
+                ee.Initialize(project=project_id, opt_url=_EE_HIGH_VOLUME_URL)
 
             default_project_path = f"projects/{project_id}/assets/"
 

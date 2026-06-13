@@ -43,7 +43,7 @@ from .radar import (
     _section_panel,
 )
 from .range_slider import RangeSlider
-from .styles import STYLE_BTN_PRIMARY, STYLE_BTN_SECONDARY
+from .styles import STYLE_BTN_PRIMARY, STYLE_BTN_SECONDARY, STYLE_COMBO_YEAR
 from .webcompat import QWebView
 
 from ..services.mapbiomas_service import (
@@ -67,6 +67,27 @@ def _make_webview():
     view.setContextMenuPolicy(Qt.ContextMenuPolicy.NoContextMenu)
     view.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
     return view
+
+
+def _progress_bar():
+    """A hidden, thin progress bar for embedding inside a feature panel.
+
+    Each loading feature (coverage / single-year download / transition) gets its
+    own bar so the feedback shows up *in* the section that triggered it, rather
+    than in one shared bar detached from the action.
+    """
+    bar = QProgressBar()
+    bar.setRange(0, 100)
+    bar.setValue(0)
+    bar.setTextVisible(True)
+    bar.setVisible(False)
+    bar.setFixedHeight(16)
+    bar.setStyleSheet(
+        "QProgressBar { border: none; border-radius: 4px; background: #e0e0e0;"
+        " font-size: 10px; color: #333; }"
+        "QProgressBar::chunk { background: #1b6b39; border-radius: 4px; }"
+    )
+    return bar
 
 
 def _image_label(placeholder):
@@ -203,6 +224,9 @@ def _build_inputs_tab(dialog, parent):
         _tr("Render every MapBiomas year and browse them with the slider")
     )
     cov_lay.addWidget(dialog.mb_btn_load_coverage)
+
+    dialog.mb_cov_progress = _progress_bar()
+    cov_lay.addWidget(dialog.mb_cov_progress)
     lay.addWidget(cov_panel)
 
     # --- Quick single-year download -------------------------------------
@@ -232,7 +256,9 @@ def _build_inputs_tab(dialog, parent):
     for year in range(MAPBIOMAS_LATEST_YEAR, MAPBIOMAS_FIRST_YEAR - 1, -1):
         dialog.mb_dl_year_combo.addItem(str(year), year)
     dialog.mb_dl_year_combo.setCursor(Qt.CursorShape.PointingHandCursor)
-    dialog.mb_dl_year_combo.setMinimumHeight(28)
+    dialog.mb_dl_year_combo.setMinimumHeight(30)
+    dialog.mb_dl_year_combo.setMaxVisibleItems(12)
+    dialog.mb_dl_year_combo.setStyleSheet(STYLE_COMBO_YEAR)
     dl_row.addWidget(dialog.mb_dl_year_combo, 1)
 
     dialog.mb_btn_download_year = QPushButton(_tr("Download to QGIS"))
@@ -243,6 +269,9 @@ def _build_inputs_tab(dialog, parent):
     )
     dl_row.addWidget(dialog.mb_btn_download_year)
     dl_lay.addLayout(dl_row)
+
+    dialog.mb_dl_progress = _progress_bar()
+    dl_lay.addWidget(dialog.mb_dl_progress)
     lay.addWidget(dl_panel)
 
     # --- Transition ------------------------------------------------------
@@ -315,21 +344,10 @@ def _build_inputs_tab(dialog, parent):
         _tr("Map the selected transition and chart its yearly area")
     )
     tx_lay.addWidget(dialog.mb_btn_load_transition)
-    lay.addWidget(tx_panel)
 
-    # --- Progress --------------------------------------------------------
-    dialog.mb_progress = QProgressBar()
-    dialog.mb_progress.setRange(0, 100)
-    dialog.mb_progress.setValue(0)
-    dialog.mb_progress.setTextVisible(True)
-    dialog.mb_progress.setVisible(False)
-    dialog.mb_progress.setFixedHeight(16)
-    dialog.mb_progress.setStyleSheet(
-        "QProgressBar { border: none; border-radius: 4px; background: #e0e0e0;"
-        " font-size: 10px; color: #333; }"
-        "QProgressBar::chunk { background: #1b6b39; border-radius: 4px; }"
-    )
-    lay.addWidget(dialog.mb_progress)
+    dialog.mb_tx_progress = _progress_bar()
+    tx_lay.addWidget(dialog.mb_tx_progress)
+    lay.addWidget(tx_panel)
 
     lay.addStretch(1)
     scroll.setWidget(scroll_w)
@@ -491,7 +509,8 @@ def setup_mapbiomas_page(dialog, page):
 
     Exposes on dialog (mb_* prefix): mb_layer_combo, mb_btn_draw_aoi,
     mb_btn_hybrid_layer, mb_btn_load_coverage, mb_btn_load_transition,
-    mb_progress, mb_cov_image, mb_cov_slider, mb_cov_year_lbl, mb_tx_image,
+    mb_cov_progress, mb_dl_progress, mb_tx_progress, mb_cov_image,
+    mb_cov_slider, mb_cov_year_lbl, mb_tx_image,
     mb_stats_summary, mb_web_transition, mb_btn_browser_transition, mb_stack,
     mb_set_tab.
     """

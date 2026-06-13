@@ -189,6 +189,41 @@ QTextBrowser#demInfo:focus {
 }
 """
 
+STYLE_COMBO_YEAR = """
+QComboBox {
+    combobox-popup: 1;
+    background-color: #ffffff;
+    color: #212121;
+    border: 1px solid #d0d0d0;
+    border-radius: 6px;
+    padding: 5px 10px;
+    font-size: 13px;
+    font-weight: bold;
+}
+QComboBox:hover { border-color: #8db99c; }
+QComboBox:focus { border: 1.5px solid #1b6b39; }
+QComboBox::drop-down {
+    subcontrol-origin: padding;
+    subcontrol-position: center right;
+    width: 22px;
+    border: none;
+}
+QComboBox QAbstractItemView {
+    background-color: #ffffff;
+    color: #212121;
+    border: 1px solid #bdbdbd;
+    border-radius: 6px;
+    padding: 4px;
+    selection-background-color: #e8f5e9;
+    selection-color: #1a1a1a;
+    outline: 0;
+}
+QComboBox QAbstractItemView::item {
+    min-height: 26px;
+    padding: 2px 8px;
+}
+"""
+
 STYLE_CHECKBOX = """
 QCheckBox {
     color: #212121;

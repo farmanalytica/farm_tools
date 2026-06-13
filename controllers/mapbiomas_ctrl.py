@@ -21,6 +21,7 @@ import tempfile
 
 from qgis.PyQt.QtCore import QCoreApplication, Qt, QTimer
 from qgis.PyQt.QtGui import QColor, QPixmap
+from qgis.PyQt.QtWidgets import QGraphicsOpacityEffect
 from qgis.core import (
     Qgis,
     QgsCoordinateReferenceSystem,
@@ -76,6 +77,7 @@ class MapBiomasCtrl:
         self._worker = None
         self._draw_tool = None
         self._tmp_dir = None
+        self._active_progress = None  # the feature bar driven by _on_progress
 
         self._cov_pix = {}          # year -> QPixmap
         self._tx_pix = None         # QPixmap
@@ -83,14 +85,26 @@ class MapBiomasCtrl:
         self._tx_tmp_path = None    # temp html for the chart web view
         self._tx_label = ""         # active transition label (chart title)
         self._tx_per_year = []      # full per-year stats (for live range redraw)
+        self._tx_source = None      # active transition source classes
+        self._tx_target = None      # active transition target classes
 
-        # Debounce range-slider redraws: dragging emits many ticks, but the
-        # QtWebKit chart is heavy to re-render, so coalesce into one redraw once
-        # the slider settles.
+        # Re-rendering the transition MAP for a year window is a server-side
+        # thumbnail (slow, network-bound), so it runs in its own worker — kept
+        # separate from self._worker so it never trips the load/download busy
+        # guards. Only the latest requested range matters: while one render is in
+        # flight, a newer range is stashed and rendered when it finishes.
+        self._tx_map_worker = None
+        self._tx_map_pending_range = None
+
+        # Authoritative chart redraw, debounced: a slider drag fires many ticks,
+        # but a full Plotly reload is heavy, so coalesce into one redraw shortly
+        # after the slider settles. An instant client-side restyle (no reload)
+        # is attempted on every tick for live feedback; this timer guarantees the
+        # chart is correct even if the restyle is a no-op.
         self._tx_redraw_timer = QTimer(self.dialog)
         self._tx_redraw_timer.setSingleShot(True)
-        self._tx_redraw_timer.setInterval(250)
-        self._tx_redraw_timer.timeout.connect(self._draw_tx_chart)
+        self._tx_redraw_timer.setInterval(200)
+        self._tx_redraw_timer.timeout.connect(self._on_tx_range_settled)
 
         # Keep the displayed image in sync with the slider once loaded.
         self.dialog.mb_cov_slider.valueChanged.connect(self._on_slider_changed)
@@ -232,7 +246,10 @@ class MapBiomasCtrl:
         _label, source, target = resolved
 
         self.aoi = aoi
+        self._tx_source = source
+        self._tx_target = target
         self._set_busy(True)
+        self._begin_progress(self.dialog.mb_tx_progress)
         self._worker = MapBiomasWorker(
             aoi, "transition", output_dir=self._tmp(),
             source_classes=source, target_classes=target,
@@ -256,10 +273,10 @@ class MapBiomasCtrl:
         lo, hi = self._tx_range()
         output_folder = SettingsManager.load_download_folder() or self._tmp()
         self._set_busy(True)
-        self.dialog.mb_progress.setVisible(True)
-        self.dialog.mb_progress.setRange(0, 0)  # indeterminate
-        self.dialog.mb_progress.setFormat(
-            _tr("Downloading transition {0}–{1}…").format(lo, hi)
+        self._begin_progress(
+            self.dialog.mb_tx_progress,
+            indeterminate=True,
+            fmt=_tr("Downloading transition {0}–{1}…").format(lo, hi),
         )
         self._worker = MapBiomasWorker(
             aoi, "download_transition", output_folder=output_folder,
@@ -289,9 +306,11 @@ class MapBiomasCtrl:
         self.aoi = aoi
         output_folder = SettingsManager.load_download_folder() or self._tmp()
         self._set_busy(True)
-        self.dialog.mb_progress.setVisible(True)
-        self.dialog.mb_progress.setRange(0, 0)  # busy/indeterminate
-        self.dialog.mb_progress.setFormat(_tr("Downloading {0}…").format(year))
+        self._begin_progress(
+            self.dialog.mb_dl_progress,
+            indeterminate=True,
+            fmt=_tr("Downloading {0}…").format(year),
+        )
         self._worker = MapBiomasWorker(
             aoi, "download", year=year, output_folder=output_folder
         )
@@ -302,6 +321,12 @@ class MapBiomasCtrl:
 
     def _start_worker(self, aoi, mode):
         self._set_busy(True)
+        bar = (
+            self.dialog.mb_cov_progress
+            if mode == "coverage"
+            else self.dialog.mb_tx_progress
+        )
+        self._begin_progress(bar)
         self._worker = MapBiomasWorker(aoi, mode, output_dir=self._tmp())
         self._worker.finished.connect(self._on_done)
         self._worker.failed.connect(self._on_failed)
@@ -312,22 +337,44 @@ class MapBiomasCtrl:
     # Busy / progress
     # ------------------------------------------------------------------
 
+    def _all_progress_bars(self):
+        return (
+            self.dialog.mb_cov_progress,
+            self.dialog.mb_dl_progress,
+            self.dialog.mb_tx_progress,
+        )
+
+    def _begin_progress(self, bar, indeterminate=False, fmt=None):
+        """Show *bar* as the active feedback (hiding the others).
+
+        ``indeterminate`` shows a busy bar (range 0,0) for fixed-length single
+        downloads; otherwise a 0–100 bar driven by ``_on_progress``.
+        """
+        self._active_progress = bar
+        for candidate in self._all_progress_bars():
+            candidate.setVisible(candidate is bar)
+        if indeterminate:
+            bar.setRange(0, 0)
+        else:
+            bar.setRange(0, 100)
+            bar.setValue(0)
+        bar.setFormat(fmt or _tr("Starting…"))
+
     def _set_busy(self, busy):
         self.dialog.mb_btn_load_coverage.setEnabled(not busy)
         self.dialog.mb_btn_load_transition.setEnabled(not busy)
         self.dialog.mb_btn_download_qgis.setEnabled(not busy)
         self.dialog.mb_btn_download_year.setEnabled(not busy)
-        self.dialog.mb_progress.setVisible(busy)
-        if busy:
-            self.dialog.mb_progress.setRange(0, 100)
-            self.dialog.mb_progress.setValue(0)
-            self.dialog.mb_progress.setFormat(_tr("Starting…"))
+        if not busy:
+            for bar in self._all_progress_bars():
+                bar.setVisible(False)
+            self._active_progress = None
 
     def _on_progress(self, message, done, total):
-        if total <= 0:
+        if total <= 0 or self._active_progress is None:
             return
-        self.dialog.mb_progress.setValue(int(done / total * 100))
-        self.dialog.mb_progress.setFormat("{0}  ({1}/{2})".format(message, done, total))
+        self._active_progress.setValue(int(done / total * 100))
+        self._active_progress.setFormat("{0}  ({1}/{2})".format(message, done, total))
 
     # ------------------------------------------------------------------
     # Worker results
@@ -460,13 +507,19 @@ class MapBiomasCtrl:
             return
         layer.setCrs(QgsCoordinateReferenceSystem("EPSG:4326"))
 
-        years = list(range(
+        # Only the years inside the slider window are exported (out-of-range
+        # pixels are masked in the GeoTIFF), so class the layer to that window
+        # only — no empty legend entries for filtered-out years. Colors stay
+        # pinned to the full-range gradient so each year matches the map/chart.
+        all_years = list(range(
             MAPBIOMAS_TRANSITION_FIRST_YEAR, MAPBIOMAS_TRANSITION_LAST_YEAR + 1
         ))
-        colors = self._bar_colors(len(years))
+        all_colors = self._bar_colors(len(all_years))
+        lo, hi = self._tx_range()
         classes = [
-            QgsPalettedRasterRenderer.Class(year, QColor(colors[i]), str(year))
-            for i, year in enumerate(years)
+            QgsPalettedRasterRenderer.Class(year, QColor(all_colors[i]), str(year))
+            for i, year in enumerate(all_years)
+            if lo <= year <= hi
         ]
         self._apply_paletted(layer, classes)
         self._add_layer_to_qgis(layer)
@@ -567,20 +620,135 @@ class MapBiomasCtrl:
         hi = int(round(self.dialog.mb_tx_range.high()))
         return lo, hi
 
-    def handle_tx_range_changed(self, _value=None):
-        """Year-range slider moved — update the label now, redraw when settled."""
-        self.dialog.mb_tx_range_lbl.setText(
-            _tr("Years: {0}–{1}").format(*self._tx_range())
+    def _tx_view_state(self):
+        """Per-bar colors + in-range total for the current slider range.
+
+        Returns ``(lo, hi, years, hectares, colors, in_total)``. In-range bars
+        keep their gradient color; out-of-range bars fade to grey.
+        """
+        lo, hi = self._tx_range()
+        years = [d["year"] for d in self._tx_per_year]
+        hectares = [d["hectares"] for d in self._tx_per_year]
+        base_colors = self._bar_colors(len(years))
+        colors = [
+            base_colors[i] if lo <= y <= hi else "#e3e7e4"
+            for i, y in enumerate(years)
+        ]
+        in_total = sum(
+            d["hectares"] for d in self._tx_per_year if lo <= d["year"] <= hi
         )
-        if self._tx_per_year:
-            self._tx_redraw_timer.start()  # debounced; see __init__
+        return lo, hi, years, hectares, colors, in_total
+
+    def _update_tx_summary(self, lo, hi, in_total):
+        self.dialog.mb_stats_summary.setText(
+            "{0} — {1}".format(
+                self._tx_label,
+                _tr("{0:.1f} ha in {1}–{2}").format(in_total, lo, hi),
+            )
+        )
+
+    def handle_tx_range_changed(self, _value=None):
+        """Year-range slider moved — give instant feedback, then redraw.
+
+        Three layers of feedback, fastest first:
+          1. The year label updates immediately (cheap).
+          2. A client-side ``Plotly.restyle`` recolors the existing chart with no
+             reload — instant when it lands.
+          3. A debounced full redraw (``_tx_redraw_timer``) guarantees the chart
+             is correct even if the restyle is a no-op, and a transient
+             "updating…" cue tells the user a redraw is pending.
+        """
+        lo, hi = self._tx_range()
+        self.dialog.mb_tx_range_lbl.setText(_tr("Years: {0}–{1}").format(lo, hi))
+        if not self._tx_per_year:
+            return
+        _lo, _hi, _years, _ha, colors, in_total = self._tx_view_state()
+        # Immediate waiting cue (the full redraw lands a beat later).
+        self.dialog.mb_stats_summary.setText(
+            "{0} — {1}".format(
+                self._tx_label, _tr("updating {0}–{1}…").format(lo, hi)
+            )
+        )
+        # Instant client-side recolor attempt (no reload).
+        plotly_render.restyle_bar_colors(self.dialog.mb_web_transition, colors)
+        if self._tx_fig is not None:
+            self._tx_fig.data[0].marker.color = colors
+        # Authoritative redraw, debounced so a drag doesn't reload every tick.
+        self._tx_redraw_timer.start()
+
+    def _on_tx_range_settled(self):
+        """Slider settled (debounced): authoritative chart redraw + map re-render."""
+        self._draw_tx_chart()
+        self._request_tx_map_render()
+
+    def _request_tx_map_render(self):
+        """Re-render the transition map for the current window, off the UI thread.
+
+        Coalesces drags: if a render is already running, the new range is stashed
+        and rendered once the current one finishes (see ``_on_tx_map_done``), so
+        only the latest window is ever drawn.
+        """
+        if not self._tx_per_year or self.aoi is None or self._tx_source is None:
+            return
+        lo, hi = self._tx_range()
+        self._tx_map_pending_range = (lo, hi)
+        if self._tx_map_worker is not None and self._tx_map_worker.isRunning():
+            return
+        self._start_tx_map_worker(lo, hi)
+
+    def _start_tx_map_worker(self, lo, hi):
+        # Waiting cue: dim the map image and note it in the summary while the
+        # server-side thumbnail re-renders.
+        self._set_tx_map_busy(True)
+        self.dialog.mb_stats_summary.setText(
+            "{0} — {1}".format(
+                self._tx_label, _tr("rendering map {0}–{1}…").format(lo, hi)
+            )
+        )
+        self._tx_map_worker = MapBiomasWorker(
+            self.aoi, "transition_map", output_dir=self._tmp(),
+            source_classes=self._tx_source, target_classes=self._tx_target,
+            year_min=lo, year_max=hi,
+        )
+        self._tx_map_worker.finished.connect(self._on_tx_map_done)
+        self._tx_map_worker.failed.connect(self._on_tx_map_failed)
+        self._tx_map_worker.start()
+
+    def _on_tx_map_done(self, result):
+        path = result.get("image")
+        if path and os.path.exists(path):
+            pix = QPixmap(path)
+            if not pix.isNull():
+                self._tx_pix = pix
+                self._set_image(self.dialog.mb_tx_image, pix)
+        self._tx_map_worker = None
+        self._set_tx_map_busy(False)
+
+        # Restore the real in-range total now the cue is no longer needed.
+        lo, hi, _y, _h, _c, in_total = self._tx_view_state()
+        self._update_tx_summary(lo, hi, in_total)
+
+        # Range moved while rendering? Render the latest window now.
+        if self._tx_map_pending_range and self._tx_map_pending_range != (lo, hi):
+            nlo, nhi = self._tx_map_pending_range
+            self._start_tx_map_worker(nlo, nhi)
+
+    def _on_tx_map_failed(self, _message):
+        self._tx_map_worker = None
+        self._set_tx_map_busy(False)
+
+    def _set_tx_map_busy(self, busy):
+        """Dim the transition map image while it re-renders (visual wait cue)."""
+        effect = self.dialog.mb_tx_image.graphicsEffect()
+        if effect is None:
+            effect = QGraphicsOpacityEffect(self.dialog.mb_tx_image)
+            self.dialog.mb_tx_image.setGraphicsEffect(effect)
+        effect.setOpacity(0.35 if busy else 1.0)
 
     def _draw_tx_chart(self):
         """(Re)build the per-year bar chart, emphasizing the in-range years."""
         if not self._tx_per_year:
             return
-        lo, hi = self._tx_range()
-        self.dialog.mb_tx_range_lbl.setText(_tr("Years: {0}–{1}").format(lo, hi))
 
         try:
             import plotly.graph_objects as go
@@ -592,17 +760,8 @@ class MapBiomasCtrl:
             )
             return
 
-        years = [d["year"] for d in self._tx_per_year]
-        hectares = [d["hectares"] for d in self._tx_per_year]
-        base_colors = self._bar_colors(len(years))
-        # In-range bars keep their gradient color; out-of-range bars fade out.
-        colors = [
-            base_colors[i] if lo <= y <= hi else "#e3e7e4"
-            for i, y in enumerate(years)
-        ]
-        in_total = sum(
-            d["hectares"] for d in self._tx_per_year if lo <= d["year"] <= hi
-        )
+        lo, hi, years, hectares, colors, in_total = self._tx_view_state()
+        self.dialog.mb_tx_range_lbl.setText(_tr("Years: {0}–{1}").format(lo, hi))
 
         fig = go.Figure(
             go.Bar(x=years, y=hectares, marker_color=colors,
@@ -621,12 +780,7 @@ class MapBiomasCtrl:
         self._tx_tmp_path = plotly_render.show_in_webview(
             self.dialog.mb_web_transition, fig, _PLOT_CONFIG, self._tx_tmp_path
         )
-        self.dialog.mb_stats_summary.setText(
-            "{0} — {1}".format(
-                self._tx_label,
-                _tr("{0:.1f} ha in {1}–{2}").format(in_total, lo, hi),
-            )
-        )
+        self._update_tx_summary(lo, hi, in_total)
 
     @staticmethod
     def _bar_colors(count):
@@ -698,3 +852,13 @@ class MapBiomasCtrl:
                 self._worker.wait(100)
             self._worker.deleteLater()
             self._worker = None
+        if self._tx_map_worker is not None:
+            try:
+                self._tx_map_worker.finished.disconnect()
+                self._tx_map_worker.failed.disconnect()
+            except Exception:
+                pass
+            if self._tx_map_worker.isRunning():
+                self._tx_map_worker.wait(100)
+            self._tx_map_worker.deleteLater()
+            self._tx_map_worker = None
