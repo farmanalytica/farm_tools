@@ -251,6 +251,8 @@ class Sidebar(QFrame):
                 letter-spacing: 0.3px;
             }
         """)
+        if self._version:
+            self.version_label.setText("v{0}".format(self._version))
         lay.addWidget(self.version_label)
 
     def _build_brand_panel(self) -> QPushButton:
