@@ -310,10 +310,24 @@ def _build_inputs_tab(dialog, parent):
     def _class_list():
         widget = QListWidget()
         widget.setStyleSheet(
-            "QListWidget { background:#ffffff; color:#212121; border:1px solid"
-            " #d0d0d0; border-radius:6px; font-size:11px; }"
+            "QListWidget {"
+            " background:#ffffff; color:#212121; border:1px solid #d0d0d0;"
+            " border-radius:6px; font-size:11px; padding:3px; outline:0; }"
+            "QListWidget:focus { border:1.5px solid #1b6b39; }"
+            "QListWidget::item {"
+            " min-height:22px; padding:2px 6px; border-radius:4px; }"
+            "QListWidget::item:hover { background:#f1f8f3; }"
+            "QListWidget::item:selected {"
+            " background:#e8f5e9; color:#1a1a1a; }"
+            "QListWidget::indicator { width:15px; height:15px; }"
+            "QListWidget::indicator:unchecked {"
+            " background:#ffffff; border:1.5px solid #9e9e9e; border-radius:3px; }"
+            "QListWidget::indicator:unchecked:hover { border-color:#1b6b39; }"
+            "QListWidget::indicator:checked {"
+            " background:#1b6b39; border:1.5px solid #1b6b39; border-radius:3px; }"
         )
         widget.setFixedHeight(150)
+        widget.setCursor(Qt.CursorShape.PointingHandCursor)
         for class_id, class_label in MAPBIOMAS_CLASS_LABELS.items():
             item = QListWidgetItem(class_label)
             item.setData(Qt.ItemDataRole.UserRole, class_id)
