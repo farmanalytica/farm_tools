@@ -1,0 +1,66 @@
+<script setup>
+import { computed } from 'vue'
+import { useI18n } from '../i18n'
+import videos from '../data/videos'
+import VideoCard from '../components/VideoCard.vue'
+
+const { t } = useI18n()
+
+const CATEGORY_ORDER = ['start', 'imagery', 'terrain', 'field']
+
+const grouped = computed(() =>
+  CATEGORY_ORDER.map((category) => ({
+    category,
+    videos: videos.filter((v) => v.category === category),
+  })).filter((g) => g.videos.length > 0)
+)
+</script>
+
+<template>
+  <section class="page-head">
+    <div class="container">
+      <p class="sec-label light">{{ t('tutorials.label') }}</p>
+      <h1>{{ t('tutorials.title') }}</h1>
+      <p class="head-lead">{{ t('tutorials.lead') }}</p>
+    </div>
+  </section>
+
+  <section v-for="(group, i) in grouped" :key="group.category" :class="{ alt: i % 2 === 1 }">
+    <div class="container">
+      <h2>{{ t(`tutorials.categories.${group.category}`) }}</h2>
+      <div class="grid3 video-grid">
+        <VideoCard v-for="video in group.videos" :key="video.id" :video="video" />
+      </div>
+    </div>
+  </section>
+</template>
+
+<style scoped>
+.page-head {
+  background: var(--primary);
+  padding: 4.5rem 0 4rem;
+}
+
+.page-head h1 {
+  max-width: none;
+}
+
+.sec-label.light {
+  color: #8fd4bb;
+}
+
+.head-lead {
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 1.04rem;
+  max-width: 60ch;
+  line-height: 1.75;
+}
+
+section:not(.page-head) {
+  padding: 3.5rem 0;
+}
+
+.video-grid {
+  margin-top: 1.6rem;
+}
+</style>
