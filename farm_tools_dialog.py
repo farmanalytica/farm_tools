@@ -338,7 +338,7 @@ class FarmToolsDialog(QDialog):
         self.browser.setStyleSheet(STYLE_BTN_HELP)
         self.browser.clicked.connect(
             lambda: QDesktopServices.openUrl(
-                QUrl("https://www.raviqgis.org")
+                QUrl("https://www.farmtools.com.br")
             )
         )
         header_layout.addWidget(self.browser)
@@ -384,7 +384,7 @@ class FarmToolsDialog(QDialog):
         # heightForWidth, and as persistent chrome in the top-level layout it
         # would otherwise grow the whole dialog taller when the window narrows
         # (or its DPI changes while being dragged between monitors).
-        footer.setFixedHeight(28)
+        footer.setFixedHeight(38)
         footer.setStyleSheet(
             "background-color: transparent;"
             "QLabel { border: none; background: transparent; }"
@@ -395,7 +395,7 @@ class FarmToolsDialog(QDialog):
         footer_layout.setSpacing(8)
 
         farm_icon = QLabel()
-        farm_icon.setFixedHeight(14)
+        farm_icon.setFixedHeight(24)
         farm_icon.setStyleSheet("background: transparent;")
         logo_path = os.path.join(
             os.path.dirname(os.path.abspath(__file__)),
@@ -404,7 +404,7 @@ class FarmToolsDialog(QDialog):
         )
         if os.path.exists(logo_path):
             pix = QPixmap(logo_path).scaledToHeight(
-                14, Qt.TransformationMode.SmoothTransformation
+                24, Qt.TransformationMode.SmoothTransformation
             )
             farm_icon.setPixmap(pix)
             farm_icon.setFixedWidth(pix.width())

@@ -2,92 +2,341 @@
 """
 Welcome / landing page for the FARM tools dialog.
 
-Holds the project story and the feature overview that used to live in the
-left column of the Auth page. The dialog opens here; the user proceeds to
-the Auth page via the "Get started" button, or returns any time by clicking
-the FARM tools brand at the top of the sidebar.
+The landing page is a *module hub*: a responsive grid of cards, one per tool.
+Each card shows an icon, the module name and a one-line description, and is a
+single clickable button that navigates straight to that module's page. The user
+lands here and immediately sees every available tool as an interactive grid
+(no wall of text). Navigation targets reuse the dialog's ``show_*_page`` /
+``_nav_to_*`` methods, so ``farm_tools_dialog.py`` need not know about this file.
 """
 
-from qgis.PyQt.QtCore import Qt, QCoreApplication
+from qgis.PyQt.QtCore import (
+    QCoreApplication,
+    QPoint,
+    QRect,
+    QSize,
+    Qt,
+)
+from qgis.PyQt.QtGui import QColor, QPainter, QPainterPath, QPen, QPixmap
 from qgis.PyQt.QtWidgets import (
     QFrame,
     QHBoxLayout,
     QLabel,
+    QLayout,
     QPushButton,
     QScrollArea,
     QSizePolicy,
     QVBoxLayout,
+    QWidget,
 )
-
-from .styles import STYLE_BTN_PRIMARY
 
 
 def _tr(text):
     return QCoreApplication.translate("RAVI", text)
 
 
+FARM_GREEN = "#1b6b39"
+
 # External links (mirrors ui/intro.html).
 _URL_CAIO = "https://www.linkedin.com/in/caioarantes/"
 _URL_LUCAS = "https://www.linkedin.com/in/lucas-rios-do-amaral-bb302449/"
 _URL_FARM = "https://farmanalytica.com.br"
-_URL_SITE = "https://www.raviqgis.org"
+_URL_SITE = "https://www.farmtools.com.br"
 _URL_MATEUS = "https://www.linkedin.com/in/mateuspinto/"
 _URL_AGRIGEE = "https://github.com/mateuspinto/AgriGEE.lite"
 _LINK_STYLE = "color:#1b6b39; font-weight:bold; text-decoration:none;"
 
-# Feature overview shown on the Welcome page. Each entry is (name, one-line what).
-# Keep names aligned with the per-page intros (optical.py, sysi.py, radar.py).
-_FEATURES = [
-    ("Optical time series",
-     "Per-date Sentinel-2 vegetation-index series (NDVI, EVI, NDRE, NDWI, NBR…) "
-     "over your AOI, with SCL cloud/shadow masking and date filtering"),
-    ("Custom indices",
-     "Build your own index from band math and reuse it across the whole series"),
-    ("Synthetic composite",
-     "Reduce a series to one image (mean, median, max, AUC…) for a clean snapshot"),
-    ("Multispectral RGB",
-     "True- and false-colour composites for any acquisition date, styled in QGIS"),
-    ("Landsat super-resolution",
-     "Pan-sharpened 15 m Landsat 7/8/9 imagery, with a multi-mission vegetation-index "
-     "time series — powered by AgriGEE.lite"),
-    ("SYSI — synthetic soil image",
-     "Bare-soil reflectance composite (GEOS3) from cloud-free pixels for soil mapping"),
-    ("Radar (SAR)",
-     "Sentinel-1 VV/VH backscatter time series — cloud-independent monitoring"),
-    ("DEM download",
-     "Fetch terrain elevation models (SRTM, Copernicus…) clipped to your area"),
-    ("Climate overlay",
-     "Overlay daily NASA POWER precipitation and min/max temperature on the plot"),
-    ("Point &amp; feature analysis",
-     "Per-feature or per-point series with adjustable buffer and value extraction"),
-    ("Batch download &amp; CSV",
-     "Export every selected date as rasters and the full data table as CSV"),
+# One entry per module card: (icon kind, name, one-line description, dialog nav
+# method). ``kind`` reuses the sidebar's icon vocabulary; ``nav_attr`` is looked
+# up on the dialog at click time so this list is the single source of truth.
+_MODULES = [
+    ("optical", "Optical (Sentinel-2)",
+     "Per-date vegetation-index time series (NDVI, EVI, NDRE…) with cloud masking",
+     "show_optical_page"),
+    ("landsat", "Landsat (Super-Res)",
+     "Pan-sharpened 15 m Landsat 7/8/9 imagery and multi-mission index series",
+     "show_landsat_page"),
+    ("sysi", "SYSI — Synthetic Soil Image",
+     "Bare-soil reflectance composite (GEOS3) from cloud-free pixels for soil mapping",
+     "show_sysi_page"),
+    ("radar", "Radar (SAR) data",
+     "Sentinel-1 VV/VH backscatter time series — cloud-independent monitoring",
+     "show_radar_page"),
+    ("download", "EasyDEM",
+     "Fetch terrain elevation models (SRTM, Copernicus…) clipped to your area",
+     "_nav_to_dem"),
+    ("climaplots", "ClimaPlots",
+     "Climate trends, indices and thermo diagrams from NASA POWER daily data",
+     "show_climaplots_page"),
+    ("fieldguide", "Field Guide",
+     "Per-feature and per-point analysis with adjustable buffer and value extraction",
+     "show_fieldguide_page"),
+    ("auth", "GEE Configuration",
+     "Connect to Google Earth Engine — sign in and set your project ID",
+     "show_auth_page"),
 ]
 
 
-def _build_intro_section():
-    """Full-width banner: condensed RAVI story + an overview of every feature.
+class FlowLayout(QLayout):
+    """Left-to-right layout that wraps items to the next row when out of width.
 
-    The narrative is distilled from ui/intro.html; the feature grid mirrors the
-    per-module intro tabs so the Welcome page doubles as a landing overview.
+    Qt ships no flow layout; this is the canonical subclass (adapted from the Qt
+    examples). It gives the card grid its responsive column count for free — the
+    number of columns follows the available width.
     """
-    frame = QFrame()
-    frame.setMinimumWidth(280)
-    frame.setStyleSheet("""
-        QFrame {
+
+    def __init__(self, parent=None, margin=0, spacing=16):
+        super().__init__(parent)
+        if parent is not None:
+            self.setContentsMargins(margin, margin, margin, margin)
+        self.setSpacing(spacing)
+        self._items = []
+
+    def addItem(self, item):
+        self._items.append(item)
+
+    def count(self):
+        return len(self._items)
+
+    def itemAt(self, index):
+        if 0 <= index < len(self._items):
+            return self._items[index]
+        return None
+
+    def takeAt(self, index):
+        if 0 <= index < len(self._items):
+            return self._items.pop(index)
+        return None
+
+    def expandingDirections(self):
+        return Qt.Orientation(0)
+
+    def hasHeightForWidth(self):
+        return True
+
+    def heightForWidth(self, width):
+        return self._do_layout(QRect(0, 0, width, 0), True)
+
+    def setGeometry(self, rect):
+        super().setGeometry(rect)
+        self._do_layout(rect, False)
+
+    def sizeHint(self):
+        return self.minimumSize()
+
+    def minimumSize(self):
+        size = QSize()
+        for item in self._items:
+            size = size.expandedTo(item.minimumSize())
+        margins = self.contentsMargins()
+        size += QSize(
+            margins.left() + margins.right(), margins.top() + margins.bottom()
+        )
+        return size
+
+    def _do_layout(self, rect, test_only):
+        margins = self.contentsMargins()
+        effective = rect.adjusted(
+            margins.left(), margins.top(), -margins.right(), -margins.bottom()
+        )
+        x = effective.x()
+        y = effective.y()
+        line_height = 0
+        spacing = self.spacing()
+
+        for item in self._items:
+            hint = item.sizeHint()
+            next_x = x + hint.width() + spacing
+            if next_x - spacing > effective.right() and line_height > 0:
+                x = effective.x()
+                y = y + line_height + spacing
+                next_x = x + hint.width() + spacing
+                line_height = 0
+            if not test_only:
+                item.setGeometry(QRect(QPoint(x, y), hint))
+            x = next_x
+            line_height = max(line_height, hint.height())
+
+        return y + line_height - rect.y() + margins.bottom()
+
+
+def _draw_module_icon(kind: str, color: str, size: int = 30) -> QPixmap:
+    """Render a crisp line icon for ``kind`` at ``size`` px.
+
+    Recipes mirror ``Sidebar._draw_icon`` (drawn in a 20-unit space) so a card's
+    icon matches its sidebar button; the painter is scaled to ``size``.
+    """
+    pix = QPixmap(size, size)
+    pix.fill(Qt.GlobalColor.transparent)
+
+    painter = QPainter(pix)
+    painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+    painter.scale(size / 20.0, size / 20.0)
+
+    pen = QPen(QColor(color), 1.6)
+    pen.setCapStyle(Qt.PenCapStyle.RoundCap)
+    pen.setJoinStyle(Qt.PenJoinStyle.RoundJoin)
+
+    if kind == "auth":
+        # Key — sign-in / Earth Engine configuration.
+        painter.setPen(pen)
+        painter.drawEllipse(QPoint(7, 8), 4, 4)
+        painter.drawLine(10, 11, 17, 18)
+        painter.drawLine(14, 15, 16, 13)
+    elif kind == "optical":
+        painter.setPen(pen)
+        path = QPainterPath()
+        path.moveTo(4, 16)
+        path.cubicTo(5, 7, 11, 4, 16, 4)
+        path.cubicTo(16, 11, 13, 16, 4, 16)
+        painter.drawPath(path)
+        painter.drawLine(6, 14, 15, 5)
+    elif kind == "sysi":
+        painter.setPen(pen)
+        painter.drawLine(3, 11, 17, 11)
+        painter.drawLine(3, 14, 17, 14)
+        painter.drawLine(3, 17, 17, 17)
+        painter.drawLine(10, 8, 10, 3)
+        painter.drawLine(10, 6, 7, 4)
+        painter.drawLine(10, 6, 13, 4)
+    elif kind == "radar":
+        painter.setPen(pen)
+        painter.drawArc(QRect(2, 2, 14, 14), 0 * 16, 90 * 16)
+        painter.drawArc(QRect(4, 4, 10, 10), 0 * 16, 90 * 16)
+        painter.drawArc(QRect(6, 6, 6, 6), 0 * 16, 90 * 16)
+        painter.setPen(Qt.PenStyle.NoPen)
+        painter.setBrush(QColor(color))
+        painter.drawEllipse(QPoint(9, 9), 1, 1)
+    elif kind == "landsat":
+        painter.setPen(pen)
+        painter.drawRect(QRect(3, 3, 8, 8))
+        painter.drawLine(7, 3, 7, 11)
+        painter.drawLine(3, 7, 11, 7)
+        painter.drawArc(QRect(10, 10, 6, 6), 0, 360 * 16)
+        painter.drawLine(15, 15, 18, 18)
+    elif kind == "fieldguide":
+        painter.setPen(pen)
+        painter.drawEllipse(QPoint(10, 8), 4, 4)
+        painter.drawLine(6, 11, 10, 17)
+        painter.drawLine(14, 11, 10, 17)
+        painter.setPen(Qt.PenStyle.NoPen)
+        painter.setBrush(QColor(color))
+        painter.drawEllipse(QPoint(10, 8), 1, 1)
+    elif kind == "climaplots":
+        painter.setPen(pen)
+        painter.drawEllipse(QPoint(7, 7), 3, 3)
+        painter.drawLine(7, 1, 7, 3)
+        painter.drawLine(1, 7, 3, 7)
+        painter.drawLine(3, 3, 4, 4)
+        painter.drawLine(11, 3, 10, 4)
+        painter.drawLine(3, 11, 4, 10)
+        drop = QPainterPath()
+        drop.moveTo(13.5, 9.5)
+        drop.cubicTo(11.0, 13.0, 11.0, 15.0, 13.5, 17.0)
+        drop.cubicTo(16.0, 15.0, 16.0, 13.0, 13.5, 9.5)
+        painter.drawPath(drop)
+    else:
+        painter.setPen(pen)
+        painter.drawLine(10, 3, 10, 12)
+        painter.drawLine(6, 9, 10, 13)
+        painter.drawLine(14, 9, 10, 13)
+        painter.drawLine(5, 16, 15, 16)
+
+    painter.end()
+    return pix
+
+
+_CARD_WIDTH = 268
+_CARD_HEIGHT = 84
+
+
+def _build_module_card(dialog, kind, name, desc, nav_attr):
+    """One clickable card. The whole card is a button that navigates on click."""
+    card = QPushButton()
+    card.setObjectName("moduleCard")
+    card.setCursor(Qt.CursorShape.PointingHandCursor)
+    card.setFixedSize(_CARD_WIDTH, _CARD_HEIGHT)
+    card.setToolTip(_tr(name))
+    card.setStyleSheet("""
+        QPushButton#moduleCard {
             background-color: #ffffff;
-            border: 1px solid #e0e0e0;
+            border: 1px solid #e4e7e5;
+            border-radius: 12px;
+            text-align: left;
+        }
+        QPushButton#moduleCard:hover {
+            background-color: #f7fbf8;
+            border-color: #1b6b39;
+        }
+        QPushButton#moduleCard:pressed {
+            background-color: #eef6f0;
+        }
+        QPushButton#moduleCard QLabel { background: transparent; border: none; }
+    """)
+
+    # Horizontal: icon tile on the left, text wrapped beside it — keeps each
+    # card short so the grid stays compact.
+    lay = QHBoxLayout(card)
+    lay.setContentsMargins(12, 12, 12, 12)
+    lay.setSpacing(11)
+
+    icon_tile = QLabel()
+    icon_tile.setFixedSize(36, 36)
+    icon_tile.setAlignment(Qt.AlignmentFlag.AlignCenter)
+    icon_tile.setStyleSheet(
+        "background-color: #e8f5e9; border-radius: 9px;"
+    )
+    icon_tile.setPixmap(_draw_module_icon(kind, FARM_GREEN, 20))
+    lay.addWidget(icon_tile, 0, Qt.AlignmentFlag.AlignTop)
+
+    text_col = QVBoxLayout()
+    text_col.setContentsMargins(0, 0, 0, 0)
+    text_col.setSpacing(2)
+
+    title = QLabel(_tr(name))
+    title.setStyleSheet("color: #1a1a1a; font-size: 13px; font-weight: bold;")
+    title.setWordWrap(True)
+    text_col.addWidget(title)
+
+    blurb = QLabel(_tr(desc))
+    blurb.setWordWrap(True)
+    blurb.setStyleSheet("color: #6b7280; font-size: 11px; line-height: 1.3;")
+    blurb.setAlignment(Qt.AlignmentFlag.AlignTop)
+    text_col.addWidget(blurb, 1)
+
+    lay.addLayout(text_col, 1)
+
+    # Resolve the nav method lazily on the dialog so this stays decoupled.
+    def _navigate(_checked=False, attr=nav_attr):
+        handler = getattr(dialog, attr, None)
+        if callable(handler):
+            handler()
+
+    card.clicked.connect(_navigate)
+    return card
+
+
+def _build_about_section():
+    """About card below the grid: the RAVI/FARM story, collaboration and links."""
+    frame = QFrame()
+    frame.setObjectName("aboutCard")
+    frame.setStyleSheet("""
+        QFrame#aboutCard {
+            background-color: #ffffff;
+            border: 1px solid #e4e7e5;
             border-radius: 12px;
         }
-        QLabel { background: transparent; border: none; }
+        QFrame#aboutCard QLabel { background: transparent; border: none; }
     """)
     lay = QVBoxLayout(frame)
-    lay.setContentsMargins(18, 14, 18, 14)
+    lay.setContentsMargins(20, 18, 20, 18)
     lay.setSpacing(10)
 
-    title = QLabel(_tr("Welcome to FARM tools"))
-    title.setStyleSheet("color: #1a1a1a; font-size: 18px; font-weight: bold;")
-    lay.addWidget(title)
+    caption = QLabel(_tr("ABOUT"))
+    caption.setStyleSheet(
+        "color: #1b6b39; font-size: 11px; letter-spacing: 1px; font-weight: bold;"
+    )
+    lay.addWidget(caption)
 
     story = QLabel(
         _tr(
@@ -109,32 +358,6 @@ def _build_intro_section():
     story.setStyleSheet("color: #555555; font-size: 12px; line-height: 1.4;")
     lay.addWidget(story)
 
-    feat_caption = QLabel(_tr("WHAT YOU CAN DO"))
-    feat_caption.setStyleSheet(
-        "color: #1b6b39; font-size: 11px; letter-spacing: 1px; font-weight: bold;"
-    )
-    lay.addWidget(feat_caption)
-
-    # Split the features into two balanced columns of rich-text bullets.
-    half = (len(_FEATURES) + 1) // 2
-    columns = QHBoxLayout()
-    columns.setContentsMargins(0, 0, 0, 0)
-    columns.setSpacing(20)
-    for chunk in (_FEATURES[:half], _FEATURES[half:]):
-        items = "".join(
-            f"<p style='margin:0 0 8px 0;'>"
-            f"<b style='color:#1b6b39;'>{_tr(name)}</b><br>"
-            f"<span style='color:#616161;'>{_tr(desc)}</span></p>"
-            for name, desc in chunk
-        )
-        col = QLabel(items)
-        col.setWordWrap(True)
-        col.setTextFormat(Qt.TextFormat.RichText)
-        col.setAlignment(Qt.AlignmentFlag.AlignTop)
-        col.setStyleSheet("font-size: 12px;")
-        columns.addWidget(col, 1)
-    lay.addLayout(columns)
-
     collab = QLabel(
         _tr(
             "🛰️ Landsat super-resolution is built on "
@@ -154,7 +377,7 @@ def _build_intro_section():
     footer = QLabel(
         _tr(
             "Learn more and read the setup guide at "
-            "<a href='{site}' style='{ls}'>www.raviqgis.org</a> · "
+            "<a href='{site}' style='{ls}'>www.farmtools.com.br</a> · "
             "Commercial inquiries: "
             "<a href='{farm}' style='{ls}'>FARM Analytica</a>"
         ).format(site=_URL_SITE, farm=_URL_FARM, ls=_LINK_STYLE)
@@ -168,37 +391,52 @@ def _build_intro_section():
     return frame
 
 
-def setup_welcome_page(dialog, page):
-    """Populate the landing page: scrollable intro banner + a Get-started CTA.
+def _build_hub_section(dialog):
+    """Header strip + responsive grid of module cards."""
+    container = QWidget()
+    container.setStyleSheet("background: transparent;")
+    outer = QVBoxLayout(container)
+    outer.setContentsMargins(4, 4, 4, 4)
+    outer.setSpacing(6)
 
-    ``dialog.btn_welcome_continue`` advances to the Auth page (wired here so
-    ``farm_tools.py`` need not know about this module).
-    """
+    title = QLabel(_tr("Welcome to FARM tools"))
+    title.setStyleSheet("color: #1a1a1a; font-size: 20px; font-weight: bold;")
+    outer.addWidget(title)
+
+    subtitle = QLabel(
+        _tr("Pick a tool to get started — bring Google Earth Engine into QGIS.")
+    )
+    subtitle.setWordWrap(True)
+    subtitle.setStyleSheet("color: #6b7280; font-size: 12px;")
+    outer.addWidget(subtitle)
+    outer.addSpacing(6)
+
+    grid_host = QWidget()
+    grid_host.setStyleSheet("background: transparent;")
+    grid = FlowLayout(grid_host, margin=0, spacing=12)
+    for kind, name, desc, nav_attr in _MODULES:
+        grid.addWidget(_build_module_card(dialog, kind, name, desc, nav_attr))
+    outer.addWidget(grid_host)
+    outer.addSpacing(16)
+    outer.addWidget(_build_about_section())
+    outer.addStretch(1)
+
+    return container
+
+
+def setup_welcome_page(dialog, page):
+    """Populate the landing page with the scrollable module hub grid."""
     page.setStyleSheet("background-color: #f5f5f5;")
 
     page_lay = QVBoxLayout(page)
-    page_lay.setContentsMargins(16, 16, 16, 16)
-    page_lay.setSpacing(12)
+    page_lay.setContentsMargins(20, 20, 20, 20)
+    page_lay.setSpacing(0)
 
     scroll = QScrollArea()
     scroll.setWidgetResizable(True)
     scroll.setFrameShape(QFrame.Shape.NoFrame)
     scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
     scroll.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
-    scroll.setMinimumHeight(0)
     scroll.setStyleSheet("QScrollArea { background: transparent; border: none; }")
-    scroll.setWidget(_build_intro_section())
+    scroll.setWidget(_build_hub_section(dialog))
     page_lay.addWidget(scroll, 1)
-
-    cta_row = QHBoxLayout()
-    cta_row.setContentsMargins(0, 0, 0, 0)
-    cta_row.addStretch(1)
-
-    dialog.btn_welcome_continue = QPushButton(_tr("Get started   →"))
-    dialog.btn_welcome_continue.setFixedHeight(36)
-    dialog.btn_welcome_continue.setCursor(Qt.CursorShape.PointingHandCursor)
-    dialog.btn_welcome_continue.setStyleSheet(STYLE_BTN_PRIMARY)
-    dialog.btn_welcome_continue.clicked.connect(dialog.show_auth_page)
-    cta_row.addWidget(dialog.btn_welcome_continue)
-
-    page_lay.addLayout(cta_row)
