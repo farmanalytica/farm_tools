@@ -4,11 +4,11 @@ qgisMinimumVersion=3.28
 qgisMaximumVersion=4.99
 description=Swiss-army toolbox of geo-analytics modules for research, education, agriculture, and land monitoring: vegetation index time series, multispectral/SAR/DEM downloads, bare-soil composites, climate plots, and field sampling
 description_pt=Canivete suíço de módulos de geoanálise para pesquisa, ensino, agricultura e monitoramento da terra: séries temporais de índices de vegetação, downloads multiespectrais/SAR/DEM, composições de solo exposto, gráficos climáticos e amostragem de campo
-version=1.1
+version=1.2
 author=Bruna da Silva Brito Ribeiro, Caio Arantes, Isabella Alves da Cunha, Leandro Eloi, Lívia Scopel, Lucas Rios do Amaral, Mateus Pinto da Silva, Mateus Pinto da Silva
 email=caio.arantes@farmanalytica.com.br
 
-about=FARM tools is a Swiss-army toolbox of geo-analytics modules for QGIS, bringing together the plugins supported by FARM Analytica in a single interface powered by Google Earth Engine (GEE). Modules include: Optical (Sentinel-2 vegetation index time series and multispectral imagery download), Landsat (long-term time series and imagery), SAR (Sentinel-1 radar analysis), DEM (elevation data download and terrain products), SYSI (synthetic bare-soil image composites), ClimaPlots (climate data charts), and Field Guide (field point capture, polygon sampling, raster-based optimal sampling points, and CSV/GPX/PDF exports). Built for students, researchers, farmers, and professionals working in agriculture, land monitoring, or environmental management. / O FARM tools é um canivete suíço de módulos de geoanálise para o QGIS, reunindo os plugins suportados pela FARM Analytica em uma única interface integrada ao Google Earth Engine (GEE). Os módulos incluem: Óptico (séries temporais de índices de vegetação Sentinel-2 e download de imagens multiespectrais), Landsat (séries temporais longas e imagens), SAR (análise de radar Sentinel-1), DEM (download de dados de elevação e produtos de terreno), SYSI (composições sintéticas de solo exposto), ClimaPlots (gráficos de dados climáticos) e Guia de Campo (captura de pontos em campo, amostragem de polígonos, pontos ótimos baseados em raster e exportações CSV/GPX/PDF). Desenvolvido para estudantes, pesquisadores, agricultores e profissionais que trabalham com agricultura, monitoramento da terra ou gestão ambiental.
+about=FARM tools is a Swiss-army toolbox of geo-analytics modules for QGIS, bringing together the plugins supported by FARM Analytica in a single interface powered by Google Earth Engine (GEE). Modules include: Optical (Sentinel-2 vegetation index time series and multispectral imagery download), Landsat (long-term time series and imagery), SAR (Sentinel-1 radar analysis), DEM (elevation data download and terrain products), SYSI (synthetic bare-soil image composites), ClimaPlots (climate data charts), Field Guide (field point capture, polygon sampling, raster-based optimal sampling points, and CSV/GPX/PDF exports), and MapBiomas (Brazilian Collection 9 land-use/land-cover by year and configurable land-use transition analysis). Built for students, researchers, farmers, and professionals working in agriculture, land monitoring, or environmental management. / O FARM tools é um canivete suíço de módulos de geoanálise para o QGIS, reunindo os plugins suportados pela FARM Analytica em uma única interface integrada ao Google Earth Engine (GEE). Os módulos incluem: Óptico (séries temporais de índices de vegetação Sentinel-2 e download de imagens multiespectrais), Landsat (séries temporais longas e imagens), SAR (análise de radar Sentinel-1), DEM (download de dados de elevação e produtos de terreno), SYSI (composições sintéticas de solo exposto), ClimaPlots (gráficos de dados climáticos), Guia de Campo (captura de pontos em campo, amostragem de polígonos, pontos ótimos baseados em raster e exportações CSV/GPX/PDF) e MapBiomas (uso e cobertura da terra da Coleção 9 do Brasil por ano e análise configurável de transições de uso da terra). Desenvolvido para estudantes, pesquisadores, agricultores e profissionais que trabalham com agricultura, monitoramento da terra ou gestão ambiental.
 
 tracker=https://github.com/farmanalytica/farm_tools/issues
 repository=https://github.com/farmanalytica/farm_tools
@@ -19,6 +19,16 @@ repository=https://github.com/farmanalytica/farm_tools
 hasProcessingProvider=no
 # Uncomment the following line and add your changelog:
 changelog=
+    1.2 - New MapBiomas module: browse MapBiomas Brasil Collection 9 land-use/
+          land-cover in-module by year (year slider + class legend) and download
+          any year to QGIS as a styled paletted raster. Configurable
+          source-to-target transition analysis with presets (Pasture-to-Crop,
+          Deforestation, Forest regrowth, Agricultural expansion, Urban) and a
+          custom class picker; first-transition-year map, per-year converted-area
+          chart with a year-range filter, and export of the transition layer
+          (classed by transition year) limited to the selected range. Sidebar nav
+          is now scrollable so it no longer constrains the dialog's minimum
+          height.
     1.1 - Field Guide: raster-based optimal point selection (one point per
           polygon at the location of maximum raster value, e.g. NDVI peak),
           with band selection, no-data/sub-pixel/CRS edge-case handling, and
@@ -29,7 +39,7 @@ changelog=
     1.0 - Initial release (fork of RAVI)
 
 # Tags are comma separated with spaces allowed
-tags=remote sensing, sentinel-2, sentinel-1, landsat, google earth engine, vegetation index, ndvi, time series, agriculture, precision agriculture, field sampling, soil, climate, raster, sar, dem
+tags=remote sensing, sentinel-2, sentinel-1, landsat, google earth engine, vegetation index, ndvi, time series, agriculture, precision agriculture, field sampling, soil, climate, raster, sar, dem, mapbiomas, land use, land cover, deforestation
 
 homepage=https://farmtools.com.br
 category=Plugins
