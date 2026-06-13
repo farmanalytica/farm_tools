@@ -57,10 +57,23 @@ _SOURCE_MIN_YEAR = {
 }
 
 
-def _loading_html():
+def _loading_html(location=""):
+    loc_line = (
+        "<div style='margin-top:10px;font-size:13px;color:#8a98a6'>"
+        + location + "</div>"
+    ) if location else ""
     return (
-        "<html><body style='font-family:sans-serif;color:#555;text-align:center;"
-        "margin-top:40px'><h3>" + _tr("Fetching climate data...") + "</h3></body></html>"
+        "<!DOCTYPE html><html><head><meta charset='utf-8'><style>"
+        "html,body{height:100%;margin:0;font-family:sans-serif;background:#fff}"
+        ".box{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);"
+        "text-align:center;color:#555}"
+        ".spinner{width:34px;height:34px;margin:0 auto 12px;"
+        "border:3px solid #e3e9ef;border-top-color:#1b6b39;border-radius:50%;"
+        "animation:spin 0.9s linear infinite}"
+        "@keyframes spin{to{transform:rotate(360deg)}}"
+        "</style></head><body><div class='box'><div class='spinner'></div>"
+        "<div style='font-size:15px'>" + _tr("Fetching climate data...") + "</div>"
+        + loc_line + "</div></body></html>"
     )
 
 
@@ -261,15 +274,29 @@ class ClimaPlotsCtrl:
 
         self._reset_results()
         QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
+        location = "{}: {}, {}".format(
+            _tr("Point A"),
+            self.dialog.cp_lat_a.text().strip(),
+            self.dialog.cp_lon_a.text().strip(),
+        )
+        if self.dialog.cp_lat_b.text().strip() and self.dialog.cp_lon_b.text().strip():
+            location += "&nbsp;&nbsp;|&nbsp;&nbsp;{}: {}, {}".format(
+                _tr("Point B"),
+                self.dialog.cp_lat_b.text().strip(),
+                self.dialog.cp_lon_b.text().strip(),
+            )
         for view in (
             self.dialog.cp_web_trends,
             self.dialog.cp_web_thermo,
             self.dialog.cp_web_indices,
         ):
             try:
-                view.setHtml(_loading_html())
+                view.setHtml(_loading_html(location))
             except Exception:
                 pass
+        # Jump to the first plot page right away so the user sees the loading
+        # state (and the coordinates being fetched) instead of a frozen form.
+        self.dialog.cp_set_tab(2)
 
         self._worker = ClimaPlotsAnalysisWorker(
             self.dialog.cp_lon_a.text(),
@@ -304,6 +331,16 @@ class ClimaPlotsCtrl:
     def _on_analysis_failed(self, message):
         QApplication.restoreOverrideCursor()
         QgsMessageLog.logMessage(message, "FARM tools", Qgis.Critical)
+        # Clear the loading spinners so the plot pages don't spin forever.
+        for view in (
+            self.dialog.cp_web_trends,
+            self.dialog.cp_web_thermo,
+            self.dialog.cp_web_indices,
+        ):
+            try:
+                view.setHtml("")
+            except Exception:
+                pass
         self.dialog.pop_message(
             _tr("Failed to fetch or process climate data.\nSee the QGIS log for details."),
             "warning",

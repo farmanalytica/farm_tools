@@ -126,7 +126,7 @@ class FarmTools:
 
     def initGui(self):
         """Initialize the plugin GUI."""
-        icon_path = os.path.join(self.plugin_dir, "toolbar_icon.png")
+        icon_path = os.path.join(self.plugin_dir, "icon.png")
         self.add_action(
             icon_path,
             text=self.tr(""),
