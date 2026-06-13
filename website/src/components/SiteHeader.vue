@@ -15,9 +15,8 @@ function closeMenu() {
 <template>
   <header>
     <div class="container nav">
-      <router-link class="brand" to="/" @click="closeMenu">
-        <img class="brand-logo" src="/icon.png" alt="FARM tools logo" />
-        <span>FARM tools</span>
+      <router-link class="brand" to="/" @click="closeMenu" aria-label="FARM tools">
+        <img class="brand-logo" src="/logo.svg" alt="FARM tools" />
       </router-link>
       <div class="nav-right">
         <button
@@ -88,10 +87,10 @@ header {
 }
 
 .brand-logo {
-  width: 30px;
   height: 30px;
-  border-radius: 7px;
+  width: auto;
   object-fit: contain;
+  display: block;
 }
 
 .nav-right {
