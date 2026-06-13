@@ -2,9 +2,9 @@
 
 FARM tools is a QGIS plugin by [FARM Analytica](https://www.farmanalytica.com.br) that
 integrates **Google Earth Engine (GEE)** into QGIS for vegetation-index time
-series, multispectral/SAR imagery download, terrain and soil products. It targets
-students, researchers, farmers, and professionals in agriculture, land monitoring,
-and environmental management.
+series, multispectral/SAR imagery download, terrain, soil and climate products. It
+targets students, researchers, farmers, and professionals in agriculture, land
+monitoring, and environmental management.
 
 FARM tools is a fork of the RAVI plugin with a distinct plugin identity (folder
 `farm_tools`, name "FARM tools", own menu/toolbar), so it can be installed and run
@@ -21,15 +21,16 @@ FARM tools is a fork of the RAVI plugin with a distinct plugin identity (folder
 |---|---|
 | **Optical** (Sentinel-2) | Vegetation-index time series, per-point / per-feature analysis, cloud (SCL) filtering, image preview, composites, multispectral download |
 | **SAR** (Sentinel-1) | Backscatter retrieval, date filtering, plotting, styled rendering |
-| **Landsat** | Batch and super-resolution scene download via `agrigee-lite` |
-| **DEM** | Digital Elevation Model catalog browse + download + hillshade/terrain rendering |
-| **SYSI** | Synthetic Soil Image generation |
-| **Climate** | NASA POWER climate series |
-| **Auth** | GEE sign-in — personal OAuth **and** service-account key |
+| **Landsat** (Super-Res) | Pan-sharpened 15 m Landsat 7/8/9 imagery + multi-mission index series via `agrigee-lite` |
+| **EasyDEM** | Digital Elevation Model catalog browse + download + hillshade/terrain rendering |
+| **SYSI** | Synthetic Soil Image (bare-soil reflectance composite) generation |
+| **ClimaPlots** | Climate trends, indices and thermo diagrams from NASA POWER / Open-Meteo daily data |
+| **Field Guide** | Per-feature / per-point raster sampling with adjustable buffer + PDF report export |
+| **GEE Configuration** | GEE sign-in — personal OAuth **and** service-account key |
 
 ## Requirements
 
-- **QGIS 3.x** (Python 3.11 / 3.12 / 3.13; QGIS 3.44 LTR ships 3.12)
+- **QGIS 3.28+ and QGIS 4.x** (Python 3.11 / 3.12 / 3.13; QGIS 3.44 LTR ships 3.12)
 - A **Google Earth Engine** account + a Cloud project with the Earth Engine API enabled
 - Third-party Python deps (`earthengine-api`, `agrigee-lite`, `google-*`, …) are
   **provisioned automatically** on first launch — see
@@ -83,10 +84,10 @@ background threads so the QGIS UI stays responsive.
 | Layer | Path | Responsibility |
 |---|---|---|
 | **Entry / bootstrap** | `__init__.py`, `farm_tools.py` | `classFactory` provisions deps then instantiates `FarmTools`; the plugin class wires the QGIS menu/toolbar and opens the dialog. |
-| **Dialog / shell** | `farm_tools_dialog.py`, `view/sidebar.py`, `view/styles.py` | Main window, navigation sidebar, shared styling. |
-| **View** | `view/` | Per-feature panels (`optical`, `radar`, `landsat`, `sysi`, `auth`, …), dialogs, plots (`sar_plot`), custom widgets (`range_slider`). Pure Qt — no business logic. |
-| **Controllers** | `controllers/` | One per feature (`auth`, `optical`, `sar`, `dem`, `landsat`, `sysi`). Translate UI events into service/worker calls and push results back to layers and views. |
-| **Services** | `services/` | Business logic. `gee_service.py` owns all Earth Engine auth/init; feature services (`optical`, `sar`, `dem`, `landsat`, `sysi`, `aoi`, `nasa_power`) build EE queries and return plain data (DataFrames / dicts). |
+| **Dialog / shell** | `farm_tools_dialog.py`, `view/sidebar.py`, `view/welcome.py`, `view/styles.py` | Main window, navigation sidebar, welcome hub (module-grid landing page), shared styling. |
+| **View** | `view/` | Per-feature panels (`optical`, `radar`, `landsat`, `sysi`, `download_dem`, `climaplots`, `fieldguide`, `auth`, …), the `welcome` hub, dialogs, plots (`sar_plot`, `plotly_render`), custom widgets (`range_slider`). Pure Qt — no business logic. |
+| **Controllers** | `controllers/` | One per feature (`auth`, `optical`, `sar`, `dem`, `landsat`, `sysi`, `climaplots`, `fieldguide`). Translate UI events into service/worker calls and push results back to layers and views. |
+| **Services** | `services/` | Business logic. `gee_service.py` owns all Earth Engine auth/init; feature services (`optical`, `sar`, `dem`, `landsat`, `sysi`, `fieldguide`, `aoi`, `nasa_power`) and the `climaplots/` package build EE/HTTP queries and return plain data (DataFrames / dicts). |
 | **Workers** | `workers/` | `QThread` subclasses that run a service call off the UI thread and emit `finished` / `failed` signals (e.g. `optical_worker`, `landsat_batch_worker`, `climate_worker`). |
 | **Renderers** | `renderers/` | Turn results into styled QGIS layers (`base_maps`, `dem_renderer`, `sar_renderer`, `raster_renderer_utils`). |
 | **Managers** | `managers/` | Cross-cutting state — `settings_manager` (QgsSettings), `dataset_manager` (catalogs). |
@@ -99,7 +100,7 @@ background threads so the QGIS UI stays responsive.
 farm_tools/
 ├── __init__.py              # classFactory — provisions extlibs, returns FarmTools
 ├── farm_tools.py            # FarmTools plugin class — translator, menu/toolbar, controller wiring
-├── farm_tools_dialog.py     # FarmToolsDialog — QStackedWidget shell (loading + 6 feature pages)
+├── farm_tools_dialog.py     # FarmToolsDialog — QStackedWidget shell (loading + welcome hub + feature pages)
 ├── extlibs_manager.py       # dependency provisioning + ExtlibsDownloader(QThread)
 ├── requirements.txt         # pinned third-party deps (earthengine-api, agrigee-lite==3.0.0, …)
 ├── build_plugin.py          # package → dist/farm_tools.zip
@@ -107,10 +108,10 @@ farm_tools/
 ├── compile_translations.py  # i18n/*.ts → *.qm
 ├── icon.png                 # plugin-manager / dialog-header icon (rendered from assets/logo.svg)
 ├── toolbar_icon.png         # toolbar action icon (rendered from assets/farm.svg)
-├── controllers/             # auth, dem, optical, sar, landsat, sysi  (UI ↔ worker ↔ service glue)
-├── services/                # gee_service + per-feature EE/data logic (stateless, return plain data)
+├── controllers/             # auth, dem, optical, sar, landsat, sysi, climaplots, fieldguide  (UI ↔ worker ↔ service glue)
+├── services/                # gee_service + per-feature EE/data logic (stateless) + climaplots/ package
 ├── workers/                 # QThread subclasses — run a service off the UI thread
-├── view/                    # setup_<feature>_page builders, sidebar, dialogs, plots, widgets
+├── view/                    # welcome hub + setup_<feature>_page builders, sidebar, dialogs, plots, widgets
 ├── renderers/               # results → styled QgsRasterLayer
 ├── managers/                # settings_manager, dataset_manager
 ├── tools/                   # aoi_draw_tool, point_capture_tool, indexes.py
@@ -120,8 +121,8 @@ farm_tools/
 
 ### One feature = one slice through every layer
 
-Each data module (`auth`, `optical`, `sar`, `dem`, `landsat`, `sysi`) appears once per layer.
-To work on a feature, follow its name across the tree:
+Each data module (`auth`, `optical`, `sar`, `dem`, `landsat`, `sysi`, `climaplots`, `fieldguide`)
+appears once per layer. To work on a feature, follow its name across the tree:
 
 | Feature | view | controller | service | worker(s) |
 |---|---|---|---|---|
@@ -129,11 +130,14 @@ To work on a feature, follow its name across the tree:
 | **Optical** (S2) | `view/optical.py` | `OpticalCtrl` | `OpticalService` | `OpticalWorker`, `OpticalPreviewWorker`, `OpticalCompositeWorker`, `OpticalAnalysisWorker`, `BatchDownloadWorker`, `ClimateWorker` |
 | **SAR** (S1) | `view/radar.py` | `SARCtrl` | `SARService` | `SARWorker`, `SARPreviewWorker`, `SARCompositeWorker`, `SARBatchDownloadWorker` |
 | **Landsat** | `view/landsat.py` | `LandsatCtrl` | `LandsatService` | `LandsatWorker`, `LandsatPreviewWorker`, `LandsatTimeseriesWorker`, `LandsatBatchWorker` |
-| **DEM** | `view/download_dem.py` | `DEMCtrl` | `DEMService`, `DEMRegistry` | `DatasetAvailabilityWorker`, `DemDownloadWorker` |
+| **DEM** (EasyDEM) | `view/download_dem.py` | `DEMCtrl` | `DEMService`, `DEMRegistry` | `DatasetAvailabilityWorker`, `DemDownloadWorker` |
 | **SYSI** | `view/sysi.py` | `SYSICtrl` | `SYSIService` | `SYSIWorker` |
+| **ClimaPlots** | `view/climaplots.py` | `ClimaPlotsCtrl` | `services/climaplots/` package | `ClimaPlotsAnalysisWorker` |
+| **Field Guide** | `view/fieldguide.py` | `FieldGuideCtrl` | `FieldGuideService`, `fieldguide_pdf/` | — (synchronous, local raster sampling) |
 
-Shared services not tied to one feature: `aoi_service.py` (QGIS layer → WGS84 EE FeatureCollection)
-and `nasa_power_service.py` (climate series for the optical climate overlay).
+Shared services not tied to one feature: `aoi_service.py` (QGIS layer → WGS84 EE FeatureCollection),
+`nasa_power_service.py` (climate series for the optical climate overlay) and `raster_analysis.py`
+(local raster value extraction, used by Field Guide).
 
 ### Conventions
 
@@ -141,16 +145,19 @@ and `nasa_power_service.py` (climate series for the optical climate overlay).
   `setup_<feature>_page(dialog, page)` builder that populates a `QWidget` and hangs the
   child widgets off the `dialog` (e.g. `dialog.s2_btn_run`). Controllers read/write those
   attributes — there's no separate view object.
-- **Navigation** is signal-driven: `view/sidebar.py::Sidebar` emits `auth_requested`,
-  `optical_requested`, `sysi_requested`, `radar_requested`, `dem_requested`,
-  `landsat_requested`; `FarmToolsDialog` switches the `QStackedWidget` page in response.
+- **Navigation** is signal-driven: `view/sidebar.py::Sidebar` emits `welcome_requested`,
+  `auth_requested`, `optical_requested`, `sysi_requested`, `radar_requested`, `dem_requested`,
+  `landsat_requested`, `fieldguide_requested`, `climaplots_requested`; `FarmToolsDialog`
+  switches the `QStackedWidget` page in response. The welcome hub (`view/welcome.py`) is also a
+  landing page of clickable module cards that navigate via the dialog's `show_*_page` methods.
 - **Controllers** take `(dialog, …)` with `gee_service` and `interface` (the QGIS `iface`)
   passed in; they own no Qt widgets of their own. All wiring (button `clicked` → handler) is
   done once in `farm_tools.py::_finish_init()`.
 - **Workers** are `QThread` subclasses with a uniform contract: a `finished(...)` signal
   carrying the result and a `failed(str)` signal carrying the error message. `run()` wraps the
-  service call in try/except and emits one or the other. (`AuthWorker` is the exception, using
-  `browser_opened(str)` + `finished_auth(bool, str)`.) Never call Earth Engine from a controller
+  service call in try/except and emits one or the other. (Exceptions: `AuthWorker` uses
+  `browser_opened(str)` + `finished_auth(bool, str)`; `ClimaPlotsAnalysisWorker` uses
+  `finished_ok` / `failed` / `progress`.) Never call Earth Engine from a controller
   directly — always go through a worker so the UI thread never blocks.
 - **Services are stateless and return plain data** (DataFrames / lists of dicts / file paths).
   Only `GEEService` holds state (the authenticated EE session). Services must not import `ee`

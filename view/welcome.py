@@ -250,8 +250,8 @@ def _draw_module_icon(kind: str, color: str, size: int = 30) -> QPixmap:
 
 
 _CARD_WIDTH = 268
-# Tall enough for a one-line title plus a three-line wrapped description.
-_CARD_HEIGHT = 98
+# Tall enough for a one-line title plus a four-line wrapped description.
+_CARD_HEIGHT = 116
 
 
 def _build_module_card(dialog, kind, name, desc, nav_attr):
