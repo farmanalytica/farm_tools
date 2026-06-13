@@ -4,7 +4,7 @@ qgisMinimumVersion=3.28
 qgisMaximumVersion=4.99
 description=Swiss-army toolbox of geo-analytics modules for research, education, agriculture, and land monitoring: vegetation index time series, multispectral/SAR/DEM downloads, bare-soil composites, climate plots, and field sampling
 description_pt=Canivete suíço de módulos de geoanálise para pesquisa, ensino, agricultura e monitoramento da terra: séries temporais de índices de vegetação, downloads multiespectrais/SAR/DEM, composições de solo exposto, gráficos climáticos e amostragem de campo
-version=1.2
+version=1.3
 author=Bruna da Silva Brito Ribeiro, Caio Arantes, Isabella Alves da Cunha, Leandro Eloi, Lívia Scopel, Lucas Rios do Amaral, Mateus Pinto da Silva, Mateus Pinto da Silva
 email=caio.arantes@farmanalytica.com.br
 
@@ -19,6 +19,9 @@ repository=https://github.com/farmanalytica/farm_tools
 hasProcessingProvider=no
 # Uncomment the following line and add your changelog:
 changelog=
+    1.3 - Module hub: GEE-free modules (ClimaPlots, Field Guide) now carry a
+          "No login" badge on their landing-page cards, so first-time users can
+          start with the tools that work without a Google Earth Engine sign-in.
     1.2 - New MapBiomas module: browse MapBiomas Brasil Collection 9 land-use/
           land-cover in-module by year (year slider + class legend) and download
           any year to QGIS as a styled paletted raster. Configurable

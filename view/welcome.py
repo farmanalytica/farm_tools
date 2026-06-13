@@ -50,36 +50,38 @@ _URL_AGRIGEE = "https://github.com/mateuspinto/AgriGEE.lite"
 _LINK_STYLE = "color:#1b6b39; font-weight:bold; text-decoration:none;"
 
 # One entry per module card: (icon kind, name, one-line description, dialog nav
-# method). ``kind`` reuses the sidebar's icon vocabulary; ``nav_attr`` is looked
-# up on the dialog at click time so this list is the single source of truth.
+# method, gee_free). ``kind`` reuses the sidebar's icon vocabulary; ``nav_attr``
+# is looked up on the dialog at click time so this list is the single source of
+# truth. ``gee_free`` flags modules that work without a Google Earth Engine
+# sign-in (NASA POWER / local-raster sources) so first-time users can start there.
 _MODULES = [
     ("optical", "Optical (Sentinel-2)",
      "Per-date vegetation-index time series (NDVI, EVI, NDRE…) with cloud masking",
-     "show_optical_page"),
+     "show_optical_page", False),
     ("landsat", "Landsat (Super-Res)",
      "Pan-sharpened 15 m Landsat 7/8/9 imagery and multi-mission index series",
-     "show_landsat_page"),
+     "show_landsat_page", False),
     ("sysi", "SYSI — Synthetic Soil Image",
      "Bare-soil reflectance composite (GEOS3) from cloud-free pixels for soil mapping",
-     "show_sysi_page"),
+     "show_sysi_page", False),
     ("radar", "Radar (SAR) data",
      "Sentinel-1 VV/VH backscatter time series — cloud-independent monitoring",
-     "show_radar_page"),
+     "show_radar_page", False),
     ("download", "EasyDEM",
      "Fetch terrain elevation models (SRTM, Copernicus…) clipped to your area",
-     "_nav_to_dem"),
+     "_nav_to_dem", False),
     ("climaplots", "ClimaPlots",
      "Climate trends, indices and thermo diagrams from NASA POWER daily data",
-     "show_climaplots_page"),
+     "show_climaplots_page", True),
     ("fieldguide", "Field Guide",
      "Per-feature and per-point analysis with adjustable buffer and value extraction",
-     "show_fieldguide_page"),
+     "show_fieldguide_page", True),
     ("mapbiomas", "MapBiomas",
      "Brazilian land-use/land-cover by year plus pasture-to-crop transition mapping",
-     "show_mapbiomas_page"),
+     "show_mapbiomas_page", False),
     ("auth", "GEE Configuration",
      "Connect to Google Earth Engine — sign in and set your project ID",
-     "show_auth_page"),
+     "show_auth_page", False),
 ]
 
 
@@ -268,7 +270,7 @@ _CARD_WIDTH = 268
 _CARD_HEIGHT = 116
 
 
-def _build_module_card(dialog, kind, name, desc, nav_attr):
+def _build_module_card(dialog, kind, name, desc, nav_attr, gee_free=False):
     """One clickable card. The whole card is a button that navigates on click."""
     card = QPushButton()
     card.setObjectName("moduleCard")
@@ -314,7 +316,25 @@ def _build_module_card(dialog, kind, name, desc, nav_attr):
     title = QLabel(_tr(name))
     title.setStyleSheet("color: #1a1a1a; font-size: 13px; font-weight: bold;")
     title.setWordWrap(True)
-    text_col.addWidget(title)
+
+    if gee_free:
+        # Badge row: title beside a green "No login" pill so first-time users can
+        # spot the tools that run without a Google Earth Engine sign-in.
+        title_row = QHBoxLayout()
+        title_row.setContentsMargins(0, 0, 0, 0)
+        title_row.setSpacing(6)
+        title_row.addWidget(title, 1)
+        badge = QLabel(_tr("No login"))
+        badge.setToolTip(_tr("Works without a Google Earth Engine sign-in"))
+        badge.setStyleSheet(
+            "background-color: #e8f5e9; color: #1b6b39; font-size: 9px;"
+            " font-weight: bold; border: 1px solid #b7dcc0; border-radius: 7px;"
+            " padding: 1px 6px;"
+        )
+        title_row.addWidget(badge, 0, Qt.AlignmentFlag.AlignTop)
+        text_col.addLayout(title_row)
+    else:
+        text_col.addWidget(title)
 
     blurb = QLabel(_tr(desc))
     blurb.setWordWrap(True)
@@ -511,8 +531,9 @@ def _build_hub_section(dialog):
     grid_host = QWidget()
     grid_host.setStyleSheet("background: transparent;")
     grid = FlowLayout(grid_host, margin=0, spacing=12)
-    for kind, name, desc, nav_attr in _MODULES:
-        grid.addWidget(_build_module_card(dialog, kind, name, desc, nav_attr))
+    for kind, name, desc, nav_attr, gee_free in _MODULES:
+        grid.addWidget(
+            _build_module_card(dialog, kind, name, desc, nav_attr, gee_free))
     outer.addWidget(grid_host)
     outer.addSpacing(16)
     outer.addWidget(_build_folder_section(dialog))
