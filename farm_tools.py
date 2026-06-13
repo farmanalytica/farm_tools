@@ -150,6 +150,12 @@ class FarmTools:
                 self.climaplots_ctrl.cleanup()
             except Exception:
                 pass
+        if getattr(self, "mapbiomas_ctrl", None) is not None:
+            # Release the draw tool, temp chart, and any worker.
+            try:
+                self.mapbiomas_ctrl.cleanup()
+            except Exception:
+                pass
         QCoreApplication.removeTranslator(self._translator)
         for action in self.actions:
             self.interface.removePluginMenu("&FARM tools", action)
@@ -165,6 +171,7 @@ class FarmTools:
         from .controllers.sysi_ctrl import SYSICtrl
         from .controllers.fieldguide_ctrl import FieldGuideCtrl
         from .controllers.climaplots_ctrl import ClimaPlotsCtrl
+        from .controllers.mapbiomas_ctrl import MapBiomasCtrl
 
         self._services_ready = True
         self.gee_service = GEEService()
@@ -176,6 +183,9 @@ class FarmTools:
         self.sysi_ctrl = SYSICtrl(self.dialog, self.interface, self.gee_service)
         self.fieldguide_ctrl = FieldGuideCtrl(self.dialog, self.interface)
         self.climaplots_ctrl = ClimaPlotsCtrl(self.dialog, self.interface)
+        self.mapbiomas_ctrl = MapBiomasCtrl(
+            self.dialog, self.interface, self.gee_service
+        )
 
         saved_project_id = self.gee_service.get_saved_project_id()
         if saved_project_id:
@@ -505,6 +515,43 @@ class FarmTools:
         )
         self.dialog.cp_btn_export_all.clicked.connect(
             self.climaplots_ctrl.handle_export_all
+        )
+
+        self.dialog.mb_btn_draw_aoi.clicked.connect(
+            self.mapbiomas_ctrl.handle_draw_aoi
+        )
+        self.dialog.mb_btn_hybrid_layer.clicked.connect(
+            self.dem_ctrl.handle_hybrid_layer
+        )
+        self.dialog.mb_layer_combo.layerChanged.connect(
+            self.mapbiomas_ctrl.handle_layer_changed
+        )
+        self.dialog.mb_btn_load_coverage.clicked.connect(
+            self.mapbiomas_ctrl.handle_load_coverage
+        )
+        self.dialog.mb_btn_load_transition.clicked.connect(
+            self.mapbiomas_ctrl.handle_load_transition
+        )
+        self.dialog.mb_btn_browser_transition.clicked.connect(
+            self.mapbiomas_ctrl.handle_open_in_browser
+        )
+        self.dialog.mb_btn_download_qgis.clicked.connect(
+            self.mapbiomas_ctrl.handle_download_qgis
+        )
+        self.dialog.mb_btn_download_year.clicked.connect(
+            self.mapbiomas_ctrl.handle_download_year
+        )
+        self.dialog.mb_tx_preset_combo.currentIndexChanged.connect(
+            self.mapbiomas_ctrl.handle_preset_changed
+        )
+        self.dialog.mb_btn_download_tx_qgis.clicked.connect(
+            self.mapbiomas_ctrl.handle_download_transition_qgis
+        )
+        self.dialog.mb_tx_range.low_changed.connect(
+            self.mapbiomas_ctrl.handle_tx_range_changed
+        )
+        self.dialog.mb_tx_range.high_changed.connect(
+            self.mapbiomas_ctrl.handle_tx_range_changed
         )
 
         self.auth_ctrl.refresh_auth_status()
