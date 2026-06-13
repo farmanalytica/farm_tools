@@ -295,7 +295,9 @@ def _build_inputs_tab(dialog, parent):
         dialog.mb_tx_preset_combo.addItem(_tr(label), key)
     dialog.mb_tx_preset_combo.addItem(_tr("Custom…"), "custom")
     dialog.mb_tx_preset_combo.setCursor(Qt.CursorShape.PointingHandCursor)
-    dialog.mb_tx_preset_combo.setMinimumHeight(28)
+    dialog.mb_tx_preset_combo.setMinimumHeight(30)
+    dialog.mb_tx_preset_combo.setMaxVisibleItems(12)
+    dialog.mb_tx_preset_combo.setStyleSheet(STYLE_COMBO_YEAR)
     tx_lay.addWidget(dialog.mb_tx_preset_combo)
 
     # Custom source/target pickers — hidden unless the "Custom…" preset is chosen.
