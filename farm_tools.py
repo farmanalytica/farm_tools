@@ -516,7 +516,7 @@ class FarmTools:
 
             extlibs_manager.ensure_on_path()
             self._finish_init()
-            self.dialog.show_auth_page()
+            self.dialog.show_welcome_page()
         else:
             self.dialog.pop_message(
                 self.tr("Failed to download dependencies: %s") % error_msg,

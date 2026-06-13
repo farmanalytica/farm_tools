@@ -51,6 +51,7 @@ from .view.landsat import setup_landsat_page
 from .view.optical import setup_optical_page
 from .view.radar import setup_radar_page
 from .view.sysi import setup_sysi_page
+from .view.welcome import setup_welcome_page
 from .view.sidebar import Sidebar
 from .view.styles import STYLE_DIALOG, STYLE_BTN_HELP
 
@@ -173,6 +174,7 @@ class FarmToolsDialog(QDialog):
         body_layout.setSpacing(2)
 
         self.sidebar = Sidebar()
+        self.sidebar.welcome_requested.connect(self._nav_to_welcome)
         self.sidebar.auth_requested.connect(self._nav_to_auth)
         self.sidebar.optical_requested.connect(self._nav_to_optical)
         self.sidebar.sysi_requested.connect(self._nav_to_sysi)
@@ -201,6 +203,7 @@ class FarmToolsDialog(QDialog):
         body_layout.addWidget(content_container, 1)
 
         self.loading_page = self._build_loading_page()
+        self.welcome_page = QWidget()
         self.auth_page = QWidget()
         self.optical_page = QWidget()
         self.sysi_page = QWidget()
@@ -210,6 +213,7 @@ class FarmToolsDialog(QDialog):
         self.fieldguide_page = QWidget()
         self.climaplots_page = QWidget()
 
+        setup_welcome_page(self, self.welcome_page)
         setup_auth_page(self, self.auth_page)
         setup_optical_page(self, self.optical_page)
         setup_sysi_page(self, self.sysi_page)
@@ -220,6 +224,7 @@ class FarmToolsDialog(QDialog):
         setup_climaplots_page(self, self.climaplots_page)
 
         self.stack.addWidget(self.loading_page)
+        self.stack.addWidget(self.welcome_page)
         self.stack.addWidget(self.auth_page)
         self.stack.addWidget(self.optical_page)
         self.stack.addWidget(self.sysi_page)
@@ -230,7 +235,7 @@ class FarmToolsDialog(QDialog):
         self.stack.addWidget(self.climaplots_page)
         self.stack.currentChanged.connect(self._sync_page_state)
 
-        self.stack.setCurrentWidget(self.auth_page)
+        self.stack.setCurrentWidget(self.welcome_page)
         self._sync_page_state(self.stack.currentIndex())
 
         main_layout.addWidget(body_container, 1)
@@ -379,18 +384,18 @@ class FarmToolsDialog(QDialog):
         # heightForWidth, and as persistent chrome in the top-level layout it
         # would otherwise grow the whole dialog taller when the window narrows
         # (or its DPI changes while being dragged between monitors).
-        footer.setFixedHeight(36)
+        footer.setFixedHeight(28)
         footer.setStyleSheet(
             "background-color: transparent;"
             "QLabel { border: none; background: transparent; }"
         )
 
         footer_layout = QHBoxLayout(footer)
-        footer_layout.setContentsMargins(28, 4, 28, 4)
+        footer_layout.setContentsMargins(28, 2, 28, 2)
         footer_layout.setSpacing(8)
 
         farm_icon = QLabel()
-        farm_icon.setFixedHeight(16)
+        farm_icon.setFixedHeight(14)
         farm_icon.setStyleSheet("background: transparent;")
         logo_path = os.path.join(
             os.path.dirname(os.path.abspath(__file__)),
@@ -399,7 +404,7 @@ class FarmToolsDialog(QDialog):
         )
         if os.path.exists(logo_path):
             pix = QPixmap(logo_path).scaledToHeight(
-                16, Qt.TransformationMode.SmoothTransformation
+                14, Qt.TransformationMode.SmoothTransformation
             )
             farm_icon.setPixmap(pix)
             farm_icon.setFixedWidth(pix.width())
@@ -438,6 +443,10 @@ class FarmToolsDialog(QDialog):
         """Switch the stacked widget to the loading/download page."""
         self.stack.setCurrentWidget(self.loading_page)
 
+    def show_welcome_page(self):
+        """Switch the stacked widget to the Welcome (landing) page."""
+        self.stack.setCurrentWidget(self.welcome_page)
+
     def show_dem_page(self):
         """Switch the stacked widget to the AOI selection page."""
         self.stack.setCurrentWidget(self.dem_page)
@@ -469,6 +478,10 @@ class FarmToolsDialog(QDialog):
     def show_climaplots_page(self):
         """Switch the stacked widget to the ClimaPlots page."""
         self.stack.setCurrentWidget(self.climaplots_page)
+
+    def _nav_to_welcome(self):
+        """Sidebar brand click — returns to the Welcome page."""
+        self.show_welcome_page()
 
     def _nav_to_auth(self):
         """Sidebar auth button — always navigates to the auth page."""
@@ -516,6 +529,12 @@ class FarmToolsDialog(QDialog):
         if current is self.loading_page:
             self._header_title.setText(_tr("Setting up…"))
             self.sidebar.set_active_page(None)
+            self.footer.setVisible(True)
+            return
+
+        if current is self.welcome_page:
+            self._header_title.setText(_tr("Welcome"))
+            self.sidebar.set_active_page("welcome")
             self.footer.setVisible(True)
             return
 

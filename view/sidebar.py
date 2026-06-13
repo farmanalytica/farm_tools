@@ -86,6 +86,7 @@ class Sidebar(QFrame):
     Permanent left navigation with two checkable page buttons.
 
     Signals:
+        welcome_requested: emitted when the user clicks the FARM tools brand.
         auth_requested: emitted when the user clicks Auth.
         optical_requested: emitted when the user clicks Optical (Sentinel-2).
         sysi_requested: emitted when the user clicks SYSI.
@@ -96,6 +97,7 @@ class Sidebar(QFrame):
         climaplots_requested: emitted when the user clicks ClimaPlots.
     """
 
+    welcome_requested = pyqtSignal()
     auth_requested = pyqtSignal()
     optical_requested = pyqtSignal()
     sysi_requested = pyqtSignal()
@@ -149,6 +151,10 @@ class Sidebar(QFrame):
         """)
         brand_block_lay.addWidget(self.brand_divider, 0, Qt.AlignmentFlag.AlignHCenter)
         brand_block_lay.addSpacing(10)
+        # Clicking the brand returns to the Welcome page.
+        self.brand_block.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.brand_block.setToolTip(_tr("Back to Welcome"))
+        self.brand_block.mousePressEvent = self._on_brand_clicked
         lay.addWidget(self.brand_block)
 
         self.btn_auth = self._make_button(_tr("Auth"), "auth")
@@ -288,6 +294,11 @@ class Sidebar(QFrame):
         self.btn_fieldguide.setChecked(page == "fieldguide")
         self.btn_climaplots.setChecked(page == "climaplots")
         self._sync_brand_visibility()
+
+    def _on_brand_clicked(self, event) -> None:
+        """Brand panel acts as a Home button to the Welcome page."""
+        if event.button() == Qt.MouseButton.LeftButton:
+            self.welcome_requested.emit()
 
     def enterEvent(self, event) -> None:
         """Expand the navigation rail while the pointer is over it."""
