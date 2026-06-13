@@ -1032,8 +1032,8 @@
         <translation>Immagine Landsat %s in QGIS.</translation>
     </message>
     <message>
-        <source>Learn more and read the setup guide at &lt;a href='{site}' style='{ls}'&gt;www.raviqgis.org&lt;/a&gt; · Commercial inquiries: &lt;a href='{farm}' style='{ls}'&gt;FARM Analytica&lt;/a&gt;</source>
-        <translation>Scopri di più e leggi la guida alla configurazione su &lt;a href='{site}' style='{ls}'&gt;www.raviqgis.org&lt;/a&gt; · Richieste commerciali: &lt;a href='{farm}' style='{ls}'&gt;FARM Analytica&lt;/a&gt;</translation>
+        <source>Learn more and read the setup guide at &lt;a href='{site}' style='{ls}'&gt;www.farmtools.com.br&lt;/a&gt; · Commercial inquiries: &lt;a href='{farm}' style='{ls}'&gt;FARM Analytica&lt;/a&gt;</source>
+        <translation>Scopri di più e leggi la guida alla configurazione su &lt;a href='{site}' style='{ls}'&gt;www.farmtools.com.br&lt;/a&gt; · Richieste commerciali: &lt;a href='{farm}' style='{ls}'&gt;FARM Analytica&lt;/a&gt;</translation>
     </message>
     <message>
         <source>Loading dates…</source>

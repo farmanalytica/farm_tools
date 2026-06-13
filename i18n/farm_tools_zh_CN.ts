@@ -1032,8 +1032,8 @@
         <translation>Landsat 影像已%s到 QGIS。</translation>
     </message>
     <message>
-        <source>Learn more and read the setup guide at &lt;a href='{site}' style='{ls}'&gt;www.raviqgis.org&lt;/a&gt; · Commercial inquiries: &lt;a href='{farm}' style='{ls}'&gt;FARM Analytica&lt;/a&gt;</source>
-        <translation>了解更多并阅读设置指南：&lt;a href='{site}' style='{ls}'&gt;www.raviqgis.org&lt;/a&gt; · 商务咨询：&lt;a href='{farm}' style='{ls}'&gt;FARM Analytica&lt;/a&gt;</translation>
+        <source>Learn more and read the setup guide at &lt;a href='{site}' style='{ls}'&gt;www.farmtools.com.br&lt;/a&gt; · Commercial inquiries: &lt;a href='{farm}' style='{ls}'&gt;FARM Analytica&lt;/a&gt;</source>
+        <translation>了解更多并阅读设置指南：&lt;a href='{site}' style='{ls}'&gt;www.farmtools.com.br&lt;/a&gt; · 商务咨询：&lt;a href='{farm}' style='{ls}'&gt;FARM Analytica&lt;/a&gt;</translation>
     </message>
     <message>
         <source>Loading dates…</source>

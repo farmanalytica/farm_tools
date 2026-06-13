@@ -129,6 +129,27 @@ def setup_download_dem_page(dialog, page):
     scroll_lay.setContentsMargins(0, 0, 6, 0)
     scroll_lay.setSpacing(6)
 
+    intro = QLabel(
+        _tr(
+            "<b>EasyDEM</b> downloads ready-to-use terrain elevation models for "
+            "your area of interest. Pick a polygon layer (or draw one), choose a "
+            "DEM dataset such as SRTM or Copernicus, fine-tune the area with the "
+            "buffer, and save a clipped GeoTIFF straight to your map."
+        )
+    )
+    intro.setObjectName("aoiIntro")
+    intro.setWordWrap(True)
+    intro.setTextFormat(Qt.TextFormat.RichText)
+    intro.setStyleSheet(
+        "QLabel#aoiIntro {"
+        " color: #1b5e20; font-size: 11px; line-height: 1.4;"
+        " background: #e8f5e9; border-left: 4px solid #1b6b39;"
+        " border-radius: 4px; padding: 8px 10px; }"
+    )
+    scroll_lay.addWidget(intro)
+
+    scroll_lay.addSpacing(8)
+
     title_lbl = QLabel(_tr("AOI and DEM inputs"))
     title_lbl.setObjectName("aoiTitle")
     scroll_lay.addWidget(title_lbl)
@@ -277,15 +298,14 @@ def setup_download_dem_page(dialog, page):
     dialog.buffer_slider.valueChanged.connect(_set_buffer_value)
 
     scroll_lay.addStretch()
-    scroll_area.setWidget(scroll_content)
-    panel_lay.addWidget(scroll_area, 1)
 
+    # Action row scrolls with the rest of the content (no fixed footer).
     footer_separator = QFrame()
     footer_separator.setFrameShape(QFrame.Shape.HLine)
     footer_separator.setStyleSheet("color: #e8e8e8;")
-    panel_lay.addWidget(footer_separator)
+    scroll_lay.addWidget(footer_separator)
 
-    panel_lay.addSpacing(6)
+    scroll_lay.addSpacing(6)
 
     action_row = QHBoxLayout()
     action_row.setContentsMargins(0, 0, 0, 0)
@@ -300,6 +320,9 @@ def setup_download_dem_page(dialog, page):
 
     action_row.addStretch(1)
 
-    panel_lay.addLayout(action_row)
+    scroll_lay.addLayout(action_row)
+
+    scroll_area.setWidget(scroll_content)
+    panel_lay.addWidget(scroll_area, 1)
 
     outer.addWidget(panel)
