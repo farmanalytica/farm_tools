@@ -40,6 +40,14 @@ jobs:
         with:
           python-version: ${{ matrix.py }}
 
+      # checkout (no lfs) leaves every committed extlibs-*.zip as a ~133-byte
+      # LFS pointer. Delete them so the upload glob below captures ONLY the zip
+      # this job builds; otherwise the stale pointers ride along and clobber
+      # real builds during the publish job's merge-multiple download.
+      - name: Remove stale bundle pointers
+        shell: bash
+        run: rm -f extlibs-*.zip
+
       # macOS: the runner is arm64, but QGIS ships a universal2 Python that
       # reports macosx-10.13-universal2. _PYTHON_HOST_PLATFORM makes
       # sysconfig.get_platform() (and thus the bundle tag) match QGIS, and
