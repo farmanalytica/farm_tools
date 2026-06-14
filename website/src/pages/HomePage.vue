@@ -192,9 +192,9 @@ const MODULES = [
           >Prof. Dr. Lucas dos Rios Amaral</a>{{ t('about.textPost') }}
         </p>
         <div class="partner-row">
+          <img class="partner-logo" src="/farm_analytica_logo.svg" alt="FARM Analytica" />
           <div class="partner-info">
             <span class="partner-tag">{{ t('about.sponsorLabel') }}</span>
-            <img class="partner-logo" src="/farm_analytica_logo.svg" alt="FARM Analytica" />
             <p>{{ t('about.sponsorDesc') }}</p>
             <div class="chips">
               <a
@@ -398,9 +398,10 @@ const MODULES = [
 
 .partner-row {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 0.6rem;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
   padding: 1.5rem;
   background: var(--bg);
   border: 1px solid var(--border);
@@ -410,6 +411,7 @@ const MODULES = [
 
 @media (max-width: 768px) {
   .partner-row {
+    flex-direction: column;
     align-items: center;
     text-align: center;
     padding: 1.25rem;
@@ -444,10 +446,11 @@ const MODULES = [
 }
 
 .partner-logo {
-  height: 48px;
+  height: 64px;
   width: auto;
   display: block;
   object-fit: contain;
+  flex-shrink: 0;
 }
 
 .partner-info {
