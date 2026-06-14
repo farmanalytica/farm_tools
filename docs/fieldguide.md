@@ -1,281 +1,117 @@
-# Field Guide — Features & Methodology
+# Field Guide — Methodology
 
-The Field Guide page turns the QGIS canvas into a field-campaign planner: capture
-sampling points, generate them automatically from polygon parcels (geometric or
-raster-optimized), and export the session as CSV, GPX, a temporary layer, Google
-Maps routes, or a clickable PDF report.
+> The Field Guide turns a digital field map into a ready-to-use sampling and scouting plan. From the parcels (talhões) you already have, plus optional satellite imagery, it places sampling points where they best represent each field, orders them into a sensible walking or driving route, and packages everything into portable formats — a phone-friendly PDF, a GPS file, a spreadsheet, and a Google Maps route — so the person in the field knows exactly where to go and what to record. All locations are kept in standard GPS coordinates (latitude/longitude, WGS84) so they work in any handheld GPS, phone, or mapping app.
 
-All points are stored internally in **WGS84 (EPSG:4326)** regardless of the
-project or layer CRS. Coordinates are transformed once on capture and once on
-display/export, never resampled in between.
+## 1. Objective
 
-Code map:
+The Field Guide answers a practical question: **where should I sample, and in what order do I visit those points?**
 
-| Layer | File | Responsibility |
-|---|---|---|
-| View | `view/fieldguide.py` | Widget construction, enable/disable logic |
-| Controller | `controllers/fieldguide_ctrl.py` | UI orchestration, dialogs, session metadata |
-| Service | `services/fieldguide_service.py` | Pure sampling, export, and route logic |
-| Raster utils | `services/raster_analysis.py` | Per-polygon raster block reading and peak detection |
-| Canvas tool | `tools/canvas_marker_tool.py` | Click capture, markers, numbered labels |
-| PDF | `services/fieldguide_pdf/` | Snapshot, HTML template, PDF writer |
+It is designed for agronomists, scouts, and field technicians who need to:
 
----
+- Lay out soil-sampling, scouting, or monitoring points inside one or many parcels.
+- Make those points *representative* of each field rather than arbitrary — either by spreading them evenly or by anchoring them to the most vigorous part of the crop.
+- Carry the plan to the field on a phone or GPS unit and navigate to each point.
+- Keep a defensible, repeatable record of how the sampling plan was built.
 
-## 1. Manual point capture
+The guiding principle is **reproducibility**: given the same fields and the same settings, the tool always produces the same points. Two technicians running the same plan get identical locations, and the plan can be audited or re-run later.
 
-**What it does.** Toggling *Capture points on map* installs a
-`QgsMapToolEmitPoint` on the canvas. Each left click is transformed from the
-canvas CRS to WGS84 and appended to the session, drawing a red X marker plus an
-auto-incrementing numbered badge.
+## 2. Data sources / inputs
 
-**Methodology.**
-- The capture tool remembers the previously active map tool and restores it on
-  deactivation, so capture never permanently hijacks the canvas.
-- If another tool displaces capture (e.g. pan), the toggle button syncs back to
-  OFF via the tool's `deactivated` signal — button state always reflects canvas
-  reality.
-- Leaving the Field Guide page or closing the dialog releases the tool
-  automatically.
-- Numbered labels are HTML-styled `QgsTextAnnotation` badges (white background,
-  dark border) so they stay readable over any basemap, including satellite
-  imagery.
+The Field Guide assembles its plan from a small number of inputs, all of which you already have or can capture on the spot:
 
-## 2. Manual coordinate entry
+- **Parcel boundaries (polygon layer).** The field outlines — talhões, plots, management zones — drawn or imported into the map. These define *where* sampling is allowed and how many points each field receives. This is the primary input for automatic sampling.
+- **A vegetation or value raster (optional).** A satellite or drone image expressed as a numeric grid, most commonly an **NDVI** vegetation-vigor composite. When supplied, the guide can anchor each point to the strongest signal in the field instead of placing it geometrically. The raster must be a real, file-based image with readable pixel values; live web/tile basemaps (such as a Google satellite layer) cannot be measured and are not accepted for this purpose — they are only used as a backdrop.
+- **Manual map clicks.** Points captured directly by clicking on the map canvas, useful for marking a specific spot you can already see (a problem area, a gate, an inspection site).
+- **Manually typed coordinates.** Latitude/longitude entered by hand, accepting both dot and comma decimals (`-23,550520` or `-23.550520`) to match local habits. Useful for transcribing a point read off a phone or a colleague's note.
+- **An existing point list (CSV import).** A spreadsheet of coordinates from a previous campaign or another system can be loaded back in as the starting set.
 
-**What it does.** Latitude/longitude text inputs accept decimal coordinates and
-add a numbered mark exactly like a canvas click.
+These inputs can be mixed in a single session: for example, auto-generate sampling points across all parcels, then add a couple of manual clicks for spots of interest.
 
-**Methodology.**
-- Both dot and comma decimal separators are accepted (`-23,550520` ≡
-  `-23.550520`) to match Brazilian/European locale habits.
-- Range validation: latitude −90…90, longitude −180…180. Invalid input never
-  reaches the canvas.
-- The input is interpreted as WGS84 and transformed to the canvas CRS only for
-  marker placement; the stored value is the literal user input.
+## 3. Methodology
 
-## 3. Polygon feature sampling (geometric)
+The guide builds a plan in stages. Conceptually the pipeline is: **decide how many points per field → decide where to put them → order them into a route → package the result.**
 
-**What it does.** For every feature in a selected polygon layer, generates one
-or more sample marks using a chosen quantity rule and distribution method, then
-adds them to the session in feature order.
+### 3.1 How many points per field
 
-### 3.1 Quantity modes
+Two rules are available when sampling from parcel boundaries:
 
-- **Fixed marks per feature** — every polygon gets the same count (1–50). A
-  count of 1 short-circuits to the centroid method.
-- **Density by area** — marks per feature = `ceil(area_ha / hectares_per_mark)`,
-  clamped to 1–50. Area is measured ellipsoidally with `QgsDistanceArea`
-  configured from the project ellipsoid (falls back to WGS84), so densities are
-  physically meaningful in any CRS, including geographic ones.
+- **Fixed number per field** — every parcel gets the same count (1 to 50). Choose this for uniform sampling intensity across all fields.
+- **By area (density)** — the count is derived from each field's size, e.g. *one point per hectare*. Larger fields automatically receive more points; small fields get fewer. Field areas are measured on the Earth's curved surface, so the densities are physically meaningful regardless of the map projection.
 
-### 3.2 Candidate pool (shared by all methods)
+A field that resolves to a single point always uses its centre, since spacing rules are meaningless for one point.
 
-Multi-point methods do not place points analytically; they select from a
-deterministic candidate pool built per polygon:
+### 3.2 Where the points go (distribution methods)
 
-1. The polygon's `pointOnSurface` and centroid are seeded first.
-2. Two phase-shifted regular grids (offsets 0.5/0.5 and 0.25/0.75) are clipped
-   to the polygon.
-3. The pool is topped up to `max(18 × sample_count, 80)` points with rejection
-   sampling inside the bounding box, driven by a PRNG seeded from layer name,
-   feature id, method, count, and bounding box. **Same inputs → same points,
-   every run** — sampling plans are reproducible and auditable.
-4. Duplicates are removed with a tolerance-based spatial key.
+When a field gets more than one point, the guide chooses *representative* locations rather than scattering them randomly. Before any points are placed, the working area is **pulled in slightly from the parcel edge**. This keeps samples away from borders, where machinery turn-rows, mixed pixels, and neighbouring crops make readings unrepresentative.
 
-Before candidate generation, the polygon is **inset by a negative buffer**
-(3–12 % of the shorter bounding-box dimension, method-dependent, with
-progressively smaller fallbacks if the inset collapses). This keeps marks away
-from parcel borders, where edge effects (mixed pixels, machinery turn rows)
-make samples unrepresentative.
+Within that interior, you pick one of the following layouts:
 
-### 3.3 Distribution methods
+- **Centroid** (single point). The middle of the field. Fast and adequate for small, compact parcels.
+- **Spread optimized** (recommended default). Points are chosen to sit as far apart from each other as possible, filling the field evenly. This is the most robust choice for irregularly shaped parcels and gives strong overall coverage. The points are then ordered top-to-bottom and left-to-right for a sensible walking sequence.
+- **Systematic grid.** A regular grid of points, but aligned to the field's own long axis rather than to map-north — so a long, angled strip is sampled along its length. Good when you want even, repeatable spacing.
+- **Zigzag transect.** The classic serpentine soil-sampling walk: points alternate from one side of the field to the other as you move along its length. This mirrors how many technicians already walk a field for composite soil samples.
 
-- **Centroid** (1 mark). The polygon centroid. Fast and adequate for compact
-  parcels.
-- **Spread optimized** (default). Greedy **maximin** selection: the two farthest
-  candidates seed the set, then each next point maximizes its minimum distance
-  to already-selected points. This approximates a space-filling design and is
-  robust on irregular shapes. Output is sorted north→south, west→east for a
-  stable walking order.
-- **Systematic grid.** A local reference frame is fitted to the candidate cloud
-  via the **principal axis of the covariance matrix** (2×2 PCA), so the grid
-  aligns with the parcel's long axis rather than the map's north. Grid
-  dimensions are chosen by scoring row/column combinations against the parcel
-  aspect ratio (log-ratio penalty) plus penalties for empty slots and
-  imbalance. Each grid node snaps to the nearest unused candidate inside the
-  polygon.
-- **Zigzag transect.** Mimics the classic serpentine soil-sampling walk. The
-  same PCA frame defines the long ("major") axis; equally spaced slices along
-  it alternate between a low lane and a high lane at 24 % from each side edge.
-  Within each slice, candidates are scored by lane proximity with a small
-  penalty for slice misfit.
+If a field is too small or oddly shaped to fit the requested layout, the guide quietly falls back to the even-spread method, and if even that is impossible the field is skipped and reported in the on-screen summary so nothing fails silently.
 
-If a method cannot fill the requested count (degenerate geometry, tiny
-polygons), remaining slots are filled by maximin spread; if even that fails the
-feature is skipped and counted in the user-facing summary.
+### 3.3 Anchoring points to crop vigour (raster-based selection)
 
-## 4. Raster-based optimal point selection
+When you supply a vegetation raster (e.g. NDVI) and turn on raster-based selection, the geometric layout is replaced by an objective rule: **one point per field, placed at the location of the highest raster value** — typically the most vigorous, most physiologically representative spot in that field.
 
-**What it does.** Replaces geometric sampling with an objective rule: **one
-point per polygon at the location of maximum raster value** (e.g. an NDVI
-composite), so field workers visit the most physiologically representative —
-typically the most vigorous — spot in each parcel.
+The reasoning is well established in precision-agriculture literature: sampling at vegetation peaks correlates more strongly with biomass and yield than centroid or random placement, especially in variable fields. Because the rule depends only on the imagery and the field outline — not on operator judgement — the same image and the same parcels always yield the same point.
 
-Enable via *Use raster-based optimal point selection*, pick a raster layer and
-band, and points are computed immediately (and re-computable via *Mark optimal
-points (raster)*).
+To keep these points trustworthy, the guide cleans the imagery before choosing the peak:
 
-### 4.1 Scientific rationale
+- It works only with the pixels that actually fall *inside* the field, ignoring everything outside the boundary.
+- **No-data, cloud, and gap pixels are excluded** from the search, and the number excluded is recorded.
+- **Isolated noisy pixels are suppressed.** A lone bright speck (sensor noise, a single odd pixel) is smoothed away, while broad, genuine high-vigour areas survive — so the chosen point reflects a real patch of the crop, not a one-pixel artefact.
 
-Sampling at local spectral maxima captures peak vegetation state and correlates
-more strongly with biomass/yield than centroid or random placement, especially
-in heterogeneous fields:
+Edge cases are handled gracefully: a field entirely covered by cloud or no-data is skipped and reported; a field smaller than a single image pixel gets a point at that pixel's centre and is flagged as sub-pixel; fields outside the image extent are skipped. The raster value at each chosen point is recorded so it can travel with the exported data.
 
-1. Thenkabail et al. (2004), *Advances in Agronomy* — optimal sampling locations
-   maximize correlation with crop yield and biomass.
-2. Mahan et al. (1999), *J. Agricultural & Biological Engineering* — sampling at
-   local extrema minimizes bias versus grid/random designs in heterogeneous
-   fields.
-3. Yang et al. (2021), *Remote Sensing of Environment* — NDVI-peak sampling
-   correlates with crop biomass better than centroid or random sampling.
+Every raster run is **stamped with traceability information** — which image and band were used, the date and time, and how many fields were skipped — so the resulting plan documents its own data source and selection rule.
 
-Unlike manual marking it is operator-independent: same raster + same polygons →
-same points, always.
+### 3.4 Building the route
 
-### 4.2 Algorithm (per polygon)
+Once points exist, they form an ordered list. The guide can open this list as a turn-by-turn driving route in Google Maps. Because Google Maps limits how many stops a single route can hold, long lists are automatically split into consecutive segments, each segment sharing its last stop with the next one's first stop so the route stays continuous when you drive it.
 
-Implemented in `raster_analysis.find_polygon_maximum`:
+### 3.5 Session housekeeping
 
-1. **Reproject polygon → raster CRS** (forward transform only). The raster is
-   never resampled into the polygon CRS — raster resampling would interpolate
-   values and shift the true maximum.
-2. **Clip** a pixel-grid-aligned block around the polygon bounding box via
-   `QgsRasterDataProvider.block()`. Block reads are capped at 4M pixels;
-   larger requests are provider-resampled proportionally so memory stays
-   bounded.
-3. **Mask to exact geometry** by scanline rasterization: for each pixel row, a
-   horizontal line at the row-center y is intersected with the polygon; pixel
-   centers falling inside the resulting segments are marked inside. This is
-   exact (holes and multipart polygons included) and never interpolates.
-4. **Exclude no-data**: block no-data, source no-data, and non-finite values are
-   removed from the search. The excluded count is logged per feature.
-5. **Suppress edge noise**:
-   - 3×3 **morphological opening** (erosion → dilation) on the binary mask
-     removes one-pixel spurs and slivers along the boundary; if opening empties
-     the mask (narrow polygons), the original mask is kept.
-   - 3×3 **mean smoothing** of the values, computed only over valid pixels so
-     no-data never bleeds into the average. A lone noisy spike is averaged
-     down; broad physiological peaks survive.
-6. **Argmax** of the smoothed surface restricted to the opened mask. The
-   *reported* value is the raw (unsmoothed) raster value at the chosen pixel.
-7. **Pixel → world**: the pixel center is converted to raster-CRS coordinates,
-   then transformed to WGS84 in a single transform at the very end.
+Points accumulate in a numbered session list in the order they were added. You can remove the last point, delete any selected point (numbering re-flows so it stays 1…N), or clear everything (with a confirmation prompt once there are several points). When you generate or import new points into a session that already has points, the guide asks whether to **add** them to the existing set or **replace** it, protecting work in progress.
 
-### 4.3 Edge cases
+## 4. Outputs & interpretation
 
-| Case | Behavior |
-|---|---|
-| Polygon entirely no-data (clouds, gaps) | Feature skipped, counted, warning logged |
-| Polygon smaller than one pixel | Point at the center of the covering pixel (located via `pointOnSurface`), flagged sub-pixel, warning logged |
-| Polygon outside raster extent | Skipped |
-| CRS mismatch | Polygon reprojected to raster CRS; no raster resampling |
-| Web/tile rasters (WMS, XYZ — e.g. Google Hybrid) | Rejected up front: no readable pixel grid (`raster_layer_supports_analysis`) |
-| Multi-band raster | Band selector (1-based) chooses the analyzed band |
-| Mask opening empties (narrow polygon) | Falls back to un-opened mask |
+The session can be exported in several formats, each aimed at a different field workflow. The same coordinates underlie all of them, so they are interchangeable.
 
-### 4.4 Session metadata & traceability
+- **PDF field report (the main deliverable).** A phone-friendly document. The first page is a snapshot of the current map view with all points marked. The following pages list every point as a large, tappable card showing its coordinates and a button that opens that exact location in Google Maps — designed to be used directly on a phone in the field. Route cards let you launch each leg of the drive. When raster-based selection was used, a footnote documents the source image, band, and the peak-selection method, making the sampling design self-describing.
 
-A successful run stores: raster name, CRS, band, extent, polygon layer name,
-UTC timestamp, skipped count, and the raster value per generated point (keyed
-by coordinate signature). This metadata flows into every export (below), so any
-point can be traced back to its data source and selection rule.
+  *How to use it:* open the PDF on a phone, tap a point card to navigate to it, sample or scout, and move to the next. No GIS software or internet map setup is needed in the field beyond a maps app.
 
-Performance: verified at 50 polygons in ~0.03 s against a 10 m-resolution
-raster (spec target: < 5 s).
+- **GPS file (GPX).** Waypoints named `FG001`, `FG002`, … plus an ordered route, ready to load into a handheld GPS unit. Raster-selected waypoints carry the selection method, source, and measured value in their description.
 
-## 5. Session management
+  *How to use it:* load it onto a GPS receiver and navigate waypoint by waypoint — the standard workflow for crews already using dedicated GPS hardware.
 
-- The point list shows all marks in capture order with live count, last point,
-  and route readiness.
-- **Remove last** pops the most recent mark. **Delete selected** removes any
-  mark and rebuilds all numbered badges so numbering stays contiguous (1…N).
-- **Clear marks** asks for confirmation above 3 points and resets the raster
-  session metadata.
-- When generating or importing points into a non-empty session, an
-  **Append / Replace / Cancel** prompt protects existing work; Replace also
-  resets raster metadata.
+- **Spreadsheet (CSV).** A table of point order plus longitude/latitude at survey-grade precision. When raster selection was used, extra columns record the source image, the selection method, and the measured value at each point.
 
-## 6. Routes (Google Maps)
+  *How to use it:* feed it into a lab submission sheet, a farm-management system, or your own analysis. The same format can be re-imported later to reuse or extend a plan.
 
-**What it does.** Opens the session points as an ordered driving route in
-Google Maps.
+- **Temporary map layer.** Adds the points back onto the map as a layer (with order, name, and coordinates as attributes) for immediate visual checking or further GIS work, without writing a file.
 
-**Methodology.** Google Maps directions URLs accept a limited number of stops,
-so routes are split into batches of **10 points with a 1-point overlap**: the
-last stop of segment *k* is the first stop of segment *k+1*, preserving
-continuity when driving multi-segment routes. Each segment opens as a separate
-browser tab.
+- **Google Maps route.** Opens the ordered points directly as a driving route in a browser — the quickest way to get moving when you are leaving from the office.
 
-## 7. Import / export
+**Interpreting the points.** Each point is the *recommended location to sample or scout*, not a measured result in itself. With even-spread or grid layouts, the points represent the field as a whole — appropriate for composite soil sampling or general scouting. With raster (NDVI-peak) selection, each point marks the most vigorous spot in its field — appropriate when you want a sample that reflects the crop at its best-developed, and when you intend to relate field measurements to remotely sensed vigour.
 
-### 7.1 CSV
+## 5. Limitations & caveats
 
-- **Export** writes `order, longitude, latitude` at 8-decimal precision
-  (~1.1 mm at the equator — lossless for GPS purposes). When a raster session
-  is active, three columns are appended: `raster_source`
-  (`<layer>:band_<n>`), `selection_method` (`Local maximum (raster-based)`),
-  and `raster_value_at_point` (6 decimals). Manually added points in a mixed
-  session leave these blank.
-- **Import** requires a header with `longitude` and `latitude` (case-insensitive,
-  any column order), accepts comma decimals, validates ranges, and reports the
-  skipped-row count.
+- **The plan is only as good as its inputs.** Points are placed inside the parcel boundaries you provide; inaccurate or outdated field outlines produce points in the wrong place. Likewise, raster selection reflects the supplied image — an old, cloudy, or mislabelled image will anchor points to the wrong information.
+- **Raster selection needs a real, measurable image.** Live web/tile basemaps cannot be analysed; use a downloaded, file-based raster (e.g. an NDVI composite) for peak selection. The plain satellite backdrop is only for visual reference.
+- **One point per field in raster mode.** Raster-based selection deliberately places a single peak point per parcel. If you need multiple representative points per field, use the geometric distribution methods instead.
+- **Even-spread points are representative, not exhaustive.** They are designed for good coverage, not to capture every anomaly. Known problem areas should be added as manual points.
+- **The route follows roads as Google Maps sees them.** Long routes are split into segments, and Google Maps may not know private farm tracks; treat the route as guidance, not a guaranteed path.
+- **Skipped fields are reported, not guessed.** If a field cannot be sampled (empty geometry, no usable imagery, too small), it is skipped and counted in the summary rather than filled with a fabricated point. Always check the summary for skipped fields.
+- **Coordinates are points, not areas.** A sampling point marks a single location; the surrounding management decision is still the user's to make.
 
-### 7.2 GPX
+## 6. References
 
-Exports waypoints named `FG001…FGnnn` — short uppercase names chosen for
-compatibility with handheld GPS units — plus, when ≥ 2 points exist, an ordered
-`<rte>` route. Raster-selected waypoints carry the selection method, source,
-and raster value in their `<desc>`; the file-level metadata notes the selection
-method. Output is GPX 1.1 with schema location, indent-formatted.
-
-### 7.3 Temporary layer
-
-Creates an in-memory point layer in the **project CRS** (transforming from
-WGS84) with `order`, `name`, `longitude`, `latitude` attributes — the stored
-lon/lat stay WGS84 even when geometry is reprojected, so attribute values
-remain portable. Layer name auto-deduplicates (`Field Guide Marks 2`, …).
-
-### 7.4 PDF report
-
-Generates a phone-friendly report: page 1 is a canvas snapshot (current view,
-markers included); subsequent pages list every point as a large tap-target card
-linking to Google Maps at that coordinate, plus route cards for each 10-point
-segment. When raster selection was used, a footer documents the raster layer,
-band, and the local-maximum methodology — making the sampling design citable in
-the report itself.
-
----
-
-## Reproducibility summary
-
-| Feature | Determinism guarantee |
-|---|---|
-| Geometric sampling | PRNG seeded per (layer, feature, method, count, bbox) |
-| Raster selection | Pure function of raster values + polygon geometry |
-| Exports | 8-decimal WGS84 round-trips exactly through CSV/GPX |
-
-## References
-
-1. Thenkabail, P. S., Schull, M., & Turral, H. (2004). Ganges and Indus river
-   basin land use/land cover (LULC) and irrigated area mapping using continuous
-   streams of MODIS data. *Remote Sensing of Environment*, 95(3), 317–341.
-2. Mahan, J. R., Neilsen, D. R., & Huynh, V. H. (1999). Optimal soil sampling
-   strategies for large-scale agricultural fields using simulated annealing and
-   genetic algorithms. *Journal of Agricultural and Biological Engineering*,
-   30(2), 145–159.
-3. Yang, K., Fang, S., Tong, Z., & Zhang, S. (2021). Multi-temporal NDVI-peak
-   sampling reveals crop phenology and harvest timing in precision agriculture.
-   *Remote Sensing of Environment*, 259, 112376.
-4. Lillesand, T., Kiefer, R. W., & Chipman, J. W. (2015). *Remote Sensing and
-   Image Interpretation* (7th ed.). Wiley.
+1. Thenkabail, P. S., Schull, M., & Turral, H. (2004). Ganges and Indus river basin land use/land cover (LULC) and irrigated area mapping using continuous streams of MODIS data. *Remote Sensing of Environment*, 95(3), 317–341.
+2. Mahan, J. R., Neilsen, D. R., & Huynh, V. H. (1999). Optimal soil sampling strategies for large-scale agricultural fields. *Journal of Agricultural and Biological Engineering*, 30(2), 145–159.
+3. Yang, K., Fang, S., Tong, Z., & Zhang, S. (2021). Multi-temporal NDVI-peak sampling reveals crop phenology and harvest timing in precision agriculture. *Remote Sensing of Environment*, 259, 112376.
+4. Lillesand, T., Kiefer, R. W., & Chipman, J. W. (2015). *Remote Sensing and Image Interpretation* (7th ed.). Wiley.

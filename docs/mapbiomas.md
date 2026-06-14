@@ -1,171 +1,171 @@
-(# MapBiomas — Features & Methodology
+# MapBiomas — Methodology
 
-The MapBiomas page brings the **MapBiomas Brasil Collection 9** land-use /
-land-cover archive into the plugin as an **in-module visualization** — the maps
-are rendered to PNG thumbnails and browsed inside the dialog (year slider, class
-legend, transition chart), mirroring the FARM web app. Raw classification and
-transition rasters can also be exported to QGIS as styled layers on demand.
+> This document describes the data and scientific method behind the MapBiomas
+> module. The module draws on the MapBiomas Brasil Collection 9 land-use and
+> land-cover archive (1985–2023, 30 m resolution) to (1) display the annual
+> land-cover classification for an area of interest, (2) detect and date the
+> first year each location changed from one land-cover class to another, and
+> (3) quantify the converted area, in hectares, per year. The goal is to let a
+> researcher see *what* the land was, *what* it became, and *when* the change
+> happened, over nearly four decades, for any chosen area in Brazil.
 
-Coverage is **Brazil only**. The archive spans **1985–2023** at **30 m**
-resolution; the Earth Engine asset is a single multi-band image whose bands are
-`classification_1985 … classification_2023`, each band holding the MapBiomas
-class ID per pixel for that year.
+## 1. Objective
 
-Code map:
+The module answers three linked questions about a user-defined area of interest
+(AOI):
 
-| Layer | File | Responsibility |
-|---|---|---|
-| View | `view/mapbiomas.py` | Three-tab layout (Inputs / Coverage / Transition), widgets, per-section progress bars |
-| Controller | `controllers/mapbiomas_ctrl.py` | UI orchestration, worker lifecycle, chart + slider logic |
-| Service | `services/mapbiomas_service.py` | All Earth Engine logic (thumbnails, transition algorithm, GeoTIFF export) |
-| Worker | `workers/mapbiomas_worker.py` | Runs the slow EE/network work off the UI thread |
-| Chart render | `view/plotly_render.py` | Renders the per-year bar chart, live restyle on slider drag |
-| GEE auth | `services/gee_service.py` | Earth Engine initialization (high-volume endpoint) |
+1. **Coverage** — What was the land cover (forest, pasture, cropland, water,
+   urban, etc.) in each year from 1985 to 2023?
+2. **Transition** — For a chosen "before → after" change (for example
+   pasture becoming cropland, or forest being cleared), in which year did each
+   location first make that change?
+3. **Area** — How much land (in hectares) underwent that change, broken down
+   year by year?
 
----
+Together these support land-use change analysis, deforestation and regrowth
+monitoring, and agricultural-expansion studies at farm to regional scale.
 
-## 0. Architecture & threading
+## 2. Data source
 
-**What it does.** The AOI is read from a QGIS vector layer (or a drawn box) and
-converted to an `ee.FeatureCollection` on the **main thread** (QGIS layers are
-not thread-safe). The slow Earth Engine + network work then runs inside a
-`MapBiomasWorker` (`QThread`), which reports back via `finished` / `failed` /
-`progress` signals.
+All results are derived from **MapBiomas Brasil, Collection 9**, the annual
+land-use and land-cover mapping produced by the MapBiomas initiative for the
+entire Brazilian territory.
 
-**Methodology.**
-- A single worker handles every product via a `mode` flag (`"coverage"`,
-  `"transition"`, `"download"`, `"download_transition"`); the result is a plain
-  dict the controller branches on.
-- `ee` is imported lazily inside service methods so the dialog still opens before
-  the `extlibs` dependency bundle is provisioned.
-- Earth Engine is initialized against the **high-volume endpoint**
-  (`earthengine-highvolume.googleapis.com`), which is built for many concurrent
-  requests — the right fit for the parallel thumbnail fan-out below.
+- **Geographic coverage** — Brazil only. The AOI must fall within Brazil for
+  the data to be valid.
+- **Spatial resolution** — 30 m per pixel, derived primarily from the Landsat
+  satellite series. Each 30 m × 30 m pixel therefore represents
+  **0.09 hectares** of ground (30 × 30 ÷ 10 000), a constant used throughout the
+  area calculations below.
+- **Temporal span** — 39 annual maps, one per year from **1985 through 2023**.
+- **Class scheme** — Every pixel, in every year, is assigned a single
+  land-cover class from the official MapBiomas Collection 9 legend (forest
+  formation, savanna, pasture, agriculture, mosaic of uses, urban area, water,
+  and so on). The module uses the published MapBiomas class identifiers,
+  Portuguese class names, and official color palette unchanged, so that maps and
+  legends match the MapBiomas reference exactly.
 
-## 1. Data source & legend
+The underlying product is the Collection 9 **integration asset**: a single,
+harmonized annual classification in which each year's map has already been
+reconciled across MapBiomas thematic teams into one consistent class per pixel.
 
-**What it does.** The page reads the Collection 9 integration asset
-`projects/mapbiomas-public/.../mapbiomas_collection90_integration_v1` and renders
-it with the official MapBiomas palette and class scheme.
+## 3. Land-cover coverage
 
-**Methodology.**
-- The palette (`MAPBIOMAS_PALETTE`, class IDs 0–62) and Portuguese legend labels
-  (`MAPBIOMAS_CLASS_LABELS`) are kept as **data**, not translated — they must
-  match the published Collection 9 legend exactly.
-- The Coverage tab shows the legend as colored ■-glyph swatch rows beside the
-  year image (Qt rich text honors a colored glyph but not sized inline blocks).
+The coverage view shows the annual classification: a map of the AOI for a chosen
+year in which every pixel is painted with the color of its land-cover class for
+that year. Moving through the years (via a year selector) shows how the
+landscape's land cover evolved across the 1985–2023 series.
 
-## 2. Coverage (annual classification, in-module)
+Each annual map is a *snapshot*, not a measurement of change — it states what
+the dominant land cover was at each location in that single year. The class
+legend, with its official colors, accompanies the map so each color can be read
+back to a named land-cover class. Comparing two years visually already reveals
+broad change; the transition analysis (Section 4) makes that change explicit and
+datable.
 
-**What it does.** Renders every year (1985–2023) to a PNG thumbnail, then a year
-slider swaps the displayed image. Each year is `getThumbURL`-rendered server-side
-with the MapBiomas palette (`min=0, max=62`), clipped to the AOI.
+## 4. Transition analysis
 
-**Methodology.**
-- The AOI bounding box (`geometry().bounds()`) is the thumbnail region; the
-  longest edge is fixed at **1024 px**.
-- **Parallel download.** The 39 `getThumbURL` round-trips run **concurrently**,
-  not one year at a time. Each blocking resolve + `requests.get` + write is
-  offloaded with `asyncio.to_thread`, and a `Semaphore` caps the in-flight count
-  (20). A single year failing is skipped, not fatal. PNG output is identical to
-  the previous serial loop — only wall-clock improves.
-- Progress is reported per completed year (`MapBiomas <year>  (done/total)`) in
-  the Coverage section's own progress bar.
-- Once loaded, the slider maps year → cached `QPixmap`; missing years snap to the
-  nearest available year.
+A *transition* is the change of a pixel from a chosen set of **source** classes
+(the "before" state) to a chosen set of **target** classes (the "after" state) —
+for example *pasture → cropland*, *forest → any non-forest* (deforestation), or
+*non-forest → forest* (regrowth). The module offers ready-made presets
+(pasture-to-crop, deforestation, forest regrowth, agricultural expansion, urban
+expansion) and also lets the user define an arbitrary source and target set.
 
-## 3. Single-year download to QGIS
+### First-transition-year method
 
-**What it does.** Downloads one year's classification as a GeoTIFF and loads it
-as a styled, queryable QGIS raster layer — without rendering every year first.
+For each location, the method records the **earliest** year in which the
+transition occurred, so that a pixel that changed and possibly changed again is
+attributed to its first qualifying change. Conceptually, for every year *Y* from
+**1986 to 2023** (1986 is the first year that has a prior year, 1985, to compare
+against):
 
-**Methodology.**
-- Unlike the thumbnails, the GeoTIFF keeps the **raw class IDs** as pixel values
-  (`getDownloadURL`, `scale=30`, `EPSG:4326`), so the layer can be queried and
-  styled categorically.
-- The controller applies a `QgsPalettedRasterRenderer` built from
-  `MAPBIOMAS_CLASS_LABELS` + `MAPBIOMAS_PALETTE`, so the QGIS layer matches the
-  in-module legend.
-- This download can be triggered from the Inputs tab (year picker) or from the
-  Coverage tab (current slider year).
+1. **Was it source before?** Check whether the pixel belonged to a *source*
+   class in the previous year, *Y − 1*.
+2. **Did it become target now?** Check whether the same pixel belongs to a
+   *target* class in the current year, *Y*.
+3. **Flag the change.** If *both* are true — it was a source class in *Y − 1*
+   **and** became a target class in *Y* — the pixel is marked as having
+   transitioned in year *Y*.
+4. **Keep the earliest.** A pixel may satisfy this condition in more than one
+   year. The method keeps only the **smallest (earliest) year** for which the
+   condition held. Pixels that never made the transition are left blank
+   (unmapped).
 
-## 4. Transition analysis (source → target)
+The result is a single map in which each transitioned pixel carries one number:
+the year it first changed from source to target. Pixels that never made the
+change carry no value.
 
-**What it does.** Maps the **first year** each pixel transitioned from a *source*
-class to a *target* class, and charts the converted area per year. Presets cover
-Pasture→Crop, Deforestation, Forest regrowth, Agricultural expansion, and Urban
-expansion; a custom class picker builds an arbitrary source → target set.
+### Converted-area statistics
 
-**Methodology — first-transition-year image.**
-For each year `Y` in **1986–2023**:
-- `was_source` = pixel belonged to a source class in `Y-1` (`remap` source IDs → 1, else 0).
-- `became_target` = pixel belongs to a target class in `Y` (same remap).
-- `flipped = was_source AND became_target` → the pixel transitioned in year `Y`.
-- Each year's flipped mask is multiplied by `Y` and `selfMask`-ed.
-- The per-year images are reduced with `ImageCollection(...).min()`, so each
-  pixel keeps its **earliest** transition year; pixels that never transitioned
-  stay masked.
+To quantify the change, the method counts how many pixels carry each transition
+year (a frequency tabulation of the first-transition-year map). Because every
+pixel is a fixed 30 m × 30 m, the area is obtained by multiplying:
 
-**Methodology — converted-area statistics.**
-- A `frequencyHistogram` reducer over the `first_year` band counts pixels per
-  transition year. `maxPixels` uses agrigee_lite's `ee_get_number_of_pixels`
-  (absolute cap) with `bestEffort=True`, so an oversized AOI is auto-coarsened by
-  EE instead of failing with "Too many pixels"; farm-sized AOIs are unaffected.
-- Pixel count → hectares via `30 × 30 / 10000 = 0.09 ha` per pixel.
-- Output: `{total_hectares, per_year: [{year, hectares}, …]}`.
+> **hectares = number of transitioned pixels × 0.09 ha**
 
-**Methodology — display.**
-- The transition map is a PNG thumbnail of `first_year`, colored by year with a
-  diverging blue→red palette (`min=1986, max=2023`).
-- The per-year hectares are charted as a Plotly bar chart beside the map.
+This yields, for each year, the area that first transitioned in that year, plus a
+grand total across all years. For very large areas of interest the count is
+computed at a slightly coarsened resolution so the calculation remains tractable;
+farm- to property-sized areas are unaffected and use the full 30 m detail.
 
-## 5. Year-range filter (live)
+## 5. Outputs & interpretation
 
-**What it does.** A two-handle range slider on the Transition tab narrows the
-focus to a sub-window of transition years; **both** the bar chart and the
-transition map update to that window.
+The module produces three complementary outputs:
 
-**Methodology.**
-- In-range bars keep their gradient color; out-of-range bars fade to grey, and
-  the summary shows the in-range total hectares for the selected window.
-- **Chart — instant.** Recoloring runs **client-side** via `Plotly.restyle`
-  (JS, no page reload) on every slider tick; a debounced full redraw (~200 ms
-  after the slider settles) is the authoritative fallback. The stored figure is
-  kept in sync so "Open chart in browser" reflects the current range.
-- **Map — on settle.** Re-coloring the map means a fresh server-side thumbnail,
-  so it runs in its own worker once the slider settles (the chart's per-tick
-  recolor stays instant). The map image is dimmed and the summary shows a
-  `rendering map …` cue while it renders. Drags coalesce: only the latest
-  window is rendered, and the color scale stays pinned to 1986–2023 so a year
-  keeps the same color in every window.
+- **Coverage map** — the annual land-cover classification for a selected year,
+  colored with the official MapBiomas palette. Read it as *"this is what the
+  land was in this year."* Step through years to watch the landscape change.
 
-## 6. Transition export to QGIS
+- **Transition map** — the first-transition-year map, colored by year on a
+  diverging (blue → red) scale spanning 1986–2023. Read it as *"this is where
+  the change happened, and the color tells you when"* — cooler colors mark early
+  transitions, warmer colors mark recent ones. Unchanged land is blank, so the
+  colored pixels are exactly the area that made the selected source → target
+  change. Because the color scale is pinned to the full 1986–2023 range, a given
+  year always has the same color, making maps comparable.
 
-**What it does.** Exports the `first_year` raster (pixel value = transition year,
-masked elsewhere) as a QGIS layer, **limited to the selected year range**.
+- **Per-year area chart** — a bar chart of converted hectares per transition
+  year, with the total for the selected window. Read it as *"how much changed,
+  and in which years the change concentrated."* Tall bars mark years of rapid
+  conversion.
 
-**Methodology.**
-- When the slider window is narrower than the full span, pixels outside
-  `[year_min, year_max]` are masked (`gte/lte` + `updateMask`) before
-  `getDownloadURL`, so the exported layer matches what the chart shows.
-- Pixel values are the transition years, so the layer is classed by year in
-  QGIS. The paletted renderer lists **only the in-range years**, with colors
-  pinned to the full-range gradient so each year matches the in-module map.
+- **Year-range filter** — a control that narrows the analysis to a sub-window of
+  transition years. Both the chart and the transition map respond to it: bars and
+  pixels outside the chosen window are de-emphasized, and the reported total
+  reflects only the selected years. This isolates, for example, conversion
+  during a specific policy period or drought year.
 
----
+Coverage maps, the transition map, and the per-year chart are meant to be read
+together: the coverage maps show the states, the transition map and chart show
+the timing and magnitude of the change between those states.
 
-## Performance notes
+## 6. Limitations & caveats
 
-- **Parallel coverage** — all 39 thumbnails fetch concurrently (asyncio +
-  semaphore) instead of serially; the dominant cost was 39 sequential network
-  round-trips.
-- **High-volume endpoint** — Earth Engine is initialized against
-  `earthengine-highvolume.googleapis.com`, raising throughput and easing rate
-  limits under the parallel fan-out.
-- **Histogram hardening** — `bestEffort=True` + an explicit pixel cap let large
-  AOIs return approximate stats rather than erroring.
-- **Live chart recolor** — slider drags restyle the existing chart client-side
-  instead of rebuilding and reloading the page.
+- **Brazil only.** Collection 9 covers the Brazilian territory exclusively.
+  Areas outside Brazil have no data and must not be analyzed with this module.
+- **Classification accuracy.** The land-cover classes are themselves a model
+  output and carry mapping error. Accuracy varies by class, region, and year;
+  rarer and spectrally similar classes (e.g. distinguishing pasture from certain
+  croplands or natural grasslands) are harder and more error-prone. Reported
+  transitions inherit any misclassification in the two years being compared, so
+  isolated single-year flips should be treated with caution.
+- **30 m resolution and minimum mapping unit.** Each pixel is 30 m on a side
+  (0.09 ha). Features smaller than a pixel, and changes affecting only a few
+  pixels, may not be reliably detected; a practical minimum mapping unit applies.
+  Hectare totals are estimates built from whole-pixel counts.
+- **Annual, calendar-based snapshots.** Each year is a single classification.
+  Within-year or sub-annual dynamics (seasonal flooding, crop rotation,
+  short-lived clearing) are not represented, and the transition year reflects the
+  first year the new class was *mapped*, which can lag the actual change on the
+  ground.
 
-None of these change the end-user output (same PNGs, same stats, same exports) —
-they only make the module faster and more responsive.
+## 7. References
+
+- **MapBiomas Project** — Annual land-use and land-cover mapping of Brazil.
+  Project, methodology, and data: https://mapbiomas.org
+- **Collection 9** — MapBiomas Brasil, Collection 9 of the annual series of
+  land-use and land-cover maps of Brazil (1985–2023), integration product.
+  See https://brasil.mapbiomas.org for the collection description, accuracy
+  assessment, legend, and the official citation to use when publishing results
+  derived from this data.
