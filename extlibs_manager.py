@@ -41,6 +41,15 @@ _QGIS_PROVIDED = (
     "urllib3", "idna", "charset_normalizer", "plotly",
 )
 
+# Import names that MUST exist in extlibs/ for the plugin to work. A prebuilt
+# zip can be stale (deps added to requirements.txt after the bundle was built),
+# so provisioning is judged by the presence of these packages, not merely by a
+# successful zip extraction. Missing any -> the pip fallback fills the gap.
+_REQUIRED_PACKAGES = (
+    "agrigee_lite",
+    "climdex", "pymannkendall", "pyhomogeneity", "xarray", "bottleneck",
+)
+
 _downloader = None
 
 
@@ -83,10 +92,30 @@ def is_ready() -> bool:
     return _read_ready_tag() == _expected_sentinel()
 
 
+def bundle_complete() -> bool:
+    """True when every required package is present in extlibs/.
+
+    Guards against a stale prebuilt zip that extracted cleanly but predates a
+    dependency added to requirements.txt (e.g. the ClimaPlots climate stack).
+    """
+    if not os.path.isdir(EXTLIBS_PATH):
+        return False
+    for pkg in _REQUIRED_PACKAGES:
+        if os.path.isdir(os.path.join(EXTLIBS_PATH, pkg)):
+            continue
+        if os.path.isfile(os.path.join(EXTLIBS_PATH, pkg + ".py")):
+            continue
+        return False
+    return True
+
+
 def needs_provision() -> bool:
     if not os.path.isdir(EXTLIBS_PATH):
         return True
     if not is_ready():
+        return True
+    # Sentinel can match while the bundle is missing newly-added packages.
+    if not bundle_complete():
         return True
     return False
 
@@ -172,10 +201,16 @@ class ExtlibsDownloader(QThread):
 
     def run(self):
         try:
-            if self._try_tagged_zip():
+            # Step 1: the prebuilt bundle carries the ABI-locked compiled deps.
+            self._try_tagged_zip()
+            if bundle_complete():
                 self._finish_ok()
                 return
-            if self._try_pip():
+            # Step 2: the zip was unavailable for this tag, or it predates a
+            # dependency added to requirements.txt (e.g. the ClimaPlots climate
+            # stack). Fill the gaps with a runtime pip install.
+            self._try_pip()
+            if bundle_complete():
                 self._finish_ok()
                 return
             self.download_done.emit(
