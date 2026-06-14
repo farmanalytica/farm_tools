@@ -2,16 +2,29 @@
 import { computed } from 'vue'
 import { useI18n } from '../i18n'
 import videos from '../data/videos'
-import VideoCard from '../components/VideoCard.vue'
+import CourseSections from '../components/CourseSections.vue'
 
 const { t } = useI18n()
 
-const CATEGORY_ORDER = ['start', 'imagery', 'landcover', 'terrain', 'field']
+// Finer than the 5 broad categories — one playlist group per module so a
+// section is never more than a handful of videos. Order follows the catalog.
+const MODULE_ORDER = [
+  'getting-started',
+  'optical',
+  'landsat',
+  'sar',
+  'mapbiomas',
+  'dem',
+  'sysi',
+  'climaplots',
+  'fieldguide',
+]
 
-const grouped = computed(() =>
-  CATEGORY_ORDER.map((category) => ({
-    category,
-    videos: videos.filter((v) => v.category === category),
+const groups = computed(() =>
+  MODULE_ORDER.map((mod) => ({
+    key: mod,
+    label: t(`tutorials.modules.${mod}`),
+    videos: videos.filter((v) => v.wiki === mod),
   })).filter((g) => g.videos.length > 0)
 )
 </script>
@@ -25,14 +38,7 @@ const grouped = computed(() =>
     </div>
   </section>
 
-  <section v-for="(group, i) in grouped" :key="group.category" :class="{ alt: i % 2 === 1 }">
-    <div class="container">
-      <h2>{{ t(`tutorials.categories.${group.category}`) }}</h2>
-      <div class="grid3 video-grid">
-        <VideoCard v-for="video in group.videos" :key="video.id" :video="video" />
-      </div>
-    </div>
-  </section>
+  <CourseSections :groups="groups" />
 </template>
 
 <style scoped>
@@ -56,14 +62,6 @@ const grouped = computed(() =>
   line-height: 1.75;
 }
 
-section:not(.page-head) {
-  padding: 3.5rem 0;
-}
-
-.video-grid {
-  margin-top: 1.6rem;
-}
-
 @media (max-width: 768px) {
   .page-head {
     padding: 3rem 0 2.5rem;
@@ -71,10 +69,6 @@ section:not(.page-head) {
 
   .head-lead {
     font-size: 0.98rem;
-  }
-
-  section:not(.page-head) {
-    padding: 2.5rem 0;
   }
 }
 
@@ -85,14 +79,6 @@ section:not(.page-head) {
 
   .head-lead {
     font-size: 0.93rem;
-  }
-
-  section:not(.page-head) {
-    padding: 1.8rem 0;
-  }
-
-  .video-grid {
-    margin-top: 1.2rem;
   }
 }
 </style>

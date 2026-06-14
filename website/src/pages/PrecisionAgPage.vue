@@ -2,17 +2,18 @@
 import { computed } from 'vue'
 import { useI18n } from '../i18n'
 import lessons from '../data/precision'
-import VideoCard from '../components/VideoCard.vue'
+import CourseSections from '../components/CourseSections.vue'
 
 const { t } = useI18n()
 
 const CATEGORY_ORDER = ['concepts', 'data', 'analysis', 'output']
 
-const grouped = computed(() =>
+const groups = computed(() =>
   CATEGORY_ORDER.map((category) => ({
-    category,
-    lessons: lessons.filter((l) => l.category === category),
-  })).filter((g) => g.lessons.length > 0)
+    key: category,
+    label: t(`precision.categories.${category}`),
+    videos: lessons.filter((l) => l.category === category),
+  })).filter((g) => g.videos.length > 0)
 )
 </script>
 
@@ -25,14 +26,7 @@ const grouped = computed(() =>
     </div>
   </section>
 
-  <section v-for="(group, i) in grouped" :key="group.category" :class="{ alt: i % 2 === 1 }">
-    <div class="container">
-      <h2>{{ t(`precision.categories.${group.category}`) }}</h2>
-      <div class="grid3 video-grid">
-        <VideoCard v-for="lesson in group.lessons" :key="lesson.id" :video="lesson" />
-      </div>
-    </div>
-  </section>
+  <CourseSections :groups="groups" />
 </template>
 
 <style scoped>
@@ -56,14 +50,6 @@ const grouped = computed(() =>
   line-height: 1.75;
 }
 
-section:not(.page-head) {
-  padding: 3.5rem 0;
-}
-
-.video-grid {
-  margin-top: 1.6rem;
-}
-
 @media (max-width: 768px) {
   .page-head {
     padding: 3rem 0 2.5rem;
@@ -71,10 +57,6 @@ section:not(.page-head) {
 
   .head-lead {
     font-size: 0.98rem;
-  }
-
-  section:not(.page-head) {
-    padding: 2.5rem 0;
   }
 }
 
@@ -85,14 +67,6 @@ section:not(.page-head) {
 
   .head-lead {
     font-size: 0.93rem;
-  }
-
-  section:not(.page-head) {
-    padding: 1.8rem 0;
-  }
-
-  .video-grid {
-    margin-top: 1.2rem;
   }
 }
 </style>
