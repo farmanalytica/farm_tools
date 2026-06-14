@@ -1,243 +1,284 @@
-# ClimaPlots — Features & Methodology
+# ClimaPlots — Methodology
 
-The ClimaPlots page fetches **decades of daily climate data** for any point on
-the map and renders it as **interactive Plotly charts inside the dialog** — no
-Earth Engine, no coding. The user picks a coordinate (map click or typed
-lon/lat), a data source, and a year range; the module downloads the daily
-series, computes annual trends, a thermo-pluviometric diagram, and a set of
-ETCCDI climate indices, each shown in its own tab.
+> ClimaPlots turns decades of daily climate observations for a single point on the
+> Earth's surface into a compact climate diagnosis: long-term trends in temperature,
+> rainfall and water demand; the average seasonal regime of a place; a panel of
+> internationally standardized climate-extreme indices; and a drought index. This
+> note describes where the data come from, how each number is derived, and how to
+> read the resulting charts. It is written for agronomists, researchers and other
+> end users — not for software developers.
 
-Two data sources are interchangeable behind one DataFrame schema: **NASA POWER**
-(daily, global, **from 1981**) and **Open-Meteo / ERA5 reanalysis** (daily,
-global, **from 1940**). An optional **comparison point B** overlays a second
-series on the Trends chart; B may use its own source, so the *same* location can
-be compared across NASA POWER and Open-Meteo.
+## 1. Objective
 
-Code map:
+Given any location (a point you click on the map or a longitude/latitude you type)
+and a range of years, ClimaPlots produces a *climate characterization* of that
+point built entirely from daily gridded climate data. The deliverables are:
 
-| Layer | File | Responsibility |
-|---|---|---|
-| View | `view/climaplots.py` | Five-tab layout (Intro / Coordinates / Trends / Thermo-pluviometric / Climate Indices), widgets, variable/index descriptions |
-| Controller | `controllers/climaplots_ctrl.py` | UI orchestration, pick-point toggles, worker lifecycle, plot rendering, exports |
-| Worker | `workers/climaplots_worker.py` | Runs the fetch + index computation off the UI thread |
-| Orchestrator | `services/climaplots/orchestrator.py` | Sequences fetch → indices into one `ClimateData` (pure logic, no Qt) |
-| Data source | `services/climaplots/nasa_power_service.py` | NASA POWER fetch + derived ET0 / GDD |
-| Data source | `services/climaplots/openmeteo_service.py` | Open-Meteo (ERA5) fetch, same schema |
-| Indices | `services/climaplots/indices_service.py` | ETCCDI temperature/precipitation indices (climdex) + SPI |
-| Stats | `services/climaplots/stats_service.py` | Mann-Kendall trend + Pettitt homogeneity title fragments |
-| Plots | `services/climaplots/plot_service.py` | Plotly figure builders (returns `PlotResult`) |
-| Export | `services/climaplots/export_service.py` | One-workbook xlsx export (zip-of-CSV fallback) |
-| Cache | `services/climaplots/disk_cache.py` | On-disk CSV cache for fetched series |
-| Types | `services/climaplots/types.py` | `ClimateData` / `PlotResult` dataclasses (service↔UI contract) |
-| Pick tool | `tools/canvas_click_tool.py` | Toggleable map-click coordinate capture (slots A / B) |
-| Chart render | `view/plotly_render.py` | Renders figures into QtWebKit `QWebView` / browser |
+- **Annual trend analysis** — is temperature, rainfall, evapotranspiration, etc.
+  rising or falling over the chosen period, and is the change statistically
+  meaningful?
+- **A thermo-pluviometric (Walter–Lieth style) diagram** — the average monthly
+  rainfall and temperature regime, the classic way to summarize a climate and
+  identify wet/dry seasons.
+- **ETCCDI climate-extreme indices** — a standardized panel of frost days, hot
+  days, heavy-rain days, dry/wet spells, etc., the same indicators used in
+  climate-change monitoring worldwide.
+- **A Standardized Precipitation Index (SPI)** — a drought/wet-spell index that
+  expresses rainfall as a statistical anomaly.
 
----
+This matters because it lets a user assess the climatic suitability and recent
+climatic *change* of a farm, watershed, trial site or region without needing GIS
+expertise, programming, or a climate-data subscription — all from freely
+available, globally consistent datasets.
 
-## 0. Architecture & threading
+## 2. Data sources
 
-**What it does.** The coordinate is read from the dialog (a map click or typed
-lon/lat), then the slow fetch + index computation runs inside a
-`ClimaPlotsAnalysisWorker` (`QThread`). Figure building is cheap and reactive, so
-it stays on the GUI thread.
+Two interchangeable daily climate datasets feed the same analysis pipeline. You
+can choose either one, and you can overlay a second point (point B) that may use
+the *other* source, so the very same location can be compared across both
+datasets.
 
-**Methodology.**
-- The worker emits uniform `finished_ok` / `failed` / `progress` signals; the
-  whole `run()` body is wrapped in try/except so any failure surfaces to the UI
-  (logged + a warning popup) instead of crashing the thread.
-- The worker hands back a single typed `ClimateData` object (raw DataFrame +
-  computed indices + echoed coordinates + source keys), keeping the dialog free
-  of pandas/xarray details.
-- **Lazy heavy imports.** `orchestrator`, `indices_service`, `stats_service`,
-  `plot_service` and `export_service` are all imported *inside* methods, not at
-  module top, because they pull the extlibs bundle (`climdex`, `pymannkendall`,
-  `pyhomogeneity`, `scipy`, `plotly`) that may not be provisioned when the
-  plugin first loads.
-- Before starting a run the controller checks `_deps_ready()` (tries to import
-  `climdex` / `pymannkendall` / `pyhomogeneity`); if missing it warns the user to
-  restart QGIS or install `requirements.txt`, rather than throwing.
-- A re-entrancy guard skips a new run while a worker is already running. On
-  dialog close / page change / cleanup, the worker is disconnected, waited
-  briefly, and `deleteLater`-d; temp HTML files are removed.
+| Dataset | Provider | Variables (native) | Spatial resolution | Temporal resolution | Coverage |
+|---|---|---|---|---|---|
+| **POWER** | NASA Langley Research Center | T2M_MAX, T2M_MIN, PRECTOTCORR, RH2M, ALLSKY_SFC_SW_DWN, WS2M | ~0.5° × 0.625° grid | Daily | Global, **1981 → present** |
+| **ERA5 / ERA5-Land reanalysis** | Open-Meteo (serving ECMWF ERA5) | temperature_2m max/min, precipitation_sum, relative_humidity_2m, shortwave_radiation_sum, wind_speed_10m, et0_fao_evapotranspiration | ~0.25° (ERA5) / ~0.1° (ERA5-Land) | Daily | Global, **1940 → present** |
 
-## 1. Coordinate capture (points A and B)
+**NASA POWER** (Prediction Of Worldwide Energy Resources) is a long-running NASA
+product tailored for renewable-energy and agroclimatology applications. It
+provides bias-corrected satellite- and model-derived daily surface meteorology
+on a global grid back to 1981.
 
-**What it does.** The user sets point A (required) and an optional comparison
-point B by clicking the map canvas or typing lon/lat. Each point keeps its own
-colored marker (A red, B blue).
+**ERA5** is the fifth-generation atmospheric *reanalysis* from the European Centre
+for Medium-Range Weather Forecasts (ECMWF). A reanalysis blends a numerical
+weather model with all available historical observations to produce a physically
+consistent, gap-free record; ERA5 extends back to 1940. ClimaPlots accesses it
+through Open-Meteo's free historical archive API.
 
-**Methodology.**
-- `CanvasClickTool` is a *toggleable* capture mode, not a permanent map-tool
-  hijack: `enable(slot)` remembers the user's current map tool and switches to a
-  `QgsMapToolEmitPoint`; `disable()` restores it.
-- A click is transformed from the canvas CRS to **EPSG:4326** and emitted as
-  `point_picked(lon, lat, slot)`, rounded to 4 decimals; the controller fills the
-  matching A/B fields. Capture mode stays on until toggled off.
-- The A and B pick buttons are **mutually exclusive** (enabling one unchecks the
-  other, guarded by `_switching_pick`). If another QGIS tool displaces the
-  capture tool, `on_deactivated` syncs the toggle buttons back off.
-- Pick A is **auto-enabled** the first time the Coordinates tab is shown. Leaving
-  the ClimaPlots page or closing the dialog releases the tool; markers persist
-  across runs until "Clear marker".
-- Lon/lat fields use `QDoubleValidator` (±180 / ±90). "Same location as A" copies
-  A's coordinates into B for a same-point, cross-source comparison.
+Both sources are *gridded* products: the value returned for your coordinate is the
+estimate for the model/satellite grid cell containing that point, not a physical
+weather-station measurement. The two datasets are harmonized to a single set of
+variables and units before any analysis:
 
-## 2. Data sources & schema
+- **Max / Min Temperature** — °C
+- **Precipitation** — mm/day
+- **Relative Humidity** — %
+- **Irradiation** (surface shortwave) — kWh/m²/day (Open-Meteo's MJ/m²/day is
+  divided by 3.6 to match POWER's units)
+- **Wind Speed** — m/s (POWER at 2 m, Open-Meteo at 10 m)
+- **Reference ET0** and **Growing Degree Days** — derived (see §3)
 
-**What it does.** Fetches the daily climate series for the point and year range
-from the selected provider, returning a uniform DataFrame so the rest of the
-module is source-agnostic.
+The default analysis window ends at the **last complete calendar year** (the
+previous year) to avoid a partial final year; the start year is clamped to the
+earliest year the chosen dataset supports (1981 for POWER, 1940 for ERA5).
 
-**Methodology.**
-- **NASA POWER** (`nasa_power_service`) hits the daily point API for
-  `T2M_MAX, PRECTOTCORR, T2M_MIN, RH2M, ALLSKY_SFC_SW_DWN, WS2M`, renames them to
-  the canonical columns (Max/Min Temperature, Precipitation, Relative Humidity,
-  Irradiation, Wind Speed), and replaces the API's `-999.0` fill with `NaN`.
-  `MIN_YEAR = 1981`.
-- **Open-Meteo / ERA5** (`openmeteo_service`) hits the archive API for the
-  equivalent daily variables and maps them to the **same** column names.
-  Shortwave radiation is converted MJ/m²/day → kWh/m²/day (`/ 3.6`) to match NASA
-  POWER's units; wind is requested in m/s. `MIN_YEAR = 1940`.
-- Both expose a matching `fetch(longitude, latitude, proxy, start_year, end_year)`
-  and a `MIN_YEAR`; `orchestrator.SOURCES` maps the `"power"` / `"openmeteo"`
-  keys to the modules, so adding a source is one dict entry.
-- The default end year is the **last complete calendar year** (`today.year − 1`);
-  `start_year` is clamped to the source's `MIN_YEAR`. The Coordinates tab
-  re-syncs the spinbox floor to the most restrictive source in use (A always; B
-  only when it has its own source) via `handle_sync_year_range`.
-- **Proxy fallback.** Each request tries the configured proxy first and, on
-  failure, retries directly (`timeout=1000`, `verify=True`).
+## 3. Methodology
 
-## 3. Derived agronomic variables
+### 3.1 Pipeline overview
 
-**What it does.** Two variables are computed locally rather than fetched:
-**Reference ET0** and **Growing Degree Days**.
+For each requested point and year range the workflow is:
 
-**Methodology.**
-- **Growing Degree Days** = `(Tmean − 10) clipped at 0` per day (base 10 °C),
-  where `Tmean = (Tmin + Tmax) / 2`. Computed by both sources.
-- **Reference ET0 (Hargreaves)** = `0.0023 · (Tmean + 17.8) · √(Tmax − Tmin) · Ra`,
-  with extraterrestrial radiation `Ra` from the FAO-56 formula (inverse
-  Earth–Sun distance, solar declination, sunset hour angle) converted MJ/m²/day →
-  mm/day (`× 0.408`). NASA POWER derives ET0 this way locally; Open-Meteo returns
-  `et0_fao_evapotranspiration` directly from the API.
+1. **Retrieve** the daily series from the selected dataset and harmonize it to the
+   common variables and units above; provider fill values (e.g. POWER's `-999`)
+   are treated as missing data.
+2. **Derive** two agronomic variables that are not supplied directly — reference
+   evapotranspiration (ET0) and growing degree days (GDD).
+3. **Aggregate** the daily series to annual values for trend analysis and to
+   long-term monthly means for the climate diagram.
+4. **Compute** the ETCCDI extreme indices and the SPI from the daily series.
+5. **Test** each annual series for a monotonic trend (Mann–Kendall) and a single
+   abrupt change point (Pettitt).
+6. **Visualize** the results as the four chart families described in §4.
 
-## 4. Annual trends (Trends tab)
+### 3.2 Derived variables
 
-**What it does.** Plots one chosen variable aggregated to an annual series, with
-the chart title carrying Mann-Kendall trend and Pettitt homogeneity test results.
-A dropdown switches between the eight variables; the comparison point B overlays
-a second series.
+**Growing Degree Days (GDD).** A measure of accumulated heat available for crop
+development above a base temperature (here 10 °C). For each day:
 
-**Methodology.**
-- `_aggregate_annual` sums **Precipitation, Reference ET0, Growing Degree Days**
-  per year (annual totals) and means everything else (annual means). Y-axis
-  titles encode which aggregation applies.
-- The title is built by `stats_service.stats_title`: `pymannkendall.original_test`
-  (trend + p-value, α=0.05) and `pyhomogeneity.pettitt_test` (homogeneous vs.
-  nonhomogeneous + probable change-point year). Each test is isolated — a failure
-  becomes title text, never a crashed plot.
-- **Comparison overlay.** When `df_b` is present, A and B are drawn as separate
-  `Scatter` traces; statistics are reported for **both** A and B (B's series gets
-  its own MK + Pettitt fragment). The legend annotates each series with its data
-  source name, so the same point fetched from two sources is distinguishable.
-- The builder returns a `PlotResult` (figure + the annual DataFrame for CSV
-  export). Switching the variable dropdown re-runs only this cheap builder on the
-  GUI thread.
+```
+Tmean = (Tmax + Tmin) / 2
+GDD   = max(Tmean − 10, 0)        (°C·day)
+```
 
-## 5. Thermo-pluviometric diagram (Thermo tab)
+Days cooler than the base contribute zero. Summed over a season, GDD tracks the
+thermal time a crop has experienced.
 
-**What it does.** Shows the location's mean monthly climate regime: monthly
-precipitation as bars plus mean monthly max/min temperatures as lines on a
-secondary axis.
+**Reference evapotranspiration (ET0).** The atmospheric water demand over a
+standard reference surface — the benchmark for irrigation scheduling and water
+balance. ClimaPlots uses the **Hargreaves** temperature-based equation, which
+needs only Tmax, Tmin and the day's extraterrestrial radiation:
 
-**Methodology.**
-- Daily data is grouped by (year, month): precipitation summed, temperatures
-  averaged; the per-(year,month) frame is then averaged across years to give the
-  12-month normals.
-- Rendered with a dual-axis `make_subplots` (precipitation bars on the primary
-  axis, Max/Min Temperature lines on the secondary). Returns the monthly table as
-  the export data.
+```
+ET0 = 0.0023 · (Tmean + 17.8) · √(Tmax − Tmin) · Ra        (mm/day)
+```
 
-## 6. Climate indices (Climate Indices tab)
+where `Ra` is the **extraterrestrial radiation** (top-of-atmosphere solar
+radiation) for that latitude and day of year, computed with the standard FAO-56
+astronomical formulation and converted from MJ/m²/day to mm/day (× 0.408):
 
-**What it does.** Computes a panel of ETCCDI temperature and precipitation
-indices plus a Standardized Precipitation Index, and plots one selected index as
-a line, titled with the same MK + Pettitt statistics.
+```
+dr   = 1 + 0.033 · cos(2π·J / 365)                 (inverse Earth–Sun distance)
+δ    = 0.409 · sin(2π·J / 365 − 1.39)              (solar declination)
+ωs   = arccos(−tan φ · tan δ)                      (sunset hour angle)
+Ra   = (24·60/π) · Gsc · dr · [ωs·sin φ·sin δ + cos φ·cos δ·sin ωs]
+```
 
-**Methodology.**
-- `indices_service.compute` builds an xarray dataset from Precipitation / Max /
-  Min Temperature and runs the `climdex` temperature (`tdex`) and precipitation
-  (`pdex`) index functions. Indices include annual frost/tropical/icing/summer
-  days, monthly TXx/TXn/TNx/TNn, daily temperature range, monthly Rx1day/Rx5day,
-  annual R10mm/R20mm, and monthly SDII/CDD/CWD.
-- **SPI** is computed in-house: a 90-day rolling precipitation sum, fit to a
-  gamma distribution (`scipy.stats.gamma`, `floc=0`), the CDF mapped through the
-  inverse normal (`norm.ppf`) to a standardized anomaly.
-- **Per-index isolation.** Every index is wrapped in `_try`; a failing index is
-  skipped and reported via the `warn` callback (surfaced to the worker's
-  `progress` signal / QGIS log) instead of aborting the whole panel. The result
-  is a `{index name → DataFrame}` dict; only indices that computed successfully
-  appear in the dropdown's data.
-- `plot_service.index_plot` picks the plottable column (exact match, sole column,
-  or first numeric), titles it with `stats_title`, and raises `PlotDataError`
-  (caught → friendly warning) when the selected index has no computed data.
+with `J` the day of year, `φ` the latitude in radians, and `Gsc = 0.0820`
+MJ·m⁻²·min⁻¹ the solar constant. The Hargreaves method is used for POWER; for
+Open-Meteo the ET0 is taken directly from the API's FAO-56 Penman–Monteith
+product (a more data-intensive formulation), so the two sources differ slightly in
+how ET0 is obtained.
 
-## 7. Rendering (QtWebKit-safe Plotly)
+### 3.3 Annual aggregation
 
-**What it does.** Renders each Plotly figure inside an in-dialog `QWebView`, with
-an "Open in browser" full-screen option.
+For the trend charts the daily data are collapsed to one value per year:
 
-**Methodology.**
-- This QGIS build ships only **QtWebKit** (no Chromium/WebEngine), which cannot
-  run the site-packages Plotly 6.x bundled plotly.js. `plotly_render` therefore
-  uses a **vendored plotly.js 1.58.5** (`assets/`), drops the v6 template
-  (`template="none"`), and **decodes Plotly 6.x base64 typed-arrays** (`bdata`)
-  into plain lists that the old engine can render.
-- The page is written to a temp file and loaded via a `file://` URL (QtWebKit
-  renders large embedded charts reliably from a file, unlike `setHtml`). The same
-  render feeds both the in-plugin view and "Open in browser", so the chart is
-  identical.
-- While the worker runs, all three plot views show an animated **loading
-  spinner** with the queried coordinates; on failure the spinners are cleared.
-  The dialog jumps to the Trends tab immediately so the user sees progress
-  instead of a frozen form.
+- **Totals** (annual sums) for *Precipitation*, *Reference ET0* and *Growing
+  Degree Days* — these are flux/accumulation quantities.
+- **Means** (annual averages) for everything else (temperatures, humidity,
+  irradiation, wind).
 
-## 8. Exports
+### 3.4 Trend and homogeneity testing
 
-**What it does.** The series and charts can be saved as CSV, PNG, or a single
-multi-sheet workbook.
+Each annual series is examined with two non-parametric tests at a significance
+level of α = 0.05.
 
-**Methodology.**
-- **Per-chart CSV** exports the DataFrame stored in the chart's `PlotResult`
-  (annual trends, monthly normals, or the selected index); "Save daily data"
-  exports the full raw daily series.
-- **PNG** is grabbed directly from the rendered web view (`web_view.grab()`).
-- **Export all** (`export_service.export`) writes the raw daily table, the
-  annual-trends and thermo-pluviometric tables, and every computed index into one
-  `.xlsx` (openpyxl), with sheet names sanitized to ≤31 unique chars. If no Excel
-  engine is available it falls back to a **`.zip` of CSVs** at the same path.
-- Default save location is the OS Downloads folder, falling back to Documents.
+- **Mann–Kendall trend test.** A rank-based test that detects whether a series has
+  a *monotonic* increasing or decreasing tendency, without assuming any particular
+  distribution or a linear shape. It reports the trend direction ("increasing",
+  "decreasing" or "no trend") and a p-value; a p-value below 0.05 indicates the
+  trend is statistically significant. Being rank-based, it is robust to outliers
+  and to non-normal data — well suited to climate series.
 
----
+- **Pettitt change-point (homogeneity) test.** A rank-based test for a single
+  *abrupt shift* in the mean of the series. It tells you whether the series is
+  **homogeneous** (no detected break) or **nonhomogeneous**, and if a break is
+  found it reports the **probable change-point year**. This flags discontinuities
+  that may be climatic (a regime shift) or artificial (a change in the underlying
+  data product).
 
-## Performance notes
+Both tests are reported in the title above each trend/index chart so the
+statistical reading travels with the figure.
 
-- **On-disk cache** — every fetched series is cached as a CSV under the OS temp
-  dir (`farm_tools_climaplots_cache`), keyed by source + rounded lon/lat +
-  year-range (md5 of the key, `usedforsecurity=False` for Bandit). Historical
-  data is immutable, so the cache never needs invalidating; a repeat query for
-  the same point/range/source skips the network entirely. All cache operations
-  are best-effort and never raise.
-- **Source-agnostic schema** — both providers emit the identical column set, so
-  caching, indices, plotting and export share one code path regardless of source.
-- **GUI-thread figure building** — only the fetch + index computation run in the
-  worker; figure builders are cheap and run on the GUI thread, so changing the
-  variable/index dropdown re-renders instantly without a new download.
-- **Vendored plotly.js** — charts render in QtWebKit via a self-contained local
-  plotly.js with typed-arrays pre-decoded, avoiding a CDN round-trip and the
-  blank-render failure of the bundled v6 engine.
+### 3.5 ETCCDI climate-extreme indices
 
-None of these change the end-user output (same series, same indices, same
-charts) — they only make the module faster and keep it working on the QtWebKit
-build.
+ClimaPlots computes a panel of indices defined by the WMO Expert Team on Climate
+Change Detection and Indices (ETCCDI) — the internationally agreed set used to
+monitor changes in temperature and precipitation extremes. They are calculated
+from the daily Tmax, Tmin and precipitation series. The panel includes:
+
+*Temperature, annual counts:*
+- **Frost Days** — days with Tmin < 0 °C
+- **Tropical Nights** — days with Tmin > 20 °C
+- **Icing Days** — days with Tmax < 0 °C
+- **Summer Days** — days with Tmax > 25 °C
+
+*Temperature, monthly extremes:*
+- **TXx / TXn** — monthly maximum and minimum of daily *maximum* temperature
+- **TNx / TNn** — monthly maximum and minimum of daily *minimum* temperature
+- **Daily Temperature Range (DTR)** — mean Tmax − Tmin
+
+*Precipitation:*
+- **Rx1day / Rx5day** — maximum 1-day and consecutive 5-day precipitation totals
+- **R10mm / R20mm** — annual count of days with ≥ 10 mm and ≥ 20 mm rainfall
+- **SDII** — Simple Daily Intensity Index (mean rainfall on wet days)
+- **CDD / CWD** — maximum length of consecutive dry / wet day spells (per month)
+
+### 3.6 Standardized Precipitation Index (SPI)
+
+The SPI expresses precipitation as how unusual it is relative to the location's
+own historical distribution, making wet and dry conditions comparable across
+climates. ClimaPlots computes a **90-day SPI**:
+
+1. Form a running 90-day accumulated-precipitation series.
+2. Fit a **gamma distribution** to those accumulations (location fixed at zero).
+3. Transform each accumulation to its cumulative probability under the fitted
+   gamma, then map that probability through the **inverse standard-normal**
+   function (the probit) to obtain a standardized anomaly.
+
+The result is in standard-deviation units: 0 is the median, positive values are
+wetter than normal, negative values drier. Conventionally |SPI| ≥ 2 indicates
+extreme conditions, 1.5–2 severe, 1–1.5 moderate.
+
+## 4. Outputs & interpretation
+
+**Annual trends chart.** A line/marker plot of one chosen variable's annual value
+over the selected years. Read the slope for the long-term tendency; read the title
+for the Mann–Kendall verdict (direction + p-value) and the Pettitt verdict
+(homogeneous, or a probable change-point year). The y-axis label states whether
+the value is an annual *total* (precipitation, ET0, GDD) or an annual *mean*
+(temperatures, humidity, irradiation, wind). When a comparison point B is added,
+both series are drawn together, each annotated with its data source, and each gets
+its own pair of statistics — useful for comparing two sites, or the same site
+across the POWER and ERA5 datasets.
+
+**Thermo-pluviometric diagram.** The location's average yearly climate cycle:
+twelve bars of mean monthly rainfall (mm) on the primary axis, with mean monthly
+maximum and minimum temperature (°C) as lines on a secondary axis. It is built by
+averaging each calendar month across all years in the window. Read it to identify
+the rainy and dry seasons, the warmest and coolest months, and — where the
+temperature line rises above the rainfall bars — periods of likely water deficit.
+
+**Climate-indices chart.** A time series of any one selected ETCCDI index (units
+depend on the index: days, °C, or mm), titled with the same Mann–Kendall and
+Pettitt statistics. Rising frost/icing-day counts, falling summer-day counts,
+increasing Rx1day, lengthening CDD, etc., are the standard fingerprints of a
+changing climate at the site.
+
+**SPI chart.** The 90-day SPI time series in standard-deviation units. Sustained
+negative excursions mark droughts; sustained positive excursions mark wet periods.
+Because it is normalized to the location's own history, an SPI of −2 means the same
+relative severity anywhere.
+
+All series and tables (the raw daily data, annual trends, monthly normals and every
+computed index) can be exported for further analysis.
+
+## 5. Limitations & caveats
+
+- **Gridded, not station data.** Every value is the estimate for a model/satellite
+  grid cell, not a point measurement. In areas of strong topographic or coastal
+  gradients the grid value can differ noticeably from local conditions, and sharp
+  microclimate features are smoothed out.
+- **Source differences.** POWER and ERA5 are produced by different methods and at
+  different resolutions, and they begin in different years (1981 vs. 1940). The
+  same location can yield somewhat different absolute values and even different
+  trends between the two — comparing them (via point B) is informative, not a
+  defect. ET0 is also derived differently (Hargreaves for POWER, FAO-56
+  Penman–Monteith for Open-Meteo).
+- **Hargreaves ET0** is a temperature-based approximation; it is convenient where
+  humidity, wind and radiation are uncertain but is generally less accurate than
+  the full Penman–Monteith equation, and can be biased in very humid or very windy
+  climates.
+- **Statistical assumptions.** Mann–Kendall assumes independent observations;
+  strong year-to-year autocorrelation can inflate apparent significance. The
+  Pettitt test detects at most one change point and may attribute a *product*
+  discontinuity (e.g. a change in satellite inputs) to climate. A "significant"
+  trend over a short window may reflect natural multi-year variability rather than
+  long-term change — longer records are more reliable.
+- **SPI fitting.** The gamma fit is most stable over long records and can be
+  sensitive in very arid regimes with many zero-rainfall periods.
+- **Trends depend on the chosen window.** Start and end years materially affect
+  trend results; choose the longest defensible period and be cautious interpreting
+  short ranges.
+
+## 6. References
+
+- Stackhouse, P. W., et al. *NASA Prediction Of Worldwide Energy Resources (POWER)*.
+  NASA Langley Research Center. https://power.larc.nasa.gov/
+- Hersbach, H., et al. (2020). *The ERA5 global reanalysis.* Quarterly Journal of
+  the Royal Meteorological Society, 146(730), 1999–2049. ECMWF.
+- Open-Meteo Historical Weather API. https://open-meteo.com/
+- Allen, R. G., Pereira, L. S., Raes, D., & Smith, M. (1998). *Crop
+  evapotranspiration — Guidelines for computing crop water requirements.* FAO
+  Irrigation and Drainage Paper 56, Rome. (ET0, extraterrestrial radiation Ra.)
+- Hargreaves, G. H., & Samani, Z. A. (1985). *Reference crop evapotranspiration
+  from temperature.* Applied Engineering in Agriculture, 1(2), 96–99.
+- Zhang, X., et al. (2011). *Indices for monitoring changes in extremes based on
+  daily temperature and precipitation data.* WIREs Climate Change, 2(6), 851–870.
+  (ETCCDI indices.)
+- McKee, T. B., Doesken, N. J., & Kleist, J. (1993). *The relationship of drought
+  frequency and duration to time scales.* Proceedings of the 8th Conference on
+  Applied Climatology, 179–184. (SPI.)
+- Mann, H. B. (1945). *Nonparametric tests against trend.* Econometrica, 13,
+  245–259; Kendall, M. G. (1975). *Rank Correlation Methods.* (Mann–Kendall test.)
+- Pettitt, A. N. (1979). *A non-parametric approach to the change-point problem.*
+  Journal of the Royal Statistical Society, Series C, 28(2), 126–135.
