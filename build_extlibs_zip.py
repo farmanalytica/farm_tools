@@ -123,14 +123,18 @@ def full_build():
             # (no sdist builds against the host) for the requested platform.
             pip_plat = _HOST_PLATFORM.replace("-", "_").replace(".", "_")
             plats = [pip_plat]
-            # universal2 fallback: pandas 3.x publishes no universal2 macOS
-            # wheel, only arch-specific ones. pandas is QGIS-provided and
-            # stripped from the bundle, but pip must still RESOLVE it, so accept
-            # the two arch sub-platforms. universal2 stays first => pip prefers
-            # it for every package that ships one; only universal2-less packages
-            # (pandas, stripped) fall back to an arch wheel.
+            # universal2 fallback: several deps (pandas 3.x, pyarrow 19+,
+            # bottleneck) publish NO universal2 macOS wheel, only arch-specific
+            # ones. pandas is QGIS-provided and stripped, but pip must still
+            # RESOLVE it; pyarrow/bottleneck ship in the bundle. Accept both arch
+            # sub-platforms so those resolve. pip --platform matches wheels
+            # tagged AT OR BELOW the given macOS version, so use a high floor
+            # (15_0) -- pyarrow 19+ wheels are tagged macosx_12_0, which the old
+            # 11_0/10_13 floors rejected ("No matching distribution for
+            # pyarrow"). universal2 stays first => pip prefers it for every
+            # package that ships one; arch-only packages fall back to arm64/x86.
             if "universal2" in pip_plat:
-                plats += ["macosx_11_0_arm64", "macosx_10_13_x86_64"]
+                plats += ["macosx_15_0_arm64", "macosx_15_0_x86_64"]
             for p in plats:
                 cmd += ["--platform", p]
             cmd += ["--only-binary=:all:"]
