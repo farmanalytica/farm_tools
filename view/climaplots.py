@@ -32,6 +32,7 @@ from .radar import (
     _TAB_ACTIVE,
     _TAB_INACTIVE,
 )
+from . import plotly_render
 from .styles import STYLE_BTN_PRIMARY, STYLE_BTN_SECONDARY
 from .webcompat import QWebView
 
@@ -138,8 +139,41 @@ def _combo(items, tooltip="", min_width=220):
     return cb
 
 
+class _ResizingWebView(QWebView):
+    """Web view that re-fits its plotly chart to the widget size.
+
+    The page carries a ``window.onresize`` handler + plotly ``responsive``
+    config, but under QtWebEngine (QGIS 4 / Qt6) the chart's CSS ``height:100%``
+    does not resolve against the embedded viewport, so plotly falls back to its
+    default ~450 px and the plot looks pinned to a fixed height regardless of
+    the plugin size. Instead of relying on the container, push the widget's
+    exact pixel size into the figure with ``Plotly.relayout`` whenever the
+    widget resizes — and once more on ``loadFinished``, since the page loads
+    asynchronously and the first ``resizeEvent`` fires before ``Plotly`` exists.
+    The JS is a no-op until a chart is loaded (``run_js`` swallows errors).
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # don't let the view impose a minimum height on the dialog
+        self.setMinimumSize(0, 0)
+        self.loadFinished.connect(lambda _ok=False: self._fit_chart())
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self._fit_chart()
+
+    def _fit_chart(self):
+        size = self.size()
+        plotly_render.run_js(
+            self,
+            "if(window.Plotly){Plotly.relayout('chart',{width:%d,height:%d});}"
+            % (size.width(), size.height()),
+        )
+
+
 def _make_webview():
-    view = QWebView()
+    view = _ResizingWebView()
     view.setFocusPolicy(Qt.FocusPolicy.NoFocus)
     view.setContextMenuPolicy(Qt.ContextMenuPolicy.NoContextMenu)
     view.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)

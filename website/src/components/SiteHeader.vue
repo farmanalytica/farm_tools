@@ -29,6 +29,8 @@ function closeMenu() {
         <nav class="nav-links" :class="{ open: menuOpen }" aria-label="Main navigation">
           <router-link to="/" @click="closeMenu">{{ t('nav.home') }}</router-link>
           <router-link to="/tutorials" @click="closeMenu">{{ t('nav.tutorials') }}</router-link>
+          <router-link to="/geotech" @click="closeMenu">{{ t('nav.geotech') }}</router-link>
+          <router-link to="/precisao" @click="closeMenu">{{ t('nav.precision') }}</router-link>
           <router-link to="/wiki/getting-started" :class="{ 'router-link-active': $route.name === 'wiki' }" @click="closeMenu">
             {{ t('nav.wiki') }}
           </router-link>

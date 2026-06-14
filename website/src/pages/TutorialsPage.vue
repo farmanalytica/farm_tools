@@ -6,7 +6,7 @@ import VideoCard from '../components/VideoCard.vue'
 
 const { t } = useI18n()
 
-const CATEGORY_ORDER = ['start', 'imagery', 'terrain', 'field']
+const CATEGORY_ORDER = ['start', 'imagery', 'landcover', 'terrain', 'field']
 
 const grouped = computed(() =>
   CATEGORY_ORDER.map((category) => ({

@@ -7,9 +7,8 @@ const { t } = useI18n()
 <template>
   <footer>
     <div class="container footer-in">
-      <img class="f-logo" src="/icon.png" alt="FARM tools" />
-      <img class="f-logo" src="/farm_icon.png" alt="FARM Analytica" />
-      <span>{{ t('footer.text') }}</span>
+      <img class="f-logo" src="/farm_analytica_horizontal_white.svg" alt="FARM Analytica" />
+      <span>{{ t('footer.textBefore') }}<a class="f-link" href="https://farmanalytica.com.br" target="_blank" rel="noopener">{{ t('footer.linkText') }}</a>{{ t('footer.textAfter') }}</span>
     </div>
   </footer>
 </template>
@@ -30,10 +29,18 @@ footer {
   font-size: 0.87rem;
 }
 
+.f-link {
+  color: inherit;
+  text-decoration: underline;
+}
+
+.f-link:hover {
+  color: #fff;
+}
+
 .f-logo {
-  width: 27px;
-  height: 27px;
-  border-radius: 7px;
+  height: 30px;
+  width: auto;
   object-fit: contain;
   opacity: 0.85;
 }

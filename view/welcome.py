@@ -168,6 +168,35 @@ class FlowLayout(QLayout):
         return y + line_height - rect.y() + margins.bottom()
 
 
+class _HeightForWidthWidget(QWidget):
+    """QWidget that forwards its layout's height-for-width to its container.
+
+    A plain QWidget does NOT advertise a height-for-width layout to the parent
+    layout / enclosing QScrollArea, so a ``FlowLayout`` grid's true multi-row
+    height is under-reported (as a single row). That makes the scroll area
+    mis-decide whether a vertical scrollbar is needed; the scrollbar toggling
+    steals ~15 px of width right at the 2-vs-3-column boundary, so the grid
+    intermittently sticks at two columns when a third would fit. Forwarding
+    height-for-width lets the scroll area size the content correctly, so the
+    column count is stable.
+    """
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        policy = self.sizePolicy()
+        policy.setHeightForWidth(True)
+        self.setSizePolicy(policy)
+
+    def hasHeightForWidth(self):
+        return True
+
+    def heightForWidth(self, width):
+        layout = self.layout()
+        if layout is not None:
+            return layout.heightForWidth(width)
+        return super().heightForWidth(width)
+
+
 def _draw_module_icon(kind: str, color: str, size: int = 30) -> QPixmap:
     """Render a crisp line icon for ``kind`` at ``size`` px.
 
@@ -510,7 +539,7 @@ def _build_folder_section(dialog):
 
 def _build_hub_section(dialog):
     """Header strip + responsive grid of module cards."""
-    container = QWidget()
+    container = _HeightForWidthWidget()
     container.setStyleSheet("background: transparent;")
     outer = QVBoxLayout(container)
     outer.setContentsMargins(4, 4, 4, 4)
@@ -528,7 +557,7 @@ def _build_hub_section(dialog):
     outer.addWidget(subtitle)
     outer.addSpacing(6)
 
-    grid_host = QWidget()
+    grid_host = _HeightForWidthWidget()
     grid_host.setStyleSheet("background: transparent;")
     grid = FlowLayout(grid_host, margin=0, spacing=12)
     for kind, name, desc, nav_attr, gee_free in _MODULES:
