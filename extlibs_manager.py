@@ -41,14 +41,47 @@ _QGIS_PROVIDED = (
     "urllib3", "idna", "charset_normalizer", "plotly",
 )
 
-# Import names that MUST exist in extlibs/ for the plugin to work. A prebuilt
-# zip can be stale (deps added to requirements.txt after the bundle was built),
-# so provisioning is judged by the presence of these packages, not merely by a
-# successful zip extraction. Missing any -> the pip fallback fills the gap.
-_REQUIRED_PACKAGES = (
-    "agrigee_lite",
-    "climdex", "pymannkendall", "pyhomogeneity", "xarray", "bottleneck",
-)
+# Import names that MUST exist in extlibs/ for the plugin to work, mapped to
+# the pip requirement that supplies each. A prebuilt zip can be stale (deps
+# added to requirements.txt after the bundle was built), so provisioning is
+# judged by the presence of these packages, not merely by a successful zip
+# extraction. Missing any -> the pip fallback fills the gap.
+#
+# A ``None`` pip name marks a heavy/transitive core package (agrigee_lite pulls
+# the whole earthengine/google stack): if it is missing we reinstall the full
+# requirements set rather than name it directly.
+_REQUIRED_PACKAGES = {
+    "agrigee_lite": None,
+    "climdex": "pyclimdex",
+    "pymannkendall": "pymannkendall",
+    "pyhomogeneity": "pyhomogeneity",
+    "xarray": "xarray",
+    "bottleneck": "bottleneck",
+}
+
+# Suppress the transient console window the pip subprocess would otherwise pop
+# on Windows. 0 on POSIX (subprocess ignores it).
+_NO_WINDOW = getattr(subprocess, "CREATE_NO_WINDOW", 0)
+
+
+def _missing_pip_specs():
+    """pip requirement strings for the required packages absent from extlibs/.
+
+    Returns ``None`` to signal a full requirements.txt reinstall (a core
+    package is missing, or one has no direct pip name).
+    """
+    specs = []
+    for pkg, pip_name in _REQUIRED_PACKAGES.items():
+        present = (
+            os.path.isdir(os.path.join(EXTLIBS_PATH, pkg))
+            or os.path.isfile(os.path.join(EXTLIBS_PATH, pkg + ".py"))
+        )
+        if present:
+            continue
+        if pip_name is None:
+            return None  # core package missing -> full reinstall
+        specs.append(pip_name)
+    return specs
 
 _downloader = None
 
@@ -201,14 +234,31 @@ class ExtlibsDownloader(QThread):
 
     def run(self):
         try:
-            # Step 1: the prebuilt bundle carries the ABI-locked compiled deps.
+            if bundle_complete():
+                self._finish_ok()
+                return
+            # Fast path: the heavy prebuilt bundle is already present FOR THIS
+            # interpreter and only the light top-up deps (e.g. the ClimaPlots
+            # climate stack a stale zip predates) are missing. Skip re-downloading
+            # ~85 MB and just pip the gap. Gated on the interpreter tag so an
+            # interpreter upgrade (cp312 -> cp313) still re-fetches the bundle:
+            # the existing compiled .pyd would be ABI-wrong and presence alone
+            # can't detect that. _missing_pip_specs() returns a list here; None
+            # means a core package is absent, so we need the full bundle below.
+            ready_tag = _read_ready_tag() or ""
+            same_interpreter = ready_tag.split("|", 1)[0] == current_tag()
+            if same_interpreter and _missing_pip_specs() is not None:
+                self._try_pip()
+                if bundle_complete():
+                    self._finish_ok()
+                    return
+            # Step 1: fetch the prebuilt bundle (the ABI-locked compiled deps).
             self._try_tagged_zip()
             if bundle_complete():
                 self._finish_ok()
                 return
             # Step 2: the zip was unavailable for this tag, or it predates a
-            # dependency added to requirements.txt (e.g. the ClimaPlots climate
-            # stack). Fill the gaps with a runtime pip install.
+            # dependency added to requirements.txt. Fill the gaps with pip.
             self._try_pip()
             if bundle_complete():
                 self._finish_ok()
@@ -253,12 +303,19 @@ class ExtlibsDownloader(QThread):
         if not py or not os.path.exists(_REQUIREMENTS):
             return False
         os.makedirs(EXTLIBS_PATH, exist_ok=True)
+        # Top up only the packages still missing (e.g. the small climate stack a
+        # stale prebuilt bundle lacks) rather than reinstalling the whole, heavy
+        # requirements set on every launch. Fall back to the full set only when
+        # a core package (or its pip name) is unknown/absent.
+        specs = _missing_pip_specs()
+        install_args = specs if specs else ["-r", _REQUIREMENTS]
         try:
             subprocess.run(
                 [py, "-m", "pip", "install", "--target", EXTLIBS_PATH,
-                 "-r", _REQUIREMENTS, "--no-warn-script-location"],
+                 *install_args, "--no-warn-script-location"],
                 check=True,
                 stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                creationflags=_NO_WINDOW,  # don't flash a console on Windows
             )
         except Exception:
             return False
