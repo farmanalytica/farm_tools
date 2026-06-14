@@ -9,7 +9,7 @@ export default {
   },
   hero: {
     tag: 'Multi-module geo-analytics for QGIS',
-    title: 'A Swiss-army toolbox for geo-analytics in QGIS',
+    title: 'A geo-analytics toolbox for QGIS',
     description:
       'Vegetation indices, radar, elevation, bare-soil composites, climate charts, and field sampling — the plugins supported by FARM Analytica, unified in one QGIS interface. Most modules run on Google Earth Engine; ClimaPlots and Field Guide work without it.',
     ctaTutorials: 'Watch tutorials',
@@ -27,13 +27,13 @@ export default {
   },
   intro: {
     label: 'Overview',
-    title: 'One toolbox for the whole geo-analytics workflow',
+    title: 'Geo-analytics modules brought together in QGIS',
     lead: 'FARM tools unifies the plugins maintained by FARM Analytica — from Sentinel-2 vegetation indices to radar, elevation, bare-soil composites, climate charts, and field sampling — inside QGIS. Most modules are powered by Google Earth Engine, while ClimaPlots (NASA POWER & Open-Meteo climate data) and Field Guide (local rasters) need no GEE account.',
   },
   modules: {
     label: 'Modules',
     title: 'Modules',
-    lead: 'Each module covers a stage of the remote-sensing and fieldwork workflow.',
+    lead: 'Each module handles a remote-sensing or fieldwork task.',
     wikiLink: 'Read in the wiki',
     items: {
       optical: {
@@ -70,29 +70,10 @@ export default {
       },
     },
   },
-  how: {
-    label: 'Workflow',
-    title: 'How It Works',
-    lead: 'From authentication to results: pick a module, configure inputs, and export — all in QGIS.',
-    steps: [
-      {
-        title: 'Authenticate',
-        desc: 'Set up your Google Cloud project ID and authenticate with Google Earth Engine through the plugin.',
-      },
-      {
-        title: 'Pick a module & configure',
-        desc: 'Choose a module — Optical, Landsat, SAR, DEM, SYSI, ClimaPlots, Field Guide, or MapBiomas — set your area and parameters, then run.',
-      },
-      {
-        title: 'Visualize & Export',
-        desc: 'Explore interactive charts and layers, then export as CSV, GPX, GeoTIFF, or PDF.',
-      },
-    ],
-  },
   setup: {
-    label: 'GEE Setup',
+    label: 'Setup & Workflow',
     title: 'Getting Started',
-    lead: 'Set up Google Earth Engine to unlock the satellite modules. ClimaPlots and Field Guide work right away — no GEE account required.',
+    lead: 'From authentication to results: set up Google Earth Engine, pick a module, and export — all in QGIS. ClimaPlots and Field Guide work right away, no GEE account required.',
     steps: [
       {
         title: 'Create a Google Earth Engine account',
@@ -121,6 +102,18 @@ export default {
       {
         title: 'Authenticate in FARM tools',
         desc: 'Open FARM tools in QGIS, click Setup Authentication, enter your Cloud project ID, and authorize access.',
+        link: '',
+        href: '',
+      },
+      {
+        title: 'Pick a module & configure',
+        desc: 'Choose a module — Optical, Landsat, SAR, DEM, SYSI, ClimaPlots, Field Guide, or MapBiomas — set your area and parameters, then run.',
+        link: '',
+        href: '',
+      },
+      {
+        title: 'Visualize & Export',
+        desc: 'Explore interactive charts and layers, then export as CSV, GPX, GeoTIFF, or PDF.',
         link: '',
         href: '',
       },
