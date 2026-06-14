@@ -160,6 +160,11 @@ header {
   color: var(--text);
   font-size: 1.1rem;
   line-height: 1;
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 @media (max-width: 900px) {
@@ -187,6 +192,46 @@ header {
 
   .nav-right {
     gap: 0.7rem;
+  }
+
+  .nav-links a {
+    padding: 0.5rem 0;
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .nav {
+    padding: 0.6rem 0;
+    gap: 0.8rem;
+  }
+
+  .brand-logo {
+    height: 28px;
+  }
+
+  .nav-links {
+    padding: 0.8rem 1rem;
+    gap: 0.4rem;
+  }
+
+  .nav-links a {
+    font-size: 0.9rem;
+    padding: 0.45rem 0;
+  }
+
+  .lang-toggle {
+    padding: 0.14rem;
+    gap: 0.08rem;
+  }
+
+  .lang-toggle button {
+    font-size: 0.68rem;
+    padding: 0.22rem 0.5rem;
+  }
+
+  .nav-right {
+    gap: 0.5rem;
   }
 }
 </style>

@@ -63,4 +63,36 @@ section:not(.page-head) {
 .video-grid {
   margin-top: 1.6rem;
 }
+
+@media (max-width: 768px) {
+  .page-head {
+    padding: 3rem 0 2.5rem;
+  }
+
+  .head-lead {
+    font-size: 0.98rem;
+  }
+
+  section:not(.page-head) {
+    padding: 2.5rem 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .page-head {
+    padding: 2rem 0 1.5rem;
+  }
+
+  .head-lead {
+    font-size: 0.93rem;
+  }
+
+  section:not(.page-head) {
+    padding: 1.8rem 0;
+  }
+
+  .video-grid {
+    margin-top: 1.2rem;
+  }
+}
 </style>

@@ -206,7 +206,7 @@ const MODULES = [
               >
                 {{ t('about.whatsapp') }}
               </a>
-              <a class="chip" href="mailto:adm@farmanalytica.com.br">adm@farmanalytica.com.br</a>
+              <a class="chip" href="mailto:contato@farmanalytica.com.br">contato@farmanalytica.com.br</a>
             </div>
             <a
               class="partner-cta"
@@ -227,6 +227,18 @@ const MODULES = [
 .hero-section {
   background: var(--primary);
   padding: 5.5rem 0 5rem;
+}
+
+@media (max-width: 768px) {
+  .hero-section {
+    padding: 3.5rem 0 3rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-section {
+    padding: 2rem 0 2.5rem;
+  }
 }
 
 .hero {
@@ -262,6 +274,18 @@ const MODULES = [
   display: flex;
   flex-wrap: wrap;
   gap: 0.75rem;
+}
+
+@media (max-width: 480px) {
+  .cta-row {
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  .cta-row .btn {
+    width: 100%;
+    justify-content: center;
+  }
 }
 
 .hero-card {
@@ -348,6 +372,18 @@ const MODULES = [
   box-shadow: var(--sh-sm);
 }
 
+@media (max-width: 768px) {
+  .about-box {
+    padding: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .about-box {
+    padding: 1rem;
+  }
+}
+
 .about-box > p:first-of-type {
   color: var(--text-soft);
   line-height: 1.7;
@@ -370,6 +406,51 @@ const MODULES = [
   border: 1px solid var(--border);
   border-radius: 12px;
   margin-bottom: 1.2rem;
+}
+
+@media (max-width: 768px) {
+  .partner-row {
+    flex-direction: column;
+    align-items: center;
+    padding: 1rem;
+  }
+
+  .partner-logo {
+    width: 64px;
+    height: 64px;
+  }
+
+  .partner-info {
+    align-items: center;
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .partner-row {
+    padding: 1rem;
+  }
+
+  .partner-logo {
+    width: 56px;
+    height: 56px;
+  }
+
+  .partner-tag {
+    font-size: 0.68rem;
+  }
+
+  .partner-name {
+    font-size: 0.95rem;
+  }
+
+  .partner-info p {
+    font-size: 0.82rem;
+  }
+
+  .partner-cta {
+    font-size: 0.8rem;
+  }
 }
 
 .partner-logo {

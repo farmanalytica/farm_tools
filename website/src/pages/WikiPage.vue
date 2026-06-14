@@ -328,4 +328,161 @@ watchEffect(() => {
     padding: 1.6rem 1.4rem;
   }
 }
+
+@media (max-width: 768px) {
+  .page-head {
+    padding: 3rem 0 2.5rem;
+  }
+
+  .head-lead {
+    font-size: 0.98rem;
+  }
+
+  .wiki-body {
+    padding: 2.5rem 0 3rem;
+  }
+
+  .wiki-layout {
+    gap: 1.5rem;
+  }
+
+  .wiki-nav {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .wiki-nav-label {
+    width: 100%;
+    margin: 0 0 0.5rem;
+  }
+
+  .wiki-nav-item {
+    font-size: 0.8rem;
+    padding: 0.35rem 0.5rem;
+  }
+
+  .wiki-article {
+    padding: 1.5rem 1.2rem;
+  }
+
+  .wiki-title {
+    font-size: clamp(1.3rem, 2.4vw, 1.7rem);
+  }
+
+  .wiki-article h3 {
+    font-size: 1.05rem;
+    margin: 1.6rem 0 0.6rem;
+  }
+
+  .wiki-article p {
+    font-size: 0.9rem;
+  }
+
+  .wiki-article ul,
+  .wiki-article ol {
+    margin: 0 0 1rem 1.1rem;
+  }
+
+  .wiki-article li {
+    font-size: 0.9rem;
+  }
+
+  .pager-link.next {
+    margin-left: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .page-head {
+    padding: 2rem 0 1.5rem;
+  }
+
+  .head-lead {
+    font-size: 0.93rem;
+  }
+
+  .wiki-body {
+    padding: 2rem 0 2.5rem;
+  }
+
+  .wiki-layout {
+    gap: 1rem;
+  }
+
+  .wiki-nav {
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+
+  .wiki-nav-label {
+    width: auto;
+    margin-bottom: 0.3rem;
+    font-size: 0.65rem;
+  }
+
+  .wiki-nav-item {
+    font-size: 0.78rem;
+    padding: 0.4rem 0.5rem;
+  }
+
+  .wiki-article {
+    padding: 1.2rem 1rem;
+  }
+
+  .wiki-title {
+    font-size: clamp(1.1rem, 2.4vw, 1.5rem);
+  }
+
+  .wiki-article h3 {
+    font-size: 0.95rem;
+    margin: 1.4rem 0 0.5rem;
+  }
+
+  .wiki-article p {
+    font-size: 0.85rem;
+  }
+
+  .wiki-article ul,
+  .wiki-article ol {
+    margin: 0 0 0.8rem 1rem;
+  }
+
+  .wiki-article li {
+    font-size: 0.85rem;
+  }
+
+  .wiki-summary {
+    font-size: 0.9rem;
+    margin-bottom: 1.4rem;
+  }
+
+  .wiki-note {
+    padding: 0.8rem 1rem;
+    font-size: 0.82rem;
+  }
+
+  .wiki-table-wrap table {
+    font-size: 0.8rem;
+  }
+
+  .wiki-table-wrap th,
+  .wiki-table-wrap td {
+    padding: 0.4rem 0.6rem;
+  }
+
+  .wiki-pager {
+    gap: 0.5rem;
+    margin-top: 1.8rem;
+    padding-top: 1.2rem;
+  }
+
+  .pager-link {
+    font-size: 0.78rem;
+  }
+
+  .wiki-issue {
+    font-size: 0.75rem;
+  }
+}
 </style>
