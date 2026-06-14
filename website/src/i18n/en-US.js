@@ -2,6 +2,8 @@ export default {
   nav: {
     home: 'Home',
     tutorials: 'Tutorials',
+    geotech: 'Geotechnology',
+    precision: 'Precision Agriculture',
     wiki: 'Wiki',
     github: 'GitHub',
   },
@@ -9,7 +11,7 @@ export default {
     tag: 'Multi-module geo-analytics for QGIS',
     title: 'A Swiss-army toolbox for geo-analytics in QGIS',
     description:
-      'Vegetation indices, radar, elevation, bare-soil composites, climate charts, and field sampling — the plugins supported by FARM Analytica, unified in one Google Earth Engine-powered interface.',
+      'Vegetation indices, radar, elevation, bare-soil composites, climate charts, and field sampling — the plugins supported by FARM Analytica, unified in one QGIS interface. Most modules run on Google Earth Engine; ClimaPlots and Field Guide work without it.',
     ctaTutorials: 'Watch tutorials',
     ctaWiki: 'Read the wiki',
     ctaGithub: 'View on GitHub',
@@ -26,7 +28,7 @@ export default {
   intro: {
     label: 'Overview',
     title: 'One toolbox for the whole geo-analytics workflow',
-    lead: 'FARM tools unifies the plugins maintained by FARM Analytica — from Sentinel-2 vegetation indices to radar, elevation, bare-soil composites, climate charts, and field sampling — all integrated with Google Earth Engine inside QGIS.',
+    lead: 'FARM tools unifies the plugins maintained by FARM Analytica — from Sentinel-2 vegetation indices to radar, elevation, bare-soil composites, climate charts, and field sampling — inside QGIS. Most modules are powered by Google Earth Engine, while ClimaPlots (NASA POWER & Open-Meteo climate data) and Field Guide (local rasters) need no GEE account.',
   },
   modules: {
     label: 'Modules',
@@ -90,7 +92,7 @@ export default {
   setup: {
     label: 'GEE Setup',
     title: 'Getting Started',
-    lead: 'Set up Google Earth Engine and configure FARM tools to start using every module.',
+    lead: 'Set up Google Earth Engine to unlock the satellite modules. ClimaPlots and Field Guide work right away — no GEE account required.',
     steps: [
       {
         title: 'Create a Google Earth Engine account',
@@ -164,8 +166,32 @@ export default {
     categories: {
       start: 'Getting started',
       imagery: 'Imagery & time series',
+      landcover: 'Land cover & change',
       terrain: 'Terrain, soil & climate',
       field: 'Fieldwork',
+    },
+  },
+  geotech: {
+    label: 'Geotechnology',
+    title: 'Geotechnology foundations',
+    lead: 'New to GIS? Start here. Short lessons on the core concepts of geoprocessing — taught hands-on in QGIS, the free and open-source desktop GIS. No remote sensing or FARM tools account needed: just the fundamentals every map analyst should know.',
+    comingSoon: 'Video coming soon',
+    categories: {
+      foundations: 'Foundations',
+      data: 'Working with data',
+      analysis: 'Spatial analysis',
+      output: 'Sharing results',
+    },
+  },
+  precision: {
+    label: 'Precision Agriculture',
+    title: 'Precision agriculture in QGIS',
+    lead: 'From the theory — spatial variability, geostatistics, remote sensing, vegetation indices — to the applied workflow in QGIS: yield maps, soil sampling, interpolation, management zones and variable-rate prescriptions. Lessons are in Brazilian Portuguese, gathered from a range of authors.',
+    categories: {
+      concepts: 'Theoretical foundations',
+      data: 'Data collection',
+      analysis: 'Analysis',
+      output: 'Prescription & output',
     },
   },
   wiki: {
@@ -178,7 +204,9 @@ export default {
     prev: 'Previous article',
   },
   footer: {
-    text: 'FARM tools, an open and free project supported by FARM Analytica.',
+    textBefore: 'FARM tools, an open and free project supported by ',
+    linkText: 'FARM Analytica',
+    textAfter: '.',
     links: 'Links',
   },
   langToggle: {

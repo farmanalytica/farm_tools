@@ -1,35 +1,35 @@
 <script setup>
 import { computed } from 'vue'
 import { useI18n } from '../i18n'
-import videos from '../data/videos'
+import lessons from '../data/precision'
 import VideoCard from '../components/VideoCard.vue'
 
 const { t } = useI18n()
 
-const CATEGORY_ORDER = ['start', 'imagery', 'landcover', 'terrain', 'field']
+const CATEGORY_ORDER = ['concepts', 'data', 'analysis', 'output']
 
 const grouped = computed(() =>
   CATEGORY_ORDER.map((category) => ({
     category,
-    videos: videos.filter((v) => v.category === category),
-  })).filter((g) => g.videos.length > 0)
+    lessons: lessons.filter((l) => l.category === category),
+  })).filter((g) => g.lessons.length > 0)
 )
 </script>
 
 <template>
   <section class="page-head">
     <div class="container">
-      <p class="sec-label light">{{ t('tutorials.label') }}</p>
-      <h1>{{ t('tutorials.title') }}</h1>
-      <p class="head-lead">{{ t('tutorials.lead') }}</p>
+      <p class="sec-label light">{{ t('precision.label') }}</p>
+      <h1>{{ t('precision.title') }}</h1>
+      <p class="head-lead">{{ t('precision.lead') }}</p>
     </div>
   </section>
 
   <section v-for="(group, i) in grouped" :key="group.category" :class="{ alt: i % 2 === 1 }">
     <div class="container">
-      <h2>{{ t(`tutorials.categories.${group.category}`) }}</h2>
+      <h2>{{ t(`precision.categories.${group.category}`) }}</h2>
       <div class="grid3 video-grid">
-        <VideoCard v-for="video in group.videos" :key="video.id" :video="video" />
+        <VideoCard v-for="lesson in group.lessons" :key="lesson.id" :video="lesson" />
       </div>
     </div>
   </section>
