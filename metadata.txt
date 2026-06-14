@@ -28,8 +28,11 @@ changelog=
           transition export to QGIS is limited to the selected year range, and
           its layer legend now lists only those years. Loading progress now
           appears inside each feature section (coverage / single-year download /
-          transition) instead of one shared bar. New methodology doc
-          (docs/mapbiomas.md).
+          transition) instead of one shared bar. Per-module methodology docs
+          for every module (docs/), with an index linking them. New sidebar
+          "What's new" link that opens the changelog in a dialog. Self-healing
+          extlibs provisioning: incomplete or missing dependency bundles are
+          now detected and repaired automatically on load instead of failing.
     1.3 - Module hub: GEE-free modules (ClimaPlots, Field Guide) now carry a
           "No login" badge on their landing-page cards, so first-time users can
           start with the tools that work without a Google Earth Engine sign-in.
