@@ -4,6 +4,7 @@ import { useI18n } from '../i18n'
 
 const props = defineProps({
   video: { type: Object, required: true },
+  hideWikiLink: { type: Boolean, default: false },
 })
 
 const { locale, t } = useI18n()
@@ -35,7 +36,7 @@ const embedUrl = computed(() => {
     </div>
     <h3>{{ title }}</h3>
     <p>{{ desc }}</p>
-    <router-link v-if="video.wiki" class="card-link" :to="`/wiki/${video.wiki}`">
+    <router-link v-if="video.wiki && !hideWikiLink" class="card-link" :to="`/wiki/${video.wiki}`">
       → {{ t('tutorials.watchWiki') }}
     </router-link>
   </article>

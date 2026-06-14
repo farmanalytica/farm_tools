@@ -192,10 +192,9 @@ const MODULES = [
           >Prof. Dr. Lucas dos Rios Amaral</a>{{ t('about.textPost') }}
         </p>
         <div class="partner-row">
-          <img class="partner-logo" src="/farm_icon.png" alt="FARM Analytica logo" />
           <div class="partner-info">
             <span class="partner-tag">{{ t('about.sponsorLabel') }}</span>
-            <strong class="partner-name">FARM Analytica</strong>
+            <img class="partner-logo" src="/farm_analytica_logo.svg" alt="FARM Analytica" />
             <p>{{ t('about.sponsorDesc') }}</p>
             <div class="chips">
               <a
@@ -399,9 +398,10 @@ const MODULES = [
 
 .partner-row {
   display: flex;
+  flex-direction: column;
   align-items: flex-start;
-  gap: 1.1rem;
-  padding: 1.2rem;
+  gap: 0.6rem;
+  padding: 1.5rem;
   background: var(--bg);
   border: 1px solid var(--border);
   border-radius: 12px;
@@ -410,14 +410,9 @@ const MODULES = [
 
 @media (max-width: 768px) {
   .partner-row {
-    flex-direction: column;
     align-items: center;
-    padding: 1rem;
-  }
-
-  .partner-logo {
-    width: 64px;
-    height: 64px;
+    text-align: center;
+    padding: 1.25rem;
   }
 
   .partner-info {
@@ -432,16 +427,11 @@ const MODULES = [
   }
 
   .partner-logo {
-    width: 56px;
-    height: 56px;
+    height: 40px;
   }
 
   .partner-tag {
     font-size: 0.68rem;
-  }
-
-  .partner-name {
-    font-size: 0.95rem;
   }
 
   .partner-info p {
@@ -454,19 +444,15 @@ const MODULES = [
 }
 
 .partner-logo {
-  width: 68px;
-  height: 68px;
-  border-radius: 12px;
+  height: 48px;
+  width: auto;
+  display: block;
   object-fit: contain;
-  background: var(--white);
-  padding: 0.4rem;
-  box-shadow: var(--sh-sm);
-  flex-shrink: 0;
 }
 
 .partner-info {
   display: grid;
-  gap: 0.28rem;
+  gap: 0.5rem;
 }
 
 .partner-tag {
@@ -475,13 +461,6 @@ const MODULES = [
   text-transform: uppercase;
   color: var(--accent);
   font-weight: 700;
-}
-
-.partner-name {
-  font-family: 'Fraunces', serif;
-  font-size: 1.05rem;
-  font-weight: 700;
-  color: var(--text);
 }
 
 .partner-info p {

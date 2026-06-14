@@ -202,6 +202,7 @@ export default {
     edit: 'Found an error? Open an issue',
     next: 'Next article',
     prev: 'Previous article',
+    videos: 'Video tutorials',
   },
   footer: {
     textBefore: 'FARM tools, an open and free project supported by ',
