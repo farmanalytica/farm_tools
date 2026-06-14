@@ -3,6 +3,8 @@ import { computed, watchEffect } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from '../i18n'
 import { getArticles, getArticle } from '../wiki'
+import videos from '../data/videos'
+import VideoCard from '../components/VideoCard.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -10,6 +12,7 @@ const { locale, t } = useI18n()
 
 const articles = computed(() => getArticles(locale.value))
 const article = computed(() => getArticle(locale.value, route.params.slug))
+const articleVideos = computed(() => videos.filter((v) => v.wiki === route.params.slug))
 
 const currentIndex = computed(() => articles.value.findIndex((a) => a.slug === route.params.slug))
 const prevArticle = computed(() => (currentIndex.value > 0 ? articles.value[currentIndex.value - 1] : null))
@@ -78,6 +81,13 @@ watchEffect(() => {
             </table>
           </div>
         </template>
+
+        <section v-if="articleVideos.length" class="wiki-videos">
+          <h3>{{ t('wiki.videos') }}</h3>
+          <div class="wiki-video-grid">
+            <VideoCard v-for="video in articleVideos" :key="video.id" :video="video" hide-wiki-link />
+          </div>
+        </section>
 
         <div class="wiki-pager">
           <router-link v-if="prevArticle" class="pager-link" :to="`/wiki/${prevArticle.slug}`">
@@ -274,6 +284,24 @@ watchEffect(() => {
   background: var(--bg);
   color: var(--text);
   font-weight: 600;
+}
+
+/* Videos */
+.wiki-videos {
+  margin-top: 2.4rem;
+  padding-top: 1.6rem;
+  border-top: 1px solid var(--border);
+}
+
+.wiki-videos h3 {
+  margin-top: 0;
+}
+
+.wiki-video-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.4rem;
+  margin-top: 1rem;
 }
 
 /* Pager */

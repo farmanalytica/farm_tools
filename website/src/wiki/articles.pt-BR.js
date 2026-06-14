@@ -317,7 +317,7 @@ export default [
       { h2: 'Quais versões do QGIS são suportadas?' },
       { p: 'QGIS 3.28 ou mais recente (Python 3.11–3.13). O QGIS 3.44 LTR com Python 3.12 é a plataforma de referência.' },
       { h2: 'Onde reporto bugs ou peço funcionalidades?' },
-      { p: 'Abra uma issue em github.com/farmanalytica/farm_tools/issues. Para suporte comercial e soluções personalizadas, fale com a FARM Analytica pelo WhatsApp ou adm@farmanalytica.com.br.' },
+      { p: 'Abra uma issue em github.com/farmanalytica/farm_tools/issues. Para suporte comercial e soluções personalizadas, fale com a FARM Analytica pelo WhatsApp ou contato@farmanalytica.com.br.' },
     ],
   },
 ]
