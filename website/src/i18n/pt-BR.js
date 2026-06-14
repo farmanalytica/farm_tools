@@ -9,7 +9,7 @@ export default {
   },
   hero: {
     tag: 'Geoanálise multimódulo para QGIS',
-    title: 'Um canivete suíço de geoanálise no QGIS',
+    title: 'Uma caixa de ferramentas de geoanálise no QGIS',
     description:
       'Índices de vegetação, radar, elevação, composições de solo exposto, gráficos climáticos e amostragem de campo — os plugins apoiados pela FARM Analytica, unificados em uma única interface QGIS. A maioria dos módulos roda no Google Earth Engine; ClimaPlots e Guia de Campo funcionam sem ele.',
     ctaTutorials: 'Assistir tutoriais',
@@ -27,13 +27,13 @@ export default {
   },
   intro: {
     label: 'Visão geral',
-    title: 'Uma caixa de ferramentas para todo o fluxo de geoanálise',
+    title: 'Módulos de geoanálise reunidos no QGIS',
     lead: 'O FARM tools unifica os plugins mantidos pela FARM Analytica — de índices de vegetação Sentinel-2 a radar, elevação, composições de solo exposto, gráficos climáticos e amostragem de campo — dentro do QGIS. A maioria dos módulos é movida pelo Google Earth Engine, enquanto ClimaPlots (dados climáticos NASA POWER & Open-Meteo) e Guia de Campo (rasters locais) não exigem conta GEE.',
   },
   modules: {
     label: 'Módulos',
     title: 'Módulos',
-    lead: 'Cada módulo cobre uma etapa do fluxo de sensoriamento remoto e trabalho de campo.',
+    lead: 'Cada módulo atende uma tarefa de sensoriamento remoto ou trabalho de campo.',
     wikiLink: 'Ler na wiki',
     items: {
       optical: {
@@ -70,29 +70,10 @@ export default {
       },
     },
   },
-  how: {
-    label: 'Fluxo de trabalho',
-    title: 'Como Funciona',
-    lead: 'Da autenticação aos resultados: escolha um módulo, configure as entradas e exporte — tudo no QGIS.',
-    steps: [
-      {
-        title: 'Autenticar',
-        desc: 'Configure seu ID de projeto Google Cloud e autentique-se no Google Earth Engine através do plugin.',
-      },
-      {
-        title: 'Escolher módulo & configurar',
-        desc: 'Escolha um módulo — Óptico, Landsat, SAR, DEM, SYSI, ClimaPlots, Guia de Campo ou MapBiomas — defina sua área e parâmetros, e execute.',
-      },
-      {
-        title: 'Visualizar & Exportar',
-        desc: 'Explore gráficos e camadas interativas e exporte como CSV, GPX, GeoTIFF ou PDF.',
-      },
-    ],
-  },
   setup: {
-    label: 'Configurar GEE',
+    label: 'Configuração & Fluxo de trabalho',
     title: 'Primeiros Passos',
-    lead: 'Configure o Google Earth Engine para liberar os módulos de satélite. ClimaPlots e Guia de Campo funcionam de imediato — sem conta GEE.',
+    lead: 'Da autenticação aos resultados: configure o Google Earth Engine, escolha um módulo e exporte — tudo no QGIS. ClimaPlots e Guia de Campo funcionam de imediato, sem conta GEE.',
     steps: [
       {
         title: 'Criar conta Google Earth Engine',
@@ -121,6 +102,18 @@ export default {
       {
         title: 'Autenticar no FARM tools',
         desc: 'Abra o FARM tools no QGIS, clique em Configurar Autenticação, insira seu ID de projeto Cloud e autorize o acesso.',
+        link: '',
+        href: '',
+      },
+      {
+        title: 'Escolher módulo & configurar',
+        desc: 'Escolha um módulo — Óptico, Landsat, SAR, DEM, SYSI, ClimaPlots, Guia de Campo ou MapBiomas — defina sua área e parâmetros, e execute.',
+        link: '',
+        href: '',
+      },
+      {
+        title: 'Visualizar & Exportar',
+        desc: 'Explore gráficos e camadas interativas e exporte como CSV, GPX, GeoTIFF ou PDF.',
         link: '',
         href: '',
       },

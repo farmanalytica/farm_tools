@@ -198,6 +198,10 @@ header {
     padding: 0.5rem 0;
     font-size: 0.95rem;
   }
+
+  .brand {
+    margin-left: 0.5rem;
+  }
 }
 
 @media (max-width: 480px) {

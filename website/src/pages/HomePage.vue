@@ -81,24 +81,7 @@ const MODULES = [
     </div>
   </section>
 
-  <section id="how-it-works">
-    <div class="container">
-      <p class="sec-label">{{ t('how.label') }}</p>
-      <h2>{{ t('how.title') }}</h2>
-      <p class="sec-lead">{{ t('how.lead') }}</p>
-      <div class="steps-col">
-        <div v-for="(step, i) in t('how.steps')" :key="i" class="step">
-          <div class="step-num">{{ String(i + 1).padStart(2, '0') }}</div>
-          <div class="step-body">
-            <h3>{{ step.title }}</h3>
-            <p>{{ step.desc }}</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section id="setup" class="alt">
+  <section id="setup">
     <div class="container">
       <p class="sec-label">{{ t('setup.label') }}</p>
       <h2>{{ t('setup.title') }}</h2>
@@ -124,7 +107,7 @@ const MODULES = [
     </div>
   </section>
 
-  <section id="resources">
+  <section id="resources" class="alt">
     <div class="container">
       <p class="sec-label">{{ t('resources.label') }}</p>
       <h2>{{ t('resources.title') }}</h2>
@@ -173,7 +156,7 @@ const MODULES = [
     </div>
   </section>
 
-  <section class="alt">
+  <section>
     <div class="container">
       <p class="sec-label">{{ t('about.label') }}</p>
       <h2>{{ t('about.title') }}</h2>
