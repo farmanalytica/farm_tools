@@ -61,6 +61,11 @@ def _tr(text):
     return QCoreApplication.translate("RAVI", text)
 
 
+# Per-module help: the "?" button opens the matching wiki section on the site.
+WIKI_BASE = "https://www.farmtools.com.br/wiki/"
+WIKI_DEFAULT = WIKI_BASE + "getting-started"
+
+
 class FarmToolsDialog(QDialog):
     """
     Main dialog window for the FARM tools plugin.
@@ -98,6 +103,7 @@ class FarmToolsDialog(QDialog):
         # to the taskbar like a normal window.
         super().__init__(None)
         self._win_configured = False
+        self._help_url = WIKI_DEFAULT
         self._setup_ui()
 
     def showEvent(self, event):
@@ -285,8 +291,6 @@ class FarmToolsDialog(QDialog):
         Build and return the dialog header widget.
 
         The header is a fixed-height white bar containing:
-        - The "FARM tools" brand label (green).
-        - A vertical separator.
         - A dynamic page-title label updated by the
           controller when the active page changes.
         - A "?" help button that opens the documentation URL in the browser.
@@ -299,19 +303,9 @@ class FarmToolsDialog(QDialog):
         header_layout.setContentsMargins(28, 0, 20, 0)
         header_layout.setSpacing(0)
 
-        brand = QLabel("FARM tools")
-        brand.setStyleSheet(
-            "color: #1b6b39; font-size: 13px; font-weight: bold; letter-spacing: 0.5px;"
-        )
-        header_layout.addWidget(brand)
-
-        separator = QLabel("  |")
-        separator.setStyleSheet("color: #d0d0d0; font-size: 16px;")
-        header_layout.addWidget(separator)
-
         self._header_title = QLabel(_tr("GEE Configuration"))
         self._header_title.setStyleSheet(
-            "color: #616161; font-size: 13px; margin-left: 4px;"
+            "color: #616161; font-size: 13px;"
         )
         header_layout.addWidget(self._header_title)
 
@@ -342,9 +336,7 @@ class FarmToolsDialog(QDialog):
         self.browser.setToolTip(_tr("Learn more"))
         self.browser.setStyleSheet(STYLE_BTN_HELP)
         self.browser.clicked.connect(
-            lambda: QDesktopServices.openUrl(
-                QUrl("https://www.farmtools.com.br")
-            )
+            lambda: QDesktopServices.openUrl(QUrl(self._help_url))
         )
         header_layout.addWidget(self.browser)
 
@@ -541,66 +533,77 @@ class FarmToolsDialog(QDialog):
 
         if current is self.loading_page:
             self._header_title.setText(_tr("Setting up…"))
+            self._help_url = WIKI_DEFAULT
             self.sidebar.set_active_page(None)
             self.footer.setVisible(True)
             return
 
         if current is self.welcome_page:
             self._header_title.setText(_tr("Welcome"))
+            self._help_url = WIKI_DEFAULT
             self.sidebar.set_active_page("welcome")
             self.footer.setVisible(True)
             return
 
         if current is self.auth_page:
             self._header_title.setText(_tr("GEE Configuration"))
+            self._help_url = WIKI_DEFAULT
             self.sidebar.set_active_page("auth")
             self.footer.setVisible(True)
             return
 
         if current is self.optical_page:
             self._header_title.setText(_tr("Optical Imagery (Sentinel-2)"))
+            self._help_url = WIKI_BASE + "optical"
             self.sidebar.set_active_page("optical")
             self.footer.setVisible(False)
             return
 
         if current is self.sysi_page:
             self._header_title.setText(_tr("Synthetic Soil Image (SYSI)"))
+            self._help_url = WIKI_BASE + "sysi"
             self.sidebar.set_active_page("sysi")
             self.footer.setVisible(False)
             return
 
         if current is self.radar_page:
             self._header_title.setText(_tr("Radar (SAR) Data"))
+            self._help_url = WIKI_BASE + "sar"
             self.sidebar.set_active_page("radar")
             self.footer.setVisible(False)
             return
 
         if current is self.dem_page:
-            self._header_title.setText(_tr("Inputs & Parameters"))
+            self._header_title.setText(_tr("EasyDEM"))
+            self._help_url = WIKI_BASE + "dem"
             self.sidebar.set_active_page("download")
             self.footer.setVisible(False)
             return
 
         if current is self.landsat_page:
             self._header_title.setText(_tr("Landsat Super-Resolution"))
+            self._help_url = WIKI_BASE + "landsat"
             self.sidebar.set_active_page("landsat")
             self.footer.setVisible(False)
             return
 
         if current is self.fieldguide_page:
             self._header_title.setText(_tr("Field Guide"))
+            self._help_url = WIKI_BASE + "fieldguide"
             self.sidebar.set_active_page("fieldguide")
             self.footer.setVisible(False)
             return
 
         if current is self.climaplots_page:
             self._header_title.setText(_tr("ClimaPlots"))
+            self._help_url = WIKI_BASE + "climaplots"
             self.sidebar.set_active_page("climaplots")
             self.footer.setVisible(False)
             return
 
         if current is self.mapbiomas_page:
             self._header_title.setText(_tr("MapBiomas — Land Use & Land Cover"))
+            self._help_url = WIKI_BASE + "mapbiomas"
             self.sidebar.set_active_page("mapbiomas")
             self.footer.setVisible(False)
 
