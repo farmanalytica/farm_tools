@@ -4,15 +4,15 @@
   <defs>
     <style>
       .st0, .st1 {
-        fill: #2e5059;
-      }
-
-      .st2 {
-        fill: none;
+        fill: #fff;
       }
 
       .st1 {
         fill-rule: evenodd;
+      }
+
+      .st2 {
+        fill: none;
       }
     </style>
   </defs>
