@@ -44,6 +44,7 @@ from qgis.PyQt.QtWidgets import (
 from .managers.settings_manager import SettingsManager
 
 from .view.auth import setup_auth_page
+from .view.car import setup_car_page
 from .view.climaplots import setup_climaplots_page
 from .view.download_dem import setup_download_dem_page
 from .view.fieldguide import setup_fieldguide_page
@@ -183,6 +184,7 @@ class FarmToolsDialog(QDialog):
         self.sidebar = Sidebar()
         self.sidebar.welcome_requested.connect(self._nav_to_welcome)
         self.sidebar.auth_requested.connect(self._nav_to_auth)
+        self.sidebar.car_requested.connect(self._nav_to_car)
         self.sidebar.optical_requested.connect(self._nav_to_optical)
         self.sidebar.sysi_requested.connect(self._nav_to_sysi)
         self.sidebar.radar_requested.connect(self._nav_to_radar)
@@ -213,6 +215,7 @@ class FarmToolsDialog(QDialog):
         self.loading_page = self._build_loading_page()
         self.welcome_page = QWidget()
         self.auth_page = QWidget()
+        self.car_page = QWidget()
         self.optical_page = QWidget()
         self.sysi_page = QWidget()
         self.radar_page = QWidget()
@@ -224,6 +227,7 @@ class FarmToolsDialog(QDialog):
 
         setup_welcome_page(self, self.welcome_page)
         setup_auth_page(self, self.auth_page)
+        setup_car_page(self, self.car_page)
         setup_optical_page(self, self.optical_page)
         setup_sysi_page(self, self.sysi_page)
         setup_radar_page(self, self.radar_page)
@@ -236,6 +240,7 @@ class FarmToolsDialog(QDialog):
         self.stack.addWidget(self.loading_page)
         self.stack.addWidget(self.welcome_page)
         self.stack.addWidget(self.auth_page)
+        self.stack.addWidget(self.car_page)
         self.stack.addWidget(self.optical_page)
         self.stack.addWidget(self.sysi_page)
         self.stack.addWidget(self.radar_page)
@@ -452,6 +457,10 @@ class FarmToolsDialog(QDialog):
         """Switch the stacked widget to the authentication page."""
         self.stack.setCurrentWidget(self.auth_page)
 
+    def show_car_page(self):
+        """Switch the stacked widget to the CAR analysis page."""
+        self.stack.setCurrentWidget(self.car_page)
+
     def show_optical_page(self):
         """Switch the stacked widget to the Optical (Sentinel-2) page."""
         self.stack.setCurrentWidget(self.optical_page)
@@ -487,6 +496,10 @@ class FarmToolsDialog(QDialog):
     def _nav_to_auth(self):
         """Sidebar auth button — always navigates to the auth page."""
         self.show_auth_page()
+
+    def _nav_to_car(self):
+        """Sidebar Análise CAR button — always navigates to the CAR page."""
+        self.show_car_page()
 
     def _nav_to_optical(self):
         """Sidebar optical button — always navigates to the Optical page."""
@@ -550,6 +563,13 @@ class FarmToolsDialog(QDialog):
             self._help_url = WIKI_DEFAULT
             self.sidebar.set_active_page("auth")
             self.footer.setVisible(True)
+            return
+
+        if current is self.car_page:
+            self._header_title.setText(_tr("Análise CAR"))
+            self._help_url = WIKI_BASE + "car"
+            self.sidebar.set_active_page("car")
+            self.footer.setVisible(False)
             return
 
         if current is self.optical_page:

@@ -165,6 +165,7 @@ class FarmTools:
         from .services.gee_service import GEEService
         from .controllers.dem_ctrl import DEMCtrl
         from .controllers.auth_ctrl import AuthCtrl
+        from .controllers.car_ctrl import CarCtrl
         from .controllers.sar_ctrl import SARCtrl
         from .controllers.optical_ctrl import OpticalCtrl
         from .controllers.landsat_ctrl import LandsatCtrl
@@ -177,6 +178,7 @@ class FarmTools:
         self.gee_service = GEEService()
         self.dem_ctrl = DEMCtrl(self.dialog, self.gee_service, self.interface)
         self.auth_ctrl = AuthCtrl(self.dialog, self.gee_service)
+        self.car_ctrl = CarCtrl(self.dialog, self.interface)
         self.sar_ctrl = SARCtrl(self.dialog, self.interface, self.gee_service)
         self.optical_ctrl = OpticalCtrl(self.dialog, self.interface, self.gee_service)
         self.landsat_ctrl = LandsatCtrl(self.dialog, self.interface, self.gee_service)
@@ -229,6 +231,9 @@ class FarmTools:
         )
         self.dialog.btn_clear_folder.clicked.connect(self.auth_ctrl.handle_clear_folder)
         self.dialog.btn_go_to_aoi.clicked.connect(self.dem_ctrl.load_available_datasets)
+
+        self.dialog.btn_fetch_car.clicked.connect(self.car_ctrl.handle_fetch_car)
+        self.dialog.car_input.returnPressed.connect(self.car_ctrl.handle_fetch_car)
 
         self.dialog.layer_combo.layerChanged.connect(self.dem_ctrl.handle_layer_changed)
         self.dialog.dem_combo.currentIndexChanged.connect(

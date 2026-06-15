@@ -150,6 +150,7 @@ class Sidebar(QFrame):
 
     welcome_requested = pyqtSignal()
     auth_requested = pyqtSignal()
+    car_requested = pyqtSignal()
     optical_requested = pyqtSignal()
     sysi_requested = pyqtSignal()
     radar_requested = pyqtSignal()
@@ -245,6 +246,10 @@ class Sidebar(QFrame):
         self.btn_auth.clicked.connect(self.auth_requested.emit)
         nav_lay.addWidget(self.btn_auth)
 
+        self.btn_car = self._make_button(_tr("Análise CAR"), "car")
+        self.btn_car.clicked.connect(self.car_requested.emit)
+        nav_lay.addWidget(self.btn_car)
+
         self.btn_optical = self._make_button(_tr("Optical (Sentinel-2)"), "optical")
         self.btn_optical.clicked.connect(self.optical_requested.emit)
         nav_lay.addWidget(self.btn_optical)
@@ -285,6 +290,7 @@ class Sidebar(QFrame):
         self._group.setExclusive(True)
         self._group.addButton(self.btn_welcome)
         self._group.addButton(self.btn_auth)
+        self._group.addButton(self.btn_car)
         self._group.addButton(self.btn_optical)
         self._group.addButton(self.btn_sysi)
         self._group.addButton(self.btn_radar)
@@ -384,6 +390,7 @@ class Sidebar(QFrame):
         self._group.setExclusive(False)
         self.btn_welcome.setChecked(page == "welcome")
         self.btn_auth.setChecked(page == "auth")
+        self.btn_car.setChecked(page == "car")
         self.btn_optical.setChecked(page == "optical")
         self.btn_sysi.setChecked(page == "sysi")
         self.btn_radar.setChecked(page == "radar")
@@ -448,7 +455,7 @@ class Sidebar(QFrame):
         side_margin = 14 if expanded else 11
         self._layout.setContentsMargins(side_margin, 18, side_margin, 18)
 
-        for btn in (self.btn_auth, self.btn_optical, self.btn_sysi, self.btn_radar, self.btn_download, self.btn_landsat, self.btn_fieldguide, self.btn_climaplots, self.btn_mapbiomas):
+        for btn in (self.btn_auth, self.btn_car, self.btn_optical, self.btn_sysi, self.btn_radar, self.btn_download, self.btn_landsat, self.btn_fieldguide, self.btn_climaplots, self.btn_mapbiomas):
             btn.setText(btn.property("navText") if expanded else "")
             btn.setToolTip("" if expanded else btn.property("navText"))
             btn.setFixedWidth(156 if expanded else 42)
@@ -722,6 +729,21 @@ class Sidebar(QFrame):
             edge.cubicTo(12, 7.5, 11, 9.5, 14, 10)
             painter.drawPath(edge)
             painter.fillRect(QRectF(3.6, 10.6, 4.8, 4.8), QColor(color))
+        elif kind == "car":
+            # Registered land parcel — an irregular closed boundary with a corner
+            # marker, evoking a cadastral property polygon.
+            painter.setPen(pen)
+            parcel = QPainterPath()
+            parcel.moveTo(4, 6)
+            parcel.lineTo(12, 3)
+            parcel.lineTo(17, 9)
+            parcel.lineTo(14, 17)
+            parcel.lineTo(5, 15)
+            parcel.closeSubpath()
+            painter.drawPath(parcel)
+            painter.setPen(Qt.PenStyle.NoPen)
+            painter.setBrush(QColor(color))
+            painter.drawEllipse(QPointF(12, 3), 1.4, 1.4)
         else:
             painter.setPen(pen)
             painter.drawLine(10, 3, 10, 12)
