@@ -97,6 +97,11 @@ def _read_plugin_changelog() -> str:
 
 SIDEBAR_COLLAPSED_WIDTH = 64
 SIDEBAR_EXPANDED_WIDTH = 184
+# Brand logo icon: grows on expand. Pixmap rendered at MAX so it stays crisp
+# while iconSize animates between the two states.
+BRAND_ICON_COLLAPSED = 38
+BRAND_ICON_EXPANDED = 60
+BRAND_ICON_MAX = 128
 SIDEBAR_GREEN = "#1F6B3A"
 SIDEBAR_GREEN_DARK = "#195A31"
 SIDEBAR_INDICATOR = "#9FE0B4"
@@ -167,6 +172,12 @@ class Sidebar(QFrame):
         easing = getattr(getattr(QEasingCurve, "Type", QEasingCurve), "OutCubic")
         self._width_animation.setEasingCurve(easing)
         self._width_animation.valueChanged.connect(self._set_animated_width)
+
+        self._brand_has_icon = False
+        self._brand_icon_animation = QVariantAnimation(self)
+        self._brand_icon_animation.setDuration(160)
+        self._brand_icon_animation.setEasingCurve(easing)
+        self._brand_icon_animation.valueChanged.connect(self._set_brand_icon_size)
 
         self._build()
         self._apply_expanded_state(False)
@@ -328,10 +339,12 @@ class Sidebar(QFrame):
         """
         btn = SidebarNavButton("")
         btn.setObjectName("sidebarNavButton")
+        btn.setProperty("brand", True)
         btn.setProperty("navText", "")
         btn.setCheckable(True)
         btn.setCursor(Qt.CursorShape.PointingHandCursor)
-        btn.setFixedHeight(42)
+        # Tall enough to hold the expanded logo without clipping.
+        btn.setFixedHeight(BRAND_ICON_EXPANDED + 6)
         btn.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         btn.setToolTip(_tr("Welcome"))
 
@@ -342,7 +355,8 @@ class Sidebar(QFrame):
             icon.addPixmap(pix, QIcon.Mode.Normal, QIcon.State.On)
             icon.addPixmap(pix, QIcon.Mode.Active, QIcon.State.Off)
             btn.setIcon(icon)
-            btn.setIconSize(QSize(30, 30))
+            btn.setIconSize(QSize(BRAND_ICON_COLLAPSED, BRAND_ICON_COLLAPSED))
+            self._brand_has_icon = True
         else:
             btn.setText("FARM")
         return btn
@@ -466,6 +480,9 @@ class Sidebar(QFrame):
         self._animate_width(
             SIDEBAR_EXPANDED_WIDTH if expanded else SIDEBAR_COLLAPSED_WIDTH
         )
+        self._animate_brand_icon(
+            BRAND_ICON_EXPANDED if expanded else BRAND_ICON_COLLAPSED
+        )
 
     def _sync_brand_visibility(self) -> None:
         self.brand_block.setVisible(True)
@@ -480,6 +497,21 @@ class Sidebar(QFrame):
 
     def _set_animated_width(self, width) -> None:
         self.setFixedWidth(int(width))
+
+    def _animate_brand_icon(self, target: int) -> None:
+        if not self._brand_has_icon:
+            return
+        current = self.btn_welcome.iconSize().width()
+        if current == target:
+            return
+        self._brand_icon_animation.stop()
+        self._brand_icon_animation.setStartValue(current)
+        self._brand_icon_animation.setEndValue(target)
+        self._brand_icon_animation.start()
+
+    def _set_brand_icon_size(self, size) -> None:
+        side = int(size)
+        self.btn_welcome.setIconSize(QSize(side, side))
 
     def _stylesheet(self, expanded: bool) -> str:
         button_padding = "0 12px 0 10px" if expanded else "0"
@@ -509,6 +541,10 @@ class Sidebar(QFrame):
             max-width: {button_width};
             min-height: 42px;
             max-height: 42px;
+        }}
+        QPushButton#sidebarNavButton[brand="true"] {{
+            min-height: {BRAND_ICON_EXPANDED + 6}px;
+            max-height: {BRAND_ICON_EXPANDED + 6}px;
         }}
         QPushButton#sidebarNavButton:hover {{
             background-color: rgba(255, 255, 255, 22);
@@ -584,7 +620,11 @@ class Sidebar(QFrame):
 
     def _load_brand_pixmap(self):
         plugin_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        icon_path = os.path.join(plugin_dir, "icon.png")
+        # White wordmark reads on the dark sidebar; fall back to icon.png.
+        logo_path = os.path.join(plugin_dir, "assets", "logo_white.svg")
+        icon_path = logo_path if os.path.exists(logo_path) else os.path.join(
+            plugin_dir, "icon.png"
+        )
         if not os.path.exists(icon_path):
             return None
 
@@ -592,10 +632,10 @@ class Sidebar(QFrame):
         if raw.isNull():
             return None
 
-        # Show the full logo undistorted, scaled to fill the 40 px brand label.
+        # Render at MAX so the icon stays crisp as iconSize animates up.
         return raw.scaled(
-            40,
-            40,
+            BRAND_ICON_MAX,
+            BRAND_ICON_MAX,
             Qt.AspectRatioMode.KeepAspectRatio,
             Qt.TransformationMode.SmoothTransformation,
         )

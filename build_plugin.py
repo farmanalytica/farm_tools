@@ -50,6 +50,7 @@ INCLUDE_DIRS = [
 INCLUDE_ASSETS = [
     "assets/dem_catalog.json",       # services/dem_registry.py
     "assets/farm_analytica_logo.svg",  # dialog footer logo
+    "assets/logo_white.svg",           # view/sidebar.py brand button
     "assets/plotly-1.58.5.min.js",   # view/plotly_render.py, view/sar_plot.py
 ]
 
