@@ -4,7 +4,7 @@ qgisMinimumVersion=3.28
 qgisMaximumVersion=4.99
 description=Swiss-army toolbox of geo-analytics modules for research, education, agriculture, and land monitoring: vegetation index time series, multispectral/SAR/DEM downloads, bare-soil composites, climate plots, and field sampling
 description_pt=Canivete suíço de módulos de geoanálise para pesquisa, ensino, agricultura e monitoramento da terra: séries temporais de índices de vegetação, downloads multiespectrais/SAR/DEM, composições de solo exposto, gráficos climáticos e amostragem de campo
-version=1.5
+version=1.6
 author=Bruna da Silva Brito Ribeiro, Caio Arantes, Isabella Alves da Cunha, Leandro Eloi, Lívia Scopel, Lucas Rios do Amaral, Mateus Pinto da Silva, Mateus Pinto da Silva
 email=caio.arantes@farmanalytica.com.br
 
@@ -19,6 +19,9 @@ repository=https://github.com/farmanalytica/farm_tools
 hasProcessingProvider=no
 # Uncomment the following line and add your changelog:
 changelog=
+    1.6 - Dependency bundles (extlibs) are now downloaded from the GitHub
+          Release assets instead of repo-committed files, keeping the plugin
+          download lean.
     1.5 - Sidebar and header refresh: white sidebar logo that grows with a
           subtle animation when the panel expands, and a cleaner module header.
           Each module now carries a direct "Help" link to its wiki article.
