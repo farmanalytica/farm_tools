@@ -7,6 +7,8 @@ UI thread, and loads the resulting geometry as a KML layer saved to the
 configured download folder.
 """
 
+from __future__ import annotations
+
 from qgis.PyQt.QtCore import QCoreApplication
 
 from ..managers.settings_manager import SettingsManager
