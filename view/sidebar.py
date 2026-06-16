@@ -246,10 +246,6 @@ class Sidebar(QFrame):
         self.btn_auth.clicked.connect(self.auth_requested.emit)
         nav_lay.addWidget(self.btn_auth)
 
-        self.btn_car = self._make_button(_tr("Análise CAR"), "car")
-        self.btn_car.clicked.connect(self.car_requested.emit)
-        nav_lay.addWidget(self.btn_car)
-
         self.btn_optical = self._make_button(_tr("Optical (Sentinel-2)"), "optical")
         self.btn_optical.clicked.connect(self.optical_requested.emit)
         nav_lay.addWidget(self.btn_optical)
@@ -282,6 +278,10 @@ class Sidebar(QFrame):
         self.btn_mapbiomas.clicked.connect(self.mapbiomas_requested.emit)
         nav_lay.addWidget(self.btn_mapbiomas)
 
+        self.btn_car = self._make_button(_tr("Análise CAR"), "car")
+        self.btn_car.clicked.connect(self.car_requested.emit)
+        nav_lay.addWidget(self.btn_car)
+
         nav_lay.addStretch(1)
         self.nav_scroll.setWidget(nav_container)
         lay.addWidget(self.nav_scroll, 1)
@@ -290,7 +290,6 @@ class Sidebar(QFrame):
         self._group.setExclusive(True)
         self._group.addButton(self.btn_welcome)
         self._group.addButton(self.btn_auth)
-        self._group.addButton(self.btn_car)
         self._group.addButton(self.btn_optical)
         self._group.addButton(self.btn_sysi)
         self._group.addButton(self.btn_radar)
@@ -299,6 +298,7 @@ class Sidebar(QFrame):
         self._group.addButton(self.btn_fieldguide)
         self._group.addButton(self.btn_climaplots)
         self._group.addButton(self.btn_mapbiomas)
+        self._group.addButton(self.btn_car)
 
         self._version = _read_plugin_version()
         self.version_label = QLabel()
@@ -390,7 +390,6 @@ class Sidebar(QFrame):
         self._group.setExclusive(False)
         self.btn_welcome.setChecked(page == "welcome")
         self.btn_auth.setChecked(page == "auth")
-        self.btn_car.setChecked(page == "car")
         self.btn_optical.setChecked(page == "optical")
         self.btn_sysi.setChecked(page == "sysi")
         self.btn_radar.setChecked(page == "radar")
@@ -399,6 +398,7 @@ class Sidebar(QFrame):
         self.btn_fieldguide.setChecked(page == "fieldguide")
         self.btn_climaplots.setChecked(page == "climaplots")
         self.btn_mapbiomas.setChecked(page == "mapbiomas")
+        self.btn_car.setChecked(page == "car")
         self._group.setExclusive(True)
         self._sync_brand_visibility()
 
@@ -455,7 +455,7 @@ class Sidebar(QFrame):
         side_margin = 14 if expanded else 11
         self._layout.setContentsMargins(side_margin, 18, side_margin, 18)
 
-        for btn in (self.btn_auth, self.btn_car, self.btn_optical, self.btn_sysi, self.btn_radar, self.btn_download, self.btn_landsat, self.btn_fieldguide, self.btn_climaplots, self.btn_mapbiomas):
+        for btn in (self.btn_auth, self.btn_optical, self.btn_sysi, self.btn_radar, self.btn_download, self.btn_landsat, self.btn_fieldguide, self.btn_climaplots, self.btn_mapbiomas, self.btn_car):
             btn.setText(btn.property("navText") if expanded else "")
             btn.setToolTip("" if expanded else btn.property("navText"))
             btn.setFixedWidth(156 if expanded else 42)

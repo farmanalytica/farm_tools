@@ -79,6 +79,9 @@ _MODULES = [
     ("mapbiomas", "MapBiomas",
      "Brazilian land-use/land-cover by year plus pasture-to-crop transition mapping",
      "show_mapbiomas_page", False),
+    ("car", "Análise CAR",
+     "Fetch a registered rural property boundary by its Brazilian CAR code",
+     "show_car_page", True),
     ("auth", "GEE Configuration",
      "Connect to Google Earth Engine — sign in and set your project ID",
      "show_auth_page", False),
@@ -283,6 +286,21 @@ def _draw_module_icon(kind: str, color: str, size: int = 30) -> QPixmap:
         edge.cubicTo(12, 7.5, 11, 9.5, 14, 10)
         painter.drawPath(edge)
         painter.fillRect(QRect(4, 11, 4, 4), QColor(color))
+    elif kind == "car":
+        # Registered land parcel — an irregular closed boundary with a corner
+        # marker, evoking a cadastral property polygon.
+        painter.setPen(pen)
+        parcel = QPainterPath()
+        parcel.moveTo(4, 6)
+        parcel.lineTo(12, 3)
+        parcel.lineTo(17, 9)
+        parcel.lineTo(14, 17)
+        parcel.lineTo(5, 15)
+        parcel.closeSubpath()
+        painter.drawPath(parcel)
+        painter.setPen(Qt.PenStyle.NoPen)
+        painter.setBrush(QColor(color))
+        painter.drawEllipse(QRect(11, 2, 3, 3))
     else:
         painter.setPen(pen)
         painter.drawLine(10, 3, 10, 12)

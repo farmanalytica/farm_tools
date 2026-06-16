@@ -9,12 +9,13 @@ outline style and adds it to the project. Must run on the main thread.
 
 import os
 
-from qgis.PyQt.QtGui import QColor
 from qgis.core import (
     QgsCoordinateReferenceSystem,
     QgsCoordinateTransform,
     QgsCoordinateTransformContext,
+    QgsFillSymbol,
     QgsProject,
+    QgsSingleSymbolRenderer,
     QgsVectorFileWriter,
     QgsVectorLayer,
 )
@@ -71,21 +72,19 @@ class CarRenderer:
 
     @staticmethod
     def _style(layer):
-        """Translucent green fill with a solid FARM-green outline."""
-        renderer = layer.renderer()
-        symbol = renderer.symbol() if renderer is not None else None
-        if symbol is None:
-            return
-        symbol.setColor(QColor(31, 107, 58, 50))
-        symbol_layer = symbol.symbolLayer(0)
-        if symbol_layer is None:
-            return
-        if hasattr(symbol_layer, "setFillColor"):
-            symbol_layer.setFillColor(QColor(31, 107, 58, 50))
-        if hasattr(symbol_layer, "setStrokeColor"):
-            symbol_layer.setStrokeColor(QColor(31, 107, 58))
-        if hasattr(symbol_layer, "setStrokeWidth"):
-            symbol_layer.setStrokeWidth(0.6)
+        """Translucent green fill with a solid FARM-green outline.
+
+        KML layers load with a ``QgsEmbeddedSymbolRenderer`` (no ``symbol()``),
+        so replace the renderer outright with our own single-symbol fill.
+        """
+        symbol = QgsFillSymbol.createSimple(
+            {
+                "color": "31,107,58,50",
+                "outline_color": "31,107,58,255",
+                "outline_width": "0.6",
+            }
+        )
+        layer.setRenderer(QgsSingleSymbolRenderer(symbol))
 
     @staticmethod
     def _zoom_to_layer(layer, interface):
