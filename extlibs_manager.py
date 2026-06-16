@@ -29,7 +29,14 @@ import zipfile
 
 from qgis.PyQt.QtCore import QThread, pyqtSignal
 
-BASE_URL = "https://github.com/farmanalytica/farm_tools/raw/main/"
+# Prebuilt bundles are published as GitHub Release assets (not committed to the
+# repo) so the plugin checkout stays small and the heavy zips never bloat git.
+# Bump _EXTLIBS_RELEASE when a new tagged release re-publishes the bundles.
+_EXTLIBS_RELEASE = "version15"
+BASE_URL = (
+    "https://github.com/farmanalytica/farm_tools/releases/download/"
+    f"{_EXTLIBS_RELEASE}/"
+)
 _PLUGIN_DIR = os.path.dirname(__file__)
 EXTLIBS_PATH = os.path.join(_PLUGIN_DIR, "extlibs")
 _SENTINEL = os.path.join(EXTLIBS_PATH, ".ready")
