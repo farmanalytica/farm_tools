@@ -251,7 +251,6 @@ class FarmToolsDialog(QDialog):
 
         main_layout.addWidget(body_container, 1)
 
-
     def _build_loading_page(self):
         loading_page = QWidget()
         loading_layout = QVBoxLayout(loading_page)
@@ -285,7 +284,6 @@ class FarmToolsDialog(QDialog):
         loading_layout.addStretch()
         return loading_page
 
-
     def _build_header(self):
         """
         Build and return the dialog header widget.
@@ -304,9 +302,7 @@ class FarmToolsDialog(QDialog):
         header_layout.setSpacing(0)
 
         self._header_title = QLabel(_tr("GEE Configuration"))
-        self._header_title.setStyleSheet(
-            "color: #616161; font-size: 13px;"
-        )
+        self._header_title.setStyleSheet("color: #616161; font-size: 13px;")
         header_layout.addWidget(self._header_title)
 
         header_layout.addStretch()
@@ -366,7 +362,6 @@ class FarmToolsDialog(QDialog):
         buttons.accepted.connect(_accept)
         buttons.rejected.connect(dialog.reject)
         dialog.exec()
-
 
     def _build_footer(self):
         """
@@ -434,7 +429,6 @@ class FarmToolsDialog(QDialog):
         footer_layout.addWidget(farm_text)
 
         return footer
-
 
     def show_loading_page(self):
         """Switch the stacked widget to the loading/download page."""
@@ -527,9 +521,8 @@ class FarmToolsDialog(QDialog):
         """Keep header and sidebar state aligned with the current stack page."""
         current = self.stack.widget(index)
 
-        # Proxy settings matter on the auth page (network setup) and on the
-        # ClimaPlots page (its data fetchers honor the same proxy).
-        self.proxy_btn.setVisible(current in (self.auth_page, self.climaplots_page))
+        # Proxy settings matter on the auth page (network setup)
+        self.proxy_btn.setVisible(current is self.auth_page)
 
         if current is self.loading_page:
             self._header_title.setText(_tr("Setting up…"))
@@ -606,7 +599,6 @@ class FarmToolsDialog(QDialog):
             self._help_url = WIKI_BASE + "mapbiomas"
             self.sidebar.set_active_page("mapbiomas")
             self.footer.setVisible(False)
-
 
     def set_auth_busy(self, busy):
         """
