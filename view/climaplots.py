@@ -45,17 +45,27 @@ _MIN_YEAR = 1981
 _MAX_YEAR = datetime.date.today().year - 1
 
 _VARIABLES = [
-    "Max Temperature", "Min Temperature", "Precipitation",
-    "Relative Humidity", "Irradiation", "Wind Speed",
-    "Reference ET0", "Growing Degree Days",
+    "Max Temperature",
+    "Min Temperature",
+    "Precipitation",
+    "Relative Humidity",
+    "Irradiation",
+    "Wind Speed",
+    "Reference ET0",
+    "Growing Degree Days",
 ]
 _INDICES = [
-    "Annual Summer Days", "Annual Frost Days", "Annual Tropical Nights",
-    "Annual Icing Days", "Monthly Maximum Temperature",
+    "Annual Summer Days",
+    "Annual Frost Days",
+    "Annual Tropical Nights",
+    "Annual Icing Days",
+    "Monthly Maximum Temperature",
     "Monthly Minimum Temperature of Maximum Temperatures",
     "Monthly Maximum Temperature of Minimum Temperatures",
-    "Monthly Minimum Temperature", "Daily Temperature Range",
-    "Monthly Maximum 1-day Precipitation", "Monthly Maximum 5-day Precipitation",
+    "Monthly Minimum Temperature",
+    "Daily Temperature Range",
+    "Monthly Maximum 1-day Precipitation",
+    "Monthly Maximum 5-day Precipitation",
     "Annual Count of Days when Precipitation Exceeds 10mm",
     "Annual Count of Days when Precipitation Exceeds 20mm",
     "Simple Precipitation Intensity Index",
@@ -451,7 +461,7 @@ def _build_about_tab(dialog, page):
         _para(
             _tr(
                 "Behind a corporate network? Set a proxy via <b>Proxy settings</b> in "
-                "the top-right corner."
+                "the authentication page."
             )
         )
     )
