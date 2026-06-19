@@ -28,6 +28,7 @@ from qgis.PyQt.QtWidgets import (
     QLabel,
     QPushButton,
     QScrollArea,
+    QScrollBar,
     QSizePolicy,
     QTextBrowser,
     QVBoxLayout,
@@ -96,10 +97,10 @@ def _read_plugin_changelog() -> str:
 
 
 SIDEBAR_COLLAPSED_WIDTH = 64
-SIDEBAR_EXPANDED_WIDTH = 184
+SIDEBAR_EXPANDED_WIDTH = 220
 # Brand logo icon: grows on expand. Pixmap rendered at MAX so it stays crisp
 # while iconSize animates between the two states.
-BRAND_ICON_COLLAPSED = 38
+BRAND_ICON_COLLAPSED = 32
 BRAND_ICON_EXPANDED = 60
 BRAND_ICON_MAX = 128
 SIDEBAR_GREEN = "#1F6B3A"
@@ -279,7 +280,29 @@ class Sidebar(QFrame):
 
         nav_lay.addStretch(1)
         self.nav_scroll.setWidget(nav_container)
-        lay.addWidget(self.nav_scroll, 1)
+
+        # Place an external QScrollBar to the LEFT of the scroll area inside an
+        # HBoxLayout. This avoids the RTL trick that caused the scrollbar to
+        # paint over the button icons, and gives full control over styling.
+        nav_row = QWidget()
+        nav_row.setObjectName("sidebarNavRow")
+        nav_row_lay = QHBoxLayout(nav_row)
+        nav_row_lay.setContentsMargins(0, 0, 0, 0)
+        nav_row_lay.setSpacing(4)
+
+        self.nav_scrollbar = QScrollBar(Qt.Orientation.Vertical)
+        self.nav_scrollbar.setObjectName("sidebarNavScrollbar")
+        self.nav_scrollbar.setFixedWidth(4)
+        self.nav_scrollbar.hide()
+        nav_row_lay.addWidget(self.nav_scrollbar)
+        nav_row_lay.addWidget(self.nav_scroll, 1)
+
+        internal = self.nav_scroll.verticalScrollBar()
+        internal.rangeChanged.connect(self._on_nav_scroll_range_changed)
+        internal.valueChanged.connect(self.nav_scrollbar.setValue)
+        self.nav_scrollbar.valueChanged.connect(internal.setValue)
+
+        lay.addWidget(nav_row, 1)
 
         self._group = QButtonGroup(self)
         self._group.setExclusive(True)
@@ -451,21 +474,18 @@ class Sidebar(QFrame):
         for btn in (self.btn_auth, self.btn_optical, self.btn_sysi, self.btn_radar, self.btn_download, self.btn_landsat, self.btn_fieldguide, self.btn_climaplots, self.btn_mapbiomas):
             btn.setText(btn.property("navText") if expanded else "")
             btn.setToolTip("" if expanded else btn.property("navText"))
-            btn.setFixedWidth(156 if expanded else 42)
+            btn.setFixedWidth(188 if expanded else 42)
 
-        self.btn_welcome.setFixedWidth(156 if expanded else 42)
-        self.brand_block.setFixedWidth(156 if expanded else 42)
-        self.brand_divider.setFixedWidth(156 if expanded else 28)
+        self.btn_welcome.setFixedWidth(188 if expanded else 42)
+        self.brand_block.setFixedWidth(188 if expanded else 42)
+        self.brand_divider.setFixedWidth(188 if expanded else 28)
 
-        # Scrollbar only while expanded; collapsed rail stays clean (wheel still
-        # scrolls). Snap back to the top when collapsing so the icon rail always
-        # starts at Auth.
-        self.nav_scroll.setVerticalScrollBarPolicy(
-            Qt.ScrollBarPolicy.ScrollBarAsNeeded if expanded
-            else Qt.ScrollBarPolicy.ScrollBarAlwaysOff
-        )
+        # External scrollbar is visible only when expanded and content overflows.
+        # Collapsed rail stays clean; wheel scrolling still works regardless.
+        internal = self.nav_scroll.verticalScrollBar()
+        self.nav_scrollbar.setVisible(expanded and internal.maximum() > 0)
         if not expanded:
-            self.nav_scroll.verticalScrollBar().setValue(0)
+            internal.setValue(0)
 
         if self._version:
             self.version_label.setText(
@@ -483,6 +503,13 @@ class Sidebar(QFrame):
         self._animate_brand_icon(
             BRAND_ICON_EXPANDED if expanded else BRAND_ICON_COLLAPSED
         )
+
+    def _on_nav_scroll_range_changed(self, min_val: int, max_val: int) -> None:
+        internal = self.nav_scroll.verticalScrollBar()
+        self.nav_scrollbar.setRange(min_val, max_val)
+        self.nav_scrollbar.setPageStep(internal.pageStep())
+        self.nav_scrollbar.setSingleStep(internal.singleStep())
+        self.nav_scrollbar.setVisible(self._expanded and max_val > 0)
 
     def _sync_brand_visibility(self) -> None:
         self.brand_block.setVisible(True)
@@ -514,10 +541,10 @@ class Sidebar(QFrame):
         self.btn_welcome.setIconSize(QSize(side, side))
 
     def _stylesheet(self, expanded: bool) -> str:
-        button_padding = "0 12px 0 10px" if expanded else "0"
+        button_padding = "0 8px 0 8px" if expanded else "0"
         button_radius = "8px"
         button_text_align = "left" if expanded else "center"
-        button_width = "156px" if expanded else "42px"
+        button_width = "188px" if expanded else "42px"
         return f"""
         QFrame#Sidebar {{
             background-color: qlineargradient(
@@ -557,29 +584,30 @@ class Sidebar(QFrame):
         QPushButton#sidebarNavButton:disabled {{
             color: {SIDEBAR_MUTED};
         }}
-        QScrollArea#sidebarNavScroll, QWidget#sidebarNavContainer {{
+        QScrollArea#sidebarNavScroll, QWidget#sidebarNavContainer,
+        QWidget#sidebarNavRow {{
             background: transparent;
             border: none;
         }}
-        QScrollArea#sidebarNavScroll QScrollBar:vertical {{
+        QScrollBar#sidebarNavScrollbar:vertical {{
             background: transparent;
-            width: 5px;
-            margin: 0;
+            width: 4px;
+            margin: 6px 0 6px 0;
         }}
-        QScrollArea#sidebarNavScroll QScrollBar::handle:vertical {{
-            background: rgba(255, 255, 255, 60);
-            border-radius: 2px;
-            min-height: 24px;
+        QScrollBar#sidebarNavScrollbar::handle:vertical {{
+            background: rgba(159, 224, 180, 100);
+            border-radius: 1px;
+            min-height: 20px;
         }}
-        QScrollArea#sidebarNavScroll QScrollBar::handle:vertical:hover {{
-            background: rgba(255, 255, 255, 110);
+        QScrollBar#sidebarNavScrollbar::handle:vertical:hover {{
+            background: rgba(159, 224, 180, 200);
         }}
-        QScrollArea#sidebarNavScroll QScrollBar::add-line:vertical,
-        QScrollArea#sidebarNavScroll QScrollBar::sub-line:vertical {{
+        QScrollBar#sidebarNavScrollbar::add-line:vertical,
+        QScrollBar#sidebarNavScrollbar::sub-line:vertical {{
             height: 0;
         }}
-        QScrollArea#sidebarNavScroll QScrollBar::add-page:vertical,
-        QScrollArea#sidebarNavScroll QScrollBar::sub-page:vertical {{
+        QScrollBar#sidebarNavScrollbar::add-page:vertical,
+        QScrollBar#sidebarNavScrollbar::sub-page:vertical {{
             background: transparent;
         }}
         """
