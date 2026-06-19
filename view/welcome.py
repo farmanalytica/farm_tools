@@ -133,39 +133,63 @@ class FlowLayout(QLayout):
         return self.minimumSize()
 
     def minimumSize(self):
-        size = QSize()
-        for item in self._items:
-            size = size.expandedTo(item.minimumSize())
+        if not self._items:
+            return QSize()
+        w0 = self._items[0].widget()
         margins = self.contentsMargins()
-        size += QSize(
-            margins.left() + margins.right(), margins.top() + margins.bottom()
+        if w0 is not None:
+            min_w = w0.minimumWidth() or w0.sizeHint().width()
+            card_h = w0.minimumHeight() or w0.sizeHint().height()
+        else:
+            hint = self._items[0].sizeHint()
+            min_w, card_h = hint.width(), hint.height()
+        return QSize(
+            min_w + margins.left() + margins.right(),
+            card_h + margins.top() + margins.bottom(),
         )
-        return size
 
     def _do_layout(self, rect, test_only):
         margins = self.contentsMargins()
         effective = rect.adjusted(
             margins.left(), margins.top(), -margins.right(), -margins.bottom()
         )
-        x = effective.x()
-        y = effective.y()
-        line_height = 0
+        available_w = effective.width()
         spacing = self.spacing()
 
-        for item in self._items:
-            hint = item.sizeHint()
-            next_x = x + hint.width() + spacing
-            if next_x - spacing > effective.right() and line_height > 0:
-                x = effective.x()
-                y = y + line_height + spacing
-                next_x = x + hint.width() + spacing
-                line_height = 0
-            if not test_only:
-                item.setGeometry(QRect(QPoint(x, y), hint))
-            x = next_x
-            line_height = max(line_height, hint.height())
+        if not self._items:
+            return margins.top() + margins.bottom()
 
-        return y + line_height - rect.y() + margins.bottom()
+        # Access the underlying widget to read the card dimensions set via
+        # setMinimumWidth / setFixedHeight — QLayoutItem has no minimumWidth().
+        w0 = self._items[0].widget()
+        if w0 is not None:
+            min_w = w0.minimumWidth() or w0.sizeHint().width() or 1
+            card_h = w0.minimumHeight() or w0.sizeHint().height() or 1
+        else:
+            hint = self._items[0].sizeHint()
+            min_w = hint.width() or 1
+            card_h = hint.height() or 1
+
+        # Column count from minimum card width; then stretch cards to fill row.
+        n_cols = max(1, (available_w + spacing) // (min_w + spacing))
+        card_w = max(min_w, (available_w - (n_cols - 1) * spacing) // n_cols)
+
+        for i, item in enumerate(self._items):
+            col = i % n_cols
+            row = i // n_cols
+            x = effective.x() + col * (card_w + spacing)
+            y = effective.y() + row * (card_h + spacing)
+            if not test_only:
+                item.setGeometry(QRect(QPoint(x, y), QSize(card_w, card_h)))
+
+        n_rows = (len(self._items) + n_cols - 1) // n_cols
+        return (
+            effective.y()
+            + n_rows * card_h
+            + (n_rows - 1) * spacing
+            - rect.y()
+            + margins.bottom()
+        )
 
 
 class _HeightForWidthWidget(QWidget):
@@ -294,7 +318,7 @@ def _draw_module_icon(kind: str, color: str, size: int = 30) -> QPixmap:
     return pix
 
 
-_CARD_WIDTH = 268
+_CARD_WIDTH = 248
 # Tall enough for a one-line title plus a four-line wrapped description.
 _CARD_HEIGHT = 116
 
@@ -304,7 +328,8 @@ def _build_module_card(dialog, kind, name, desc, nav_attr, gee_free=False):
     card = QPushButton()
     card.setObjectName("moduleCard")
     card.setCursor(Qt.CursorShape.PointingHandCursor)
-    card.setFixedSize(_CARD_WIDTH, _CARD_HEIGHT)
+    card.setMinimumWidth(_CARD_WIDTH)
+    card.setFixedHeight(_CARD_HEIGHT)
     card.setToolTip(_tr(name))
     card.setStyleSheet("""
         QPushButton#moduleCard {
@@ -321,6 +346,14 @@ def _build_module_card(dialog, kind, name, desc, nav_attr, gee_free=False):
             background-color: #eef6f0;
         }
         QPushButton#moduleCard QLabel { background: transparent; border: none; }
+        QToolTip {
+            background-color: #ffffff;
+            color: #1a1a1a;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            padding: 4px 8px;
+            font-size: 11px;
+        }
     """)
 
     # Horizontal: icon tile on the left, text wrapped beside it — keeps each
@@ -546,7 +579,7 @@ def _build_hub_section(dialog):
     outer.setSpacing(6)
 
     title = QLabel(_tr("Welcome to FARM tools"))
-    title.setStyleSheet("color: #1a1a1a; font-size: 20px; font-weight: bold;")
+    title.setStyleSheet("color: #1b6b39; font-size: 20px; font-weight: bold;")
     outer.addWidget(title)
 
     subtitle = QLabel(
