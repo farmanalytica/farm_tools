@@ -283,7 +283,13 @@ class LandsatCtrl:
             self.dialog.pop_message(_tr("Select a date first."), "warning")
             return
 
-        index_name = self.dialog.ls_index_combo.currentData() or "NDVI"
+        # The single-date index image uses the Results-tab index picker (so a
+        # different index can be downloaded without re-running); other kinds
+        # ignore index_name and fall back to the Inputs-tab value.
+        if kind == "index":
+            index_name = self.dialog.ls_vi_index_combo.currentData() or "NDVI"
+        else:
+            index_name = self.dialog.ls_index_combo.currentData() or "NDVI"
         mode = self.dialog.ls_ms_mode_combo.currentData() or "RGB: Real Color"
         folder = (
             SettingsManager.load_download_folder()
@@ -341,7 +347,7 @@ class LandsatCtrl:
         date, mission = self._selected_date_mission()
         mission = mission or "Landsat"
         if kind == "index":
-            index_name = self.dialog.ls_index_combo.currentData() or "NDVI"
+            index_name = self.dialog.ls_vi_index_combo.currentData() or "NDVI"
             ramp = self.dialog.ls_index_ramp_combo.currentText()
             RasterRendererUtils.load_pseudocolor_raster(
                 path, f"{mission} {index_name} {date}", 1, ramp

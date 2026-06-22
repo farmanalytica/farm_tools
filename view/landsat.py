@@ -528,12 +528,21 @@ def _build_results_tab(dialog, parent):
     vi_lay.setSpacing(8)
     vi_lay.addWidget(_caption(_tr("VEGETATION INDEX (30 m)")))
     vi_hint = QLabel(_tr(
-        "Single-date image of the index chosen on the Inputs tab, on 30 m "
-        "surface reflectance."
+        "Single-date image of the chosen index, on 30 m surface reflectance. "
+        "Defaults to the Inputs-tab index, but you can pick a different one here."
     ))
     vi_hint.setWordWrap(True)
     vi_hint.setStyleSheet("color: #616161; font-size: 11px; background: transparent; border: none;")
     vi_lay.addWidget(vi_hint)
+
+    dialog.ls_vi_index_combo = QComboBox()
+    _prepare_field(dialog.ls_vi_index_combo, 30)
+    dialog.ls_vi_index_combo.setMinimumWidth(76)
+    dialog.ls_vi_index_combo.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToContents)
+    for name in LANDSAT_INDEX_ORDER:
+        dialog.ls_vi_index_combo.addItem(name, name)
+    dialog.ls_vi_index_combo.setCurrentText("NDVI")
+    dialog.ls_vi_index_combo.view().setStyleSheet(_POPUP_VIEW_STYLE)
 
     dialog.ls_index_ramp_combo = QComboBox()
     _prepare_field(dialog.ls_index_ramp_combo, 30)
@@ -550,6 +559,7 @@ def _build_results_tab(dialog, parent):
     dialog.ls_btn_index_download.setFixedHeight(30)
     dialog.ls_btn_index_download.setStyleSheet(STYLE_BTN_SECONDARY)
     vi_lay.addWidget(_flow([
+        _labeled(_tr("Index"), dialog.ls_vi_index_combo, 44),
         _labeled(_tr("Color Ramp"), dialog.ls_index_ramp_combo, 80),
         dialog.ls_btn_index_preview,
         dialog.ls_btn_index_download,
@@ -659,7 +669,7 @@ def setup_landsat_page(dialog, page):
       ls_chk_cloud_mask, ls_min_valid_slider, ls_min_valid_value,
       ls_date_combo, ls_web_view, ls_btn_ts_browser,
       ls_btn_sr_preview, ls_btn_sr_download, ls_btn_sr_batch,
-      ls_index_ramp_combo, ls_btn_index_preview, ls_btn_index_download,
+      ls_vi_index_combo, ls_index_ramp_combo, ls_btn_index_preview, ls_btn_index_download,
       ls_ms_mode_combo, ls_btn_ms_preview, ls_btn_ms_download,
       ls_buffer_slider, ls_buffer_value,
       ls_stack, ls_set_tab, ls_btn_back, ls_btn_run
