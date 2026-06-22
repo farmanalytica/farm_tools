@@ -224,6 +224,9 @@ class FarmTools:
         self.dialog.auth_status_badge.clicked.connect(
             self.auth_ctrl.refresh_auth_status
         )
+        self.dialog.welcome_auth_badge.clicked.connect(
+            self.dialog.show_auth_page
+        )
         self.dialog.btn_browse_folder.clicked.connect(
             self.auth_ctrl.handle_folder_selection
         )

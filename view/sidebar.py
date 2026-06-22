@@ -246,7 +246,7 @@ class Sidebar(QFrame):
         self.btn_auth.clicked.connect(self.auth_requested.emit)
         nav_lay.addWidget(self.btn_auth)
 
-        self.btn_optical = self._make_button(_tr("Optical (Sentinel-2)"), "optical")
+        self.btn_optical = self._make_button(_tr("RAVI (Sentinel-2)"), "optical")
         self.btn_optical.clicked.connect(self.optical_requested.emit)
         nav_lay.addWidget(self.btn_optical)
 
@@ -572,6 +572,7 @@ class Sidebar(QFrame):
         QPushButton#sidebarNavButton[brand="true"] {{
             min-height: {BRAND_ICON_EXPANDED + 6}px;
             max-height: {BRAND_ICON_EXPANDED + 6}px;
+            padding-left: {"18px" if expanded else "0"};
         }}
         QPushButton#sidebarNavButton:hover {{
             background-color: rgba(255, 255, 255, 22);

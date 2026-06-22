@@ -181,12 +181,12 @@ def _build_intro_tab(_dialog, parent):
         line.setStyleSheet("color:#e6f2fa;")
         return line
 
-    lay.addWidget(_h1(_tr("🛰️ Optical Imagery Module - Sentinel-2")))
+    lay.addWidget(_h1(_tr("🛰️ RAVI - Remote Analysis of Vegetation Index")))
     lay.addSpacing(2)
     lay.addWidget(
         _para(
             _tr(
-                "The Optical module analyses the <b>Sentinel-2 Harmonized Surface "
+                "The RAVI module analyses the <b>Sentinel-2 Harmonized Surface "
                 "Reflectance</b> collection in Google Earth Engine. Pick an area, a date "
                 "range and a vegetation index to build an interactive time series, then "
                 "download imagery, composites and indices — no coding required."
