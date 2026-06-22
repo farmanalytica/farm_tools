@@ -546,7 +546,7 @@ class FarmToolsDialog(QDialog):
             return
 
         if current is self.optical_page:
-            self._header_title.setText(_tr("Optical Imagery (Sentinel-2)"))
+            self._header_title.setText(_tr("RAVI (Sentinel-2)"))
             self._help_url = WIKI_BASE + "optical"
             self.sidebar.set_active_page("optical")
             self.footer.setVisible(False)
@@ -677,8 +677,8 @@ class FarmToolsDialog(QDialog):
             elif state != "checking":
                 self.btn_authenticate.setText(_tr("🔑   Validate ID"))
 
-        self.auth_status_badge.setText(_tr(text).replace("&", "&&"))
-        self.auth_status_badge.setStyleSheet(
+        badge_text = _tr(text).replace("&", "&&")
+        badge_style = (
             """
             QPushButton {
                 background-color: transparent;
@@ -692,6 +692,14 @@ class FarmToolsDialog(QDialog):
             """
             % (fg,)
         )
+        self.auth_status_badge.setText(badge_text)
+        self.auth_status_badge.setStyleSheet(badge_style)
+
+        # Keep the welcome-page mirror badge in sync (if that page is built).
+        welcome_badge = getattr(self, "welcome_auth_badge", None)
+        if welcome_badge is not None:
+            welcome_badge.setText(badge_text)
+            welcome_badge.setStyleSheet(badge_style)
 
     def set_auth_status(self, text, url=""):
         """Show a non-blocking status line; if ``url`` is given, append a

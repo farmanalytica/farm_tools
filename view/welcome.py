@@ -55,7 +55,7 @@ _LINK_STYLE = "color:#1b6b39; font-weight:bold; text-decoration:none;"
 # truth. ``gee_free`` flags modules that work without a Google Earth Engine
 # sign-in (NASA POWER / local-raster sources) so first-time users can start there.
 _MODULES = [
-    ("optical", "Optical (Sentinel-2)",
+    ("optical", "RAVI (Sentinel-2)",
      "Per-date vegetation-index time series (NDVI, EVI, NDRE…) with cloud masking",
      "show_optical_page", False),
     ("landsat", "Landsat (Super-Res)",
@@ -578,9 +578,38 @@ def _build_hub_section(dialog):
     outer.setContentsMargins(4, 4, 4, 4)
     outer.setSpacing(6)
 
+    title_row = QHBoxLayout()
+    title_row.setContentsMargins(0, 0, 0, 0)
+    title_row.setSpacing(8)
     title = QLabel(_tr("Welcome to FARM tools"))
     title.setStyleSheet("color: #1b6b39; font-size: 20px; font-weight: bold;")
-    outer.addWidget(title)
+    title_row.addWidget(title)
+    title_row.addStretch(1)
+
+    # Mirror of the auth page's sign-in status pill. Kept in sync by
+    # ``farm_tools_dialog.set_auth_state``; clicking opens the auth /
+    # Earth Engine configuration page (wired in ``farm_tools.py``).
+    dialog.welcome_auth_badge = QPushButton(_tr("Checking sign-in status…"))
+    dialog.welcome_auth_badge.setCursor(Qt.CursorShape.PointingHandCursor)
+    dialog.welcome_auth_badge.setToolTip(
+        _tr("Click to open sign-in / Earth Engine configuration")
+    )
+    dialog.welcome_auth_badge.setFixedHeight(22)
+    dialog.welcome_auth_badge.setStyleSheet(
+        """
+        QPushButton {
+            background-color: transparent;
+            color: #757575;
+            border: none;
+            font-size: 11px;
+            font-weight: bold;
+            padding: 0 10px;
+            text-align: center;
+        }
+        """
+    )
+    title_row.addWidget(dialog.welcome_auth_badge)
+    outer.addLayout(title_row)
 
     subtitle = QLabel(
         _tr("Pick a tool to get started — bring Google Earth Engine into QGIS.")
@@ -611,7 +640,7 @@ def setup_welcome_page(dialog, page):
     page.setStyleSheet("background-color: #f5f5f5;")
 
     page_lay = QVBoxLayout(page)
-    page_lay.setContentsMargins(20, 20, 20, 20)
+    page_lay.setContentsMargins(20, 20, 20, 4)
     page_lay.setSpacing(0)
 
     scroll = QScrollArea()
