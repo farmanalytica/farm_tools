@@ -359,7 +359,7 @@ class OpticalCtrl:
     # -- Filter dates (manual per-date include/exclude) -------------------
     def handle_filter_dates(self):
         if self.dataframe is None or self.dataframe.empty:
-            self.dialog.pop_message(_tr("Run the optical analysis first."), "warning")
+            self.dialog.pop_message(_tr("Run the RAVI analysis first."), "warning")
             return
 
         if self._date_filter_dialog is not None:
@@ -390,7 +390,7 @@ class OpticalCtrl:
     # -- export actions (time-series toolbar) -----------------------------
     def _has_results(self) -> bool:
         if self.dataframe is None or self.dataframe.empty:
-            self.dialog.pop_message(_tr("Run the optical analysis first."), "warning")
+            self.dialog.pop_message(_tr("Run the RAVI analysis first."), "warning")
             return False
         return True
 
@@ -448,7 +448,7 @@ class OpticalCtrl:
         default_filename = f"optical_{self._current_index}_timeseries_{date_str}.csv"
         file_path, _ = QFileDialog.getSaveFileName(
             self.dialog,
-            _tr("Export Optical Time Series as CSV"),
+            _tr("Export RAVI Time Series as CSV"),
             default_filename,
             _tr("CSV Files (*.csv);;All Files (*)"),
         )
@@ -718,7 +718,7 @@ class OpticalCtrl:
         if self.interface is not None:
             action = _tr("downloaded and loaded") if to_folder else _tr("loaded")
             self.interface.messageBar().pushMessage(
-                "FARM tools", _tr("Optical image %s into QGIS.") % action
+                "FARM tools", _tr("RAVI image %s into QGIS.") % action
             )
 
     def _on_single_failed(self, message: str):
@@ -864,7 +864,7 @@ class OpticalCtrl:
         if self._climate_worker is not None and self._climate_worker.isRunning():
             return
         if not (self._date_start and self._date_end):
-            self.dialog.pop_message(_tr("Run the optical analysis first."), "warning")
+            self.dialog.pop_message(_tr("Run the RAVI analysis first."), "warning")
             return
 
         self._set_climate_busy(True)
@@ -1215,7 +1215,7 @@ class OpticalCtrl:
     def _start_analysis(self, jobs, target):
         params = self._analysis_params()
         if params is None:
-            self.dialog.pop_message(_tr("Run the optical analysis first."), "warning")
+            self.dialog.pop_message(_tr("Run the RAVI analysis first."), "warning")
             return
         if self._analysis_worker is not None and self._analysis_worker.isRunning():
             # Queue further work of the same kind (rapid point clicks).

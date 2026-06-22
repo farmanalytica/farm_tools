@@ -2,12 +2,12 @@
 """
 MapBiomas service.
 
-Brings the MapBiomas Brasil Collection 9 land-use/land-cover archive into the
+Brings the MapBiomas Brasil Collection 10 land-use/land-cover archive into the
 plugin as an **in-module visualization** (not QGIS layers), mirroring the FARM
 web app's feel:
 
   • **Coverage** — the annual classification rendered to a PNG thumbnail for each
-    year (1985–2023), browsed with a year slider inside the module.
+    year (1985–2024), browsed with a year slider inside the module.
   • **Pasture→Crop transition** — a first-transition-year PNG plus the per-year
     converted-area statistics shown as an in-module bar chart.
 
@@ -25,27 +25,33 @@ import requests
 # --- MapBiomas constants (ported from the FARM web app) ----------------------
 
 MAPBIOMAS_COLLECTION_ASSET = (
-    "projects/mapbiomas-public/assets/brazil/lulc/collection9/"
-    "mapbiomas_collection90_integration_v1"
+    "projects/mapbiomas-public/assets/brazil/lulc/collection10/"
+    "mapbiomas_brazil_collection10_coverage_v2"
 )
 MAPBIOMAS_FIRST_YEAR = 1985
-MAPBIOMAS_LATEST_YEAR = 2023
+MAPBIOMAS_LATEST_YEAR = 2024
 MAPBIOMAS_VIS_MIN = 0
-MAPBIOMAS_VIS_MAX = 62
+MAPBIOMAS_VIS_MAX = 75
 
-# Official MapBiomas Collection 9 palette (class IDs 0..62), hex without '#'.
+# Official MapBiomas Collection 10 palette, indexed by class ID (0..75), hex
+# without '#'. Colors are the authoritative values from agrigee_lite's
+# MapBiomas().classes; class IDs with no MapBiomas class are filled white
+# ("ffffff") and never occur in the raster. Class 13 (kept from the legacy
+# legend) and 75 (Photovoltaic, new in C10) are included.
 MAPBIOMAS_PALETTE = [
-    "ffffff", "32a65e", "1f8d49", "7dc975", "04381d", "026975", "02d659", "ad975a",
-    "519799", "d5d5e5", "d5d5e5", "519799", "d6bc74", "d89f5c", "ffefc3", "edde8e",
-    "f5b3c8", "db4d4f", "ffefc3", "c27ba0", "db7093", "ffa07a", "d4271e", "ffa07a",
-    "d4271e", "db4d4f", "0000ff", "d5d5e5", "ff69b4", "ffaa00", "9c0027", "091077",
-    "fc8114", "2532e4", "9065d0", "d082de", "f5b3c8", "f5b3c8", "f5b3c8", "c8b285",
-    "ea9999", "f54ca9", "d68fe2", "9932cc", "9065d0", "ff69b4", "9b1c0c", "f6c050",
-    "e974ed", "c2efb6", "9af2c4", "ff69b4", "00b88c", "808080", "808080", "ff69b4",
-    "808080", "808080", "808080", "808080", "808080", "808080", "808080",
+    "ffffff", "1f8d49", "ffffff", "1f8d49", "7dc975", "04381d", "007785", "ffffff",
+    "ffffff", "7a5900", "d6bc74", "519799", "d6bc74", "d89f5c", "ffefc3", "edde8e",
+    "ffffff", "ffffff", "e974ed", "c27ba0", "db7093", "ffefc3", "d4271e", "ffa07a",
+    "d4271e", "db4d4f", "2532e4", "ffffff", "ffffff", "ffaa5f", "9c0027", "091077",
+    "fc8114", "2532e4", "ffffff", "9065d0", "d082de", "ffffff", "ffffff", "f5b3c8",
+    "c71585", "f54ca9", "ffffff", "ffffff", "ffffff", "ffffff", "d68fe2", "9932cc",
+    "e6ccff", "02d659", "ad5100", "ffffff", "ffffff", "ffffff", "ffffff", "ffffff",
+    "ffffff", "ffffff", "ffffff", "ffffff", "ffffff", "ffffff", "ff69b4", "ffffff",
+    "ffffff", "ffffff", "ffffff", "ffffff", "ffffff", "ffffff", "ffffff", "ffffff",
+    "ffffff", "ffffff", "ffffff", "c12100",
 ]
 # Portuguese legend labels (kept as data, not translated — they come from the
-# MapBiomas Collection 9 legend and must match the published class scheme).
+# MapBiomas Collection 10 legend and must match the published class scheme).
 MAPBIOMAS_CLASS_LABELS = {
     1: "Floresta",
     3: "Formação Florestal",
@@ -85,11 +91,12 @@ MAPBIOMAS_CLASS_LABELS = {
     33: "Rio, Lago e Oceano",
     31: "Aquicultura",
     27: "Não observado",
+    75: "Usina Fotovoltaica",
 }
 MAPBIOMAS_PASTURE_CLASS = 15
 MAPBIOMAS_CROP_CLASSES = (18, 19, 20, 35, 36, 39, 40, 41, 46, 47, 48, 62)
 
-# Thematic class groups (Collection 9 legend) used to build transition presets.
+# Thematic class groups (Collection 10 legend) used to build transition presets.
 MAPBIOMAS_FOREST_CLASSES = (1, 3, 4, 5, 6, 49)
 MAPBIOMAS_NATURAL_CLASSES = MAPBIOMAS_FOREST_CLASSES + (10, 11, 12, 32, 29, 50, 13)
 MAPBIOMAS_AGRICULTURE_CLASSES = (MAPBIOMAS_PASTURE_CLASS,) + MAPBIOMAS_CROP_CLASSES + (14, 21)
@@ -129,7 +136,7 @@ MAPBIOMAS_TRANSITION_PRESETS = {
 }
 
 MAPBIOMAS_TRANSITION_FIRST_YEAR = 1986
-MAPBIOMAS_TRANSITION_LAST_YEAR = 2023
+MAPBIOMAS_TRANSITION_LAST_YEAR = 2024
 # Diverging blue→red gradient (18 stops) spanning the transition years.
 MAPBIOMAS_TRANSITION_PALETTE = [
     "2c7bb6", "3f8fc1", "5ea3cb", "7eb7d4", "9ecbdd", "bedfe6", "deeff0", "ffffbf",
@@ -358,7 +365,7 @@ class MapBiomasService:
         Same first-transition-year image as :meth:`download_transition`, but when
         *year_min* / *year_max* narrow the full span the out-of-window pixels are
         masked so the map shows only the selected transition years. The color
-        scale stays pinned to the full 1986–2023 range, so a pixel keeps the same
+        scale stays pinned to the full 1986–2024 range, so a pixel keeps the same
         year color regardless of the window. Returns the PNG path.
 
         Used to keep the in-module transition map in sync with the year-range
@@ -446,7 +453,7 @@ class MapBiomasService:
     ):
         """Download the raw first-transition-year GeoTIFF (band ``first_year``).
 
-        Pixel values are the transition year (1986–2023), masked elsewhere — so
+        Pixel values are the transition year (1986–2024), masked elsewhere — so
         the layer can be classed by year in QGIS. When *year_min* / *year_max*
         are given, pixels outside that transition-year window are masked out, so
         the exported layer matches the year range chosen in the plot. Returns

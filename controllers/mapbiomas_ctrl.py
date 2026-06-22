@@ -489,7 +489,7 @@ class MapBiomasCtrl:
     def _load_transition_qgis_raster(self, path):
         """Load the transition GeoTIFF as a layer classed by transition year.
 
-        Pixel values are the first-transition year (1986–2023); a paletted
+        Pixel values are the first-transition year (1986–2024); a paletted
         renderer maps each year to the year-graded transition palette, like the
         original MapBiomas transition layer.
         """
