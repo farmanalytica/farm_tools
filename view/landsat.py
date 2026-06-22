@@ -120,7 +120,7 @@ def _build_intro_tab(_dialog, parent):
         line.setStyleSheet("color:#e6f2fa;")
         return line
 
-    lay.addWidget(_h1(_tr("🛰️ Landsat Super-Resolution")))
+    lay.addWidget(_h1(_tr("🛰️ Multi-Satellite")))
     lay.addSpacing(2)
     lay.addWidget(_para(_tr(
         "This module sharpens <b>Landsat 7/8/9</b> imagery from 30 m to an "

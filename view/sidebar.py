@@ -262,7 +262,7 @@ class Sidebar(QFrame):
         self.btn_download.clicked.connect(self.dem_requested.emit)
         nav_lay.addWidget(self.btn_download)
 
-        self.btn_landsat = self._make_button(_tr("Landsat (Super-Res)"), "landsat")
+        self.btn_landsat = self._make_button(_tr("Multi-Satellite"), "landsat")
         self.btn_landsat.clicked.connect(self.landsat_requested.emit)
         nav_lay.addWidget(self.btn_landsat)
 

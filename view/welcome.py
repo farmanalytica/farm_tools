@@ -58,7 +58,7 @@ _MODULES = [
     ("optical", "RAVI (Sentinel-2)",
      "Per-date vegetation-index time series (NDVI, EVI, NDRE…) with cloud masking",
      "show_optical_page", False),
-    ("landsat", "Landsat (Super-Res)",
+    ("landsat", "Multi-Satellite",
      "Pan-sharpened 15 m Landsat 7/8/9 imagery and multi-mission index series",
      "show_landsat_page", False),
     ("sysi", "SYSI — Synthetic Soil Image",

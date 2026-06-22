@@ -574,7 +574,7 @@ class FarmToolsDialog(QDialog):
             return
 
         if current is self.landsat_page:
-            self._header_title.setText(_tr("Landsat Super-Resolution"))
+            self._header_title.setText(_tr("Multi-Satellite"))
             self._help_url = WIKI_BASE + "landsat"
             self.sidebar.set_active_page("landsat")
             self.footer.setVisible(False)
