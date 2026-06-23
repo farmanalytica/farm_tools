@@ -43,6 +43,7 @@ from .radar import (
     _SLIDER_STYLE,
     _TAB_ACTIVE,
     _TAB_INACTIVE,
+    _add_ramp_items,
     _caption,
     _field_label,
     _flow,
@@ -887,7 +888,7 @@ def _build_results_tab(dialog, parent):
     dialog.s2_vi_ramp_combo.setSizeAdjustPolicy(
         QComboBox.SizeAdjustPolicy.AdjustToContents
     )
-    dialog.s2_vi_ramp_combo.addItems(_COLOR_RAMPS)
+    _add_ramp_items(dialog.s2_vi_ramp_combo, _COLOR_RAMPS)
     dialog.s2_vi_ramp_combo.setCurrentText("RdYlGn")
     dialog.s2_vi_ramp_combo.view().setStyleSheet(_POPUP_VIEW_STYLE)
     dialog.s2_btn_vi_preview = QPushButton(_tr("Preview"))
@@ -953,7 +954,7 @@ def _build_results_tab(dialog, parent):
     dialog.s2_composite_ramp_combo.setSizeAdjustPolicy(
         QComboBox.SizeAdjustPolicy.AdjustToContents
     )
-    dialog.s2_composite_ramp_combo.addItems(_COLOR_RAMPS)
+    _add_ramp_items(dialog.s2_composite_ramp_combo, _COLOR_RAMPS)
     dialog.s2_composite_ramp_combo.setCurrentText("RdYlGn")
     dialog.s2_composite_ramp_combo.view().setStyleSheet(_POPUP_VIEW_STYLE)
 
