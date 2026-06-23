@@ -19,7 +19,7 @@ export default {
     previewSubtitle: 'Oito módulos, um plugin QGIS',
     previewLabel: 'Módulos',
     previewItems: [
-      'Imagens Óptico & Landsat',
+      'Imagens Óptico & multi-satélite',
       'Radar SAR & terreno DEM',
       'Solo exposto & dados climáticos',
       'Amostragem de campo & exportações',
@@ -41,8 +41,8 @@ export default {
         desc: 'Séries temporais de índices de vegetação (NDVI, EVI, SAVI, GNDVI), imagens RGB e sintéticas e download multiespectral.',
       },
       landsat: {
-        title: 'Landsat',
-        desc: 'Séries temporais e imagens Landsat de décadas para monitoramento histórico de terras e culturas.',
+        title: 'Multi-Satélite',
+        desc: 'Imagens e séries de índice multimissão — Landsat 7/8/9, Sentinel-2, HLS e MODIS — com seleção por sensor.',
       },
       sar: {
         title: 'SAR (Sentinel-1)',
@@ -107,7 +107,7 @@ export default {
       },
       {
         title: 'Escolher módulo & configurar',
-        desc: 'Escolha um módulo — Óptico, Landsat, SAR, DEM, SYSI, ClimaPlots, Guia de Campo ou MapBiomas — defina sua área e parâmetros, e execute.',
+        desc: 'Escolha um módulo — Óptico, Multi-Satélite, SAR, DEM, SYSI, ClimaPlots, Guia de Campo ou MapBiomas — defina sua área e parâmetros, e execute.',
         link: '',
         href: '',
       },
@@ -162,7 +162,7 @@ export default {
     modules: {
       'getting-started': 'Primeiros passos',
       optical: 'Óptico (Sentinel-2)',
-      landsat: 'Landsat',
+      landsat: 'Multi-Satélite',
       sar: 'SAR (Sentinel-1)',
       mapbiomas: 'MapBiomas',
       dem: 'Elevação (DEM)',

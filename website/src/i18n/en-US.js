@@ -19,7 +19,7 @@ export default {
     previewSubtitle: 'Eight modules, one QGIS plugin',
     previewLabel: 'Modules',
     previewItems: [
-      'Optical & Landsat imagery',
+      'Optical & multi-satellite imagery',
       'SAR radar & DEM terrain',
       'Bare-soil & climate data',
       'Field sampling & exports',
@@ -41,8 +41,8 @@ export default {
         desc: 'Vegetation index time series (NDVI, EVI, SAVI, GNDVI), RGB and composite imagery, and multispectral download.',
       },
       landsat: {
-        title: 'Landsat',
-        desc: 'Decades-long Landsat time series and imagery for historical land and crop monitoring.',
+        title: 'Multi-Satellite',
+        desc: 'Multi-mission imagery and index time series — Landsat 7/8/9, Sentinel-2, HLS and MODIS — with per-sensor selection.',
       },
       sar: {
         title: 'SAR (Sentinel-1)',
@@ -107,7 +107,7 @@ export default {
       },
       {
         title: 'Pick a module & configure',
-        desc: 'Choose a module — Optical, Landsat, SAR, DEM, SYSI, ClimaPlots, Field Guide, or MapBiomas — set your area and parameters, then run.',
+        desc: 'Choose a module — Optical, Multi-Satellite, SAR, DEM, SYSI, ClimaPlots, Field Guide, or MapBiomas — set your area and parameters, then run.',
         link: '',
         href: '',
       },
@@ -169,7 +169,7 @@ export default {
     modules: {
       'getting-started': 'Getting started',
       optical: 'Optical (Sentinel-2)',
-      landsat: 'Landsat',
+      landsat: 'Multi-Satellite',
       sar: 'SAR (Sentinel-1)',
       mapbiomas: 'MapBiomas',
       dem: 'Elevation (DEM)',
