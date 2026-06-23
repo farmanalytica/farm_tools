@@ -7,7 +7,7 @@ Signal connections will be wired externally by ``farm_tools.py`` once the
 service layer is in place.
 """
 
-from qgis.core import QgsMapLayerProxyModel, QgsSettings
+from qgis.core import QgsMapLayerProxyModel, QgsSettings, QgsStyle
 from qgis.gui import QgsMapLayerComboBox
 from qgis.PyQt.QtCore import (
     Qt,
@@ -36,12 +36,36 @@ from qgis.PyQt.QtWidgets import (
     QWidget,
 )
 
+from qgis.PyQt.QtGui import QIcon, QLinearGradient, QPainter, QPixmap
+
 from .styles import STYLE_BTN_PRIMARY, STYLE_BTN_SECONDARY, STYLE_CHECKBOX
 from .webcompat import QWebView
 
 
 def _tr(text):
     return QCoreApplication.translate("RAVI", text)
+
+
+def _ramp_icon(name: str, w: int = 48, h: int = 13) -> QIcon:
+    ramp = QgsStyle.defaultStyle().colorRamp(name)
+    pix = QPixmap(w, h)
+    if ramp is None:
+        pix.fill(Qt.GlobalColor.transparent)
+        return QIcon(pix)
+    gradient = QLinearGradient(0, 0, w, 0)
+    for i in range(33):
+        t = i / 32
+        gradient.setColorAt(t, ramp.color(t))
+    painter = QPainter(pix)
+    painter.fillRect(0, 0, w, h, gradient)
+    painter.end()
+    return QIcon(pix)
+
+
+def _add_ramp_items(combo: QComboBox, names) -> None:
+    combo.setIconSize(QSize(48, 13))
+    for name in names:
+        combo.addItem(_ramp_icon(name), name)
 
 
 _TAB_ACTIVE = """
@@ -873,7 +897,7 @@ def _build_results_tab(dialog, parent):
     dialog.sar_render_ramp_combo.setSizeAdjustPolicy(
         QComboBox.SizeAdjustPolicy.AdjustToContents
     )
-    dialog.sar_render_ramp_combo.addItems([
+    _add_ramp_items(dialog.sar_render_ramp_combo, [
         "Viridis", "Magma", "Plasma", "Inferno", "RdYlGn", "Greys",
     ])
     # Explicit disabled look — the page stylesheet keeps QComboBox white, so the
@@ -980,7 +1004,7 @@ def _build_results_tab(dialog, parent):
     dialog.sar_composite_ramp_combo.setSizeAdjustPolicy(
         QComboBox.SizeAdjustPolicy.AdjustToContents
     )
-    dialog.sar_composite_ramp_combo.addItems([
+    _add_ramp_items(dialog.sar_composite_ramp_combo, [
         "Viridis",
         "Magma",
         "Plasma",
