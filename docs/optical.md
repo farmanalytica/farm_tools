@@ -138,7 +138,7 @@ For each kept, optionally masked scene the tool computes one chosen spectral ind
 
 ### 3.4 AOI time series
 
-For each kept scene the index is averaged over the AOI using a **10 m spatial mean** (`reduceRegion` with the mean reducer at 10 m scale). This produces one row per acquisition date:
+For each kept scene the index is reduced over the AOI at **10 m scale** (`reduceRegion`). The spatial reducer is chosen on Inputs — **mean** (default) or **median** (more robust to residual outliers). This produces one row per acquisition date:
 
 - the **AOI-average index value**,
 - **tile cloudiness** (scene-level `CLOUDY_PIXEL_PERCENTAGE`),
