@@ -14,7 +14,7 @@ import tempfile
 
 from qgis.PyQt.QtCore import QCoreApplication, QUrl
 from qgis.PyQt.QtGui import QDesktopServices
-from qgis.PyQt.QtWidgets import QProgressDialog
+from qgis.PyQt.QtWidgets import QFileDialog, QProgressDialog
 from qgis.core import (
     QgsContrastEnhancement,
     QgsCoordinateTransform,
@@ -25,6 +25,12 @@ from qgis.core import (
 
 from ..managers.settings_manager import SettingsManager
 from ..services.aoi_service import AOIService
+from ..services.landsat_service import (
+    LANDSAT_INDEX_ORDER,
+    MISSION_COLORS,
+    MISSIONS,
+    SATELLITES,
+)
 from ..tools.aoi_draw_tool import start_draw_aoi
 from ..renderers.raster_renderer_utils import RasterRendererUtils
 from ..view.sar_plot import render_multiseries_chart_html
@@ -43,12 +49,9 @@ class LandsatCtrl:
 
     _CANVAS_SCALE_FACTOR = 1.5
 
-    # Per-mission trace colours for the time-series chart.
-    _MISSION_COLORS = {
-        "Landsat 7": "#d98f00",
-        "Landsat 8": "#1b6b39",
-        "Landsat 9": "#2a5d84",
-    }
+    # Per-mission trace colours come from the satellite registry so a new source
+    # is coloured by adding one ``SATELLITES`` entry.
+    _MISSION_COLORS = MISSION_COLORS
 
     def __init__(self, dialog, interface=None, gee_service=None):
         self.dialog = dialog
@@ -146,6 +149,11 @@ class LandsatCtrl:
             self.dialog.pop_message(str(e), "warning")
             return
 
+        missions = self._selected_missions()
+        if not missions:
+            self.dialog.pop_message(_tr("Select at least one satellite."), "warning")
+            return
+
         self.aoi = aoi
         self._date_start = start_qdate.toString("yyyy-MM-dd")
         self._date_end = end_qdate.toString("yyyy-MM-dd")
@@ -156,6 +164,7 @@ class LandsatCtrl:
             "tier": 1,
             "min_valid_pct": self._min_valid_pct(),
             "aoi_area_m2": self._aoi_area_m2,
+            "missions": missions,
         }
 
         self._set_run_busy(True)
@@ -214,6 +223,7 @@ class LandsatCtrl:
         latest = max(range(combo.count()), key=lambda i: combo.itemData(i)[0])
         combo.setCurrentIndex(latest)
         combo.blockSignals(False)
+        self.handle_date_changed()
         self.dialog.ls_set_tab(2)
 
     def _on_run_failed(self, message):
@@ -238,6 +248,54 @@ class LandsatCtrl:
             return data[0], data[1]
         return None, None
 
+    def handle_date_changed(self, _index=None):
+        """React to the selected acquisition date: gate the super-res actions to
+        panchromatic sensors and relabel the index / multispectral sections with
+        the sensor's true native resolution (Sentinel-2 is 10 m, Landsat/HLS
+        30 m), so the captions stop claiming a fixed 30 m."""
+        _date, mission = self._selected_date_mission()
+        spec = SATELLITES.get(mission)
+
+        # Super-res = pan-sharpening, Landsat-only (needs a panchromatic band).
+        enabled = bool(spec and spec.has_superres)
+        for btn in (self.dialog.ls_btn_sr_preview, self.dialog.ls_btn_sr_download):
+            btn.setEnabled(enabled)
+            btn.setToolTip(
+                "" if enabled
+                else _tr("Super-resolution needs a panchromatic band (Landsat only).")
+            )
+        cap_sr = getattr(self.dialog, "ls_cap_sr", None)
+        if cap_sr is not None:
+            cap_sr.setText(
+                _tr("SUPER-RESOLUTION RGB (15 m)") if enabled
+                else _tr("SUPER-RESOLUTION RGB — Landsat only (disabled)")
+            )
+
+        # Native-resolution labels for the index + multispectral sections.
+        px = spec.pixel_size if spec else 30
+        cap_vi = getattr(self.dialog, "ls_cap_vi", None)
+        if cap_vi is not None:
+            cap_vi.setText(_tr("VEGETATION INDEX (%d m)") % px)
+        cap_ms = getattr(self.dialog, "ls_cap_ms", None)
+        if cap_ms is not None:
+            cap_ms.setText(_tr("MULTISPECTRAL RGB (%d m)") % px)
+
+        # Single-date index picker limited to what this sensor can compute
+        # (MODIS = red/nir indices only).
+        allowed_vi = (
+            self._ordered_indices(spec.index_keys) if spec else list(LANDSAT_INDEX_ORDER)
+        )
+        self._refill_index_combo(getattr(self.dialog, "ls_vi_index_combo", None), allowed_vi)
+
+        # Multispectral RGB needs ≥3 visible bands; MODIS (red/nir) has too few.
+        ms_ok = bool(spec and spec.multispectral)
+        for btn in (self.dialog.ls_btn_ms_preview, self.dialog.ls_btn_ms_download):
+            btn.setEnabled(ms_ok)
+            btn.setToolTip(
+                "" if ms_ok
+                else _tr("This sensor has too few bands for an RGB composite.")
+            )
+
     def _buffer_meters(self) -> float:
         slider = getattr(self.dialog, "ls_buffer_slider", None)
         if slider is None:
@@ -252,6 +310,62 @@ class LandsatCtrl:
         """Min valid-pixel coverage % from the Inputs slider (0 = no filter)."""
         slider = getattr(self.dialog, "ls_min_valid_slider", None)
         return slider.value() if slider is not None else 0
+
+    def _selected_missions(self) -> list:
+        """Missions whose Inputs-tab checkbox is ticked, in registry order.
+        Limiting these cuts one Earth-Engine query per dropped sensor on Run.
+        Falls back to all missions when no checkboxes exist (headless/tests)."""
+        checks = getattr(self.dialog, "ls_sensor_checks", None)
+        if not checks:
+            return list(MISSIONS)
+        return [m for m, chk in checks.items() if chk.isChecked()]
+
+    # -- index-picker filtering (sensor capability) -----------------------
+    @staticmethod
+    def _ordered_indices(allowed_names) -> list:
+        """``allowed_names`` rendered in the canonical display order."""
+        allowed = set(allowed_names)
+        return [name for name in LANDSAT_INDEX_ORDER if name in allowed]
+
+    def _refill_index_combo(self, combo, allowed):
+        """Repopulate an index combo with ``allowed`` (ordered) display names,
+        keeping the current pick if it survives, else falling back to the first
+        valid one (NDVI when present)."""
+        if combo is None:
+            return
+        previous = combo.currentData() or combo.currentText()
+        combo.blockSignals(True)
+        combo.clear()
+        for name in allowed:
+            combo.addItem(name, name)
+        index = combo.findData(previous)
+        if index < 0:
+            index = combo.findData("NDVI")
+        if index < 0 and combo.count():
+            index = 0
+        if index >= 0:
+            combo.setCurrentIndex(index)
+        combo.blockSignals(False)
+
+    def _allowed_ts_indices(self) -> list:
+        """Indices every selected sensor can compute — the time-series chart
+        overlays all of them on one index, so it must be common to all. MODIS
+        (red/nir only) is the usual limiter."""
+        specs = [SATELLITES[m] for m in self._selected_missions() if m in SATELLITES]
+        if not specs:
+            return list(LANDSAT_INDEX_ORDER)
+        common = set(LANDSAT_INDEX_ORDER)
+        for spec in specs:
+            common &= set(spec.index_keys)
+        return self._ordered_indices(common)
+
+    def handle_sensors_changed(self, _checked=None):
+        """Sensor checkbox toggled: restrict the time-series index picker to the
+        indices common to the still-selected sensors."""
+        self._refill_index_combo(
+            getattr(self.dialog, "ls_index_combo", None),
+            self._allowed_ts_indices(),
+        )
 
     # -- single-date preview / download -----------------------------------
     def handle_sr_preview(self):
@@ -382,7 +496,27 @@ class LandsatCtrl:
         buffer_m = self._buffer_meters()
         use_cloud_mask = self._cloud_mask()
         folder = SettingsManager.load_download_folder()
-        pairs = list(self.dated_missions)
+
+        # Batch produces the super-res (pan-sharpened) image, so only sensors
+        # with a panchromatic band qualify. Drop the rest and tell the user.
+        pairs = [
+            (date, mission) for date, mission in self.dated_missions
+            if SATELLITES.get(mission) and SATELLITES[mission].has_superres
+        ]
+        skipped = len(self.dated_missions) - len(pairs)
+        if not pairs:
+            self.dialog.pop_message(
+                _tr("Batch super-resolution needs a panchromatic sensor "
+                    "(Landsat); none of the available dates qualify."),
+                "warning",
+            )
+            return
+        if skipped:
+            self.dialog.pop_message(
+                _tr("Skipping %d non-Landsat date(s): super-resolution needs a "
+                    "panchromatic band.") % skipped,
+                "info",
+            )
 
         self._batch_dialog = QProgressDialog(
             _tr("Preparing batch download..."),
@@ -476,6 +610,7 @@ class LandsatCtrl:
             reducer,
             self._min_valid_pct(),
             self._aoi_area_m2,
+            self._selected_missions(),
         )
         self._ts_worker.finished.connect(self._on_ts_done)
         self._ts_worker.failed.connect(self._on_ts_failed)
@@ -491,7 +626,7 @@ class LandsatCtrl:
             "border:3px solid #e0e0e0;border-top-color:#1b6b39;border-radius:50%;"
             "animation:spin .9s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}"
             "</style></head><body><div class='box'><div class='spinner'></div>"
-            f"<div>Building {index_name} time series for Landsat 7/8/9…</div>"
+            f"<div>Building {index_name} multi-satellite time series…</div>"
             "</div></body></html>"
         )
 
@@ -535,7 +670,7 @@ class LandsatCtrl:
             html = render_multiseries_chart_html(
                 dataframe,
                 group_col="mission",
-                title=_tr("%s Time Series (Landsat 7/8/9)") % index_name,
+                title=_tr("%s Multi-Satellite Time Series") % index_name,
                 ylabel=_tr("%s AOI average") % index_name,
                 colors=self._MISSION_COLORS,
             )
@@ -565,7 +700,7 @@ class LandsatCtrl:
             self._ts_df,
             group_col="mission",
             hide_toolbar=False,
-            title=_tr("%s Time Series (Landsat 7/8/9)") % self._ts_index_name,
+            title=_tr("%s Multi-Satellite Time Series") % self._ts_index_name,
             ylabel=_tr("%s AOI average") % self._ts_index_name,
             colors=self._MISSION_COLORS,
         )
@@ -575,6 +710,31 @@ class LandsatCtrl:
             f.write(html)
             path = f.name
         QDesktopServices.openUrl(QUrl.fromLocalFile(path))
+
+    def handle_export_csv(self):
+        """Save the current multi-satellite time series (dates, AOI average,
+        mission) to a CSV chosen by the user."""
+        if self._ts_df is None or self._ts_df.empty:
+            self.dialog.pop_message(_tr("Plot a time series first."), "warning")
+            return
+
+        default_name = "MultiSatellite_%s_timeseries.csv" % self._ts_index_name
+        file_path, _ = QFileDialog.getSaveFileName(
+            self.dialog,
+            _tr("Export Time Series as CSV"),
+            default_name,
+            _tr("CSV Files (*.csv);;All Files (*)"),
+        )
+        if not file_path:
+            return
+
+        try:
+            self._ts_df.to_csv(file_path, index=False)
+            self.dialog.pop_message(
+                _tr("CSV exported successfully to %s") % file_path, "info"
+            )
+        except Exception as e:
+            self.dialog.pop_message(_tr("Failed to export CSV: %s") % str(e), "warning")
 
     # -- rendering ---------------------------------------------------------
     def _add_rgb_raster(self, path: str, name: str, bands=(1, 2, 3)):

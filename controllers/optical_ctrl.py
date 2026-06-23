@@ -237,6 +237,7 @@ class OpticalCtrl:
             "apply_scl": self._run_apply_scl,
             "invalid_scl_values": self._run_invalid_scl,
             "custom_expression": custom_expression,
+            "reducer": self.dialog.s2_ts_reducer_combo.currentData() or "mean",
         }
 
         self._current_index = index_name

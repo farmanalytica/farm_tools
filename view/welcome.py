@@ -18,6 +18,7 @@ from qgis.PyQt.QtCore import (
     Qt,
 )
 from qgis.PyQt.QtGui import QColor, QPainter, QPainterPath, QPen, QPixmap
+from qgis.PyQt.QtSvg import QSvgRenderer
 from qgis.PyQt.QtWidgets import (
     QFrame,
     QHBoxLayout,
@@ -31,6 +32,8 @@ from qgis.PyQt.QtWidgets import (
     QWidget,
 )
 
+import os
+
 from .styles import STYLE_BTN_SECONDARY
 
 
@@ -39,6 +42,30 @@ def _tr(text):
 
 
 FARM_GREEN = "#1b6b39"
+
+# Plugin assets/ dir (welcome.py lives in view/, so go up one level).
+_ASSETS_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "assets")
+
+# Module kinds that carry their own brand logo (SVG) instead of a drawn line
+# icon. Keyed by the same ``kind`` as ``_MODULES``.
+_LOGO_SVGS = {
+    "optical": "ravi.svg",
+    "climaplots": "climaplots.svg",
+}
+
+
+def _svg_pixmap(filename: str, size: int) -> QPixmap:
+    """Render an assets/ SVG to a transparent square QPixmap of ``size`` px.
+    Returns an empty (transparent) pixmap if the file is missing/invalid, so a
+    bad asset degrades to a blank tile rather than crashing the hub."""
+    pix = QPixmap(size, size)
+    pix.fill(Qt.GlobalColor.transparent)
+    renderer = QSvgRenderer(os.path.join(_ASSETS_DIR, filename))
+    if renderer.isValid():
+        painter = QPainter(pix)
+        renderer.render(painter)
+        painter.end()
+    return pix
 
 # External links (mirrors ui/intro.html).
 _URL_CAIO = "https://www.linkedin.com/in/caioarantes/"
@@ -365,10 +392,14 @@ def _build_module_card(dialog, kind, name, desc, nav_attr, gee_free=False):
     icon_tile = QLabel()
     icon_tile.setFixedSize(36, 36)
     icon_tile.setAlignment(Qt.AlignmentFlag.AlignCenter)
-    icon_tile.setStyleSheet(
-        "background-color: #e8f5e9; border-radius: 9px;"
-    )
-    icon_tile.setPixmap(_draw_module_icon(kind, FARM_GREEN, 20))
+    if kind in _LOGO_SVGS:
+        # Brand logo: render bigger to fill the tile, on a neutral white tile so
+        # the logo's own colours read cleanly.
+        icon_tile.setStyleSheet("background-color: #ffffff; border-radius: 9px;")
+        icon_tile.setPixmap(_svg_pixmap(_LOGO_SVGS[kind], 30))
+    else:
+        icon_tile.setStyleSheet("background-color: #e8f5e9; border-radius: 9px;")
+        icon_tile.setPixmap(_draw_module_icon(kind, FARM_GREEN, 20))
     lay.addWidget(icon_tile, 0, Qt.AlignmentFlag.AlignTop)
 
     text_col = QVBoxLayout()

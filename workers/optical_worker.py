@@ -22,6 +22,7 @@ class OpticalWorker(QThread):
             apply_scl = self._params.get("apply_scl", False)
             invalid_scl_values = self._params.get("invalid_scl_values", [])
             custom_expression = self._params.get("custom_expression", None)
+            reducer = self._params.get("reducer", "mean")
 
             data_rows = OpticalService.get_time_series(
                 aoi=self._aoi,
@@ -31,6 +32,7 @@ class OpticalWorker(QThread):
                 apply_scl=apply_scl,
                 invalid_scl_values=invalid_scl_values,
                 custom_expression=custom_expression,
+                reducer=reducer,
             )
 
             self.finished.emit(data_rows, index_name)

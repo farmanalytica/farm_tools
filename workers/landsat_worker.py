@@ -27,6 +27,7 @@ class LandsatWorker(QThread):
                 tier=self._params.get("tier", 1),
                 min_valid_pct=self._params.get("min_valid_pct", 0),
                 aoi_area_m2=self._params.get("aoi_area_m2"),
+                missions=self._params.get("missions"),
             )
             self.finished.emit(dated_missions)
         except Exception as e:
