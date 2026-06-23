@@ -360,6 +360,11 @@ class FarmTools:
             self.landsat_ctrl.handle_layer_changed
         )
         self.dialog.ls_btn_run.clicked.connect(self.landsat_ctrl.handle_landsat_run)
+        self.dialog.ls_date_combo.currentIndexChanged.connect(
+            self.landsat_ctrl.handle_date_changed
+        )
+        for _ls_chk in self.dialog.ls_sensor_checks.values():
+            _ls_chk.toggled.connect(self.landsat_ctrl.handle_sensors_changed)
         self.dialog.ls_btn_sr_preview.clicked.connect(
             self.landsat_ctrl.handle_sr_preview
         )
@@ -383,6 +388,9 @@ class FarmTools:
         )
         self.dialog.ls_btn_ts_browser.clicked.connect(
             self.landsat_ctrl.handle_open_browser
+        )
+        self.dialog.ls_btn_ts_csv.clicked.connect(
+            self.landsat_ctrl.handle_export_csv
         )
 
         self.dialog.sysi_btn_draw_aoi.clicked.connect(self.sysi_ctrl.handle_draw_aoi)

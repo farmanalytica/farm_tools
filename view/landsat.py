@@ -52,7 +52,9 @@ from .styles import STYLE_BTN_PRIMARY, STYLE_BTN_SECONDARY, STYLE_CHECKBOX
 from .webcompat import QWebView
 from ..services.landsat_service import (
     LANDSAT_INDEX_ORDER,
+    MISSIONS,
     MULTISPECTRAL_MODES,
+    SATELLITES,
 )
 
 
@@ -286,8 +288,9 @@ def _build_inputs_tab(dialog, parent):
 
     coverage_hint = QLabel(_tr(
         "📅 Available coverage: <b>1999 to present</b> — Landsat 7 (1999–2022), "
-        "Landsat 8 (2013–) and Landsat 9 (2021–). Dates outside a mission's "
-        "lifespan are skipped automatically."
+        "Landsat 8 (2013–), Landsat 9 (2021–), Sentinel-2 (2019–) and "
+        "HLS Sentinel-2 (2015–). Dates outside a sensor's lifespan are skipped "
+        "automatically."
     ))
     coverage_hint.setWordWrap(True)
     coverage_hint.setTextFormat(Qt.TextFormat.RichText)
@@ -296,6 +299,30 @@ def _build_inputs_tab(dialog, parent):
         " border-radius: 4px; padding: 7px 9px;"
     )
     inputs_lay.addWidget(coverage_hint)
+
+    # --- Satellite selection (limits date discovery + time series) -------
+    # Each unchecked sensor is one fewer Earth-Engine query on Run, so the date
+    # list and the time-series chart build faster.
+    inputs_lay.addSpacing(4)
+    inputs_lay.addWidget(_field_label(_tr("SATELLITES")))
+    sensors_hint = QLabel(_tr(
+        "Uncheck sensors you don't need — fewer satellites means less to load."
+    ))
+    sensors_hint.setWordWrap(True)
+    sensors_hint.setStyleSheet(
+        "color: #616161; font-size: 11px; background: transparent; border: none;"
+    )
+    inputs_lay.addWidget(sensors_hint)
+
+    dialog.ls_sensor_checks = {}
+    _sensor_boxes = []
+    for _mission in MISSIONS:
+        _chk = QCheckBox(_mission)
+        _chk.setChecked(SATELLITES[_mission].default_on)
+        _chk.setStyleSheet(STYLE_CHECKBOX)
+        dialog.ls_sensor_checks[_mission] = _chk
+        _sensor_boxes.append(_chk)
+    inputs_lay.addWidget(_flow(_sensor_boxes, spacing=12))
 
     lay.addWidget(inputs_panel)
 
@@ -466,7 +493,7 @@ def _build_results_tab(dialog, parent):
     ts_lay.addWidget(_caption(_tr("INDEX TIME SERIES")))
     ts_hint = QLabel(_tr(
         "The chart above plots the index and reducer chosen on the Inputs tab "
-        "across Landsat 7/8/9 — built automatically when you Run."
+        "across every available satellite — built automatically when you Run."
     ))
     ts_hint.setWordWrap(True)
     ts_hint.setStyleSheet("color: #616161; font-size: 11px; background: transparent; border: none;")
@@ -475,35 +502,51 @@ def _build_results_tab(dialog, parent):
     dialog.ls_btn_ts_browser = QPushButton(_tr("Open in Browser"))
     dialog.ls_btn_ts_browser.setFixedHeight(30)
     dialog.ls_btn_ts_browser.setStyleSheet(STYLE_BTN_SECONDARY)
-    ts_lay.addWidget(_flow([dialog.ls_btn_ts_browser], spacing=12))
+    dialog.ls_btn_ts_csv = QPushButton(_tr("Export as CSV"))
+    dialog.ls_btn_ts_csv.setFixedHeight(30)
+    dialog.ls_btn_ts_csv.setStyleSheet(STYLE_BTN_SECONDARY)
+    ts_lay.addWidget(_flow([
+        dialog.ls_btn_ts_browser,
+        dialog.ls_btn_ts_csv,
+    ], spacing=12))
     lay.addWidget(ts_panel)
 
-    # --- Shared date selector -------------------------------------------
-    date_panel = _section_panel()
-    date_lay = QVBoxLayout(date_panel)
-    date_lay.setContentsMargins(16, 12, 16, 12)
-    date_lay.setSpacing(6)
-    date_lay.addWidget(_caption(_tr("ACQUISITION DATE")))
+    # --- Date + downloads (one compact panel) ---------------------------
+    # The acquisition-date selector sits directly above the per-product
+    # actions, so choosing a date and downloading from it stay together —
+    # no inter-panel gap, fewer section frames to scan.
+    dl_panel = _section_panel()
+    dl_lay = QVBoxLayout(dl_panel)
+    dl_lay.setContentsMargins(16, 14, 16, 14)
+    dl_lay.setSpacing(8)
+
+    def _dl_divider():
+        line = QFrame()
+        line.setFrameShape(QFrame.Shape.HLine)
+        line.setFixedHeight(1)
+        line.setStyleSheet("background: #e3ebe6; border: none;")
+        return line
+
+    # Acquisition date
     dialog.ls_date_combo = QComboBox()
     _prepare_field(dialog.ls_date_combo, 30)
     dialog.ls_date_combo.setMinimumWidth(160)
     dialog.ls_date_combo.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToContents)
     dialog.ls_date_combo.view().setStyleSheet(_POPUP_VIEW_STYLE)
-    date_lay.addWidget(_labeled(_tr("Date"), dialog.ls_date_combo, 34))
-    lay.addWidget(date_panel)
+    dl_lay.addWidget(_labeled(_tr("ACQUISITION DATE"), dialog.ls_date_combo, 120))
 
-    # --- Super-resolution RGB (headline) --------------------------------
-    sr_panel = _section_panel()
-    sr_lay = QVBoxLayout(sr_panel)
-    sr_lay.setContentsMargins(16, 14, 16, 14)
-    sr_lay.setSpacing(8)
-    sr_lay.addWidget(_caption(_tr("SUPER-RESOLUTION RGB (15 m)")))
+    dl_lay.addWidget(_dl_divider())
+
+    # Super-resolution RGB (headline)
+    dialog.ls_cap_sr = _caption(_tr("SUPER-RESOLUTION RGB (15 m)"))
+    dl_lay.addWidget(dialog.ls_cap_sr)
     sr_note = QLabel(_tr(
         "Pan-sharpened real-colour image. Previews are top-of-atmosphere (TOA)."
     ))
+    dialog.ls_sr_note = sr_note
     sr_note.setWordWrap(True)
     sr_note.setStyleSheet("color: #616161; font-size: 11px; background: transparent; border: none;")
-    sr_lay.addWidget(sr_note)
+    dl_lay.addWidget(sr_note)
 
     dialog.ls_btn_sr_preview = QPushButton(_tr("Preview"))
     dialog.ls_btn_sr_preview.setFixedHeight(30)
@@ -514,26 +557,23 @@ def _build_results_tab(dialog, parent):
     dialog.ls_btn_sr_batch = QPushButton(_tr("Batch Download (All Dates)"))
     dialog.ls_btn_sr_batch.setFixedHeight(30)
     dialog.ls_btn_sr_batch.setStyleSheet(STYLE_BTN_SECONDARY)
-    sr_lay.addWidget(_flow([
+    dl_lay.addWidget(_flow([
         dialog.ls_btn_sr_preview,
         dialog.ls_btn_sr_download,
         dialog.ls_btn_sr_batch,
     ], spacing=10))
-    lay.addWidget(sr_panel)
 
-    # --- Vegetation index (30 m SR) -------------------------------------
-    vi_panel = _section_panel()
-    vi_lay = QVBoxLayout(vi_panel)
-    vi_lay.setContentsMargins(16, 14, 16, 14)
-    vi_lay.setSpacing(8)
-    vi_lay.addWidget(_caption(_tr("VEGETATION INDEX (30 m)")))
+    dl_lay.addWidget(_dl_divider())
+
+    # Vegetation index
+    dialog.ls_cap_vi = _caption(_tr("VEGETATION INDEX (30 m)"))
+    dl_lay.addWidget(dialog.ls_cap_vi)
     vi_hint = QLabel(_tr(
-        "Single-date image of the chosen index, on 30 m surface reflectance. "
-        "Defaults to the Inputs-tab index, but you can pick a different one here."
+        "Defaults to the Inputs-tab index; pick a different one here."
     ))
     vi_hint.setWordWrap(True)
     vi_hint.setStyleSheet("color: #616161; font-size: 11px; background: transparent; border: none;")
-    vi_lay.addWidget(vi_hint)
+    dl_lay.addWidget(vi_hint)
 
     dialog.ls_vi_index_combo = QComboBox()
     _prepare_field(dialog.ls_vi_index_combo, 30)
@@ -558,20 +598,18 @@ def _build_results_tab(dialog, parent):
     dialog.ls_btn_index_download = QPushButton(_tr("Download & Preview").replace("&", "&&"))
     dialog.ls_btn_index_download.setFixedHeight(30)
     dialog.ls_btn_index_download.setStyleSheet(STYLE_BTN_SECONDARY)
-    vi_lay.addWidget(_flow([
+    dl_lay.addWidget(_flow([
         _labeled(_tr("Index"), dialog.ls_vi_index_combo, 44),
         _labeled(_tr("Color Ramp"), dialog.ls_index_ramp_combo, 80),
         dialog.ls_btn_index_preview,
         dialog.ls_btn_index_download,
     ], spacing=12))
-    lay.addWidget(vi_panel)
 
-    # --- Multispectral RGB (30 m SR) ------------------------------------
-    ms_panel = _section_panel()
-    ms_lay = QVBoxLayout(ms_panel)
-    ms_lay.setContentsMargins(16, 14, 16, 14)
-    ms_lay.setSpacing(8)
-    ms_lay.addWidget(_caption(_tr("MULTISPECTRAL RGB (30 m)")))
+    dl_lay.addWidget(_dl_divider())
+
+    # Multispectral RGB
+    dialog.ls_cap_ms = _caption(_tr("MULTISPECTRAL RGB (30 m)"))
+    dl_lay.addWidget(dialog.ls_cap_ms)
 
     dialog.ls_ms_mode_combo = QComboBox()
     _prepare_field(dialog.ls_ms_mode_combo, 30)
@@ -587,12 +625,13 @@ def _build_results_tab(dialog, parent):
     dialog.ls_btn_ms_download = QPushButton(_tr("Download & Preview").replace("&", "&&"))
     dialog.ls_btn_ms_download.setFixedHeight(30)
     dialog.ls_btn_ms_download.setStyleSheet(STYLE_BTN_SECONDARY)
-    ms_lay.addWidget(_flow([
+    dl_lay.addWidget(_flow([
         _labeled(_tr("Rendering"), dialog.ls_ms_mode_combo, 70),
         dialog.ls_btn_ms_preview,
         dialog.ls_btn_ms_download,
     ], spacing=12))
-    lay.addWidget(ms_panel)
+
+    lay.addWidget(dl_panel)
 
     # --- Download buffer -------------------------------------------------
     buffer_panel = _section_panel()
@@ -667,7 +706,7 @@ def setup_landsat_page(dialog, page):
       ls_layer_combo, ls_btn_draw_aoi, ls_btn_hybrid_layer,
       ls_date_start, ls_date_end, ls_index_combo, ls_ts_reducer_combo,
       ls_chk_cloud_mask, ls_min_valid_slider, ls_min_valid_value,
-      ls_date_combo, ls_web_view, ls_btn_ts_browser,
+      ls_date_combo, ls_web_view, ls_btn_ts_browser, ls_btn_ts_csv,
       ls_btn_sr_preview, ls_btn_sr_download, ls_btn_sr_batch,
       ls_vi_index_combo, ls_index_ramp_combo, ls_btn_index_preview, ls_btn_index_download,
       ls_ms_mode_combo, ls_btn_ms_preview, ls_btn_ms_download,

@@ -394,6 +394,26 @@ def _build_inputs_tab(dialog, parent):
     )
     index_lay.addWidget(dialog.s2_index_info)
 
+    index_lay.addWidget(_make_divider())
+    index_lay.addWidget(_field_label(_tr("TIME-SERIES SPATIAL REDUCER")))
+    dialog.s2_ts_reducer_combo = QComboBox()
+    _prepare_field(dialog.s2_ts_reducer_combo)
+    dialog.s2_ts_reducer_combo.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToContents)
+    # Label, stable reducer key (matches OpticalService.get_time_series).
+    for _label, _key in ((_tr("Mean"), "mean"), (_tr("Median"), "median")):
+        dialog.s2_ts_reducer_combo.addItem(_label, _key)
+    dialog.s2_ts_reducer_combo.view().setStyleSheet(_POPUP_VIEW_STYLE)
+    index_lay.addWidget(dialog.s2_ts_reducer_combo)
+
+    reducer_hint = QLabel(_tr(
+        "How pixels inside the AOI are aggregated to one value per date in the "
+        "time-series plot. Median resists cloud/shadow outliers; mean is the "
+        "classic average."
+    ))
+    reducer_hint.setWordWrap(True)
+    reducer_hint.setStyleSheet("color: #757575; font-size: 11px; background: transparent; border: none;")
+    index_lay.addWidget(reducer_hint)
+
     # --- Inline custom-index builder (hidden unless Custom… selected) ----
     dialog.s2_custom_container = QWidget()
     dialog.s2_custom_container.setStyleSheet("background: transparent;")
@@ -1160,7 +1180,7 @@ def setup_optical_page(dialog, page):
 
     Exposes on dialog (selected):
       s2_layer_combo, s2_btn_draw_aoi, s2_btn_hybrid_layer,
-      s2_date_start, s2_date_end, s2_index_combo, s2_index_info,
+      s2_date_start, s2_date_end, s2_index_combo, s2_index_info, s2_ts_reducer_combo,
       s2_custom_container, s2_custom_name, s2_custom_expression, s2_btn_custom_save,
       s2_web_view, s2_btn_adjust_filter, s2_btn_filter_dates, s2_btn_open_browser,
       s2_btn_download_csv, s2_btn_batch_download,
