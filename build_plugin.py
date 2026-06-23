@@ -45,13 +45,15 @@ INCLUDE_DIRS = [
 ]
 
 # Assets are handpicked, not globbed: only the files loaded at runtime ship.
-# Source artwork (logo.svg, farm.svg, ravi.svg, farm_icon.png), website-only
-# images (whatsapp.svg) and orphaned pages (intro_sar.html) stay out of the zip.
+# Source artwork (logo.svg, farm.svg, farm_icon.png), website-only images
+# (whatsapp.svg) and orphaned pages (intro_sar.html) stay out of the zip.
 INCLUDE_ASSETS = [
     "assets/dem_catalog.json",       # services/dem_registry.py
     "assets/farm_analytica_logo.svg",  # dialog footer logo
     "assets/logo_white.svg",           # view/sidebar.py brand button
     "assets/plotly-1.58.5.min.js",   # view/plotly_render.py, view/sar_plot.py
+    "assets/ravi.svg",                 # view/welcome.py RAVI card logo
+    "assets/climaplots.svg",           # view/welcome.py ClimaPlots card logo
 ]
 
 SKIP = {"__pycache__", ".git", ".github", "dist", ".mypy_cache", ".pytest_cache"}
