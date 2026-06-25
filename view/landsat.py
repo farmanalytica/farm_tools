@@ -40,6 +40,7 @@ from .radar import (
     _SLIDER_STYLE,
     _TAB_ACTIVE,
     _TAB_INACTIVE,
+    _add_ramp_items,
     _caption,
     _field_label,
     _flow,
@@ -588,7 +589,7 @@ def _build_results_tab(dialog, parent):
     _prepare_field(dialog.ls_index_ramp_combo, 30)
     dialog.ls_index_ramp_combo.setMinimumWidth(90)
     dialog.ls_index_ramp_combo.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToContents)
-    dialog.ls_index_ramp_combo.addItems(_COLOR_RAMPS)
+    _add_ramp_items(dialog.ls_index_ramp_combo, _COLOR_RAMPS)
     dialog.ls_index_ramp_combo.setCurrentText("RdYlGn")
     dialog.ls_index_ramp_combo.view().setStyleSheet(_POPUP_VIEW_STYLE)
 
