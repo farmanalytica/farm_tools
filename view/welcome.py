@@ -14,6 +14,7 @@ from qgis.PyQt.QtCore import (
     QCoreApplication,
     QPoint,
     QRect,
+    QRectF,
     QSize,
     Qt,
 )
@@ -34,6 +35,7 @@ from qgis.PyQt.QtWidgets import (
 
 import os
 
+from . import module_prefs
 from .styles import STYLE_BTN_SECONDARY
 
 
@@ -51,6 +53,9 @@ _ASSETS_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "assets")
 _LOGO_SVGS = {
     "optical": "ravi.svg",
     "climaplots": "climaplots.svg",
+    "radar": "sentinel1.svg",
+    "fieldguide": "fieldguide.svg",
+    "download": "easydem.svg",
 }
 
 
@@ -62,8 +67,18 @@ def _svg_pixmap(filename: str, size: int) -> QPixmap:
     pix.fill(Qt.GlobalColor.transparent)
     renderer = QSvgRenderer(os.path.join(_ASSETS_DIR, filename))
     if renderer.isValid():
+        # Keep aspect ratio: the trimmed logos are not square, so render into a
+        # centred sub-rect instead of stretching to fill the tile.
+        bounds = renderer.defaultSize()
+        bounds.scale(size, size, Qt.AspectRatioMode.KeepAspectRatio)
+        target = QRectF(
+            (size - bounds.width()) / 2,
+            (size - bounds.height()) / 2,
+            bounds.width(),
+            bounds.height(),
+        )
         painter = QPainter(pix)
-        renderer.render(painter)
+        renderer.render(painter, target)
         painter.end()
     return pix
 
@@ -110,6 +125,46 @@ _MODULES = [
      "Connect to Google Earth Engine — sign in and set your project ID",
      "show_auth_page", False),
 ]
+
+
+def _ordered_visible_modules():
+    """``_MODULES`` entries in the user's order with hidden ones removed.
+
+    Auth is not manageable (pinned), so it is always present and kept last —
+    the same position it has occupied on the hub. Mirrors the sidebar rail via
+    the shared :mod:`module_prefs`.
+    """
+    by_key = {entry[0]: entry for entry in _MODULES}
+    hidden = module_prefs.get_hidden()
+    ordered = []
+    for key in module_prefs.get_order():
+        if key in hidden:
+            continue
+        entry = by_key.get(key)
+        if entry is not None:
+            ordered.append(entry)
+    if "auth" in by_key:
+        ordered.append(by_key["auth"])
+    return ordered
+
+
+def _ordered_hidden_modules():
+    """``_MODULES`` entries that are currently hidden, in canonical order.
+
+    Powers the hub's "More FARM tools" teaser strip: these modules ship in the
+    same plugin and are one click from activation, so they are surfaced (greyed,
+    non-navigating) instead of vanishing. Auth is never hideable, so never here.
+    """
+    by_key = {entry[0]: entry for entry in _MODULES}
+    hidden = module_prefs.get_hidden()
+    ordered = []
+    for key in module_prefs.get_order():
+        if key not in hidden:
+            continue
+        entry = by_key.get(key)
+        if entry is not None:
+            ordered.append(entry)
+    return ordered
 
 
 class FlowLayout(QLayout):
@@ -447,6 +502,97 @@ def _build_module_card(dialog, kind, name, desc, nav_attr, gee_free=False):
     return card
 
 
+def _build_teaser_card(dialog, kind, name, desc, gee_free=False):
+    """A demoted "More tools" card: greyed, shows a ``+ Add`` affordance.
+
+    The module is included in this plugin but hidden. Clicking the card un-hides
+    it via :mod:`module_prefs` and triggers ``dialog.refresh_modules()`` so the
+    card promotes into the active grid (and the sidebar rail) immediately.
+    """
+    card = QPushButton()
+    card.setObjectName("teaserCard")
+    card.setCursor(Qt.CursorShape.PointingHandCursor)
+    card.setMinimumWidth(_CARD_WIDTH)
+    card.setFixedHeight(_CARD_HEIGHT)
+    card.setToolTip(_tr("Add {0} — included in this plugin").format(_tr(name)))
+    card.setStyleSheet("""
+        QPushButton#teaserCard {
+            background-color: #fafafa;
+            border: 1px dashed #d4d8d6;
+            border-radius: 12px;
+            text-align: left;
+        }
+        QPushButton#teaserCard:hover {
+            background-color: #f7fbf8;
+            border-color: #1b6b39;
+            border-style: solid;
+        }
+        QPushButton#teaserCard:pressed {
+            background-color: #eef6f0;
+        }
+        QPushButton#teaserCard QLabel { background: transparent; border: none; }
+        QToolTip {
+            background-color: #ffffff;
+            color: #1a1a1a;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            padding: 4px 8px;
+            font-size: 11px;
+        }
+    """)
+
+    lay = QHBoxLayout(card)
+    lay.setContentsMargins(12, 12, 12, 12)
+    lay.setSpacing(11)
+
+    icon_tile = QLabel()
+    icon_tile.setFixedSize(36, 36)
+    icon_tile.setAlignment(Qt.AlignmentFlag.AlignCenter)
+    # Greyed icon so the card reads as inactive vs. the colourful active grid.
+    icon_tile.setStyleSheet("background-color: #eeeeee; border-radius: 9px;")
+    if kind in _LOGO_SVGS:
+        icon_tile.setPixmap(_svg_pixmap(_LOGO_SVGS[kind], 30))
+    else:
+        icon_tile.setPixmap(_draw_module_icon(kind, "#9aa0a6", 20))
+    lay.addWidget(icon_tile, 0, Qt.AlignmentFlag.AlignTop)
+
+    text_col = QVBoxLayout()
+    text_col.setContentsMargins(0, 0, 0, 0)
+    text_col.setSpacing(2)
+
+    title_row = QHBoxLayout()
+    title_row.setContentsMargins(0, 0, 0, 0)
+    title_row.setSpacing(6)
+    title = QLabel(_tr(name))
+    title.setStyleSheet("color: #6b7280; font-size: 13px; font-weight: bold;")
+    title.setWordWrap(True)
+    title_row.addWidget(title, 1)
+    add = QLabel(_tr("+ Add"))
+    add.setStyleSheet(
+        "color: #1b6b39; font-size: 10px; font-weight: bold;"
+        " border: 1px solid #b7dcc0; border-radius: 7px; padding: 1px 6px;"
+    )
+    title_row.addWidget(add, 0, Qt.AlignmentFlag.AlignTop)
+    text_col.addLayout(title_row)
+
+    blurb = QLabel(_tr(desc))
+    blurb.setWordWrap(True)
+    blurb.setStyleSheet("color: #9aa0a6; font-size: 11px; line-height: 1.3;")
+    blurb.setAlignment(Qt.AlignmentFlag.AlignTop)
+    text_col.addWidget(blurb, 1)
+
+    lay.addLayout(text_col, 1)
+
+    def _activate(_checked=False, key=kind):
+        module_prefs.unhide(key)
+        refresh = getattr(dialog, "refresh_modules", None)
+        if callable(refresh):
+            refresh()
+
+    card.clicked.connect(_activate)
+    return card
+
+
 def _build_about_section():
     """About card below the grid: the RAVI/FARM story, collaboration and links."""
     frame = QFrame()
@@ -640,10 +786,37 @@ def _build_hub_section(dialog):
         """
     )
     title_row.addWidget(dialog.welcome_auth_badge)
+
+    # Opens the Customize-modules dialog (reorder / show-hide). Subtle, secondary
+    # link styling so it sits quietly beside the sign-in badge.
+    dialog.welcome_customize_btn = QPushButton(_tr("⚙  Customize"))
+    dialog.welcome_customize_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+    dialog.welcome_customize_btn.setToolTip(
+        _tr("Reorder, show or hide modules")
+    )
+    dialog.welcome_customize_btn.setFixedHeight(22)
+    dialog.welcome_customize_btn.setStyleSheet(
+        """
+        QPushButton {
+            background-color: transparent;
+            color: #757575;
+            border: none;
+            font-size: 11px;
+            font-weight: bold;
+            padding: 0 10px;
+            text-align: center;
+        }
+        QPushButton:hover { color: #1b6b39; }
+        """
+    )
+    dialog.welcome_customize_btn.clicked.connect(
+        lambda: _open_manage_dialog(dialog)
+    )
+    title_row.addWidget(dialog.welcome_customize_btn)
     outer.addLayout(title_row)
 
     subtitle = QLabel(
-        _tr("Pick a tool to get started — bring Google Earth Engine into QGIS.")
+        _tr("Pick a tool to get started")
     )
     subtitle.setWordWrap(True)
     subtitle.setStyleSheet("color: #6b7280; font-size: 12px;")
@@ -653,10 +826,17 @@ def _build_hub_section(dialog):
     grid_host = _HeightForWidthWidget()
     grid_host.setStyleSheet("background: transparent;")
     grid = FlowLayout(grid_host, margin=0, spacing=12)
-    for kind, name, desc, nav_attr, gee_free in _MODULES:
+    # Kept on the dialog so rebuild_module_grid() can repopulate after the user
+    # reorders or hides modules in the Customize dialog.
+    dialog._module_grid = grid
+    dialog._module_grid_host = grid_host
+    for kind, name, desc, nav_attr, gee_free in _ordered_visible_modules():
         grid.addWidget(
             _build_module_card(dialog, kind, name, desc, nav_attr, gee_free))
     outer.addWidget(grid_host)
+
+    outer.addWidget(_build_teaser_section(dialog))
+
     outer.addSpacing(16)
     outer.addWidget(_build_folder_section(dialog))
     outer.addSpacing(16)
@@ -664,6 +844,102 @@ def _build_hub_section(dialog):
     outer.addStretch(1)
 
     return container
+
+
+def _open_manage_dialog(dialog):
+    """Open the Customize-modules dialog; rebuild both surfaces on Done.
+
+    Imported lazily to avoid a circular import (manage_modules imports helpers
+    from this module)."""
+    from .manage_modules import ManageModulesDialog
+
+    refresh = getattr(dialog, "refresh_modules", None)
+    dlg = ManageModulesDialog(dialog, on_apply=refresh)
+    dlg.exec()
+
+
+def _build_teaser_section(dialog):
+    """"More FARM tools" strip: greyed teaser cards for hidden-but-included modules.
+
+    Hidden entirely (header + grid) when nothing is hidden — a full build shows
+    no strip. ``_populate_teaser_grid`` fills it and toggles the section's
+    visibility, and is re-run by ``rebuild_module_grid`` after every prefs change.
+    """
+    section = _HeightForWidthWidget()
+    section.setStyleSheet("background: transparent;")
+    lay = QVBoxLayout(section)
+    lay.setContentsMargins(0, 16, 0, 0)
+    lay.setSpacing(6)
+
+    header = QLabel(_tr("More FARM tools"))
+    header.setStyleSheet(
+        "color: #1b6b39; font-size: 13px; font-weight: bold;"
+    )
+    lay.addWidget(header)
+
+    sub = QLabel(
+        _tr("Included in this plugin — click to add to your workspace.")
+    )
+    sub.setWordWrap(True)
+    sub.setStyleSheet("color: #9aa0a6; font-size: 11px;")
+    lay.addWidget(sub)
+    lay.addSpacing(4)
+
+    grid_host = _HeightForWidthWidget()
+    grid_host.setStyleSheet("background: transparent;")
+    grid = FlowLayout(grid_host, margin=0, spacing=12)
+    lay.addWidget(grid_host)
+
+    dialog._teaser_section = section
+    dialog._teaser_grid = grid
+    dialog._teaser_grid_host = grid_host
+    _populate_teaser_grid(dialog)
+    return section
+
+
+def _populate_teaser_grid(dialog):
+    """(Re)fill the teaser grid; hide the whole section when nothing is hidden."""
+    grid = getattr(dialog, "_teaser_grid", None)
+    section = getattr(dialog, "_teaser_section", None)
+    if grid is None or section is None:
+        return
+    while grid.count():
+        item = grid.takeAt(0)
+        widget = item.widget()
+        if widget is not None:
+            widget.setParent(None)
+            widget.deleteLater()
+    hidden = _ordered_hidden_modules()
+    for kind, name, desc, _nav_attr, gee_free in hidden:
+        grid.addWidget(_build_teaser_card(dialog, kind, name, desc, gee_free))
+    grid.invalidate()
+    section.setVisible(bool(hidden))
+    host = getattr(dialog, "_teaser_grid_host", None)
+    if host is not None:
+        host.updateGeometry()
+
+
+def rebuild_module_grid(dialog):
+    """Repopulate the hub grid from current prefs (after a Customize change)."""
+    grid = getattr(dialog, "_module_grid", None)
+    if grid is None:
+        return
+    # Drop the existing cards, then re-add in the new order / visibility.
+    while grid.count():
+        item = grid.takeAt(0)
+        widget = item.widget()
+        if widget is not None:
+            widget.setParent(None)
+            widget.deleteLater()
+    for kind, name, desc, nav_attr, gee_free in _ordered_visible_modules():
+        grid.addWidget(
+            _build_module_card(dialog, kind, name, desc, nav_attr, gee_free))
+    grid.invalidate()
+    host = getattr(dialog, "_module_grid_host", None)
+    if host is not None:
+        host.updateGeometry()
+    # Keep the teaser strip in sync — modules just hidden/shown move between grids.
+    _populate_teaser_grid(dialog)
 
 
 def setup_welcome_page(dialog, page):

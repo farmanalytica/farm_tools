@@ -151,7 +151,18 @@ class AuthCtrl:
         return True
 
     def _navigate_to_next(self):
-        self.dialog.show_optical_page()
+        # Land on the first visible module — optical may be hidden in a branded
+        # single-module build. Fall back to the welcome hub if none resolves.
+        from ..view.welcome import _ordered_visible_modules
+
+        for kind, _name, _desc, nav_attr, _gee_free in _ordered_visible_modules():
+            if kind == "auth":
+                continue
+            handler = getattr(self.dialog, nav_attr, None)
+            if callable(handler):
+                handler()
+                return
+        self.dialog.show_welcome_page()
 
     def _on_browser_opened(self, url: str):
         self.dialog.set_auth_status(_tr("Waiting for sign-in in your browser…"), url)

@@ -517,6 +517,37 @@ class FarmToolsDialog(QDialog):
         """Sidebar MapBiomas button — always navigates to the MapBiomas page."""
         self.show_mapbiomas_page()
 
+    def _active_module_key(self):
+        """Manageable module key for the page currently shown, or None.
+
+        Auth is excluded — it is pinned and can never be hidden, so it never
+        needs a fallback."""
+        mapping = {
+            self.optical_page: "optical",
+            self.sysi_page: "sysi",
+            self.radar_page: "radar",
+            self.dem_page: "download",
+            self.landsat_page: "landsat",
+            self.fieldguide_page: "fieldguide",
+            self.climaplots_page: "climaplots",
+            self.mapbiomas_page: "mapbiomas",
+        }
+        return mapping.get(self.stack.currentWidget())
+
+    def refresh_modules(self):
+        """Rebuild the sidebar rail and welcome grid from saved module prefs.
+
+        Called by the Customize-modules dialog after it applies changes. If the
+        page currently shown was just hidden, fall back to the welcome hub.
+        """
+        from .view.module_prefs import get_hidden
+        from .view.welcome import rebuild_module_grid
+
+        self.sidebar.refresh_modules()
+        rebuild_module_grid(self)
+        if self._active_module_key() in get_hidden():
+            self.show_welcome_page()
+
     def _sync_page_state(self, index):
         """Keep header and sidebar state aligned with the current stack page."""
         current = self.stack.widget(index)

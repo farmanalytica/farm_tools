@@ -52,7 +52,12 @@ from .radar import (
     _prepare_field,
     _section_panel,
 )
-from .styles import STYLE_BTN_PRIMARY, STYLE_BTN_SECONDARY, STYLE_CHECKBOX
+from .styles import (
+    STYLE_BTN_PRIMARY,
+    STYLE_BTN_SECONDARY,
+    STYLE_CHECKBOX,
+    make_logo_label,
+)
 from .optical_filter_dialog import OpticalFilterDialog
 from .optical_index_info import (
     CUSTOM_BAND_REFERENCE,
@@ -182,6 +187,8 @@ def _build_intro_tab(_dialog, parent):
         line.setStyleSheet("color:#e6f2fa;")
         return line
 
+    lay.addWidget(make_logo_label("ravi.svg"))
+    lay.addSpacing(6)
     lay.addWidget(_h1(_tr("🛰️ RAVI - Remote Analysis of Vegetation Index")))
     lay.addSpacing(2)
     lay.addWidget(
