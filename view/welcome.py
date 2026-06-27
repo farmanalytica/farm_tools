@@ -12,15 +12,17 @@ lands here and immediately sees every available tool as an interactive grid
 
 from qgis.PyQt.QtCore import (
     QCoreApplication,
+    QMimeData,
     QPoint,
     QRect,
     QRectF,
     QSize,
     Qt,
 )
-from qgis.PyQt.QtGui import QColor, QPainter, QPainterPath, QPen, QPixmap
+from qgis.PyQt.QtGui import QColor, QDrag, QPainter, QPainterPath, QPen, QPixmap
 from qgis.PyQt.QtSvg import QSvgRenderer
 from qgis.PyQt.QtWidgets import (
+    QApplication,
     QFrame,
     QHBoxLayout,
     QLabel,
@@ -32,6 +34,9 @@ from qgis.PyQt.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
+
+# Drag-and-drop mime type carrying a dragged module's key between hub cards.
+_MODULE_MIME = "application/x-farm-module"
 
 import os
 
@@ -423,14 +428,134 @@ _CARD_WIDTH = 248
 _CARD_HEIGHT = 116
 
 
+class _ModuleCard(QPushButton):
+    """Hub card that navigates on click and can be dragged to reorder.
+
+    Auth is pinned (``key == 'auth'``) and never starts a drag. A drag begins
+    once the pointer moves past the platform drag distance with the left button
+    held; starting the QDrag suppresses the click, so a plain click still
+    navigates."""
+
+    def __init__(self, key, draggable=True, parent=None):
+        super().__init__(parent)
+        self._key = key
+        self._draggable = draggable
+        self._press_pos = None
+
+    def mousePressEvent(self, event):
+        if event.button() == Qt.MouseButton.LeftButton:
+            self._press_pos = event.pos()
+        super().mousePressEvent(event)
+
+    def mouseMoveEvent(self, event):
+        if (self._draggable
+                and self._press_pos is not None
+                and (event.buttons() & Qt.MouseButton.LeftButton)
+                and (event.pos() - self._press_pos).manhattanLength()
+                >= QApplication.startDragDistance()):
+            self._press_pos = None
+            self.setDown(False)
+            drag = QDrag(self)
+            mime = QMimeData()
+            mime.setData(_MODULE_MIME, self._key.encode("utf-8"))
+            drag.setMimeData(mime)
+            drag.setPixmap(self.grab())
+            drag.setHotSpot(event.pos())
+            drag.exec(Qt.DropAction.MoveAction)
+            return
+        super().mouseMoveEvent(event)
+
+
+class _ReorderGridHost(_HeightForWidthWidget):
+    """Grid container that accepts dropped module cards to reorder them."""
+
+    def __init__(self, on_drop, parent=None):
+        super().__init__(parent)
+        self._on_drop = on_drop
+        self.setAcceptDrops(True)
+
+    def dragEnterEvent(self, event):
+        if event.mimeData().hasFormat(_MODULE_MIME):
+            event.acceptProposedAction()
+
+    def dragMoveEvent(self, event):
+        if event.mimeData().hasFormat(_MODULE_MIME):
+            event.acceptProposedAction()
+
+    def dropEvent(self, event):
+        md = event.mimeData()
+        if not md.hasFormat(_MODULE_MIME):
+            return
+        key = bytes(md.data(_MODULE_MIME)).decode("utf-8")
+        # Qt6 (QGIS 4) exposes position(); Qt5 uses pos().
+        point = (event.position().toPoint()
+                 if hasattr(event, "position") else event.pos())
+        self._on_drop(key, point)
+        event.acceptProposedAction()
+
+
+def _persist_visible_order(new_visible):
+    """Write ``new_visible`` back as the order of the visible slots only.
+
+    Hidden modules keep their absolute positions; the permutation applies just
+    to the slots the visible modules occupy, so dragging never disturbs the
+    hidden set's ordering."""
+    full = module_prefs.get_order()
+    hidden = module_prefs.get_hidden()
+    it = iter(new_visible)
+    result = []
+    for key in full:
+        if key in hidden:
+            result.append(key)
+        else:
+            result.append(next(it, key))
+    module_prefs.set_prefs(result, hidden)
+
+
+def _reorder_from_drop(dialog, key, point):
+    """Reorder visible module cards after a drag-drop at ``point`` (host coords)."""
+    grid = getattr(dialog, "_module_grid", None)
+    if grid is None:
+        return
+    keys, target = [], None
+    for i in range(grid.count()):
+        widget = grid.itemAt(i).widget()
+        if not isinstance(widget, _ModuleCard) or widget._key == "auth":
+            continue
+        keys.append(widget._key)
+        rect = widget.geometry()
+        if (target is None
+                and point.y() <= rect.bottom()
+                and point.x() < rect.center().x()):
+            target = len(keys) - 1
+    if key not in keys:
+        return
+    if target is None:
+        target = len(keys)
+    src = keys.index(key)
+    if src < target:
+        target -= 1
+    new_visible = [k for k in keys if k != key]
+    new_visible.insert(target, key)
+    if new_visible == keys:
+        return
+    _persist_visible_order(new_visible)
+    refresh = getattr(dialog, "refresh_modules", None)
+    if callable(refresh):
+        refresh()
+
+
 def _build_module_card(dialog, kind, name, desc, nav_attr, gee_free=False):
     """One clickable card. The whole card is a button that navigates on click."""
-    card = QPushButton()
+    card = _ModuleCard(kind, draggable=(kind != "auth"))
     card.setObjectName("moduleCard")
     card.setCursor(Qt.CursorShape.PointingHandCursor)
     card.setMinimumWidth(_CARD_WIDTH)
     card.setFixedHeight(_CARD_HEIGHT)
-    card.setToolTip(_tr(name))
+    card.setToolTip(
+        _tr(name) if kind == "auth"
+        else _tr("{0} — drag to reorder").format(_tr(name))
+    )
     card.setStyleSheet("""
         QPushButton#moduleCard {
             background-color: #ffffff;
@@ -843,11 +968,13 @@ def _build_hub_section(dialog):
     outer.addWidget(subtitle)
     outer.addSpacing(6)
 
-    grid_host = _HeightForWidthWidget()
+    grid_host = _ReorderGridHost(
+        lambda key, point: _reorder_from_drop(dialog, key, point)
+    )
     grid_host.setStyleSheet("background: transparent;")
     grid = FlowLayout(grid_host, margin=0, spacing=12)
     # Kept on the dialog so rebuild_module_grid() can repopulate after the user
-    # reorders or hides modules in the Customize dialog.
+    # reorders (drag here or in the Customize dialog) or hides modules.
     dialog._module_grid = grid
     dialog._module_grid_host = grid_host
     for kind, name, desc, nav_attr, gee_free in _ordered_visible_modules():
