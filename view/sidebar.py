@@ -19,7 +19,18 @@ from qgis.PyQt.QtCore import (
     pyqtSignal,
 )
 from qgis.PyQt.QtCore import QPointF
-from qgis.PyQt.QtGui import QColor, QFont, QIcon, QPainter, QPainterPath, QPen, QPixmap
+from qgis.PyQt.QtGui import (
+    QColor,
+    QFont,
+    QIcon,
+    QPainter,
+    QPainterPath,
+    QPen,
+    QPixmap,
+)
+from qgis.PyQt.QtSvg import QSvgRenderer
+
+from . import module_prefs
 from qgis.PyQt.QtWidgets import (
     QButtonGroup,
     QDialog,
@@ -38,6 +49,17 @@ from qgis.PyQt.QtWidgets import (
 
 def _tr(text):
     return QCoreApplication.translate("RAVI", text)
+
+
+# Nav kinds that carry their own brand logo (SVG) instead of a drawn line icon.
+# Mirrors welcome.py's _LOGO_SVGS so the sidebar and hub stay visually in sync.
+_LOGO_SVGS = {
+    "optical": "ravi_white_background.svg",
+    "climaplots": "climaplots.svg",
+    "radar": "sentinel1.svg",
+    "fieldguide": "fieldguide.svg",
+    "download": "easydem.svg",
+}
 
 
 def _read_plugin_version() -> str:
@@ -241,44 +263,51 @@ class Sidebar(QFrame):
         nav_lay = QVBoxLayout(nav_container)
         nav_lay.setContentsMargins(0, 0, 0, 0)
         nav_lay.setSpacing(8)
+        self._nav_lay = nav_lay
 
+        # Buttons are created once and kept in a key->button map; their order in
+        # the rail and whether they are shown is driven by module_prefs and
+        # (re)applied in _apply_module_layout. "auth" is pinned first and never
+        # hidden, so it is not part of the manageable set.
         self.btn_auth = self._make_button(_tr("Auth"), "auth")
         self.btn_auth.clicked.connect(self.auth_requested.emit)
-        nav_lay.addWidget(self.btn_auth)
 
         self.btn_optical = self._make_button(_tr("RAVI (Sentinel-2)"), "optical")
         self.btn_optical.clicked.connect(self.optical_requested.emit)
-        nav_lay.addWidget(self.btn_optical)
 
         self.btn_sysi = self._make_button(_tr("SYSI"), "sysi")
         self.btn_sysi.clicked.connect(self.sysi_requested.emit)
-        nav_lay.addWidget(self.btn_sysi)
 
         self.btn_radar = self._make_button(_tr("Radar (SAR) data"), "radar")
         self.btn_radar.clicked.connect(self.radar_requested.emit)
-        nav_lay.addWidget(self.btn_radar)
 
         self.btn_download = self._make_button(_tr("EasyDEM"), "download")
         self.btn_download.clicked.connect(self.dem_requested.emit)
-        nav_lay.addWidget(self.btn_download)
 
         self.btn_landsat = self._make_button(_tr("Multi-Satellite"), "landsat")
         self.btn_landsat.clicked.connect(self.landsat_requested.emit)
-        nav_lay.addWidget(self.btn_landsat)
 
         self.btn_fieldguide = self._make_button(_tr("Field Guide"), "fieldguide")
         self.btn_fieldguide.clicked.connect(self.fieldguide_requested.emit)
-        nav_lay.addWidget(self.btn_fieldguide)
 
         self.btn_climaplots = self._make_button(_tr("ClimaPlots"), "climaplots")
         self.btn_climaplots.clicked.connect(self.climaplots_requested.emit)
-        nav_lay.addWidget(self.btn_climaplots)
 
         self.btn_mapbiomas = self._make_button(_tr("MapBiomas"), "mapbiomas")
         self.btn_mapbiomas.clicked.connect(self.mapbiomas_requested.emit)
-        nav_lay.addWidget(self.btn_mapbiomas)
 
-        nav_lay.addStretch(1)
+        self._buttons = {
+            "auth": self.btn_auth,
+            "optical": self.btn_optical,
+            "sysi": self.btn_sysi,
+            "radar": self.btn_radar,
+            "download": self.btn_download,
+            "landsat": self.btn_landsat,
+            "fieldguide": self.btn_fieldguide,
+            "climaplots": self.btn_climaplots,
+            "mapbiomas": self.btn_mapbiomas,
+        }
+        self._apply_module_layout()
         self.nav_scroll.setWidget(nav_container)
 
         # Place an external QScrollBar to the LEFT of the scroll area inside an
@@ -397,6 +426,34 @@ class Sidebar(QFrame):
         btn.setToolTip(text)
         return btn
 
+    def _apply_module_layout(self) -> None:
+        """Lay out nav buttons per saved prefs: auth pinned first, the rest in
+        user order, hidden ones detached. Reused buttons are re-parented by
+        addWidget, so this is also the refresh path after a prefs change."""
+        lay = self._nav_lay
+        # Detach every current item (buttons + trailing stretch) without
+        # deleting the buttons — they are reused below.
+        while lay.count():
+            lay.takeAt(0)
+
+        hidden = module_prefs.get_hidden()
+        for key in ["auth"] + module_prefs.get_order():
+            btn = self._buttons.get(key)
+            if btn is None:
+                continue
+            if key != "auth" and key in hidden:
+                btn.hide()
+                continue
+            btn.show()
+            lay.addWidget(btn)
+        lay.addStretch(1)
+
+    def refresh_modules(self) -> None:
+        """Re-apply stored order/visibility, then restore the expand state so
+        button widths/labels match the current rail mode."""
+        self._apply_module_layout()
+        self._apply_expanded_state(self._expanded)
+
     def set_active_page(self, page: str) -> None:
         """Highlight the button matching ``page`` (``'auth'``, ``'optical'``, ``'sysi'``, ``'radar'``, ``'download'``, ``'landsat'`` or ``'fieldguide'``)."""
         self._active_page = page
@@ -406,15 +463,8 @@ class Sidebar(QFrame):
         # then restore it.
         self._group.setExclusive(False)
         self.btn_welcome.setChecked(page == "welcome")
-        self.btn_auth.setChecked(page == "auth")
-        self.btn_optical.setChecked(page == "optical")
-        self.btn_sysi.setChecked(page == "sysi")
-        self.btn_radar.setChecked(page == "radar")
-        self.btn_download.setChecked(page == "download")
-        self.btn_landsat.setChecked(page == "landsat")
-        self.btn_fieldguide.setChecked(page == "fieldguide")
-        self.btn_climaplots.setChecked(page == "climaplots")
-        self.btn_mapbiomas.setChecked(page == "mapbiomas")
+        for key, btn in self._buttons.items():
+            btn.setChecked(page == key)
         self._group.setExclusive(True)
         self._sync_brand_visibility()
 
@@ -471,7 +521,7 @@ class Sidebar(QFrame):
         side_margin = 14 if expanded else 11
         self._layout.setContentsMargins(side_margin, 18, side_margin, 18)
 
-        for btn in (self.btn_auth, self.btn_optical, self.btn_sysi, self.btn_radar, self.btn_download, self.btn_landsat, self.btn_fieldguide, self.btn_climaplots, self.btn_mapbiomas):
+        for btn in self._buttons.values():
             btn.setText(btn.property("navText") if expanded else "")
             btn.setToolTip("" if expanded else btn.property("navText"))
             btn.setFixedWidth(188 if expanded else 42)
@@ -623,6 +673,14 @@ class Sidebar(QFrame):
             icon.addPixmap(key_pix, QIcon.Mode.Active, QIcon.State.Off)
             return icon
 
+        if kind in _LOGO_SVGS:
+            logo_pix = self._draw_logo_icon(_LOGO_SVGS[kind])
+            if logo_pix is not None:
+                icon.addPixmap(logo_pix, QIcon.Mode.Normal, QIcon.State.Off)
+                icon.addPixmap(logo_pix, QIcon.Mode.Normal, QIcon.State.On)
+                icon.addPixmap(logo_pix, QIcon.Mode.Active, QIcon.State.Off)
+                return icon
+
         icon.addPixmap(
             self._draw_icon(kind, "#E9F4ED"), QIcon.Mode.Normal, QIcon.State.Off
         )
@@ -644,6 +702,37 @@ class Sidebar(QFrame):
         font.setPixelSize(15)
         painter.setFont(font)
         painter.drawText(pix.rect(), Qt.AlignmentFlag.AlignCenter, "\U0001f511")
+        painter.end()
+        return pix
+
+    def _draw_logo_icon(self, filename: str):
+        """Render an assets/ brand SVG to a 20px transparent icon pixmap.
+
+        The source SVGs are trimmed to their artwork, so render into a square
+        tile keeping aspect ratio and centre the result.
+
+        Returns ``None`` if the asset is missing/invalid so ``_make_icon`` can
+        fall back to the drawn line icon rather than showing a blank tile."""
+        plugin_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        path = os.path.join(plugin_dir, "assets", filename)
+        renderer = QSvgRenderer(path)
+        if not renderer.isValid():
+            return None
+
+        pix = QPixmap(20, 20)
+        pix.fill(Qt.GlobalColor.transparent)
+        # Fit the trimmed (non-square) artwork inside the 20px tile, centred.
+        size = renderer.defaultSize()
+        size.scale(20, 20, Qt.AspectRatioMode.KeepAspectRatio)
+        target = QRectF(
+            (20 - size.width()) / 2,
+            (20 - size.height()) / 2,
+            size.width(),
+            size.height(),
+        )
+        painter = QPainter(pix)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+        renderer.render(painter, target)
         painter.end()
         return pix
 

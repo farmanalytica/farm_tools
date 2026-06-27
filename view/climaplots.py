@@ -33,7 +33,7 @@ from .radar import (
     _TAB_INACTIVE,
 )
 from . import plotly_render
-from .styles import STYLE_BTN_PRIMARY, STYLE_BTN_SECONDARY
+from .styles import STYLE_BTN_PRIMARY, STYLE_BTN_SECONDARY, make_logo_label
 from .webcompat import QWebView
 
 
@@ -372,6 +372,8 @@ def _build_about_tab(dialog, page):
         line.setStyleSheet("color:#e6f2fa;")
         return line
 
+    lay.addWidget(make_logo_label("climaplots.svg"))
+    lay.addSpacing(6)
     lay.addWidget(_h1(_tr("🌦️ ClimaPlots")))
     lay.addSpacing(2)
     lay.addWidget(
