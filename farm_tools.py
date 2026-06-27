@@ -45,7 +45,10 @@ class FarmTools:
         self.interface = interface
         self.plugin_dir = os.path.dirname(__file__)
         self.actions = []
-        self.menu = "&FARM tools"
+        # Flavor-specific menu so each single-module plugin (RAVI, EasyDEM, …)
+        # gets its own QGIS Plugins submenu instead of all sharing "FARM tools".
+        from .view.module_prefs import flavor_label
+        self.menu = "&" + flavor_label()
 
         self.first_start = None
         self._waiting_for_extlibs = False
@@ -158,7 +161,7 @@ class FarmTools:
                 pass
         QCoreApplication.removeTranslator(self._translator)
         for action in self.actions:
-            self.interface.removePluginMenu("&FARM tools", action)
+            self.interface.removePluginMenu(self.menu, action)
             self.interface.removeToolBarIcon(action)
 
     def _finish_init(self):

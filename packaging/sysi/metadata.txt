@@ -3,8 +3,8 @@ name=SYSI — Synthetic Soil Image
 qgisMinimumVersion=3.28
 qgisMaximumVersion=4.99
 description=Bare-soil reflectance composite (GEOS3) built from cloud-free pixels for digital soil mapping / Composição de reflectância de solo exposto (GEOS3) a partir de pixels sem nuvens para mapeamento digital de solos
-version=1.0
-author=FARM Analytica, Caio Arantes, Bruna da Silva Brito Ribeiro, Isabella Alves da Cunha, Leandro Eloi, Lívia Scopel, Lucas Rios do Amaral, Mateus Pinto da Silva
+version=8.0
+author=FARM Analytica, Caio Arantes, Leandro Eloi, Lívia Scopel, Mateus Pinto da Silva, Bruna da Silva Brito Ribeiro, Isabella Alves da Cunha, Lucas Rios do Amaral
 email=contato@farmanalytica.com.br
 
 about=SYSI generates a Synthetic Soil Image: a bare-soil reflectance composite (GEOS3 method) assembled from cloud-free, vegetation-free pixels across a satellite archive, for digital soil mapping and spectral soil analysis. Powered by Google Earth Engine. Requires a free Google Earth Engine account (sign-in and a project ID are set up inside the plugin). / O SYSI gera uma Imagem Sintética de Solo: uma composição de reflectância de solo exposto (método GEOS3) montada a partir de pixels sem nuvens e sem vegetação em um arquivo de satélite, para mapeamento digital de solos e análise espectral. Integrado ao Google Earth Engine. Requer uma conta gratuita do Google Earth Engine (login e ID de projeto são configurados dentro do plugin).
@@ -17,7 +17,7 @@ repository=https://github.com/farmanalytica/farm_tools
 
 hasProcessingProvider=no
 changelog=
-    1.0 - now built from the unified FARM tools codebase. Ships defaulting to this module; the other FARM tools modules are discoverable from the welcome page's "More tools" section and as separate plugins.
+    8.0 - now built from the unified FARM tools codebase. Ships defaulting to this module; the other FARM tools modules are discoverable from the welcome page's "More tools" section and as separate plugins.
 
 # Tags are comma separated with spaces allowed
 tags=remote sensing, soil, bare soil, geos3, synthetic soil image, google earth engine, digital soil mapping, agriculture, raster

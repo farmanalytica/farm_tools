@@ -59,6 +59,7 @@ INCLUDE_FILES = [
     "farm_tools.py",
     "farm_tools_dialog.py",
     "extlibs_manager.py",
+    "requirements.txt",  # needed at runtime: extlibs_manager pip fallback reads it
     "icon.png",
     "toolbar_icon.png",
     "LICENSE",

@@ -20,6 +20,25 @@ try:
 except Exception:
     _FLAVOR = None
 
+# Display label per flavor — used for the QGIS Plugins-menu entry so each
+# single-module plugin gets its own submenu instead of all piling under one
+# "FARM tools" group. The full build (no flavor) keeps "FARM tools".
+_FLAVOR_LABELS = {
+    "optical": "RAVI",
+    "landsat": "Multi-Satellite",
+    "sysi": "SYSI",
+    "radar": "AGLgis",
+    "download": "EasyDEM",
+    "climaplots": "ClimaPlots",
+    "fieldguide": "Field Guide",
+    "mapbiomas": "MapBiomas",
+}
+
+
+def flavor_label(default="FARM tools"):
+    """Human label for this build's flavor (the plugin's menu/title name)."""
+    return _FLAVOR_LABELS.get(_FLAVOR, default)
+
 # Namespace settings per flavor so two FARM-derived plugins installed side by
 # side do not fight over the same order/hidden keys.
 _PREFIX = "qgis-RAVI/" + (_FLAVOR + "/" if _FLAVOR else "") + "modules/"

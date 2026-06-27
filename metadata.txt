@@ -4,8 +4,8 @@ qgisMinimumVersion=3.28
 qgisMaximumVersion=4.99
 description=Toolbox of geo-analytics modules for research, education, agriculture, and land monitoring: vegetation index time series, multispectral/SAR/DEM downloads, bare-soil composites, climate plots, and field sampling
 description_pt=Conjunto de módulos de geoanálise para pesquisa, ensino, agricultura e monitoramento da terra: séries temporais de índices de vegetação, downloads multiespectrais/SAR/DEM, composições de solo exposto, gráficos climáticos e amostragem de campo
-version=2.0
-author=FARM Analytica, Caio Arantes, Bruna da Silva Brito Ribeiro, Isabella Alves da Cunha, Leandro Eloi, Lívia Scopel, Lucas Rios do Amaral, Mateus Pinto da Silva
+version=8.0
+author=FARM Analytica, Caio Arantes, Leandro Eloi, Lívia Scopel, Mateus Pinto da Silva, Bruna da Silva Brito Ribeiro, Isabella Alves da Cunha, Lucas Rios do Amaral
 email=contato@farmanalytica.com.br
 
 about=FARM tools is a toolbox of geo-analytics modules for QGIS, bringing together the plugins supported by FARM Analytica in a single interface powered by Google Earth Engine (GEE). Modules include: Optical (Sentinel-2 vegetation index time series and multispectral imagery download), Landsat (long-term time series and imagery), SAR (Sentinel-1 radar analysis), DEM (elevation data download and terrain products), SYSI (synthetic bare-soil image composites), ClimaPlots (climate data charts), Field Guide (field point capture, polygon sampling, raster-based optimal sampling points, and CSV/GPX/PDF exports), and MapBiomas (Brazilian Collection 9 land-use/land-cover by year and configurable land-use transition analysis). Built for students, researchers, farmers, and professionals working in agriculture, land monitoring, or environmental management. / O FARM tools é um conjunto de módulos de geoanálise para o QGIS, reunindo os plugins suportados pela FARM Analytica em uma única interface integrada ao Google Earth Engine (GEE). Os módulos incluem: Óptico (séries temporais de índices de vegetação Sentinel-2 e download de imagens multiespectrais), Landsat (séries temporais longas e imagens), SAR (análise de radar Sentinel-1), DEM (download de dados de elevação e produtos de terreno), SYSI (composições sintéticas de solo exposto), ClimaPlots (gráficos de dados climáticos), Guia de Campo (captura de pontos em campo, amostragem de polígonos, pontos ótimos baseados em raster e exportações CSV/GPX/PDF) e MapBiomas (uso e cobertura da terra da Coleção 9 do Brasil por ano e análise configurável de transições de uso da terra). Desenvolvido para estudantes, pesquisadores, agricultores e profissionais que trabalham com agricultura, monitoramento da terra ou gestão ambiental.
@@ -19,6 +19,12 @@ repository=https://github.com/farmanalytica/farm_tools
 hasProcessingProvider=no
 # Uncomment the following line and add your changelog:
 changelog=
+    8.0 - Module hub: drag cards to reorder, "More tools" strip surfaces hidden
+          modules for one-click activation, and auth UI hides when no visible
+          module needs Google Earth Engine. Each module can now ship as its own
+          single-module plugin (RAVI, EasyDEM, ClimaPlots, AGLgis, Field Guide,
+          Multi-Satellite, SYSI, MapBiomas) built from this shared codebase.
+          All FARM plugins share a single, synced version number from here on.
     2.0 - Multi-Satellite module: adds Sentinel-2, HLS Sentinel-2 and MODIS
           (8-day) alongside Landsat 7/8/9, with per-sensor selection that limits
           date discovery and the time series; results labels adapt to the
