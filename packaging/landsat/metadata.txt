@@ -1,0 +1,30 @@
+[general]
+name=Multi-Satellite
+qgisMinimumVersion=3.28
+qgisMaximumVersion=4.99
+description=Pan-sharpened 15 m Landsat 7/8/9 imagery and multi-mission (Sentinel-2, HLS, MODIS) vegetation-index time series / Imagens Landsat 7/8/9 com pan-sharpening de 15 m e séries temporais de índices multi-missão (Sentinel-2, HLS, MODIS)
+version=1.0
+author=FARM Analytica, Caio Arantes, Bruna da Silva Brito Ribeiro, Isabella Alves da Cunha, Leandro Eloi, Lívia Scopel, Lucas Rios do Amaral, Mateus Pinto da Silva
+email=contato@farmanalytica.com.br
+
+about=Multi-Satellite builds long-term vegetation-index time series across Landsat 7/8/9, Sentinel-2, HLS and MODIS, with per-sensor selection that adapts date discovery, resolution, super-resolution and RGB availability. Download pan-sharpened 15 m Landsat imagery and export the index series as CSV. Powered by Google Earth Engine. Requires a free Google Earth Engine account (sign-in and a project ID are set up inside the plugin). / O Multi-Satélite gera séries temporais de longo prazo de índices de vegetação entre Landsat 7/8/9, Sentinel-2, HLS e MODIS, com seleção por sensor que adapta a busca de datas, resolução, super-resolução e disponibilidade de RGB. Baixe imagens Landsat de 15 m com pan-sharpening e exporte a série em CSV. Integrado ao Google Earth Engine. Requer uma conta gratuita do Google Earth Engine (login e ID de projeto são configurados dentro do plugin).
+
+tracker=https://github.com/farmanalytica/farm_tools/issues
+repository=https://github.com/farmanalytica/farm_tools
+# End of mandatory metadata
+
+# Recommended items:
+
+hasProcessingProvider=no
+changelog=
+    1.0 - now built from the unified FARM tools codebase. Ships defaulting to this module; the other FARM tools modules are discoverable from the welcome page's "More tools" section and as separate plugins.
+
+# Tags are comma separated with spaces allowed
+tags=remote sensing, landsat, sentinel-2, modis, hls, google earth engine, vegetation index, ndvi, time series, pan-sharpening
+
+homepage=https://farmtools.com.br
+category=Plugins
+icon=icon.png
+experimental=False
+deprecated=False
+server=False

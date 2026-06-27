@@ -11,7 +11,18 @@ rail, pinned last on the hub) — so it is NOT part of the manageable set here.
 
 from qgis.core import QgsSettings
 
-_PREFIX = "qgis-RAVI/modules/"
+# Build flavor: a single-module plugin build (e.g. the standalone RAVI / EasyDEM
+# / ClimaPlots packages) ships a generated ``_build_flavor.py`` naming the one
+# module it defaults to. The full FARM tools build ships no such file, so FLAVOR
+# is None and every module shows by default. See build_plugin.py.
+try:
+    from .._build_flavor import FLAVOR as _FLAVOR
+except Exception:
+    _FLAVOR = None
+
+# Namespace settings per flavor so two FARM-derived plugins installed side by
+# side do not fight over the same order/hidden keys.
+_PREFIX = "qgis-RAVI/" + (_FLAVOR + "/" if _FLAVOR else "") + "modules/"
 _KEY_ORDER = _PREFIX + "order"
 _KEY_HIDDEN = _PREFIX + "hidden"
 
@@ -56,8 +67,25 @@ def get_order():
     return order
 
 
+def _default_hidden():
+    """Default hidden set before the user customizes anything.
+
+    Full build: nothing hidden. Single-module flavor build: every module except
+    the flavor's own is hidden, so the plugin opens showing just its module
+    (the rest remain discoverable via the welcome hub's "More tools" strip)."""
+    if _FLAVOR and _FLAVOR in DEFAULT_ORDER:
+        return {k for k in DEFAULT_ORDER if k != _FLAVOR}
+    return set()
+
+
 def get_hidden():
-    """Return the set of hidden manageable module keys."""
+    """Return the set of hidden manageable module keys.
+
+    If the user has never customized visibility, fall back to the flavor default
+    (see :func:`_default_hidden`); once they customize, their stored set wins —
+    even when empty (all shown)."""
+    if QgsSettings().value(_KEY_HIDDEN, None) is None:
+        return _default_hidden()
     return {k for k in _read_list(_KEY_HIDDEN) if k in DEFAULT_ORDER}
 
 

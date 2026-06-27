@@ -436,12 +436,21 @@ class Sidebar(QFrame):
         while lay.count():
             lay.takeAt(0)
 
+        from .welcome import visible_set_needs_auth
+
         hidden = module_prefs.get_hidden()
+        # Auth is pinned first, but only when a visible module actually needs a
+        # GEE sign-in — a no-login-only build hides it entirely.
+        needs_auth = visible_set_needs_auth()
         for key in ["auth"] + module_prefs.get_order():
             btn = self._buttons.get(key)
             if btn is None:
                 continue
-            if key != "auth" and key in hidden:
+            if key == "auth":
+                if not needs_auth:
+                    btn.hide()
+                    continue
+            elif key in hidden:
                 btn.hide()
                 continue
             btn.show()
