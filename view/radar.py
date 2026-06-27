@@ -38,7 +38,12 @@ from qgis.PyQt.QtWidgets import (
 
 from qgis.PyQt.QtGui import QIcon, QLinearGradient, QPainter, QPixmap
 
-from .styles import STYLE_BTN_PRIMARY, STYLE_BTN_SECONDARY, STYLE_CHECKBOX
+from .styles import (
+    STYLE_BTN_PRIMARY,
+    STYLE_BTN_SECONDARY,
+    STYLE_CHECKBOX,
+    make_logo_label,
+)
 from .webcompat import QWebView
 
 
@@ -485,6 +490,8 @@ def _build_intro_tab(_dialog, parent):
         line.setStyleSheet("color:#e6f2fa;")
         return line
 
+    lay.addWidget(make_logo_label("sentinel1.svg", height=40))
+    lay.addSpacing(6)
     lay.addWidget(_h1(t["title"]))
     lay.addSpacing(2)
     lay.addWidget(_para(t["desc"]))
