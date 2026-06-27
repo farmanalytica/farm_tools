@@ -8,20 +8,12 @@
         <translation>GEE 配置</translation>
     </message>
     <message>
-        <source>Inputs &amp; Parameters</source>
-        <translation>输入与参数</translation>
-    </message>
-    <message>
         <source>Learn more</source>
         <translation>了解更多</translation>
     </message>
     <message>
         <source>GEE Authentication</source>
         <translation>GEE 身份验证</translation>
-    </message>
-    <message>
-        <source>RAVI uses &lt;b&gt;Google Earth Engine&lt;/b&gt; for processing. To continue, you will need authorized access.</source>
-        <translation>RAVI 使用&lt;b&gt;Google Earth Engine&lt;/b&gt;进行处理。继续操作需要授权访问。</translation>
     </message>
     <message>
         <source>Requires an active GEE account and a Google Cloud Console project with the API enabled.</source>
@@ -80,28 +72,12 @@
         <translation>缓冲区：%+d m</translation>
     </message>
     <message>
-        <source>Download to:</source>
-        <translation>下载到：</translation>
-    </message>
-    <message>
-        <source>Default Temporary Folder</source>
-        <translation>默认临时文件夹</translation>
-    </message>
-    <message>
-        <source>Browse...</source>
-        <translation>浏览...</translation>
-    </message>
-    <message>
         <source>Download DEM</source>
         <translation>下载 DEM</translation>
     </message>
     <message>
         <source>Auth</source>
         <translation>认证</translation>
-    </message>
-    <message>
-        <source>Select a layer.</source>
-        <translation>选择图层。</translation>
     </message>
     <message>
         <source>Missing Project ID.</source>
@@ -138,10 +114,6 @@
     <message>
         <source>Google Hybrid Layer loaded successfully</source>
         <translation>Google 混合图层加载成功</translation>
-    </message>
-    <message>
-        <source>Select DEM Download Folder</source>
-        <translation>选择 DEM 下载文件夹</translation>
     </message>
     <message>
         <source>Information</source>
@@ -184,18 +156,6 @@
         <translation>检查登录状态…</translation>
     </message>
     <message>
-        <source>Not signed in</source>
-        <translation>未登录</translation>
-    </message>
-    <message>
-        <source>Credentials found — validate to finish</source>
-        <translation>已找到凭证 — 验证完成</translation>
-    </message>
-    <message>
-        <source>●  Signed in &amp; ready</source>
-        <translation>已登录并就绪</translation>
-    </message>
-    <message>
         <source>Reopen the sign-in page</source>
         <translation>重新打开登录页面</translation>
     </message>
@@ -226,14 +186,6 @@
     <message>
         <source>Running…</source>
         <translation>运行中…</translation>
-    </message>
-    <message>
-        <source>Loading…</source>
-        <translation>加载中…</translation>
-    </message>
-    <message>
-        <source>Working…</source>
-        <translation>处理中…</translation>
     </message>
     <message>
         <source>START DATE</source>
@@ -352,36 +304,12 @@
         <translation>波段：DpRVI</translation>
     </message>
     <message>
-        <source>Amplitude</source>
-        <translation>振幅</translation>
-    </message>
-    <message>
         <source>Mean</source>
         <translation>均值</translation>
     </message>
     <message>
         <source>Median</source>
         <translation>中位数</translation>
-    </message>
-    <message>
-        <source>Min</source>
-        <translation>最小值</translation>
-    </message>
-    <message>
-        <source>Max</source>
-        <translation>最大值</translation>
-    </message>
-    <message>
-        <source>Standard Deviation</source>
-        <translation>标准差</translation>
-    </message>
-    <message>
-        <source>Sum</source>
-        <translation>总和</translation>
-    </message>
-    <message>
-        <source>Area Under Curve (AUC)</source>
-        <translation>曲线下面积（AUC）</translation>
     </message>
     <message>
         <source>RGB: VV, VH, VV/VH Ratio</source>
@@ -656,10 +584,6 @@
         <translation>选择下载文件夹</translation>
     </message>
     <message>
-        <source>Setting up RAVI…</source>
-        <translation>正在设置 RAVI…</translation>
-    </message>
-    <message>
         <source>Setting up…</source>
         <translation>正在设置…</translation>
     </message>
@@ -694,10 +618,6 @@
     <message>
         <source>%s Time Series</source>
         <translation>%s 时间序列</translation>
-    </message>
-    <message>
-        <source>%s Time Series (Landsat 7/8/9)</source>
-        <translation>%s 时间序列 (Landsat 7/8/9)</translation>
     </message>
     <message>
         <source>&lt;b&gt;Area &amp;amp; Date Selection:&lt;/b&gt; Define the AOI and the period to scan</source>
@@ -794,10 +714,6 @@
     <message>
         <source>&lt;b&gt;Point &amp;amp; Per-Feature Analysis:&lt;/b&gt; Time series per clicked point or per polygon</source>
         <translation>&lt;b&gt;点与逐要素分析：&lt;/b&gt;按点击点或按多边形的时间序列</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;RAVI&lt;/b&gt; (Remote Analysis of Vegetation Indices) began as the undergraduate thesis of &lt;a href='{caio}' style='{ls}'&gt;Caio Arantes&lt;/a&gt;, supervised by &lt;a href='{lucas}' style='{ls}'&gt;Prof. Dr. Lucas dos Rios Amaral&lt;/a&gt;, and is now an open-source project maintained with the support of &lt;a href='{farm}' style='{ls}'&gt;FARM Analytica&lt;/a&gt;, co-founded by Caio. Committed to technology diffusion and the open-source philosophy, it brings &lt;b&gt;Google Earth Engine&lt;/b&gt; processing into QGIS — turning satellite archives into vegetation, soil, radar and climate insight, without leaving your map.</source>
-        <translation>&lt;b&gt;RAVI&lt;/b&gt;（Remote Analysis of Vegetation Indices）最初是 &lt;a href='{caio}' style='{ls}'&gt;Caio Arantes&lt;/a&gt; 的本科论文，由 &lt;a href='{lucas}' style='{ls}'&gt;Lucas dos Rios Amaral 教授&lt;/a&gt;指导，如今已成为在 &lt;a href='{farm}' style='{ls}'&gt;FARM Analytica&lt;/a&gt;（由 Caio 共同创立）支持下维护的开源项目。秉持技术普及与开源理念，它将 &lt;b&gt;Google Earth Engine&lt;/b&gt; 处理带入 QGIS——无需离开地图，即可把卫星档案转化为植被、土壤、雷达与气候洞察。</translation>
     </message>
     <message>
         <source>&lt;b&gt;Results:&lt;/b&gt; Inspect the plot, adjust the filter, preview and download outputs</source>
@@ -928,14 +844,6 @@
         <translation>无法渲染图表。</translation>
     </message>
     <message>
-        <source>Custom optical indices are not available for composites in this milestone.</source>
-        <translation>此版本中合成影像暂不支持自定义光学指数。</translation>
-    </message>
-    <message>
-        <source>Custom optical indices are not available in this milestone.</source>
-        <translation>此版本暂不支持自定义光学指数。</translation>
-    </message>
-    <message>
         <source>EXPRESSION</source>
         <translation>表达式</translation>
     </message>
@@ -944,20 +852,12 @@
         <translation>结束日期必须晚于开始日期。</translation>
     </message>
     <message>
-        <source>Enter proxy (e.g. http://user:pass@host:port):</source>
-        <translation>输入代理（例如 http://user:pass@host:port）：</translation>
-    </message>
-    <message>
         <source>Every run searches &lt;b&gt;Landsat 7, 8 and 9&lt;/b&gt; together. Each available date is tagged with its mission in the Results date list.</source>
         <translation>每次运行都会同时检索 &lt;b&gt;Landsat 7、8 和 9&lt;/b&gt;。每个可用日期在结果日期列表中均标注其所属任务。</translation>
     </message>
     <message>
         <source>Export Climate Data as CSV</source>
         <translation>将气候数据导出为 CSV</translation>
-    </message>
-    <message>
-        <source>Export Optical Time Series as CSV</source>
-        <translation>将光学时间序列导出为 CSV</translation>
     </message>
     <message>
         <source>Extract a time series per clicked map point, or one series per polygon feature of the AOI layer keyed by an attribute.</source>
@@ -1020,14 +920,6 @@
         <translation>保持最小值 &amp;lt; 最大值。位于两个范围内的像元被保留为裸土。</translation>
     </message>
     <message>
-        <source>Landsat (Super-Res)</source>
-        <translation>Landsat（超分辨率）</translation>
-    </message>
-    <message>
-        <source>Landsat Super-Resolution</source>
-        <translation>Landsat 超分辨率</translation>
-    </message>
-    <message>
         <source>Landsat image %s into QGIS.</source>
         <translation>Landsat 影像已%s到 QGIS。</translation>
     </message>
@@ -1042,14 +934,6 @@
     <message>
         <source>MULTISPECTRAL RGB (30 m)</source>
         <translation>多光谱 RGB (30 m)</translation>
-    </message>
-    <message>
-        <source>Max temperature</source>
-        <translation>最高温度</translation>
-    </message>
-    <message>
-        <source>Min temperature</source>
-        <translation>最低温度</translation>
     </message>
     <message>
         <source>Monthly precipitation</source>
@@ -1092,18 +976,6 @@
         <translation>此 AOI 和日期范围没有时间序列数据。</translation>
     </message>
     <message>
-        <source>Optical (Sentinel-2)</source>
-        <translation>光学 (Sentinel-2)</translation>
-    </message>
-    <message>
-        <source>Optical Imagery (Sentinel-2)</source>
-        <translation>光学影像 (Sentinel-2)</translation>
-    </message>
-    <message>
-        <source>Optical image %s into QGIS.</source>
-        <translation>光学影像已%s到 QGIS。</translation>
-    </message>
-    <message>
         <source>Overlay accumulated monthly precipitation (NASA POWER) as bars on the time-series plot, over the same date range. Temperature is fetched too and included in the CSV export.</source>
         <translation>在相同日期范围内，将累积月降水量 (NASA POWER) 以柱状叠加到时间序列图上。温度也会被获取并包含在 CSV 导出中。</translation>
     </message>
@@ -1138,10 +1010,6 @@
     <message>
         <source>Poly order</source>
         <translation>多项式阶数</translation>
-    </message>
-    <message>
-        <source>Precipitation</source>
-        <translation>降水量</translation>
     </message>
     <message>
         <source>Proxy Settings</source>
@@ -1182,10 +1050,6 @@
     <message>
         <source>Run the Landsat analysis first.</source>
         <translation>请先运行 Landsat 分析。</translation>
-    </message>
-    <message>
-        <source>Run the optical analysis first.</source>
-        <translation>请先运行光学分析。</translation>
     </message>
     <message>
         <source>Running...</source>
@@ -1244,10 +1108,6 @@
         <translation>按输入选项卡上选定的 SCL 类别，AOI 中由有效（未掩膜）像元覆盖的比例。在 AOI 内部测量，因此比场景云覆盖更能反映局地云和阴影。</translation>
     </message>
     <message>
-        <source>Single-date image of the index chosen on the Inputs tab, on 30 m surface reflectance.</source>
-        <translation>在 30 m 地表反射率上，输入选项卡所选指数的单日期影像。</translation>
-    </message>
-    <message>
         <source>Smoothed (Savitzky-Golay)</source>
         <translation>平滑 (Savitzky-Golay)</translation>
     </message>
@@ -1266,10 +1126,6 @@
     <message>
         <source>TIME-SERIES SPATIAL REDUCER</source>
         <translation>时间序列空间归约器</translation>
-    </message>
-    <message>
-        <source>The Optical module analyses the &lt;b&gt;Sentinel-2 Harmonized Surface Reflectance&lt;/b&gt; collection in Google Earth Engine. Pick an area, a date range and a vegetation index to build an interactive time series, then download imagery, composites and indices — no coding required.</source>
-        <translation>光学模块在 Google Earth Engine 中分析 &lt;b&gt;Sentinel-2 Harmonized Surface Reflectance&lt;/b&gt; 集合。选择区域、日期范围和植被指数以构建交互式时间序列，然后下载影像、合成和指数——无需编程。</translation>
     </message>
     <message>
         <source>The SYSI module builds a &lt;b&gt;Synthetic Soil Image&lt;/b&gt;: a bare-soil reflectance composite derived from a multi-temporal Sentinel-2 collection. It runs the &lt;b&gt;GEOS3&lt;/b&gt; (Geospatial Soil Sensing System) algorithm of Demattê et al. (2018) on Google Earth Engine, keeping only the pixels that are bare soil across many dates and reducing them with a temporal &lt;b&gt;median&lt;/b&gt;. The result reveals the underlying soil surface free of vegetation and crop residue — no coding required.</source>
@@ -1306,10 +1162,6 @@
     <message>
         <source>DEMATTÊ, J. A. M.; FONGARO, C. T.; RIZZO, R.; SAFANELLI, J. L. &lt;i&gt;Geospatial Soil Sensing System (GEOS3): A powerful data mining procedure to retrieve soil spectral reflectance from satellite images.&lt;/i&gt; Remote Sensing of Environment, v. 212, p. 161–175, 2018. &lt;a href="https://doi.org/10.1016/j.rse.2018.04.047"&gt;doi:10.1016/j.rse.2018.04.047&lt;/a&gt;</source>
         <translation>DEMATTÊ, J. A. M.; FONGARO, C. T.; RIZZO, R.; SAFANELLI, J. L. &lt;i&gt;Geospatial Soil Sensing System (GEOS3): A powerful data mining procedure to retrieve soil spectral reflectance from satellite images.&lt;/i&gt; Remote Sensing of Environment, v. 212, p. 161–175, 2018. &lt;a href="https://doi.org/10.1016/j.rse.2018.04.047"&gt;doi:10.1016/j.rse.2018.04.047&lt;/a&gt;</translation>
-    </message>
-    <message>
-        <source>The chart above plots the index and reducer chosen on the Inputs tab across Landsat 7/8/9 — built automatically when you Run.</source>
-        <translation>上图绘制了在输入选项卡上选定的指数和归约器在 Landsat 7/8/9 上的变化——运行时自动构建。</translation>
     </message>
     <message>
         <source>The synthetic soil image carries the Sentinel-2 surface-reflectance bands together with the soil indices computed during processing:</source>
@@ -1368,14 +1220,6 @@
         <translation>植被指数 (30 m)</translation>
     </message>
     <message>
-        <source>WHAT YOU CAN DO</source>
-        <translation>您可以做什么</translation>
-    </message>
-    <message>
-        <source>Welcome to RAVI</source>
-        <translation>欢迎使用 RAVI</translation>
-    </message>
-    <message>
         <source>Window</source>
         <translation>窗口</translation>
     </message>
@@ -1408,10 +1252,6 @@
         <translation>🌱 SYSI 模块 - 合成土壤影像</translation>
     </message>
     <message>
-        <source>📅 Available coverage: &lt;b&gt;1999 to present&lt;/b&gt; — Landsat 7 (1999–2022), Landsat 8 (2013–) and Landsat 9 (2021–). Dates outside a mission's lifespan are skipped automatically.</source>
-        <translation>📅 可用覆盖范围：&lt;b&gt;1999 年至今&lt;/b&gt;——Landsat 7 (1999–2022)、Landsat 8 (2013–) 和 Landsat 9 (2021–)。任务寿命之外的日期会被自动跳过。</translation>
-    </message>
-    <message>
         <source>📋 Workflow</source>
         <translation>📋 工作流程</translation>
     </message>
@@ -1424,16 +1264,8 @@
         <translation>🛰️ 波段</translation>
     </message>
     <message>
-        <source>🛰️ Landsat Super-Resolution</source>
-        <translation>🛰️ Landsat 超分辨率</translation>
-    </message>
-    <message>
         <source>🛰️ Landsat super-resolution is built on &lt;a href='{agrigee}' style='{ls}'&gt;AgriGEE.lite&lt;/a&gt;, in collaboration with its author &lt;a href='{mateus}' style='{ls}'&gt;Mateus Pinto&lt;/a&gt;.</source>
         <translation>🛰️ Landsat 超分辨率基于 &lt;a href='{agrigee}' style='{ls}'&gt;AgriGEE.lite&lt;/a&gt; 构建，与其作者 &lt;a href='{mateus}' style='{ls}'&gt;Mateus Pinto&lt;/a&gt; 合作完成。</translation>
-    </message>
-    <message>
-        <source>🛰️ Optical Imagery Module - Sentinel-2</source>
-        <translation>🛰️ 光学影像模块 - Sentinel-2</translation>
     </message>
     <message>
         <source>AOI</source>
@@ -1552,92 +1384,1358 @@
         <translation>🛰️ Landsat 超分辨率和植被指数时间序列基于 &lt;a href='{agrigee}' style='{ls}'&gt;AgriGEE.lite&lt;/a&gt; 构建，与其作者 &lt;a href='{mateus}' style='{ls}'&gt;Mateus Pinto&lt;/a&gt; 合作完成。</translation>
     </message>
     <message>
-        <source>Optical time series</source>
-        <translation>光学时间序列</translation>
+        <source>%s Multi-Satellite Time Series</source>
+        <translation>%s 多卫星时间序列</translation>
     </message>
     <message>
-        <source>Custom indices</source>
-        <translation>自定义指数</translation>
+        <source>(same source as A)</source>
+        <translation>（与 A 相同的数据源）</translation>
     </message>
     <message>
-        <source>Synthetic composite</source>
-        <translation>合成影像</translation>
+        <source>+ Add</source>
+        <translation>+ 添加</translation>
     </message>
     <message>
-        <source>Multispectral RGB</source>
-        <translation>多光谱 RGB</translation>
+        <source>&lt;b&gt;Annual trends&lt;/b&gt; for temperature, precipitation, relative humidity, irradiation, wind speed, reference ET₀ and growing degree days, each annotated with &lt;b&gt;Mann–Kendall&lt;/b&gt; trend and &lt;b&gt;Pettitt&lt;/b&gt; homogeneity tests.</source>
+        <translation>针对温度、降水、相对湿度、辐照、风速、参考 ET₀ 和生长度日的&lt;b&gt;年度趋势&lt;/b&gt;，每项均标注 &lt;b&gt;Mann–Kendall&lt;/b&gt; 趋势检验和 &lt;b&gt;Pettitt&lt;/b&gt; 均一性检验。</translation>
     </message>
     <message>
-        <source>Landsat super-resolution</source>
-        <translation>Landsat 超分辨率</translation>
+        <source>&lt;b&gt;Climate indices&lt;/b&gt; — ETCCDI temperature and precipitation indices plus the Standardized Precipitation Index (SPI).</source>
+        <translation>&lt;b&gt;气候指数&lt;/b&gt; — ETCCDI 温度与降水指数以及标准化降水指数 (SPI)。</translation>
     </message>
     <message>
-        <source>SYSI — synthetic soil image</source>
-        <translation>SYSI — 合成土壤影像</translation>
+        <source>&lt;b&gt;EasyDEM&lt;/b&gt; downloads ready-to-use terrain elevation models for your area of interest. Pick a polygon layer (or draw one), choose a DEM dataset such as SRTM or Copernicus, fine-tune the area with the buffer, and save a clipped GeoTIFF straight to your map.</source>
+        <translation>&lt;b&gt;EasyDEM&lt;/b&gt; 为您的感兴趣区域下载即用型地形高程模型。选择一个多边形图层（或绘制一个），选择 SRTM 或 Copernicus 等 DEM 数据集，用缓冲区微调区域，并将裁剪后的 GeoTIFF 直接保存到地图。</translation>
     </message>
     <message>
-        <source>Radar (SAR)</source>
-        <translation>雷达 (SAR)</translation>
+        <source>&lt;b&gt;FARM tools&lt;/b&gt; (formerly RAVI — Remote Analysis of Vegetation Indices) began as the undergraduate thesis of &lt;a href='{caio}' style='{ls}'&gt;Caio Arantes&lt;/a&gt;, supervised by &lt;a href='{lucas}' style='{ls}'&gt;Prof. Dr. Lucas dos Rios Amaral&lt;/a&gt;, and is now an open-source project maintained with the support of &lt;a href='{farm}' style='{ls}'&gt;FARM Analytica&lt;/a&gt;, co-founded by Caio. Committed to technology diffusion and the open-source philosophy, it brings &lt;b&gt;Google Earth Engine&lt;/b&gt; processing into QGIS — turning satellite archives into vegetation, soil, radar and climate insight, without leaving your map.</source>
+        <translation>&lt;b&gt;FARM tools&lt;/b&gt;（前身为 RAVI — Remote Analysis of Vegetation Indices）最初是 &lt;a href='{caio}' style='{ls}'&gt;Caio Arantes&lt;/a&gt; 的本科论文，由 &lt;a href='{lucas}' style='{ls}'&gt;Lucas dos Rios Amaral 教授&lt;/a&gt;指导，如今已成为在 &lt;a href='{farm}' style='{ls}'&gt;FARM Analytica&lt;/a&gt;（由 Caio 共同创立）支持下维护的开源项目。秉持技术普及与开源理念，它将 &lt;b&gt;Google Earth Engine&lt;/b&gt; 处理带入 QGIS——无需离开地图，即可把卫星档案转化为植被、土壤、雷达与气候洞察。</translation>
     </message>
     <message>
-        <source>DEM download</source>
-        <translation>DEM 下载</translation>
+        <source>&lt;b&gt;Thermo-pluviometric diagram&lt;/b&gt; — the mean monthly precipitation and temperature regime of the location.</source>
+        <translation>&lt;b&gt;温度-降水图&lt;/b&gt; — 该地点的月平均降水与温度状况。</translation>
     </message>
     <message>
-        <source>Climate overlay</source>
-        <translation>气候叠加</translation>
+        <source>ABOUT</source>
+        <translation>关于</translation>
     </message>
     <message>
-        <source>Point &amp;amp; feature analysis</source>
-        <translation>点 &amp;amp; 要素分析</translation>
+        <source>Accepts decimal coordinates with dot or comma separators.</source>
+        <translation>接受以点或逗号分隔的十进制坐标。</translation>
     </message>
     <message>
-        <source>Batch download &amp;amp; CSV</source>
-        <translation>批量下载 &amp;amp; CSV</translation>
+        <source>Add Temporary Layer</source>
+        <translation>添加临时图层</translation>
     </message>
     <message>
-        <source>Per-date Sentinel-2 vegetation-index series (NDVI, EVI, NDRE, NDWI, NBR…) over your AOI, with SCL cloud/shadow masking and date filtering</source>
-        <translation>针对您的 AOI 生成逐日期的 Sentinel-2 植被指数序列 (NDVI、EVI、NDRE、NDWI、NBR…)，并支持 SCL 云/阴影掩膜和日期筛选</translation>
+        <source>Add a Google satellite basemap to help locate your point</source>
+        <translation>添加 Google 卫星底图以帮助定位您的点</translation>
     </message>
     <message>
-        <source>Build your own index from band math and reuse it across the whole series</source>
-        <translation>通过波段运算构建您自己的指数，并在整个序列中重复使用</translation>
+        <source>Add an optional &lt;b&gt;comparison point B&lt;/b&gt; to overlay a second series on the Trends chart, with trend statistics reported for both points. B can use its own data source, so the &lt;i&gt;same&lt;/i&gt; location can be compared across NASA POWER and Open-Meteo — use &lt;b&gt;Same location as A&lt;/b&gt; to copy point A's coordinates without re-clicking the map.</source>
+        <translation>添加一个可选的&lt;b&gt;对比点 B&lt;/b&gt;，以在趋势图上叠加第二条序列，并报告两个点的趋势统计。B 可以使用自己的数据源，因此可以在 NASA POWER 和 Open-Meteo 之间对比&lt;i&gt;同一&lt;/i&gt;位置——使用&lt;b&gt;与 A 相同位置&lt;/b&gt;可复制点 A 的坐标，无需重新点击地图。</translation>
     </message>
     <message>
-        <source>Reduce a series to one image (mean, median, max, AUC…) for a clean snapshot</source>
-        <translation>将序列归约为单幅影像 (均值、中值、最大值、AUC…)，生成简洁的快照</translation>
+        <source>Add at least 2 points</source>
+        <translation>至少添加 2 个点</translation>
     </message>
     <message>
-        <source>True- and false-colour composites for any acquisition date, styled in QGIS</source>
-        <translation>为任意获取日期生成真彩色和假彩色合成影像，并在 QGIS 中设置样式</translation>
+        <source>Add at least 2 points to open a route in Google Maps.</source>
+        <translation>至少添加 2 个点才能在 Google Maps 中打开路线。</translation>
     </message>
     <message>
-        <source>Pan-sharpened 15 m Landsat 7/8/9 imagery, with a multi-mission vegetation-index time series — powered by AgriGEE.lite</source>
-        <translation>全色锐化的 15 m Landsat 7/8/9 影像，附带多任务植被指数时间序列 — 由 AgriGEE.lite 提供支持</translation>
+        <source>Add coordinate</source>
+        <translation>添加坐标</translation>
     </message>
     <message>
-        <source>Bare-soil reflectance composite (GEOS3) from cloud-free pixels for soil mapping</source>
-        <translation>基于无云像元的裸土反射率合成影像 (GEOS3)，用于土壤制图</translation>
+        <source>Add {0} — included in this plugin</source>
+        <translation>添加 {0} — 已包含在本插件中</translation>
     </message>
     <message>
-        <source>Sentinel-1 VV/VH backscatter time series — cloud-independent monitoring</source>
-        <translation>Sentinel-1 VV/VH 后向散射时间序列 — 不受云层影响的监测</translation>
+        <source>Append</source>
+        <translation>追加</translation>
     </message>
     <message>
-        <source>Fetch terrain elevation models (SRTM, Copernicus…) clipped to your area</source>
-        <translation>获取裁剪至您区域的地形高程模型 (SRTM、Copernicus…)</translation>
+        <source>Authentication is required to load MapBiomas data. Open the Auth page and validate your Google Cloud project ID.</source>
+        <translation>加载 MapBiomas 数据需要身份验证。请打开 Auth 页面并验证您的 Google Cloud 项目 ID。</translation>
     </message>
     <message>
-        <source>Overlay daily NASA POWER precipitation and min/max temperature on the plot</source>
-        <translation>在图表上叠加每日 NASA POWER 降水量和最低/最高气温</translation>
+        <source>Band</source>
+        <translation>波段</translation>
     </message>
     <message>
-        <source>Per-feature or per-point series with adjustable buffer and value extraction</source>
-        <translation>逐要素或逐点序列，支持可调缓冲区和数值提取</translation>
+        <source>Band {0} is out of range for raster {1}.</source>
+        <translation>波段 {0} 超出栅格 {1} 的范围。</translation>
     </message>
     <message>
-        <source>Export every selected date as rasters and the full data table as CSV</source>
-        <translation>将每个选定日期导出为栅格，并将完整数据表导出为 CSV</translation>
+        <source>Batch super-resolution needs a panchromatic sensor (Landsat); none of the available dates qualify.</source>
+        <translation>批量超分辨率需要全色传感器 (Landsat)；可用日期中没有符合条件的。</translation>
+    </message>
+    <message>
+        <source>Behind a corporate network? Set a proxy via &lt;b&gt;Proxy settings&lt;/b&gt; in the authentication page.</source>
+        <translation>处于企业网络后？请在身份验证页面通过&lt;b&gt;代理设置&lt;/b&gt;设置代理。</translation>
+    </message>
+    <message>
+        <source>Browse the &lt;b&gt;MapBiomas Brasil Collection 10&lt;/b&gt; land-use / land-cover archive inside the module. Pick an AOI, then load the coverage years (browse them with the slider) or the Pasture→Crop transition. MapBiomas covers &lt;b&gt;Brazil only&lt;/b&gt;.</source>
+        <translation>在模块内浏览 &lt;b&gt;MapBiomas Brasil Collection 10&lt;/b&gt; 土地利用/土地覆盖档案。选择一个 AOI，然后加载覆盖年份（用滑块浏览）或牧场→作物的转换。MapBiomas &lt;b&gt;仅覆盖巴西&lt;/b&gt;。</translation>
+    </message>
+    <message>
+        <source>Browse the &lt;b&gt;Trends&lt;/b&gt;, &lt;b&gt;Thermo-pluviometric&lt;/b&gt; and &lt;b&gt;Climate Indices&lt;/b&gt; tabs. Use &lt;b&gt;Open in browser&lt;/b&gt; for a full-screen chart, or &lt;b&gt;Save chart data&lt;/b&gt; to export a CSV.</source>
+        <translation>浏览&lt;b&gt;趋势&lt;/b&gt;、&lt;b&gt;温度-降水&lt;/b&gt;和&lt;b&gt;气候指数&lt;/b&gt;选项卡。使用&lt;b&gt;在浏览器中打开&lt;/b&gt;查看全屏图表，或使用&lt;b&gt;保存图表数据&lt;/b&gt;导出 CSV。</translation>
+    </message>
+    <message>
+        <source>Builds a serpentine walk pattern across each polygon, similar to common zigzag soil sampling in the field.</source>
+        <translation>在每个多边形上构建蛇形行走模式，类似于田间常见的之字形土壤采样。</translation>
+    </message>
+    <message>
+        <source>CAPTURE</source>
+        <translation>捕获</translation>
+    </message>
+    <message>
+        <source>COMPARISON POINT B (OPTIONAL)</source>
+        <translation>对比点 B（可选）</translation>
+    </message>
+    <message>
+        <source>COVERAGE</source>
+        <translation>覆盖</translation>
+    </message>
+    <message>
+        <source>CSV exported successfully: {0}</source>
+        <translation>CSV 导出成功：{0}</translation>
+    </message>
+    <message>
+        <source>CSV file has no header.</source>
+        <translation>CSV 文件没有表头。</translation>
+    </message>
+    <message>
+        <source>Capture OFF</source>
+        <translation>捕获已关闭</translation>
+    </message>
+    <message>
+        <source>Capture ON</source>
+        <translation>捕获已开启</translation>
+    </message>
+    <message>
+        <source>Capture a coordinate by clicking on the map canvas</source>
+        <translation>通过点击地图画布捕获坐标</translation>
+    </message>
+    <message>
+        <source>Capture field points on the map, sample polygon features, and export routes, files, and PDF reports.</source>
+        <translation>在地图上捕获田间点、采样多边形要素，并导出路线、文件和 PDF 报告。</translation>
+    </message>
+    <message>
+        <source>Captured points appear here in collection order.</source>
+        <translation>捕获的点按采集顺序显示在此处。</translation>
+    </message>
+    <message>
+        <source>Charting dependencies are still being provisioned. Restart QGIS once setup completes.</source>
+        <translation>绘图依赖项仍在配置中。设置完成后请重启 QGIS。</translation>
+    </message>
+    <message>
+        <source>Choose a single-band or multi-band raster (e.g., NDVI composite) to identify the location of maximum vegetation value within each polygon</source>
+        <translation>选择单波段或多波段栅格（例如 NDVI 合成）以识别每个多边形内植被值最大的位置</translation>
+    </message>
+    <message>
+        <source>Choose the ETCCDI climate index to plot</source>
+        <translation>选择要绘制的 ETCCDI 气候指数</translation>
+    </message>
+    <message>
+        <source>Choose the climate variable to plot</source>
+        <translation>选择要绘制的气候变量</translation>
+    </message>
+    <message>
+        <source>Choose whether to append imported points or replace the current list.</source>
+        <translation>选择追加导入的点还是替换当前列表。</translation>
+    </message>
+    <message>
+        <source>Choose whether to append the generated marks or replace the current list.</source>
+        <translation>选择追加生成的标记还是替换当前列表。</translation>
+    </message>
+    <message>
+        <source>Chooses marks that maximize spacing inside each polygon. Good default for irregular areas and strong spatial distribution.</source>
+        <translation>选择在每个多边形内使间距最大化的标记。适用于不规则区域和较强空间分布的良好默认值。</translation>
+    </message>
+    <message>
+        <source>Clear all {0} captured point(s)?</source>
+        <translation>清除全部 {0} 个已捕获的点？</translation>
+    </message>
+    <message>
+        <source>Clear marker</source>
+        <translation>清除标记</translation>
+    </message>
+    <message>
+        <source>Clear marks</source>
+        <translation>清除标记</translation>
+    </message>
+    <message>
+        <source>Click &lt;b&gt;Pick a point on the map&lt;/b&gt; and click a location on the canvas (or type the longitude/latitude manually).</source>
+        <translation>点击&lt;b&gt;在地图上选取一个点&lt;/b&gt;，然后在画布上点击某个位置（或手动输入经度/纬度）。</translation>
+    </message>
+    <message>
+        <source>Click a point on the map (or enter Longitude/Latitude) first.</source>
+        <translation>请先在地图上点击一个点（或输入经度/纬度）。</translation>
+    </message>
+    <message>
+        <source>Click a point on the map to set the coordinate.</source>
+        <translation>在地图上点击一个点以设置坐标。</translation>
+    </message>
+    <message>
+        <source>Click to open sign-in / Earth Engine configuration</source>
+        <translation>点击以打开登录 / Earth Engine 配置</translation>
+    </message>
+    <message>
+        <source>ClimaPlots</source>
+        <translation>ClimaPlots</translation>
+    </message>
+    <message>
+        <source>ClimaPlots dependencies are still being provisioned. Restart QGIS to finish the download, or install the packages from requirements.txt manually.</source>
+        <translation>ClimaPlots 依赖项仍在配置中。请重启 QGIS 以完成下载，或手动从 requirements.txt 安装这些软件包。</translation>
+    </message>
+    <message>
+        <source>ClimaPlots fetches decades of daily climate data for any point on the map and turns it into interactive charts — no coding required. Choose between two data sources: &lt;b&gt;NASA POWER&lt;/b&gt; (from 1981) and &lt;b&gt;Open-Meteo (ERA5)&lt;/b&gt; (from 1940).</source>
+        <translation>ClimaPlots 为地图上任意点获取数十年的每日气候数据，并将其转化为交互式图表——无需编程。可在两个数据源之间选择：&lt;b&gt;NASA POWER&lt;/b&gt;（自 1981 年起）和 &lt;b&gt;Open-Meteo (ERA5)&lt;/b&gt;（自 1940 年起）。</translation>
+    </message>
+    <message>
+        <source>Climate Indices</source>
+        <translation>气候指数</translation>
+    </message>
+    <message>
+        <source>Climate data provider</source>
+        <translation>气候数据提供方</translation>
+    </message>
+    <message>
+        <source>Composite a vegetation index over the selected dates.</source>
+        <translation>在所选日期上合成植被指数。</translation>
+    </message>
+    <message>
+        <source>Converted area (ha)</source>
+        <translation>转换面积 (ha)</translation>
+    </message>
+    <message>
+        <source>Coordinates</source>
+        <translation>坐标</translation>
+    </message>
+    <message>
+        <source>Copy point A's coordinates here (e.g. to compare data sources)</source>
+        <translation>将点 A 的坐标复制到此处（例如用于对比数据源）</translation>
+    </message>
+    <message>
+        <source>Could not build route.</source>
+        <translation>无法构建路线。</translation>
+    </message>
+    <message>
+        <source>Could not capture the current map image.</source>
+        <translation>无法捕获当前地图图像。</translation>
+    </message>
+    <message>
+        <source>Could not create the temporary point layer.</source>
+        <translation>无法创建临时点图层。</translation>
+    </message>
+    <message>
+        <source>Could not load the map image for the PDF.</source>
+        <translation>无法加载用于 PDF 的地图图像。</translation>
+    </message>
+    <message>
+        <source>Could not open route in Google Maps.</source>
+        <translation>无法在 Google Maps 中打开路线。</translation>
+    </message>
+    <message>
+        <source>Coverage</source>
+        <translation>覆盖</translation>
+    </message>
+    <message>
+        <source>Custom transition</source>
+        <translation>自定义转换</translation>
+    </message>
+    <message>
+        <source>Customize modules</source>
+        <translation>自定义模块</translation>
+    </message>
+    <message>
+        <source>Custom…</source>
+        <translation>自定义…</translation>
+    </message>
+    <message>
+        <source>DATA SOURCE</source>
+        <translation>数据源</translation>
+    </message>
+    <message>
+        <source>DOWNLOAD A SINGLE YEAR TO QGIS</source>
+        <translation>下载单一年份到 QGIS</translation>
+    </message>
+    <message>
+        <source>Data not available</source>
+        <translation>数据不可用</translation>
+    </message>
+    <message>
+        <source>Data source for the comparison point</source>
+        <translation>对比点的数据源</translation>
+    </message>
+    <message>
+        <source>Defaults to the Inputs-tab index; pick a different one here.</source>
+        <translation>默认为输入选项卡的指数；在此处选择其他指数。</translation>
+    </message>
+    <message>
+        <source>Delete selected mark</source>
+        <translation>删除所选标记</translation>
+    </message>
+    <message>
+        <source>Density by area</source>
+        <translation>按面积密度</translation>
+    </message>
+    <message>
+        <source>Distribution method</source>
+        <translation>分布方法</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>完成</translation>
+    </message>
+    <message>
+        <source>Download climate data for this point and build the charts</source>
+        <translation>下载该点的气候数据并构建图表</translation>
+    </message>
+    <message>
+        <source>Download the selected year's classification as a GeoTIFF raster layer (real class IDs, styled with the MapBiomas palette)</source>
+        <translation>将所选年份的分类下载为 GeoTIFF 栅格图层（真实类别 ID，使用 MapBiomas 调色板设置样式）</translation>
+    </message>
+    <message>
+        <source>Download the selected year's classification as a QGIS raster layer</source>
+        <translation>将所选年份的分类下载为 QGIS 栅格图层</translation>
+    </message>
+    <message>
+        <source>Download the transition raster (classed by transition year, limited to the selected year range) as a QGIS layer</source>
+        <translation>将转换栅格（按转换年份分类，限于所选年份范围）下载为 QGIS 图层</translation>
+    </message>
+    <message>
+        <source>Download to QGIS</source>
+        <translation>下载到 QGIS</translation>
+    </message>
+    <message>
+        <source>Download year to QGIS</source>
+        <translation>下载年份到 QGIS</translation>
+    </message>
+    <message>
+        <source>Downloading transition {0}–{1}…</source>
+        <translation>正在下载转换 {0}–{1}…</translation>
+    </message>
+    <message>
+        <source>Downloading {0}…</source>
+        <translation>正在下载 {0}…</translation>
+    </message>
+    <message>
+        <source>Drag to reorder, uncheck to hide. Changes apply to both the sidebar and this welcome page. GEE Configuration stays pinned.</source>
+        <translation>拖动以重新排序，取消勾选以隐藏。更改会同时应用于侧边栏和本欢迎页面。GEE 配置保持固定。</translation>
+    </message>
+    <message>
+        <source>EasyDEM</source>
+        <translation>EasyDEM</translation>
+    </message>
+    <message>
+        <source>Enter proxy (e.g. http://[username]:[password]@host:port):</source>
+        <translation>输入代理（例如 http://[username]:[password]@host:port）：</translation>
+    </message>
+    <message>
+        <source>Error adding manual coordinate.</source>
+        <translation>添加手动坐标时出错。</translation>
+    </message>
+    <message>
+        <source>Error computing optimal points from raster {0}.</source>
+        <translation>从栅格 {0} 计算最优点时出错。</translation>
+    </message>
+    <message>
+        <source>Error exporting CSV.</source>
+        <translation>导出 CSV 时出错。</translation>
+    </message>
+    <message>
+        <source>Error exporting GPX.</source>
+        <translation>导出 GPX 时出错。</translation>
+    </message>
+    <message>
+        <source>Error generating PDF.</source>
+        <translation>生成 PDF 时出错。</translation>
+    </message>
+    <message>
+        <source>Error generating PDF: {0}</source>
+        <translation>生成 PDF 时出错：{0}</translation>
+    </message>
+    <message>
+        <source>Error generating marks from layer {0}.</source>
+        <translation>从图层 {0} 生成标记时出错。</translation>
+    </message>
+    <message>
+        <source>Error importing CSV.</source>
+        <translation>导入 CSV 时出错。</translation>
+    </message>
+    <message>
+        <source>Export GPS GPX</source>
+        <translation>导出 GPS GPX</translation>
+    </message>
+    <message>
+        <source>Export RAVI Time Series as CSV</source>
+        <translation>将 RAVI 时间序列导出为 CSV</translation>
+    </message>
+    <message>
+        <source>Export Time Series as CSV</source>
+        <translation>将时间序列导出为 CSV</translation>
+    </message>
+    <message>
+        <source>Export all</source>
+        <translation>全部导出</translation>
+    </message>
+    <message>
+        <source>Export as CSV</source>
+        <translation>导出为 CSV</translation>
+    </message>
+    <message>
+        <source>Export every table to one Excel file</source>
+        <translation>将每个表格导出到一个 Excel 文件</translation>
+    </message>
+    <message>
+        <source>Export failed.</source>
+        <translation>导出失败。</translation>
+    </message>
+    <message>
+        <source>Export points CSV</source>
+        <translation>导出点 CSV</translation>
+    </message>
+    <message>
+        <source>Export the full daily series as CSV</source>
+        <translation>将完整的每日序列导出为 CSV</translation>
+    </message>
+    <message>
+        <source>Export the monthly climate normals as CSV</source>
+        <translation>将月度气候平均值导出为 CSV</translation>
+    </message>
+    <message>
+        <source>Export the plotted annual series as CSV</source>
+        <translation>将绘制的年度序列导出为 CSV</translation>
+    </message>
+    <message>
+        <source>Export the selected index series as CSV</source>
+        <translation>将所选指数序列导出为 CSV</translation>
+    </message>
+    <message>
+        <source>FARM tools</source>
+        <translation>FARM tools</translation>
+    </message>
+    <message>
+        <source>FROM (SOURCE)</source>
+        <translation>来源（源）</translation>
+    </message>
+    <message>
+        <source>Failed to download MapBiomas raster.</source>
+        <translation>下载 MapBiomas 栅格失败。</translation>
+    </message>
+    <message>
+        <source>Failed to download transition raster.</source>
+        <translation>下载转换栅格失败。</translation>
+    </message>
+    <message>
+        <source>Failed to fetch or process climate data.
+See the QGIS log for details.</source>
+        <translation>获取或处理气候数据失败。
+详情请查看 QGIS 日志。</translation>
+    </message>
+    <message>
+        <source>Failed to load MapBiomas raster into QGIS.</source>
+        <translation>无法将 MapBiomas 栅格加载到 QGIS。</translation>
+    </message>
+    <message>
+        <source>Failed to load transition raster into QGIS.</source>
+        <translation>无法将转换栅格加载到 QGIS。</translation>
+    </message>
+    <message>
+        <source>Failed to read MapBiomas coverage images.</source>
+        <translation>读取 MapBiomas 覆盖影像失败。</translation>
+    </message>
+    <message>
+        <source>Failed to start writing the PDF.</source>
+        <translation>无法开始写入 PDF。</translation>
+    </message>
+    <message>
+        <source>Failed to write the PDF file to the chosen destination.</source>
+        <translation>无法将 PDF 文件写入所选目标位置。</translation>
+    </message>
+    <message>
+        <source>Fetching climate data...</source>
+        <translation>正在获取气候数据...</translation>
+    </message>
+    <message>
+        <source>Field Guide</source>
+        <translation>Field Guide</translation>
+    </message>
+    <message>
+        <source>Field Guide Marks</source>
+        <translation>Field Guide 标记</translation>
+    </message>
+    <message>
+        <source>Fill latitude and longitude to add a manual coordinate.</source>
+        <translation>填写纬度和经度以添加手动坐标。</translation>
+    </message>
+    <message>
+        <source>First year to download</source>
+        <translation>下载的起始年份</translation>
+    </message>
+    <message>
+        <source>Fixed marks per feature</source>
+        <translation>每个要素固定标记数</translation>
+    </message>
+    <message>
+        <source>GPX exported successfully: {0}</source>
+        <translation>GPX 导出成功：{0}</translation>
+    </message>
+    <message>
+        <source>Generate PDF report</source>
+        <translation>生成 PDF 报告</translation>
+    </message>
+    <message>
+        <source>Generated at</source>
+        <translation>生成时间</translation>
+    </message>
+    <message>
+        <source>Generates the mark count from feature area using 1 mark per {0} ha. Features that resolve to 1 mark use the centroid automatically; larger features follow a regular internal grid.</source>
+        <translation>按要素面积以每 {0} ha 1 个标记生成标记数。解析为 1 个标记的要素自动使用质心；较大的要素遵循规则的内部网格。</translation>
+    </message>
+    <message>
+        <source>Generates the mark count from feature area using 1 mark per {0} ha. Features that resolve to 1 mark use the centroid automatically; larger features follow a zigzag field transect.</source>
+        <translation>按要素面积以每 {0} ha 1 个标记生成标记数。解析为 1 个标记的要素自动使用质心；较大的要素遵循之字形田间样带。</translation>
+    </message>
+    <message>
+        <source>Generates the mark count from feature area using 1 mark per {0} ha. Features that resolve to 1 mark use the centroid automatically; larger features maximize internal spacing.</source>
+        <translation>按要素面积以每 {0} ha 1 个标记生成标记数。解析为 1 个标记的要素自动使用质心；较大的要素使内部间距最大化。</translation>
+    </message>
+    <message>
+        <source>Get Started</source>
+        <translation>开始使用</translation>
+    </message>
+    <message>
+        <source>Header must contain longitude and latitude columns.</source>
+        <translation>表头必须包含经度和纬度列。</translation>
+    </message>
+    <message>
+        <source>Hectares per mark</source>
+        <translation>每个标记的公顷数</translation>
+    </message>
+    <message>
+        <source>How pixels inside the AOI are aggregated to one value per date in the time-series plot. Median resists cloud/shadow outliers; mean is the classic average.</source>
+        <translation>在时间序列图中，AOI 内的像元如何按每个日期聚合为一个值。中位数能抵御云/阴影离群值；均值是经典的平均。</translation>
+    </message>
+    <message>
+        <source>IMPORT / EXPORT</source>
+        <translation>导入 / 导出</translation>
+    </message>
+    <message>
+        <source>Image</source>
+        <translation>图像</translation>
+    </message>
+    <message>
+        <source>Image saved: {0}</source>
+        <translation>图像已保存：{0}</translation>
+    </message>
+    <message>
+        <source>Import coordinates from CSV, export the current session to CSV or GPX, or add the marks as a temporary layer.</source>
+        <translation>从 CSV 导入坐标，将当前会话导出为 CSV 或 GPX，或将标记添加为临时图层。</translation>
+    </message>
+    <message>
+        <source>Import points CSV</source>
+        <translation>导入点 CSV</translation>
+    </message>
+    <message>
+        <source>Included in this plugin — click to add to your workspace.</source>
+        <translation>已包含在本插件中——点击以添加到您的工作区。</translation>
+    </message>
+    <message>
+        <source>Index sucessfully saved.</source>
+        <translation>指数保存成功。</translation>
+    </message>
+    <message>
+        <source>Index:</source>
+        <translation>指数：</translation>
+    </message>
+    <message>
+        <source>Invalid coordinates. Use decimal format (e.g.: -23.550520).</source>
+        <translation>无效坐标。请使用十进制格式（例如：-23.550520）。</translation>
+    </message>
+    <message>
+        <source>Invalid polygon layer.</source>
+        <translation>无效的多边形图层。</translation>
+    </message>
+    <message>
+        <source>Just need one year? Download that year's classification straight into QGIS as a styled raster layer — no need to render every year first.</source>
+        <translation>只需要一个年份？将该年份的分类作为样式化栅格图层直接下载到 QGIS——无需先渲染每个年份。</translation>
+    </message>
+    <message>
+        <source>LOCATION</source>
+        <translation>位置</translation>
+    </message>
+    <message>
+        <source>Large route detected. Opening {0} Google Maps segments.</source>
+        <translation>检测到大型路线。正在打开 {0} 个 Google Maps 路段。</translation>
+    </message>
+    <message>
+        <source>Large route split into {0} segments in Google Maps.</source>
+        <translation>大型路线已在 Google Maps 中拆分为 {0} 个路段。</translation>
+    </message>
+    <message>
+        <source>Last mark removed. {0} point(s) remaining.</source>
+        <translation>已移除最后一个标记。剩余 {0} 个点。</translation>
+    </message>
+    <message>
+        <source>Last point</source>
+        <translation>最后一个点</translation>
+    </message>
+    <message>
+        <source>Last year to download</source>
+        <translation>下载的结束年份</translation>
+    </message>
+    <message>
+        <source>Latitude</source>
+        <translation>纬度</translation>
+    </message>
+    <message>
+        <source>Latitude (e.g.: -23.550520)</source>
+        <translation>纬度（例如：-23.550520）</translation>
+    </message>
+    <message>
+        <source>Latitude in decimal degrees (WGS84), −90 to 90</source>
+        <translation>纬度，十进制度数 (WGS84)，−90 到 90</translation>
+    </message>
+    <message>
+        <source>Latitude is out of allowed range (-90 to 90).</source>
+        <translation>纬度超出允许范围（-90 到 90）。</translation>
+    </message>
+    <message>
+        <source>Layer {0} cannot be analyzed: web/tile rasters have no readable pixel grid. Choose a file-based raster.</source>
+        <translation>无法分析图层 {0}：web/瓦片栅格没有可读的像元网格。请选择基于文件的栅格。</translation>
+    </message>
+    <message>
+        <source>Leave empty for a single-point analysis</source>
+        <translation>留空以进行单点分析</translation>
+    </message>
+    <message>
+        <source>Legend — Collection 10</source>
+        <translation>图例 — Collection 10</translation>
+    </message>
+    <message>
+        <source>Load coverage</source>
+        <translation>加载覆盖</translation>
+    </message>
+    <message>
+        <source>Load coverage from the Inputs tab to browse MapBiomas by year.</source>
+        <translation>从输入选项卡加载覆盖，以按年份浏览 MapBiomas。</translation>
+    </message>
+    <message>
+        <source>Load the transition from the Inputs tab.</source>
+        <translation>从输入选项卡加载转换。</translation>
+    </message>
+    <message>
+        <source>Load transition</source>
+        <translation>加载转换</translation>
+    </message>
+    <message>
+        <source>Longitude</source>
+        <translation>经度</translation>
+    </message>
+    <message>
+        <source>Longitude (e.g.: -46.633308)</source>
+        <translation>经度（例如：-46.633308）</translation>
+    </message>
+    <message>
+        <source>Longitude in decimal degrees (WGS84), −180 to 180</source>
+        <translation>经度，十进制度数 (WGS84)，−180 到 180</translation>
+    </message>
+    <message>
+        <source>Longitude is out of allowed range (-180 to 180).</source>
+        <translation>经度超出允许范围（-180 到 180）。</translation>
+    </message>
+    <message>
+        <source>MANUAL COORDINATE (WGS84)</source>
+        <translation>手动坐标 (WGS84)</translation>
+    </message>
+    <message>
+        <source>MULTISPECTRAL RGB (%d m)</source>
+        <translation>多光谱 RGB (%d m)</translation>
+    </message>
+    <message>
+        <source>Manual marking mode. Enable raster selection to compute optimal points.</source>
+        <translation>手动标记模式。启用栅格选择以计算最优点。</translation>
+    </message>
+    <message>
+        <source>Map the first year each pixel went from a source class to a target class, and chart the converted area per year. Pick a preset or build a custom source → target.</source>
+        <translation>映射每个像元首次从源类别转为目标类别的年份，并按年份绘制转换面积图。选择一个预设或构建自定义的源 → 目标。</translation>
+    </message>
+    <message>
+        <source>Map the selected transition and chart its yearly area</source>
+        <translation>映射所选转换并绘制其年度面积</translation>
+    </message>
+    <message>
+        <source>MapBiomas</source>
+        <translation>MapBiomas</translation>
+    </message>
+    <message>
+        <source>MapBiomas coverage {0} loaded into QGIS.</source>
+        <translation>MapBiomas 覆盖 {0} 已加载到 QGIS。</translation>
+    </message>
+    <message>
+        <source>MapBiomas transition</source>
+        <translation>MapBiomas 转换</translation>
+    </message>
+    <message>
+        <source>MapBiomas — Land Use &amp; Land Cover</source>
+        <translation>MapBiomas — 土地利用与土地覆盖</translation>
+    </message>
+    <message>
+        <source>Mark feature centroids</source>
+        <translation>标记要素质心</translation>
+    </message>
+    <message>
+        <source>Mark feature samples</source>
+        <translation>标记要素样本</translation>
+    </message>
+    <message>
+        <source>Mark feature samples by density</source>
+        <translation>按密度标记要素样本</translation>
+    </message>
+    <message>
+        <source>Mark optimal points (raster)</source>
+        <translation>标记最优点（栅格）</translation>
+    </message>
+    <message>
+        <source>Marking mode enabled. Click on the map to add points.</source>
+        <translation>标记模式已启用。点击地图以添加点。</translation>
+    </message>
+    <message>
+        <source>Marks per feature</source>
+        <translation>每个要素的标记数</translation>
+    </message>
+    <message>
+        <source>Mean monthly precipitation (bars) and mean temperatures (lines) across the year.</source>
+        <translation>全年的月平均降水量（柱状）和月平均温度（折线）。</translation>
+    </message>
+    <message>
+        <source>Mean monthly precipitation and temperature</source>
+        <translation>月平均降水量与温度</translation>
+    </message>
+    <message>
+        <source>More FARM tools</source>
+        <translation>更多 FARM tools</translation>
+    </message>
+    <message>
+        <source>Multi-Satellite</source>
+        <translation>多卫星</translation>
+    </message>
+    <message>
+        <source>No MapBiomas coverage returned (Brazil only).</source>
+        <translation>未返回 MapBiomas 覆盖（仅限巴西）。</translation>
+    </message>
+    <message>
+        <source>No changelog available.</source>
+        <translation>没有可用的更新日志。</translation>
+    </message>
+    <message>
+        <source>No login</source>
+        <translation>未登录</translation>
+    </message>
+    <message>
+        <source>No marks to clear.</source>
+        <translation>没有可清除的标记。</translation>
+    </message>
+    <message>
+        <source>No marks to remove.</source>
+        <translation>没有可移除的标记。</translation>
+    </message>
+    <message>
+        <source>No points marked. Add map points before generating the PDF.</source>
+        <translation>未标记任何点。请在生成 PDF 之前添加地图点。</translation>
+    </message>
+    <message>
+        <source>No points yet</source>
+        <translation>尚无点</translation>
+    </message>
+    <message>
+        <source>No transition found in this area for: {0}</source>
+        <translation>在此区域未找到以下转换：{0}</translation>
+    </message>
+    <message>
+        <source>No valid optimal points found: raster {0} has no usable data inside the polygons of {1}.</source>
+        <translation>未找到有效的最优点：栅格 {0} 在 {1} 的多边形内没有可用数据。</translation>
+    </message>
+    <message>
+        <source>No valid points found in CSV.</source>
+        <translation>CSV 中未找到有效的点。</translation>
+    </message>
+    <message>
+        <source>No valid sample marks found in layer {0}.</source>
+        <translation>在图层 {0} 中未找到有效的样本标记。</translation>
+    </message>
+    <message>
+        <source>Nothing to save yet. Run an analysis first.</source>
+        <translation>尚无可保存的内容。请先运行分析。</translation>
+    </message>
+    <message>
+        <source>One mark per feature uses the polygon centroid.</source>
+        <translation>每个要素一个标记使用多边形质心。</translation>
+    </message>
+    <message>
+        <source>Open chart in browser</source>
+        <translation>在浏览器中打开图表</translation>
+    </message>
+    <message>
+        <source>Open in Google Maps</source>
+        <translation>在 Google Maps 中打开</translation>
+    </message>
+    <message>
+        <source>Open in browser</source>
+        <translation>在浏览器中打开</translation>
+    </message>
+    <message>
+        <source>Open route in Google Maps</source>
+        <translation>在 Google Maps 中打开路线</translation>
+    </message>
+    <message>
+        <source>Open the &lt;b&gt;Coordinates&lt;/b&gt; tab and pick a &lt;b&gt;data source&lt;/b&gt;.</source>
+        <translation>打开&lt;b&gt;坐标&lt;/b&gt;选项卡并选择一个&lt;b&gt;数据源&lt;/b&gt;。</translation>
+    </message>
+    <message>
+        <source>Open the current route in Google Maps when at least 2 points exist.</source>
+        <translation>当至少存在 2 个点时，在 Google Maps 中打开当前路线。</translation>
+    </message>
+    <message>
+        <source>Open the per-year chart full-screen in your web browser</source>
+        <translation>在网页浏览器中全屏打开逐年图表</translation>
+    </message>
+    <message>
+        <source>Open this chart full-screen in your web browser</source>
+        <translation>在网页浏览器中全屏打开此图表</translation>
+    </message>
+    <message>
+        <source>Optionally set a &lt;b&gt;comparison point B&lt;/b&gt; — pick it on the map, or press &lt;b&gt;Same location as A&lt;/b&gt;.</source>
+        <translation>可选择设置一个&lt;b&gt;对比点 B&lt;/b&gt;——在地图上选取，或按&lt;b&gt;与 A 相同位置&lt;/b&gt;。</translation>
+    </message>
+    <message>
+        <source>PDF generated successfully: {0}</source>
+        <translation>PDF 生成成功：{0}</translation>
+    </message>
+    <message>
+        <source>PDF saved, but could not be opened automatically.</source>
+        <translation>PDF 已保存，但无法自动打开。</translation>
+    </message>
+    <message>
+        <source>POLYGON SAMPLING</source>
+        <translation>多边形采样</translation>
+    </message>
+    <message>
+        <source>Pick a tool to get started</source>
+        <translation>选择一个工具开始</translation>
+    </message>
+    <message>
+        <source>Pick at least one source class and one target class.</source>
+        <translation>请至少选择一个源类别和一个目标类别。</translation>
+    </message>
+    <message>
+        <source>Place one mark per polygon at the location of maximum raster value (e.g. NDVI peak) instead of geometric sampling</source>
+        <translation>在每个多边形上以栅格值最大的位置（例如 NDVI 峰值）放置一个标记，而非几何采样</translation>
+    </message>
+    <message>
+        <source>Places exactly one mark per polygon at the pixel of maximum raster value (local-maximum detection with no-data and edge handling).</source>
+        <translation>在每个多边形上恰好以栅格值最大的像元放置一个标记（局部极大值检测，含无数据和边缘处理）。</translation>
+    </message>
+    <message>
+        <source>Places marks from a regular grid clipped to each polygon. Good for balanced field coverage and repeatable spacing.</source>
+        <translation>从裁剪到每个多边形的规则网格放置标记。适用于均衡的田间覆盖和可重复的间距。</translation>
+    </message>
+    <message>
+        <source>Point</source>
+        <translation>点</translation>
+    </message>
+    <message>
+        <source>Point A</source>
+        <translation>点 A</translation>
+    </message>
+    <message>
+        <source>Point B</source>
+        <translation>点 B</translation>
+    </message>
+    <message>
+        <source>Point {0} deleted. {1} point(s) remaining.</source>
+        <translation>点 {0} 已删除。剩余 {1} 个点。</translation>
+    </message>
+    <message>
+        <source>Point {0} saved in WGS84: ({1:.6f}, {2:.6f})</source>
+        <translation>点 {0} 已以 WGS84 保存：({1:.6f}, {2:.6f})</translation>
+    </message>
+    <message>
+        <source>Point {index}: {lat:.6f}, {lon:.6f}</source>
+        <translation>点 {index}：{lat:.6f}, {lon:.6f}</translation>
+    </message>
+    <message>
+        <source>Points list (tap to open on mobile)</source>
+        <translation>点列表（在移动设备上点按打开）</translation>
+    </message>
+    <message>
+        <source>Points selected using raster-based optimal location: {0} (Band {1}). Local maximum detection applied within each polygon boundary.</source>
+        <translation>使用基于栅格的最优位置选取的点：{0}（波段 {1}）。已在每个多边形边界内应用局部极大值检测。</translation>
+    </message>
+    <message>
+        <source>Press &lt;b&gt;Run analysis&lt;/b&gt; and wait while the data is downloaded.</source>
+        <translation>按&lt;b&gt;运行分析&lt;/b&gt;并等待数据下载完成。</translation>
+    </message>
+    <message>
+        <source>Publications that use this tool must cite:</source>
+        <translation>使用本工具的出版物必须引用：</translation>
+    </message>
+    <message>
+        <source>RAVI (Sentinel-2)</source>
+        <translation>RAVI (Sentinel-2)</translation>
+    </message>
+    <message>
+        <source>RAVI image %s into QGIS.</source>
+        <translation>RAVI 影像已%s到 QGIS。</translation>
+    </message>
+    <message>
+        <source>ROUTE</source>
+        <translation>路线</translation>
+    </message>
+    <message>
+        <source>Raster layer for optimal point selection</source>
+        <translation>用于最优点选取的栅格图层</translation>
+    </message>
+    <message>
+        <source>Raster selected: {0} Band {1} | Ready to sample {2} feature(s)</source>
+        <translation>已选择栅格：{0} 波段 {1} | 已就绪，可采样 {2} 个要素</translation>
+    </message>
+    <message>
+        <source>Raster selected: {0} Band {1} | Select a polygon layer</source>
+        <translation>已选择栅格：{0} 波段 {1} | 请选择多边形图层</translation>
+    </message>
+    <message>
+        <source>Raster {0} cannot be analyzed (web/tile layer). Choose a file-based raster.</source>
+        <translation>无法分析栅格 {0}（web/瓦片图层）。请选择基于文件的栅格。</translation>
+    </message>
+    <message>
+        <source>Ready</source>
+        <translation>就绪</translation>
+    </message>
+    <message>
+        <source>Remove last mark</source>
+        <translation>移除最后一个标记</translation>
+    </message>
+    <message>
+        <source>Remove the point markers from the map</source>
+        <translation>从地图上移除点标记</translation>
+    </message>
+    <message>
+        <source>Render every MapBiomas year and browse them with the slider</source>
+        <translation>渲染每个 MapBiomas 年份并用滑块浏览</translation>
+    </message>
+    <message>
+        <source>Renders all years (1985–2024) so you can browse them with the slider — this takes a moment.</source>
+        <translation>渲染所有年份 (1985–2024) 以便用滑块浏览——这需要一些时间。</translation>
+    </message>
+    <message>
+        <source>Reorder, show or hide modules</source>
+        <translation>重新排序、显示或隐藏模块</translation>
+    </message>
+    <message>
+        <source>Replace</source>
+        <translation>替换</translation>
+    </message>
+    <message>
+        <source>Reset to default</source>
+        <translation>重置为默认</translation>
+    </message>
+    <message>
+        <source>Route</source>
+        <translation>路线</translation>
+    </message>
+    <message>
+        <source>Route opened in Google Maps with {0} point(s).</source>
+        <translation>已在 Google Maps 中打开包含 {0} 个点的路线。</translation>
+    </message>
+    <message>
+        <source>Route readiness</source>
+        <translation>路线就绪情况</translation>
+    </message>
+    <message>
+        <source>Run an analysis first.</source>
+        <translation>请先运行分析。</translation>
+    </message>
+    <message>
+        <source>Run analysis</source>
+        <translation>运行分析</translation>
+    </message>
+    <message>
+        <source>Run the RAVI analysis first.</source>
+        <translation>请先运行 RAVI 分析。</translation>
+    </message>
+    <message>
+        <source>SATELLITES</source>
+        <translation>卫星</translation>
+    </message>
+    <message>
+        <source>SESSION</source>
+        <translation>会话</translation>
+    </message>
+    <message>
+        <source>SUPER-RESOLUTION RGB — Landsat only (disabled)</source>
+        <translation>超分辨率 RGB — 仅限 Landsat（已禁用）</translation>
+    </message>
+    <message>
+        <source>Sampling quantity</source>
+        <translation>采样数量</translation>
+    </message>
+    <message>
+        <source>Save CSV</source>
+        <translation>保存 CSV</translation>
+    </message>
+    <message>
+        <source>Save Field Guide PDF</source>
+        <translation>保存 Field Guide PDF</translation>
+    </message>
+    <message>
+        <source>Save chart data</source>
+        <translation>保存图表数据</translation>
+    </message>
+    <message>
+        <source>Save daily data</source>
+        <translation>保存每日数据</translation>
+    </message>
+    <message>
+        <source>Save image</source>
+        <translation>保存图像</translation>
+    </message>
+    <message>
+        <source>Save points to CSV</source>
+        <translation>将点保存到 CSV</translation>
+    </message>
+    <message>
+        <source>Save points to GPX</source>
+        <translation>将点保存到 GPX</translation>
+    </message>
+    <message>
+        <source>Save the chart as a PNG image</source>
+        <translation>将图表保存为 PNG 图像</translation>
+    </message>
+    <message>
+        <source>Saved: {0}</source>
+        <translation>已保存：{0}</translation>
+    </message>
+    <message>
+        <source>Select a mark in the session list to delete it.</source>
+        <translation>在会话列表中选择一个标记以删除它。</translation>
+    </message>
+    <message>
+        <source>Select a polygon layer and a raster layer, then use Mark optimal points (raster).</source>
+        <translation>请选择一个多边形图层和一个栅格图层，然后使用“标记最优点（栅格）”。</translation>
+    </message>
+    <message>
+        <source>Select a polygon layer from the current project first.</source>
+        <translation>请先从当前项目中选择一个多边形图层。</translation>
+    </message>
+    <message>
+        <source>Select a raster layer for optimal point selection.</source>
+        <translation>请选择用于最优点选取的栅格图层。</translation>
+    </message>
+    <message>
+        <source>Select a raster layer to compute optimal points.</source>
+        <translation>请选择栅格图层以计算最优点。</translation>
+    </message>
+    <message>
+        <source>Select at least one satellite.</source>
+        <translation>请至少选择一颗卫星。</translation>
+    </message>
+    <message>
+        <source>Setting up FARM tools…</source>
+        <translation>正在设置 FARM tools…</translation>
+    </message>
+    <message>
+        <source>Skipping %d non-Landsat date(s): super-resolution needs a panchromatic band.</source>
+        <translation>正在跳过 %d 个非 Landsat 日期：超分辨率需要全色波段。</translation>
+    </message>
+    <message>
+        <source>Source</source>
+        <translation>来源</translation>
+    </message>
+    <message>
+        <source>Spread optimized</source>
+        <translation>间距优化</translation>
+    </message>
+    <message>
+        <source>Starting…</source>
+        <translation>正在开始…</translation>
+    </message>
+    <message>
+        <source>Step %d of %d</source>
+        <translation>第 %d 步，共 %d 步</translation>
+    </message>
+    <message>
+        <source>Super-resolution needs a panchromatic band (Landsat only).</source>
+        <translation>超分辨率需要全色波段（仅限 Landsat）。</translation>
+    </message>
+    <message>
+        <source>Systematic grid</source>
+        <translation>系统网格</translation>
+    </message>
+    <message>
+        <source>TO (TARGET)</source>
+        <translation>目标（目标）</translation>
+    </message>
+    <message>
+        <source>TRANSITION (SOURCE → TARGET)</source>
+        <translation>转换（源 → 目标）</translation>
+    </message>
+    <message>
+        <source>Temporary layer added to the project: {0} ({1} point(s)).</source>
+        <translation>已将临时图层添加到项目：{0}（{1} 个点）。</translation>
+    </message>
+    <message>
+        <source>The RAVI module analyses the &lt;b&gt;Sentinel-2 Harmonized Surface Reflectance&lt;/b&gt; collection in Google Earth Engine. Pick an area, a date range and a vegetation index to build an interactive time series, then download imagery, composites and indices — no coding required.</source>
+        <translation>RAVI 模块在 Google Earth Engine 中分析 &lt;b&gt;Sentinel-2 Harmonized Surface Reflectance&lt;/b&gt; 集合。选择区域、日期范围和植被指数以构建交互式时间序列，然后下载影像、合成和指数——无需编程。</translation>
+    </message>
+    <message>
+        <source>The chart above plots the index and reducer chosen on the Inputs tab across every available satellite — built automatically when you Run.</source>
+        <translation>上图绘制了在输入选项卡上选定的指数和归约器在每个可用卫星上的变化——运行时自动构建。</translation>
+    </message>
+    <message>
+        <source>The raster layer cannot be analyzed (no readable pixel grid).</source>
+        <translation>无法分析该栅格图层（没有可读的像元网格）。</translation>
+    </message>
+    <message>
+        <source>The transition map appears here.</source>
+        <translation>转换图显示在此处。</translation>
+    </message>
+    <message>
+        <source>There are already {0} point(s) in this session.</source>
+        <translation>本会话中已有 {0} 个点。</translation>
+    </message>
+    <message>
+        <source>There are no marked points to generate the PDF.</source>
+        <translation>没有可用于生成 PDF 的已标记点。</translation>
+    </message>
+    <message>
+        <source>There are no points to add.</source>
+        <translation>没有可添加的点。</translation>
+    </message>
+    <message>
+        <source>There are no points to export.</source>
+        <translation>没有可导出的点。</translation>
+    </message>
+    <message>
+        <source>Thermo-pluviometric</source>
+        <translation>温度-降水</translation>
+    </message>
+    <message>
+        <source>This sensor has too few bands for an RGB composite.</source>
+        <translation>该传感器的波段太少，无法生成 RGB 合成。</translation>
+    </message>
+    <message>
+        <source>Toggle capture mode, then click on the map to add points</source>
+        <translation>切换捕获模式，然后点击地图以添加点</translation>
+    </message>
+    <message>
+        <source>Total points</source>
+        <translation>总点数</translation>
+    </message>
+    <message>
+        <source>Transition</source>
+        <translation>转换</translation>
+    </message>
+    <message>
+        <source>Transition layer loaded into QGIS: {0}</source>
+        <translation>转换图层已加载到 QGIS：{0}</translation>
+    </message>
+    <message>
+        <source>Transition per year</source>
+        <translation>逐年转换</translation>
+    </message>
+    <message>
+        <source>Trends</source>
+        <translation>趋势</translation>
+    </message>
+    <message>
+        <source>Unable to delete the selected mark.</source>
+        <translation>无法删除所选标记。</translation>
+    </message>
+    <message>
+        <source>Uncheck sensors you don't need — fewer satellites means less to load.</source>
+        <translation>取消勾选您不需要的传感器——卫星越少，加载越少。</translation>
+    </message>
+    <message>
+        <source>Use direct map clicks for field capture, or select a polygon layer below to generate marks inside each feature.</source>
+        <translation>使用直接点击地图进行田间捕获，或在下方选择一个多边形图层以在每个要素内生成标记。</translation>
+    </message>
+    <message>
+        <source>Use raster-based optimal point selection</source>
+        <translation>使用基于栅格的最优点选取</translation>
+    </message>
+    <message>
+        <source>VEGETATION INDEX (%d m)</source>
+        <translation>植被指数 (%d m)</translation>
+    </message>
+    <message>
+        <source>Variable:</source>
+        <translation>变量：</translation>
+    </message>
+    <message>
+        <source>Version {0}</source>
+        <translation>版本 {0}</translation>
+    </message>
+    <message>
+        <source>Welcome</source>
+        <translation>欢迎</translation>
+    </message>
+    <message>
+        <source>Welcome to FARM tools</source>
+        <translation>欢迎使用 FARM tools</translation>
+    </message>
+    <message>
+        <source>What's new</source>
+        <translation>新增内容</translation>
+    </message>
+    <message>
+        <source>Works without a Google Earth Engine sign-in</source>
+        <translation>无需登录 Google Earth Engine 即可运行</translation>
+    </message>
+    <message>
+        <source>Year</source>
+        <translation>年份</translation>
+    </message>
+    <message>
+        <source>Years</source>
+        <translation>年份</translation>
+    </message>
+    <message>
+        <source>Years: {0}–{1}</source>
+        <translation>年份：{0}–{1}</translation>
+    </message>
+    <message>
+        <source>Zigzag transect</source>
+        <translation>之字形样带</translation>
+    </message>
+    <message>
+        <source>centroid</source>
+        <translation>质心</translation>
+    </message>
+    <message>
+        <source>centroid mark(s)</source>
+        <translation>个质心标记</translation>
+    </message>
+    <message>
+        <source>points</source>
+        <translation>点</translation>
+    </message>
+    <message>
+        <source>rendering map {0}–{1}…</source>
+        <translation>正在渲染地图 {0}–{1}…</translation>
+    </message>
+    <message>
+        <source>sample mark(s)</source>
+        <translation>个样本标记</translation>
+    </message>
+    <message>
+        <source>selected transition</source>
+        <translation>所选转换</translation>
+    </message>
+    <message>
+        <source>spread optimized</source>
+        <translation>间距优化</translation>
+    </message>
+    <message>
+        <source>systematic grid</source>
+        <translation>系统网格</translation>
+    </message>
+    <message>
+        <source>to</source>
+        <translation>至</translation>
+    </message>
+    <message>
+        <source>updating {0}–{1}…</source>
+        <translation>正在更新 {0}–{1}…</translation>
+    </message>
+    <message>
+        <source>zigzag transect</source>
+        <translation>之字形样带</translation>
+    </message>
+    <message>
+        <source>{0:.1f} ha in {1}–{2}</source>
+        <translation>{0:.1f} ha，于 {1}–{2}</translation>
+    </message>
+    <message>
+        <source>{0} at 1 mark per {1} ha</source>
+        <translation>{0}，按每 {1} ha 1 个标记</translation>
+    </message>
+    <message>
+        <source>{0} mark(s) removed.</source>
+        <translation>已移除 {0} 个标记。</translation>
+    </message>
+    <message>
+        <source>{0} optimal point(s) added from {1} (band {2}).</source>
+        <translation>已从 {1}（波段 {2}）添加 {0} 个最优点。</translation>
+    </message>
+    <message>
+        <source>{0} optimal point(s) added from {1} (band {2}); {3} feature(s) skipped without valid raster data.</source>
+        <translation>已从 {1}（波段 {2}）添加 {0} 个最优点；{3} 个要素因无有效栅格数据被跳过。</translation>
+    </message>
+    <message>
+        <source>{0} point(s) imported successfully.</source>
+        <translation>已成功导入 {0} 个点。</translation>
+    </message>
+    <message>
+        <source>{0} point(s) imported; {1} row(s) skipped.</source>
+        <translation>已导入 {0} 个点；跳过了 {1} 行。</translation>
+    </message>
+    <message>
+        <source>{0} {1} added from {2} using {3}.</source>
+        <translation>已使用 {3} 从 {2} 添加 {0} 个{1}。</translation>
+    </message>
+    <message>
+        <source>{0} {1} added from {2} using {3}; {4} feature(s) skipped.</source>
+        <translation>已使用 {3} 从 {2} 添加 {0} 个{1}；跳过了 {4} 个要素。</translation>
+    </message>
+    <message>
+        <source>{0} — drag to reorder</source>
+        <translation>{0} — 拖动以重新排序</translation>
+    </message>
+    <message>
+        <source>⚙  Customize</source>
+        <translation>⚙  自定义</translation>
+    </message>
+    <message>
+        <source>⧉  Same location as A</source>
+        <translation>⧉  与 A 相同位置</translation>
+    </message>
+    <message>
+        <source>🌦️ ClimaPlots</source>
+        <translation>🌦️ ClimaPlots</translation>
+    </message>
+    <message>
+        <source>📅 Available coverage: &lt;b&gt;1999 to present&lt;/b&gt; — Landsat 7 (1999–2022), Landsat 8 (2013–), Landsat 9 (2021–), Sentinel-2 (2019–) and HLS Sentinel-2 (2015–). Dates outside a sensor's lifespan are skipped automatically.</source>
+        <translation>📅 可用覆盖范围：&lt;b&gt;1999 年至今&lt;/b&gt;——Landsat 7 (1999–2022)、Landsat 8 (2013–)、Landsat 9 (2021–)、Sentinel-2 (2019–) 和 HLS Sentinel-2 (2015–)。传感器寿命之外的日期会被自动跳过。</translation>
+    </message>
+    <message>
+        <source>📊 What it produces</source>
+        <translation>📊 它能产出什么</translation>
+    </message>
+    <message>
+        <source>📖 Citation</source>
+        <translation>📖 引用</translation>
+    </message>
+    <message>
+        <source>🔀 Compare two locations or two sources</source>
+        <translation>🔀 对比两个位置或两个数据源</translation>
+    </message>
+    <message>
+        <source>🚀 Quick start</source>
+        <translation>🚀 快速开始</translation>
+    </message>
+    <message>
+        <source>🛰️ Multi-Satellite</source>
+        <translation>🛰️ 多卫星</translation>
+    </message>
+    <message>
+        <source>🛰️ RAVI - Remote Analysis of Vegetation Index</source>
+        <translation>🛰️ RAVI - Remote Analysis of Vegetation Index</translation>
     </message>
 </context>
 </TS>

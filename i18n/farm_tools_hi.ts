@@ -8,20 +8,12 @@
         <translation>GEE कॉन्फ़िगरेशन</translation>
     </message>
     <message>
-        <source>Inputs &amp; Parameters</source>
-        <translation>इनपुट और पैरामीटर</translation>
-    </message>
-    <message>
         <source>Learn more</source>
         <translation>अधिक जानें</translation>
     </message>
     <message>
         <source>GEE Authentication</source>
         <translation>GEE प्रमाणीकरण</translation>
-    </message>
-    <message>
-        <source>RAVI uses &lt;b&gt;Google Earth Engine&lt;/b&gt; for processing. To continue, you will need authorized access.</source>
-        <translation>RAVI प्रोसेसिंग के लिए &lt;b&gt;Google Earth Engine&lt;/b&gt; का उपयोग करता है। जारी रखने के लिए अधिकृत पहुँच आवश्यक है।</translation>
     </message>
     <message>
         <source>Requires an active GEE account and a Google Cloud Console project with the API enabled.</source>
@@ -80,28 +72,12 @@
         <translation>बफर: %+d म</translation>
     </message>
     <message>
-        <source>Download to:</source>
-        <translation>डाउनलोड करें:</translation>
-    </message>
-    <message>
-        <source>Default Temporary Folder</source>
-        <translation>डिफ़ॉल्ट अस्थायी फ़ोल्डर</translation>
-    </message>
-    <message>
-        <source>Browse...</source>
-        <translation>ब्राउज़ करें...</translation>
-    </message>
-    <message>
         <source>Download DEM</source>
         <translation>DEM डाउनलोड करें</translation>
     </message>
     <message>
         <source>Auth</source>
         <translation>प्रमाणीकरण</translation>
-    </message>
-    <message>
-        <source>Select a layer.</source>
-        <translation>लेयर चुनें।</translation>
     </message>
     <message>
         <source>Missing Project ID.</source>
@@ -138,10 +114,6 @@
     <message>
         <source>Google Hybrid Layer loaded successfully</source>
         <translation>Google हाइब्रिड लेयर सफलतापूर्वक लोड हुई</translation>
-    </message>
-    <message>
-        <source>Select DEM Download Folder</source>
-        <translation>DEM डाउनलोड फ़ोल्डर चुनें</translation>
     </message>
     <message>
         <source>Information</source>
@@ -184,18 +156,6 @@
         <translation>स्थिति जांच…</translation>
     </message>
     <message>
-        <source>Not signed in</source>
-        <translation>साइन इन नहीं</translation>
-    </message>
-    <message>
-        <source>Credentials found — validate to finish</source>
-        <translation>क्रेडेंशियल मिलीं</translation>
-    </message>
-    <message>
-        <source>●  Signed in &amp; ready</source>
-        <translation>साइन इन और तैयार</translation>
-    </message>
-    <message>
         <source>Reopen the sign-in page</source>
         <translation>साइन-इन पेज में वापस जाएं</translation>
     </message>
@@ -226,14 +186,6 @@
     <message>
         <source>Running…</source>
         <translation>चल रहा है…</translation>
-    </message>
-    <message>
-        <source>Loading…</source>
-        <translation>लोड हो रहा है…</translation>
-    </message>
-    <message>
-        <source>Working…</source>
-        <translation>प्रसंस्करण…</translation>
     </message>
     <message>
         <source>START DATE</source>
@@ -352,36 +304,12 @@
         <translation>बैंड: DpRVI</translation>
     </message>
     <message>
-        <source>Amplitude</source>
-        <translation>आयाम</translation>
-    </message>
-    <message>
         <source>Mean</source>
         <translation>माध्य</translation>
     </message>
     <message>
         <source>Median</source>
         <translation>माध्यिका</translation>
-    </message>
-    <message>
-        <source>Min</source>
-        <translation>न्यूनतम</translation>
-    </message>
-    <message>
-        <source>Max</source>
-        <translation>अधिकतम</translation>
-    </message>
-    <message>
-        <source>Standard Deviation</source>
-        <translation>मानक विचलन</translation>
-    </message>
-    <message>
-        <source>Sum</source>
-        <translation>योग</translation>
-    </message>
-    <message>
-        <source>Area Under Curve (AUC)</source>
-        <translation>वक्र के नीचे क्षेत्र (AUC)</translation>
     </message>
     <message>
         <source>RGB: VV, VH, VV/VH Ratio</source>
@@ -656,10 +584,6 @@
         <translation>डाउनलोड फ़ोल्डर चुनें</translation>
     </message>
     <message>
-        <source>Setting up RAVI…</source>
-        <translation>RAVI सेट किया जा रहा है…</translation>
-    </message>
-    <message>
         <source>Setting up…</source>
         <translation>सेट किया जा रहा है…</translation>
     </message>
@@ -694,10 +618,6 @@
     <message>
         <source>%s Time Series</source>
         <translation>%s समय श्रृंखला</translation>
-    </message>
-    <message>
-        <source>%s Time Series (Landsat 7/8/9)</source>
-        <translation>%s समय श्रृंखला (Landsat 7/8/9)</translation>
     </message>
     <message>
         <source>&lt;b&gt;Area &amp;amp; Date Selection:&lt;/b&gt; Define the AOI and the period to scan</source>
@@ -794,10 +714,6 @@
     <message>
         <source>&lt;b&gt;Point &amp;amp; Per-Feature Analysis:&lt;/b&gt; Time series per clicked point or per polygon</source>
         <translation>&lt;b&gt;बिंदु और प्रति-फ़ीचर विश्लेषण:&lt;/b&gt; क्लिक किए गए बिंदु या बहुभुज के अनुसार समय श्रृंखला</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;RAVI&lt;/b&gt; (Remote Analysis of Vegetation Indices) began as the undergraduate thesis of &lt;a href='{caio}' style='{ls}'&gt;Caio Arantes&lt;/a&gt;, supervised by &lt;a href='{lucas}' style='{ls}'&gt;Prof. Dr. Lucas dos Rios Amaral&lt;/a&gt;, and is now an open-source project maintained with the support of &lt;a href='{farm}' style='{ls}'&gt;FARM Analytica&lt;/a&gt;, co-founded by Caio. Committed to technology diffusion and the open-source philosophy, it brings &lt;b&gt;Google Earth Engine&lt;/b&gt; processing into QGIS — turning satellite archives into vegetation, soil, radar and climate insight, without leaving your map.</source>
-        <translation>&lt;b&gt;RAVI&lt;/b&gt; (Remote Analysis of Vegetation Indices) की शुरुआत &lt;a href='{caio}' style='{ls}'&gt;Caio Arantes&lt;/a&gt; के स्नातक शोध के रूप में हुई, जिसका मार्गदर्शन &lt;a href='{lucas}' style='{ls}'&gt;Prof. Dr. Lucas dos Rios Amaral&lt;/a&gt; ने किया, और अब यह &lt;a href='{farm}' style='{ls}'&gt;FARM Analytica&lt;/a&gt; (सह-संस्थापक Caio) के सहयोग से बनाए रखा गया एक ओपन-सोर्स प्रोजेक्ट है। प्रौद्योगिकी प्रसार और ओपन-सोर्स दर्शन के प्रति प्रतिबद्ध, यह &lt;b&gt;Google Earth Engine&lt;/b&gt; प्रसंस्करण को QGIS में लाता है — उपग्रह अभिलेखों को वनस्पति, मृदा, रडार और जलवायु अंतर्दृष्टि में बदलता है, बिना आपके मानचित्र को छोड़े।</translation>
     </message>
     <message>
         <source>&lt;b&gt;Results:&lt;/b&gt; Inspect the plot, adjust the filter, preview and download outputs</source>
@@ -928,14 +844,6 @@
         <translation>ग्राफ़ रेंडर नहीं किया जा सका।</translation>
     </message>
     <message>
-        <source>Custom optical indices are not available for composites in this milestone.</source>
-        <translation>इस संस्करण में कंपोज़िट हेतु कस्टम ऑप्टिकल सूचकांक उपलब्ध नहीं हैं।</translation>
-    </message>
-    <message>
-        <source>Custom optical indices are not available in this milestone.</source>
-        <translation>इस संस्करण में कस्टम ऑप्टिकल सूचकांक उपलब्ध नहीं हैं।</translation>
-    </message>
-    <message>
         <source>EXPRESSION</source>
         <translation>अभिव्यक्ति</translation>
     </message>
@@ -944,20 +852,12 @@
         <translation>अंतिम तिथि प्रारंभ तिथि के बाद होनी चाहिए।</translation>
     </message>
     <message>
-        <source>Enter proxy (e.g. http://user:pass@host:port):</source>
-        <translation>प्रॉक्सी दर्ज करें (उदा. http://user:pass@host:port):</translation>
-    </message>
-    <message>
         <source>Every run searches &lt;b&gt;Landsat 7, 8 and 9&lt;/b&gt; together. Each available date is tagged with its mission in the Results date list.</source>
         <translation>प्रत्येक रन &lt;b&gt;Landsat 7, 8 और 9&lt;/b&gt; को एक साथ खोजता है। प्रत्येक उपलब्ध तिथि परिणाम तिथि सूची में अपने मिशन के साथ चिह्नित होती है।</translation>
     </message>
     <message>
         <source>Export Climate Data as CSV</source>
         <translation>जलवायु डेटा को CSV के रूप में निर्यात करें</translation>
-    </message>
-    <message>
-        <source>Export Optical Time Series as CSV</source>
-        <translation>ऑप्टिकल समय श्रृंखला को CSV के रूप में निर्यात करें</translation>
     </message>
     <message>
         <source>Extract a time series per clicked map point, or one series per polygon feature of the AOI layer keyed by an attribute.</source>
@@ -1020,14 +920,6 @@
         <translation>न्यून &amp;lt; अधिकतम रखें। दोनों श्रेणियों के भीतर के पिक्सेल खुली मृदा के रूप में रखे जाते हैं।</translation>
     </message>
     <message>
-        <source>Landsat (Super-Res)</source>
-        <translation>Landsat (सुपर-रेज़)</translation>
-    </message>
-    <message>
-        <source>Landsat Super-Resolution</source>
-        <translation>Landsat सुपर-रेज़ोल्यूशन</translation>
-    </message>
-    <message>
         <source>Landsat image %s into QGIS.</source>
         <translation>Landsat छवि QGIS में %s।</translation>
     </message>
@@ -1042,14 +934,6 @@
     <message>
         <source>MULTISPECTRAL RGB (30 m)</source>
         <translation>बहुवर्णक्रमीय RGB (30 मी)</translation>
-    </message>
-    <message>
-        <source>Max temperature</source>
-        <translation>अधिकतम तापमान</translation>
-    </message>
-    <message>
-        <source>Min temperature</source>
-        <translation>न्यूनतम तापमान</translation>
     </message>
     <message>
         <source>Monthly precipitation</source>
@@ -1092,18 +976,6 @@
         <translation>इस AOI और तिथि सीमा हेतु कोई समय-श्रृंखला डेटा नहीं।</translation>
     </message>
     <message>
-        <source>Optical (Sentinel-2)</source>
-        <translation>ऑप्टिकल (Sentinel-2)</translation>
-    </message>
-    <message>
-        <source>Optical Imagery (Sentinel-2)</source>
-        <translation>ऑप्टिकल इमेजरी (Sentinel-2)</translation>
-    </message>
-    <message>
-        <source>Optical image %s into QGIS.</source>
-        <translation>ऑप्टिकल छवि QGIS में %s।</translation>
-    </message>
-    <message>
         <source>Overlay accumulated monthly precipitation (NASA POWER) as bars on the time-series plot, over the same date range. Temperature is fetched too and included in the CSV export.</source>
         <translation>उसी तिथि सीमा में समय-श्रृंखला ग्राफ़ पर संचित मासिक वर्षा (NASA POWER) को बार के रूप में ओवरले करें। तापमान भी प्राप्त किया जाता है और CSV निर्यात में शामिल होता है।</translation>
     </message>
@@ -1138,10 +1010,6 @@
     <message>
         <source>Poly order</source>
         <translation>बहुपद क्रम</translation>
-    </message>
-    <message>
-        <source>Precipitation</source>
-        <translation>वर्षा</translation>
     </message>
     <message>
         <source>Proxy Settings</source>
@@ -1182,10 +1050,6 @@
     <message>
         <source>Run the Landsat analysis first.</source>
         <translation>पहले Landsat विश्लेषण चलाएँ।</translation>
-    </message>
-    <message>
-        <source>Run the optical analysis first.</source>
-        <translation>पहले ऑप्टिकल विश्लेषण चलाएँ।</translation>
     </message>
     <message>
         <source>Running...</source>
@@ -1244,10 +1108,6 @@
         <translation>इनपुट टैब पर चुनी गई SCL वर्गों के अनुसार वैध (अनमास्क्ड) पिक्सेल द्वारा कवर AOI का अंश। आपकी AOI के भीतर मापा गया, इसलिए यह दृश्य बादल आवरण की तुलना में स्थानीय बादल और छाया को बेहतर दर्शाता है।</translation>
     </message>
     <message>
-        <source>Single-date image of the index chosen on the Inputs tab, on 30 m surface reflectance.</source>
-        <translation>इनपुट टैब पर चुने गए सूचकांक की एकल-तिथि छवि, 30 मी सतह परावर्तन पर।</translation>
-    </message>
-    <message>
         <source>Smoothed (Savitzky-Golay)</source>
         <translation>स्मूथ (Savitzky-Golay)</translation>
     </message>
@@ -1266,10 +1126,6 @@
     <message>
         <source>TIME-SERIES SPATIAL REDUCER</source>
         <translation>समय-श्रृंखला स्थानिक रिड्यूसर</translation>
-    </message>
-    <message>
-        <source>The Optical module analyses the &lt;b&gt;Sentinel-2 Harmonized Surface Reflectance&lt;/b&gt; collection in Google Earth Engine. Pick an area, a date range and a vegetation index to build an interactive time series, then download imagery, composites and indices — no coding required.</source>
-        <translation>ऑप्टिकल मॉड्यूल Google Earth Engine में &lt;b&gt;Sentinel-2 Harmonized Surface Reflectance&lt;/b&gt; संग्रह का विश्लेषण करता है। एक क्षेत्र, तिथि सीमा और वनस्पति सूचकांक चुनकर इंटरैक्टिव समय श्रृंखला बनाएँ, फिर छवियाँ, कंपोज़िट और सूचकांक डाउनलोड करें — बिना कोडिंग के।</translation>
     </message>
     <message>
         <source>The SYSI module builds a &lt;b&gt;Synthetic Soil Image&lt;/b&gt;: a bare-soil reflectance composite derived from a multi-temporal Sentinel-2 collection. It runs the &lt;b&gt;GEOS3&lt;/b&gt; (Geospatial Soil Sensing System) algorithm of Demattê et al. (2018) on Google Earth Engine, keeping only the pixels that are bare soil across many dates and reducing them with a temporal &lt;b&gt;median&lt;/b&gt;. The result reveals the underlying soil surface free of vegetation and crop residue — no coding required.</source>
@@ -1306,10 +1162,6 @@
     <message>
         <source>DEMATTÊ, J. A. M.; FONGARO, C. T.; RIZZO, R.; SAFANELLI, J. L. &lt;i&gt;Geospatial Soil Sensing System (GEOS3): A powerful data mining procedure to retrieve soil spectral reflectance from satellite images.&lt;/i&gt; Remote Sensing of Environment, v. 212, p. 161–175, 2018. &lt;a href="https://doi.org/10.1016/j.rse.2018.04.047"&gt;doi:10.1016/j.rse.2018.04.047&lt;/a&gt;</source>
         <translation>DEMATTÊ, J. A. M.; FONGARO, C. T.; RIZZO, R.; SAFANELLI, J. L. &lt;i&gt;Geospatial Soil Sensing System (GEOS3): A powerful data mining procedure to retrieve soil spectral reflectance from satellite images.&lt;/i&gt; Remote Sensing of Environment, v. 212, p. 161–175, 2018. &lt;a href="https://doi.org/10.1016/j.rse.2018.04.047"&gt;doi:10.1016/j.rse.2018.04.047&lt;/a&gt;</translation>
-    </message>
-    <message>
-        <source>The chart above plots the index and reducer chosen on the Inputs tab across Landsat 7/8/9 — built automatically when you Run.</source>
-        <translation>ऊपर का ग्राफ़ इनपुट टैब पर चुने गए सूचकांक और रिड्यूसर को Landsat 7/8/9 में प्लॉट करता है — चलाने पर स्वतः निर्मित।</translation>
     </message>
     <message>
         <source>The synthetic soil image carries the Sentinel-2 surface-reflectance bands together with the soil indices computed during processing:</source>
@@ -1368,14 +1220,6 @@
         <translation>वनस्पति सूचकांक (30 मी)</translation>
     </message>
     <message>
-        <source>WHAT YOU CAN DO</source>
-        <translation>आप क्या कर सकते हैं</translation>
-    </message>
-    <message>
-        <source>Welcome to RAVI</source>
-        <translation>RAVI में आपका स्वागत है</translation>
-    </message>
-    <message>
         <source>Window</source>
         <translation>विंडो</translation>
     </message>
@@ -1408,10 +1252,6 @@
         <translation>🌱 SYSI मॉड्यूल - कृत्रिम मृदा छवि</translation>
     </message>
     <message>
-        <source>📅 Available coverage: &lt;b&gt;1999 to present&lt;/b&gt; — Landsat 7 (1999–2022), Landsat 8 (2013–) and Landsat 9 (2021–). Dates outside a mission's lifespan are skipped automatically.</source>
-        <translation>📅 उपलब्ध आवरण: &lt;b&gt;1999 से अब तक&lt;/b&gt; — Landsat 7 (1999–2022), Landsat 8 (2013–) और Landsat 9 (2021–)। किसी मिशन के जीवनकाल के बाहर की तिथियाँ स्वतः छोड़ दी जाती हैं।</translation>
-    </message>
-    <message>
         <source>📋 Workflow</source>
         <translation>📋 कार्यप्रवाह</translation>
     </message>
@@ -1424,16 +1264,8 @@
         <translation>🛰️ बैंड</translation>
     </message>
     <message>
-        <source>🛰️ Landsat Super-Resolution</source>
-        <translation>🛰️ Landsat सुपर-रेज़ोल्यूशन</translation>
-    </message>
-    <message>
         <source>🛰️ Landsat super-resolution is built on &lt;a href='{agrigee}' style='{ls}'&gt;AgriGEE.lite&lt;/a&gt;, in collaboration with its author &lt;a href='{mateus}' style='{ls}'&gt;Mateus Pinto&lt;/a&gt;.</source>
         <translation>🛰️ Landsat सुपर-रेज़ोल्यूशन &lt;a href='{agrigee}' style='{ls}'&gt;AgriGEE.lite&lt;/a&gt; पर बनाया गया है, इसके लेखक &lt;a href='{mateus}' style='{ls}'&gt;Mateus Pinto&lt;/a&gt; के सहयोग से।</translation>
-    </message>
-    <message>
-        <source>🛰️ Optical Imagery Module - Sentinel-2</source>
-        <translation>🛰️ ऑप्टिकल इमेजरी मॉड्यूल - Sentinel-2</translation>
     </message>
     <message>
         <source>AOI</source>
@@ -1552,92 +1384,1358 @@
         <translation>🛰️ Landsat सुपर-रेज़ोल्यूशन और वनस्पति-सूचकांक समय-श्रृंखला &lt;a href='{agrigee}' style='{ls}'&gt;AgriGEE.lite&lt;/a&gt; द्वारा संचालित हैं, इसके लेखक &lt;a href='{mateus}' style='{ls}'&gt;Mateus Pinto&lt;/a&gt; के सहयोग से।</translation>
     </message>
     <message>
-        <source>Optical time series</source>
-        <translation>ऑप्टिकल समय-श्रृंखला</translation>
+        <source>%s Multi-Satellite Time Series</source>
+        <translation>%s मल्टी-सैटेलाइट समय श्रृंखला</translation>
     </message>
     <message>
-        <source>Custom indices</source>
-        <translation>कस्टम सूचकांक</translation>
+        <source>(same source as A)</source>
+        <translation>(A के समान स्रोत)</translation>
     </message>
     <message>
-        <source>Synthetic composite</source>
-        <translation>सिंथेटिक कंपोज़िट</translation>
+        <source>+ Add</source>
+        <translation>+ जोड़ें</translation>
     </message>
     <message>
-        <source>Multispectral RGB</source>
-        <translation>मल्टीस्पेक्ट्रल RGB</translation>
+        <source>&lt;b&gt;Annual trends&lt;/b&gt; for temperature, precipitation, relative humidity, irradiation, wind speed, reference ET₀ and growing degree days, each annotated with &lt;b&gt;Mann–Kendall&lt;/b&gt; trend and &lt;b&gt;Pettitt&lt;/b&gt; homogeneity tests.</source>
+        <translation>&lt;b&gt;वार्षिक प्रवृत्तियाँ&lt;/b&gt; तापमान, वर्षा, सापेक्ष आर्द्रता, विकिरण, पवन गति, संदर्भ ET₀ और वृद्धि डिग्री दिनों के लिए, प्रत्येक &lt;b&gt;Mann–Kendall&lt;/b&gt; प्रवृत्ति और &lt;b&gt;Pettitt&lt;/b&gt; समरूपता परीक्षणों के साथ टिप्पणीकृत।</translation>
     </message>
     <message>
-        <source>Landsat super-resolution</source>
-        <translation>Landsat सुपर-रेज़ोल्यूशन</translation>
+        <source>&lt;b&gt;Climate indices&lt;/b&gt; — ETCCDI temperature and precipitation indices plus the Standardized Precipitation Index (SPI).</source>
+        <translation>&lt;b&gt;जलवायु सूचकांक&lt;/b&gt; — ETCCDI तापमान और वर्षा सूचकांक तथा मानकीकृत वर्षा सूचकांक (SPI)।</translation>
     </message>
     <message>
-        <source>SYSI — synthetic soil image</source>
-        <translation>SYSI — सिंथेटिक मृदा छवि</translation>
+        <source>&lt;b&gt;EasyDEM&lt;/b&gt; downloads ready-to-use terrain elevation models for your area of interest. Pick a polygon layer (or draw one), choose a DEM dataset such as SRTM or Copernicus, fine-tune the area with the buffer, and save a clipped GeoTIFF straight to your map.</source>
+        <translation>&lt;b&gt;EasyDEM&lt;/b&gt; आपके रुचि क्षेत्र के लिए उपयोग-हेतु-तैयार टेरेन ऊँचाई मॉडल डाउनलोड करता है। एक पॉलीगॉन लेयर चुनें (या एक बनाएं), SRTM या Copernicus जैसा कोई DEM डेटासेट चुनें, बफ़र से क्षेत्र को सूक्ष्म-समायोजित करें, और एक कटा हुआ GeoTIFF सीधे अपने मानचित्र में सहेजें।</translation>
     </message>
     <message>
-        <source>Radar (SAR)</source>
-        <translation>रडार (SAR)</translation>
+        <source>&lt;b&gt;FARM tools&lt;/b&gt; (formerly RAVI — Remote Analysis of Vegetation Indices) began as the undergraduate thesis of &lt;a href='{caio}' style='{ls}'&gt;Caio Arantes&lt;/a&gt;, supervised by &lt;a href='{lucas}' style='{ls}'&gt;Prof. Dr. Lucas dos Rios Amaral&lt;/a&gt;, and is now an open-source project maintained with the support of &lt;a href='{farm}' style='{ls}'&gt;FARM Analytica&lt;/a&gt;, co-founded by Caio. Committed to technology diffusion and the open-source philosophy, it brings &lt;b&gt;Google Earth Engine&lt;/b&gt; processing into QGIS — turning satellite archives into vegetation, soil, radar and climate insight, without leaving your map.</source>
+        <translation>&lt;b&gt;FARM tools&lt;/b&gt; (पूर्व में RAVI — Remote Analysis of Vegetation Indices) की शुरुआत &lt;a href='{caio}' style='{ls}'&gt;Caio Arantes&lt;/a&gt; के स्नातक शोध के रूप में हुई, जिसका मार्गदर्शन &lt;a href='{lucas}' style='{ls}'&gt;Prof. Dr. Lucas dos Rios Amaral&lt;/a&gt; ने किया, और अब यह &lt;a href='{farm}' style='{ls}'&gt;FARM Analytica&lt;/a&gt; (सह-संस्थापक Caio) के सहयोग से बनाए रखा गया एक ओपन-सोर्स प्रोजेक्ट है। प्रौद्योगिकी प्रसार और ओपन-सोर्स दर्शन के प्रति प्रतिबद्ध, यह &lt;b&gt;Google Earth Engine&lt;/b&gt; प्रसंस्करण को QGIS में लाता है — उपग्रह अभिलेखों को वनस्पति, मृदा, रडार और जलवायु अंतर्दृष्टि में बदलता है, बिना आपके मानचित्र को छोड़े।</translation>
     </message>
     <message>
-        <source>DEM download</source>
-        <translation>DEM डाउनलोड</translation>
+        <source>&lt;b&gt;Thermo-pluviometric diagram&lt;/b&gt; — the mean monthly precipitation and temperature regime of the location.</source>
+        <translation>&lt;b&gt;तापीय-वर्षामापी आरेख&lt;/b&gt; — स्थान का औसत मासिक वर्षा और तापमान शासन।</translation>
     </message>
     <message>
-        <source>Climate overlay</source>
-        <translation>जलवायु ओवरले</translation>
+        <source>ABOUT</source>
+        <translation>जानकारी</translation>
     </message>
     <message>
-        <source>Point &amp;amp; feature analysis</source>
-        <translation>बिंदु &amp;amp; फ़ीचर विश्लेषण</translation>
+        <source>Accepts decimal coordinates with dot or comma separators.</source>
+        <translation>बिंदु या अल्पविराम विभाजकों के साथ दशमलव निर्देशांक स्वीकार करता है।</translation>
     </message>
     <message>
-        <source>Batch download &amp;amp; CSV</source>
-        <translation>बैच डाउनलोड &amp;amp; CSV</translation>
+        <source>Add Temporary Layer</source>
+        <translation>अस्थायी लेयर जोड़ें</translation>
     </message>
     <message>
-        <source>Per-date Sentinel-2 vegetation-index series (NDVI, EVI, NDRE, NDWI, NBR…) over your AOI, with SCL cloud/shadow masking and date filtering</source>
-        <translation>आपके AOI पर प्रति-तिथि Sentinel-2 वनस्पति-सूचकांक श्रृंखला (NDVI, EVI, NDRE, NDWI, NBR…), SCL बादल/छाया मास्किंग और तिथि फ़िल्टरिंग के साथ</translation>
+        <source>Add a Google satellite basemap to help locate your point</source>
+        <translation>अपने बिंदु का स्थान निर्धारित करने में सहायता हेतु एक Google सैटेलाइट बेसमैप जोड़ें</translation>
     </message>
     <message>
-        <source>Build your own index from band math and reuse it across the whole series</source>
-        <translation>बैंड गणित से अपना स्वयं का सूचकांक बनाएं और इसे पूरी श्रृंखला में पुन: उपयोग करें</translation>
+        <source>Add an optional &lt;b&gt;comparison point B&lt;/b&gt; to overlay a second series on the Trends chart, with trend statistics reported for both points. B can use its own data source, so the &lt;i&gt;same&lt;/i&gt; location can be compared across NASA POWER and Open-Meteo — use &lt;b&gt;Same location as A&lt;/b&gt; to copy point A's coordinates without re-clicking the map.</source>
+        <translation>Trends ग्राफ़ पर एक दूसरी श्रृंखला आरोपित करने के लिए एक वैकल्पिक &lt;b&gt;तुलना बिंदु B&lt;/b&gt; जोड़ें, दोनों बिंदुओं के लिए प्रवृत्ति सांख्यिकी के साथ। B अपना स्वयं का डेटा स्रोत उपयोग कर सकता है, इसलिए &lt;i&gt;वही&lt;/i&gt; स्थान NASA POWER और Open-Meteo में तुलना किया जा सकता है — मानचित्र को दोबारा क्लिक किए बिना बिंदु A के निर्देशांक कॉपी करने हेतु &lt;b&gt;A के समान स्थान&lt;/b&gt; का उपयोग करें।</translation>
     </message>
     <message>
-        <source>Reduce a series to one image (mean, median, max, AUC…) for a clean snapshot</source>
-        <translation>एक स्वच्छ स्नैपशॉट के लिए श्रृंखला को एक छवि में घटाएं (mean, median, max, AUC…)</translation>
+        <source>Add at least 2 points</source>
+        <translation>कम से कम 2 बिंदु जोड़ें</translation>
     </message>
     <message>
-        <source>True- and false-colour composites for any acquisition date, styled in QGIS</source>
-        <translation>किसी भी अधिग्रहण तिथि के लिए ट्रू- और फ़ॉल्स-कलर कंपोज़िट, QGIS में स्टाइल किए गए</translation>
+        <source>Add at least 2 points to open a route in Google Maps.</source>
+        <translation>Google Maps में मार्ग खोलने हेतु कम से कम 2 बिंदु जोड़ें।</translation>
     </message>
     <message>
-        <source>Pan-sharpened 15 m Landsat 7/8/9 imagery, with a multi-mission vegetation-index time series — powered by AgriGEE.lite</source>
-        <translation>पैन-शार्पन्ड 15 m Landsat 7/8/9 इमेजरी, मल्टी-मिशन वनस्पति-सूचकांक समय-श्रृंखला के साथ — AgriGEE.lite द्वारा संचालित</translation>
+        <source>Add coordinate</source>
+        <translation>निर्देशांक जोड़ें</translation>
     </message>
     <message>
-        <source>Bare-soil reflectance composite (GEOS3) from cloud-free pixels for soil mapping</source>
-        <translation>मृदा मानचित्रण के लिए बादल-मुक्त पिक्सेल से नंगी-मृदा परावर्तन कंपोज़िट (GEOS3)</translation>
+        <source>Add {0} — included in this plugin</source>
+        <translation>{0} जोड़ें — इस प्लगइन में शामिल</translation>
     </message>
     <message>
-        <source>Sentinel-1 VV/VH backscatter time series — cloud-independent monitoring</source>
-        <translation>Sentinel-1 VV/VH बैकस्कैटर समय-श्रृंखला — बादल-स्वतंत्र निगरानी</translation>
+        <source>Append</source>
+        <translation>जोड़ें</translation>
     </message>
     <message>
-        <source>Fetch terrain elevation models (SRTM, Copernicus…) clipped to your area</source>
-        <translation>आपके क्षेत्र तक क्लिप किए गए भूभाग ऊंचाई मॉडल (SRTM, Copernicus…) प्राप्त करें</translation>
+        <source>Authentication is required to load MapBiomas data. Open the Auth page and validate your Google Cloud project ID.</source>
+        <translation>MapBiomas डेटा लोड करने हेतु प्रमाणीकरण आवश्यक है। Auth पेज खोलें और अपना Google Cloud प्रोजेक्ट ID सत्यापित करें।</translation>
     </message>
     <message>
-        <source>Overlay daily NASA POWER precipitation and min/max temperature on the plot</source>
-        <translation>प्लॉट पर दैनिक NASA POWER वर्षा और न्यूनतम/अधिकतम तापमान ओवरले करें</translation>
+        <source>Band</source>
+        <translation>बैंड</translation>
     </message>
     <message>
-        <source>Per-feature or per-point series with adjustable buffer and value extraction</source>
-        <translation>समायोज्य बफ़र और मान निष्कर्षण के साथ प्रति-फ़ीचर या प्रति-बिंदु श्रृंखला</translation>
+        <source>Band {0} is out of range for raster {1}.</source>
+        <translation>बैंड {0} रास्टर {1} के लिए सीमा से बाहर है।</translation>
     </message>
     <message>
-        <source>Export every selected date as rasters and the full data table as CSV</source>
-        <translation>प्रत्येक चयनित तिथि को रास्टर के रूप में और पूर्ण डेटा तालिका को CSV के रूप में निर्यात करें</translation>
+        <source>Batch super-resolution needs a panchromatic sensor (Landsat); none of the available dates qualify.</source>
+        <translation>बैच सुपर-रेज़ोल्यूशन हेतु एक पैनक्रोमैटिक सेंसर (Landsat) आवश्यक है; उपलब्ध तिथियों में से कोई योग्य नहीं।</translation>
+    </message>
+    <message>
+        <source>Behind a corporate network? Set a proxy via &lt;b&gt;Proxy settings&lt;/b&gt; in the authentication page.</source>
+        <translation>किसी कॉर्पोरेट नेटवर्क के पीछे हैं? प्रमाणीकरण पेज में &lt;b&gt;Proxy settings&lt;/b&gt; के माध्यम से एक प्रॉक्सी सेट करें।</translation>
+    </message>
+    <message>
+        <source>Browse the &lt;b&gt;MapBiomas Brasil Collection 10&lt;/b&gt; land-use / land-cover archive inside the module. Pick an AOI, then load the coverage years (browse them with the slider) or the Pasture→Crop transition. MapBiomas covers &lt;b&gt;Brazil only&lt;/b&gt;.</source>
+        <translation>मॉड्यूल के भीतर &lt;b&gt;MapBiomas Brasil Collection 10&lt;/b&gt; भू-उपयोग / भू-आवरण अभिलेख ब्राउज़ करें। एक AOI चुनें, फिर आवरण वर्ष लोड करें (स्लाइडर से उन्हें ब्राउज़ करें) या Pasture→Crop परिवर्तन। MapBiomas &lt;b&gt;केवल ब्राज़ील&lt;/b&gt; को कवर करता है।</translation>
+    </message>
+    <message>
+        <source>Browse the &lt;b&gt;Trends&lt;/b&gt;, &lt;b&gt;Thermo-pluviometric&lt;/b&gt; and &lt;b&gt;Climate Indices&lt;/b&gt; tabs. Use &lt;b&gt;Open in browser&lt;/b&gt; for a full-screen chart, or &lt;b&gt;Save chart data&lt;/b&gt; to export a CSV.</source>
+        <translation>&lt;b&gt;Trends&lt;/b&gt;, &lt;b&gt;Thermo-pluviometric&lt;/b&gt; और &lt;b&gt;Climate Indices&lt;/b&gt; टैब ब्राउज़ करें। पूर्ण-स्क्रीन ग्राफ़ हेतु &lt;b&gt;Open in browser&lt;/b&gt;, या एक CSV निर्यात करने हेतु &lt;b&gt;Save chart data&lt;/b&gt; का उपयोग करें।</translation>
+    </message>
+    <message>
+        <source>Builds a serpentine walk pattern across each polygon, similar to common zigzag soil sampling in the field.</source>
+        <translation>प्रत्येक पॉलीगॉन में एक सर्पीली चाल पैटर्न बनाता है, जो खेत में सामान्य ज़िगज़ैग मृदा नमूनाकरण के समान है।</translation>
+    </message>
+    <message>
+        <source>CAPTURE</source>
+        <translation>कैप्चर</translation>
+    </message>
+    <message>
+        <source>COMPARISON POINT B (OPTIONAL)</source>
+        <translation>तुलना बिंदु B (वैकल्पिक)</translation>
+    </message>
+    <message>
+        <source>COVERAGE</source>
+        <translation>आवरण</translation>
+    </message>
+    <message>
+        <source>CSV exported successfully: {0}</source>
+        <translation>CSV सफलतापूर्वक निर्यात किया गया: {0}</translation>
+    </message>
+    <message>
+        <source>CSV file has no header.</source>
+        <translation>CSV फ़ाइल में कोई हेडर नहीं है।</translation>
+    </message>
+    <message>
+        <source>Capture OFF</source>
+        <translation>कैप्चर बंद</translation>
+    </message>
+    <message>
+        <source>Capture ON</source>
+        <translation>कैप्चर चालू</translation>
+    </message>
+    <message>
+        <source>Capture a coordinate by clicking on the map canvas</source>
+        <translation>मानचित्र कैनवास पर क्लिक करके एक निर्देशांक कैप्चर करें</translation>
+    </message>
+    <message>
+        <source>Capture field points on the map, sample polygon features, and export routes, files, and PDF reports.</source>
+        <translation>मानचित्र पर खेत बिंदु कैप्चर करें, पॉलीगॉन फ़ीचर का नमूना लें, और मार्ग, फ़ाइलें तथा PDF रिपोर्ट निर्यात करें।</translation>
+    </message>
+    <message>
+        <source>Captured points appear here in collection order.</source>
+        <translation>कैप्चर किए गए बिंदु यहाँ संग्रह क्रम में दिखाई देते हैं।</translation>
+    </message>
+    <message>
+        <source>Charting dependencies are still being provisioned. Restart QGIS once setup completes.</source>
+        <translation>चार्टिंग निर्भरताएँ अभी भी प्रावधानित की जा रही हैं। सेटअप पूर्ण होने के बाद QGIS पुनः आरंभ करें।</translation>
+    </message>
+    <message>
+        <source>Choose a single-band or multi-band raster (e.g., NDVI composite) to identify the location of maximum vegetation value within each polygon</source>
+        <translation>प्रत्येक पॉलीगॉन के भीतर अधिकतम वनस्पति मान का स्थान पहचानने हेतु एक एकल-बैंड या बहु-बैंड रास्टर (उदा. NDVI कंपोज़िट) चुनें</translation>
+    </message>
+    <message>
+        <source>Choose the ETCCDI climate index to plot</source>
+        <translation>प्लॉट करने हेतु ETCCDI जलवायु सूचकांक चुनें</translation>
+    </message>
+    <message>
+        <source>Choose the climate variable to plot</source>
+        <translation>प्लॉट करने हेतु जलवायु चर चुनें</translation>
+    </message>
+    <message>
+        <source>Choose whether to append imported points or replace the current list.</source>
+        <translation>चुनें कि आयातित बिंदु जोड़ें या वर्तमान सूची को बदलें।</translation>
+    </message>
+    <message>
+        <source>Choose whether to append the generated marks or replace the current list.</source>
+        <translation>चुनें कि उत्पन्न चिह्न जोड़ें या वर्तमान सूची को बदलें।</translation>
+    </message>
+    <message>
+        <source>Chooses marks that maximize spacing inside each polygon. Good default for irregular areas and strong spatial distribution.</source>
+        <translation>प्रत्येक पॉलीगॉन के भीतर अंतराल को अधिकतम करने वाले चिह्न चुनता है। अनियमित क्षेत्रों और मजबूत स्थानिक वितरण हेतु अच्छा डिफ़ॉल्ट।</translation>
+    </message>
+    <message>
+        <source>Clear all {0} captured point(s)?</source>
+        <translation>सभी {0} कैप्चर किए गए बिंदु साफ़ करें?</translation>
+    </message>
+    <message>
+        <source>Clear marker</source>
+        <translation>मार्कर साफ़ करें</translation>
+    </message>
+    <message>
+        <source>Clear marks</source>
+        <translation>चिह्न साफ़ करें</translation>
+    </message>
+    <message>
+        <source>Click &lt;b&gt;Pick a point on the map&lt;/b&gt; and click a location on the canvas (or type the longitude/latitude manually).</source>
+        <translation>&lt;b&gt;मानचित्र पर एक बिंदु चुनें&lt;/b&gt; पर क्लिक करें और कैनवास पर किसी स्थान पर क्लिक करें (या देशांतर/अक्षांश मैन्युअल रूप से टाइप करें)।</translation>
+    </message>
+    <message>
+        <source>Click a point on the map (or enter Longitude/Latitude) first.</source>
+        <translation>पहले मानचित्र पर एक बिंदु क्लिक करें (या देशांतर/अक्षांश दर्ज करें)।</translation>
+    </message>
+    <message>
+        <source>Click a point on the map to set the coordinate.</source>
+        <translation>निर्देशांक निर्धारित करने हेतु मानचित्र पर एक बिंदु क्लिक करें।</translation>
+    </message>
+    <message>
+        <source>Click to open sign-in / Earth Engine configuration</source>
+        <translation>साइन-इन / Earth Engine कॉन्फ़िगरेशन खोलने हेतु क्लिक करें</translation>
+    </message>
+    <message>
+        <source>ClimaPlots</source>
+        <translation>ClimaPlots</translation>
+    </message>
+    <message>
+        <source>ClimaPlots dependencies are still being provisioned. Restart QGIS to finish the download, or install the packages from requirements.txt manually.</source>
+        <translation>ClimaPlots निर्भरताएँ अभी भी प्रावधानित की जा रही हैं। डाउनलोड पूर्ण करने हेतु QGIS पुनः आरंभ करें, या requirements.txt से पैकेज मैन्युअल रूप से इंस्टॉल करें।</translation>
+    </message>
+    <message>
+        <source>ClimaPlots fetches decades of daily climate data for any point on the map and turns it into interactive charts — no coding required. Choose between two data sources: &lt;b&gt;NASA POWER&lt;/b&gt; (from 1981) and &lt;b&gt;Open-Meteo (ERA5)&lt;/b&gt; (from 1940).</source>
+        <translation>ClimaPlots मानचित्र पर किसी भी बिंदु हेतु दशकों का दैनिक जलवायु डेटा प्राप्त करता है और उसे इंटरैक्टिव ग्राफ़ में बदल देता है — किसी कोडिंग की आवश्यकता नहीं। दो डेटा स्रोतों में से चुनें: &lt;b&gt;NASA POWER&lt;/b&gt; (1981 से) और &lt;b&gt;Open-Meteo (ERA5)&lt;/b&gt; (1940 से)।</translation>
+    </message>
+    <message>
+        <source>Climate Indices</source>
+        <translation>जलवायु सूचकांक</translation>
+    </message>
+    <message>
+        <source>Climate data provider</source>
+        <translation>जलवायु डेटा प्रदाता</translation>
+    </message>
+    <message>
+        <source>Composite a vegetation index over the selected dates.</source>
+        <translation>चुनी हुई तिथियों पर एक वनस्पति सूचकांक का कंपोज़िट बनाएं।</translation>
+    </message>
+    <message>
+        <source>Converted area (ha)</source>
+        <translation>रूपांतरित क्षेत्र (हे)</translation>
+    </message>
+    <message>
+        <source>Coordinates</source>
+        <translation>निर्देशांक</translation>
+    </message>
+    <message>
+        <source>Copy point A's coordinates here (e.g. to compare data sources)</source>
+        <translation>बिंदु A के निर्देशांक यहाँ कॉपी करें (उदा. डेटा स्रोतों की तुलना हेतु)</translation>
+    </message>
+    <message>
+        <source>Could not build route.</source>
+        <translation>मार्ग नहीं बनाया जा सका।</translation>
+    </message>
+    <message>
+        <source>Could not capture the current map image.</source>
+        <translation>वर्तमान मानचित्र छवि कैप्चर नहीं की जा सकी।</translation>
+    </message>
+    <message>
+        <source>Could not create the temporary point layer.</source>
+        <translation>अस्थायी बिंदु लेयर नहीं बनाई जा सकी।</translation>
+    </message>
+    <message>
+        <source>Could not load the map image for the PDF.</source>
+        <translation>PDF हेतु मानचित्र छवि लोड नहीं की जा सकी।</translation>
+    </message>
+    <message>
+        <source>Could not open route in Google Maps.</source>
+        <translation>Google Maps में मार्ग नहीं खोला जा सका।</translation>
+    </message>
+    <message>
+        <source>Coverage</source>
+        <translation>आवरण</translation>
+    </message>
+    <message>
+        <source>Custom transition</source>
+        <translation>कस्टम परिवर्तन</translation>
+    </message>
+    <message>
+        <source>Customize modules</source>
+        <translation>मॉड्यूल अनुकूलित करें</translation>
+    </message>
+    <message>
+        <source>Custom…</source>
+        <translation>कस्टम…</translation>
+    </message>
+    <message>
+        <source>DATA SOURCE</source>
+        <translation>डेटा स्रोत</translation>
+    </message>
+    <message>
+        <source>DOWNLOAD A SINGLE YEAR TO QGIS</source>
+        <translation>QGIS में एक एकल वर्ष डाउनलोड करें</translation>
+    </message>
+    <message>
+        <source>Data not available</source>
+        <translation>डेटा उपलब्ध नहीं</translation>
+    </message>
+    <message>
+        <source>Data source for the comparison point</source>
+        <translation>तुलना बिंदु हेतु डेटा स्रोत</translation>
+    </message>
+    <message>
+        <source>Defaults to the Inputs-tab index; pick a different one here.</source>
+        <translation>इनपुट-टैब सूचकांक पर डिफ़ॉल्ट होता है; यहाँ कोई भिन्न चुनें।</translation>
+    </message>
+    <message>
+        <source>Delete selected mark</source>
+        <translation>चयनित चिह्न हटाएं</translation>
+    </message>
+    <message>
+        <source>Density by area</source>
+        <translation>क्षेत्र के अनुसार घनत्व</translation>
+    </message>
+    <message>
+        <source>Distribution method</source>
+        <translation>वितरण विधि</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>पूर्ण</translation>
+    </message>
+    <message>
+        <source>Download climate data for this point and build the charts</source>
+        <translation>इस बिंदु हेतु जलवायु डेटा डाउनलोड करें और ग्राफ़ बनाएं</translation>
+    </message>
+    <message>
+        <source>Download the selected year's classification as a GeoTIFF raster layer (real class IDs, styled with the MapBiomas palette)</source>
+        <translation>चयनित वर्ष के वर्गीकरण को एक GeoTIFF रास्टर लेयर के रूप में डाउनलोड करें (वास्तविक वर्ग ID, MapBiomas पैलेट से स्टाइल किए गए)</translation>
+    </message>
+    <message>
+        <source>Download the selected year's classification as a QGIS raster layer</source>
+        <translation>चयनित वर्ष के वर्गीकरण को एक QGIS रास्टर लेयर के रूप में डाउनलोड करें</translation>
+    </message>
+    <message>
+        <source>Download the transition raster (classed by transition year, limited to the selected year range) as a QGIS layer</source>
+        <translation>परिवर्तन रास्टर (परिवर्तन वर्ष के अनुसार वर्गीकृत, चयनित वर्ष सीमा तक सीमित) को एक QGIS लेयर के रूप में डाउनलोड करें</translation>
+    </message>
+    <message>
+        <source>Download to QGIS</source>
+        <translation>QGIS में डाउनलोड करें</translation>
+    </message>
+    <message>
+        <source>Download year to QGIS</source>
+        <translation>QGIS में वर्ष डाउनलोड करें</translation>
+    </message>
+    <message>
+        <source>Downloading transition {0}–{1}…</source>
+        <translation>परिवर्तन {0}–{1} डाउनलोड हो रहा है…</translation>
+    </message>
+    <message>
+        <source>Downloading {0}…</source>
+        <translation>{0} डाउनलोड हो रहा है…</translation>
+    </message>
+    <message>
+        <source>Drag to reorder, uncheck to hide. Changes apply to both the sidebar and this welcome page. GEE Configuration stays pinned.</source>
+        <translation>पुनर्व्यवस्थित करने हेतु खींचें, छिपाने हेतु अनचेक करें। परिवर्तन साइडबार और इस स्वागत पेज दोनों पर लागू होते हैं। GEE Configuration पिन रहता है।</translation>
+    </message>
+    <message>
+        <source>EasyDEM</source>
+        <translation>EasyDEM</translation>
+    </message>
+    <message>
+        <source>Enter proxy (e.g. http://[username]:[password]@host:port):</source>
+        <translation>प्रॉक्सी दर्ज करें (उदा. http://[username]:[password]@host:port):</translation>
+    </message>
+    <message>
+        <source>Error adding manual coordinate.</source>
+        <translation>मैन्युअल निर्देशांक जोड़ने में त्रुटि।</translation>
+    </message>
+    <message>
+        <source>Error computing optimal points from raster {0}.</source>
+        <translation>रास्टर {0} से इष्टतम बिंदुओं की गणना में त्रुटि।</translation>
+    </message>
+    <message>
+        <source>Error exporting CSV.</source>
+        <translation>CSV निर्यात करने में त्रुटि।</translation>
+    </message>
+    <message>
+        <source>Error exporting GPX.</source>
+        <translation>GPX निर्यात करने में त्रुटि।</translation>
+    </message>
+    <message>
+        <source>Error generating PDF.</source>
+        <translation>PDF उत्पन्न करने में त्रुटि।</translation>
+    </message>
+    <message>
+        <source>Error generating PDF: {0}</source>
+        <translation>PDF उत्पन्न करने में त्रुटि: {0}</translation>
+    </message>
+    <message>
+        <source>Error generating marks from layer {0}.</source>
+        <translation>लेयर {0} से चिह्न उत्पन्न करने में त्रुटि।</translation>
+    </message>
+    <message>
+        <source>Error importing CSV.</source>
+        <translation>CSV आयात करने में त्रुटि।</translation>
+    </message>
+    <message>
+        <source>Export GPS GPX</source>
+        <translation>GPS GPX निर्यात करें</translation>
+    </message>
+    <message>
+        <source>Export RAVI Time Series as CSV</source>
+        <translation>RAVI समय श्रृंखला को CSV के रूप में निर्यात करें</translation>
+    </message>
+    <message>
+        <source>Export Time Series as CSV</source>
+        <translation>समय श्रृंखला को CSV के रूप में निर्यात करें</translation>
+    </message>
+    <message>
+        <source>Export all</source>
+        <translation>सभी निर्यात करें</translation>
+    </message>
+    <message>
+        <source>Export as CSV</source>
+        <translation>CSV के रूप में निर्यात करें</translation>
+    </message>
+    <message>
+        <source>Export every table to one Excel file</source>
+        <translation>प्रत्येक तालिका को एक Excel फ़ाइल में निर्यात करें</translation>
+    </message>
+    <message>
+        <source>Export failed.</source>
+        <translation>निर्यात विफल।</translation>
+    </message>
+    <message>
+        <source>Export points CSV</source>
+        <translation>बिंदु CSV निर्यात करें</translation>
+    </message>
+    <message>
+        <source>Export the full daily series as CSV</source>
+        <translation>पूर्ण दैनिक श्रृंखला को CSV के रूप में निर्यात करें</translation>
+    </message>
+    <message>
+        <source>Export the monthly climate normals as CSV</source>
+        <translation>मासिक जलवायु सामान्यांकों को CSV के रूप में निर्यात करें</translation>
+    </message>
+    <message>
+        <source>Export the plotted annual series as CSV</source>
+        <translation>प्लॉट की गई वार्षिक श्रृंखला को CSV के रूप में निर्यात करें</translation>
+    </message>
+    <message>
+        <source>Export the selected index series as CSV</source>
+        <translation>चयनित सूचकांक श्रृंखला को CSV के रूप में निर्यात करें</translation>
+    </message>
+    <message>
+        <source>FARM tools</source>
+        <translation>FARM tools</translation>
+    </message>
+    <message>
+        <source>FROM (SOURCE)</source>
+        <translation>स्रोत (FROM)</translation>
+    </message>
+    <message>
+        <source>Failed to download MapBiomas raster.</source>
+        <translation>MapBiomas रास्टर डाउनलोड करने में विफल।</translation>
+    </message>
+    <message>
+        <source>Failed to download transition raster.</source>
+        <translation>परिवर्तन रास्टर डाउनलोड करने में विफल।</translation>
+    </message>
+    <message>
+        <source>Failed to fetch or process climate data.
+See the QGIS log for details.</source>
+        <translation>जलवायु डेटा प्राप्त या संसाधित करने में विफल।
+विवरण हेतु QGIS लॉग देखें।</translation>
+    </message>
+    <message>
+        <source>Failed to load MapBiomas raster into QGIS.</source>
+        <translation>MapBiomas रास्टर को QGIS में लोड करने में विफल।</translation>
+    </message>
+    <message>
+        <source>Failed to load transition raster into QGIS.</source>
+        <translation>परिवर्तन रास्टर को QGIS में लोड करने में विफल।</translation>
+    </message>
+    <message>
+        <source>Failed to read MapBiomas coverage images.</source>
+        <translation>MapBiomas आवरण छवियाँ पढ़ने में विफल।</translation>
+    </message>
+    <message>
+        <source>Failed to start writing the PDF.</source>
+        <translation>PDF लिखना आरंभ करने में विफल।</translation>
+    </message>
+    <message>
+        <source>Failed to write the PDF file to the chosen destination.</source>
+        <translation>चुने गए गंतव्य में PDF फ़ाइल लिखने में विफल।</translation>
+    </message>
+    <message>
+        <source>Fetching climate data...</source>
+        <translation>जलवायु डेटा प्राप्त हो रहा है...</translation>
+    </message>
+    <message>
+        <source>Field Guide</source>
+        <translation>Field Guide</translation>
+    </message>
+    <message>
+        <source>Field Guide Marks</source>
+        <translation>Field Guide चिह्न</translation>
+    </message>
+    <message>
+        <source>Fill latitude and longitude to add a manual coordinate.</source>
+        <translation>मैन्युअल निर्देशांक जोड़ने हेतु अक्षांश और देशांतर भरें।</translation>
+    </message>
+    <message>
+        <source>First year to download</source>
+        <translation>डाउनलोड करने हेतु प्रथम वर्ष</translation>
+    </message>
+    <message>
+        <source>Fixed marks per feature</source>
+        <translation>प्रति फ़ीचर निश्चित चिह्न</translation>
+    </message>
+    <message>
+        <source>GPX exported successfully: {0}</source>
+        <translation>GPX सफलतापूर्वक निर्यात किया गया: {0}</translation>
+    </message>
+    <message>
+        <source>Generate PDF report</source>
+        <translation>PDF रिपोर्ट उत्पन्न करें</translation>
+    </message>
+    <message>
+        <source>Generated at</source>
+        <translation>उत्पन्न किया गया</translation>
+    </message>
+    <message>
+        <source>Generates the mark count from feature area using 1 mark per {0} ha. Features that resolve to 1 mark use the centroid automatically; larger features follow a regular internal grid.</source>
+        <translation>फ़ीचर क्षेत्र से प्रति {0} हे 1 चिह्न का उपयोग करके चिह्न गणना उत्पन्न करता है। जो फ़ीचर 1 चिह्न में परिणत होते हैं वे स्वतः सेंट्रॉइड का उपयोग करते हैं; बड़े फ़ीचर एक नियमित आंतरिक ग्रिड का अनुसरण करते हैं।</translation>
+    </message>
+    <message>
+        <source>Generates the mark count from feature area using 1 mark per {0} ha. Features that resolve to 1 mark use the centroid automatically; larger features follow a zigzag field transect.</source>
+        <translation>फ़ीचर क्षेत्र से प्रति {0} हे 1 चिह्न का उपयोग करके चिह्न गणना उत्पन्न करता है। जो फ़ीचर 1 चिह्न में परिणत होते हैं वे स्वतः सेंट्रॉइड का उपयोग करते हैं; बड़े फ़ीचर एक ज़िगज़ैग खेत ट्रांसेक्ट का अनुसरण करते हैं।</translation>
+    </message>
+    <message>
+        <source>Generates the mark count from feature area using 1 mark per {0} ha. Features that resolve to 1 mark use the centroid automatically; larger features maximize internal spacing.</source>
+        <translation>फ़ीचर क्षेत्र से प्रति {0} हे 1 चिह्न का उपयोग करके चिह्न गणना उत्पन्न करता है। जो फ़ीचर 1 चिह्न में परिणत होते हैं वे स्वतः सेंट्रॉइड का उपयोग करते हैं; बड़े फ़ीचर आंतरिक अंतराल को अधिकतम करते हैं।</translation>
+    </message>
+    <message>
+        <source>Get Started</source>
+        <translation>आरंभ करें</translation>
+    </message>
+    <message>
+        <source>Header must contain longitude and latitude columns.</source>
+        <translation>हेडर में देशांतर और अक्षांश कॉलम होने चाहिए।</translation>
+    </message>
+    <message>
+        <source>Hectares per mark</source>
+        <translation>प्रति चिह्न हेक्टेयर</translation>
+    </message>
+    <message>
+        <source>How pixels inside the AOI are aggregated to one value per date in the time-series plot. Median resists cloud/shadow outliers; mean is the classic average.</source>
+        <translation>AOI के भीतर के पिक्सेल समय-श्रृंखला प्लॉट में प्रति तिथि एक मान में कैसे समेकित होते हैं। माध्यिका बादल/छाया बाह्यमानों का प्रतिरोध करती है; माध्य पारंपरिक औसत है।</translation>
+    </message>
+    <message>
+        <source>IMPORT / EXPORT</source>
+        <translation>आयात / निर्यात</translation>
+    </message>
+    <message>
+        <source>Image</source>
+        <translation>छवि</translation>
+    </message>
+    <message>
+        <source>Image saved: {0}</source>
+        <translation>छवि सहेजी गई: {0}</translation>
+    </message>
+    <message>
+        <source>Import coordinates from CSV, export the current session to CSV or GPX, or add the marks as a temporary layer.</source>
+        <translation>CSV से निर्देशांक आयात करें, वर्तमान सत्र को CSV या GPX में निर्यात करें, या चिह्नों को एक अस्थायी लेयर के रूप में जोड़ें।</translation>
+    </message>
+    <message>
+        <source>Import points CSV</source>
+        <translation>बिंदु CSV आयात करें</translation>
+    </message>
+    <message>
+        <source>Included in this plugin — click to add to your workspace.</source>
+        <translation>इस प्लगइन में शामिल — अपने कार्यक्षेत्र में जोड़ने हेतु क्लिक करें।</translation>
+    </message>
+    <message>
+        <source>Index sucessfully saved.</source>
+        <translation>सूचकांक सफलतापूर्वक सहेजा गया।</translation>
+    </message>
+    <message>
+        <source>Index:</source>
+        <translation>सूचकांक:</translation>
+    </message>
+    <message>
+        <source>Invalid coordinates. Use decimal format (e.g.: -23.550520).</source>
+        <translation>अमान्य निर्देशांक। दशमलव प्रारूप का उपयोग करें (उदा.: -23.550520)।</translation>
+    </message>
+    <message>
+        <source>Invalid polygon layer.</source>
+        <translation>अमान्य पॉलीगॉन लेयर।</translation>
+    </message>
+    <message>
+        <source>Just need one year? Download that year's classification straight into QGIS as a styled raster layer — no need to render every year first.</source>
+        <translation>केवल एक वर्ष चाहिए? उस वर्ष के वर्गीकरण को सीधे QGIS में एक स्टाइल किए गए रास्टर लेयर के रूप में डाउनलोड करें — पहले हर वर्ष रेंडर करने की आवश्यकता नहीं।</translation>
+    </message>
+    <message>
+        <source>LOCATION</source>
+        <translation>स्थान</translation>
+    </message>
+    <message>
+        <source>Large route detected. Opening {0} Google Maps segments.</source>
+        <translation>बड़ा मार्ग पाया गया। {0} Google Maps खंड खुल रहे हैं।</translation>
+    </message>
+    <message>
+        <source>Large route split into {0} segments in Google Maps.</source>
+        <translation>बड़ा मार्ग Google Maps में {0} खंडों में विभाजित किया गया।</translation>
+    </message>
+    <message>
+        <source>Last mark removed. {0} point(s) remaining.</source>
+        <translation>अंतिम चिह्न हटाया गया। {0} बिंदु शेष।</translation>
+    </message>
+    <message>
+        <source>Last point</source>
+        <translation>अंतिम बिंदु</translation>
+    </message>
+    <message>
+        <source>Last year to download</source>
+        <translation>डाउनलोड करने हेतु अंतिम वर्ष</translation>
+    </message>
+    <message>
+        <source>Latitude</source>
+        <translation>अक्षांश</translation>
+    </message>
+    <message>
+        <source>Latitude (e.g.: -23.550520)</source>
+        <translation>अक्षांश (उदा.: -23.550520)</translation>
+    </message>
+    <message>
+        <source>Latitude in decimal degrees (WGS84), −90 to 90</source>
+        <translation>दशमलव डिग्री में अक्षांश (WGS84), −90 से 90</translation>
+    </message>
+    <message>
+        <source>Latitude is out of allowed range (-90 to 90).</source>
+        <translation>अक्षांश अनुमत सीमा से बाहर है (-90 से 90)।</translation>
+    </message>
+    <message>
+        <source>Layer {0} cannot be analyzed: web/tile rasters have no readable pixel grid. Choose a file-based raster.</source>
+        <translation>लेयर {0} का विश्लेषण नहीं किया जा सकता: वेब/टाइल रास्टर में पढ़ने योग्य पिक्सेल ग्रिड नहीं होता। एक फ़ाइल-आधारित रास्टर चुनें।</translation>
+    </message>
+    <message>
+        <source>Leave empty for a single-point analysis</source>
+        <translation>एकल-बिंदु विश्लेषण हेतु खाली छोड़ें</translation>
+    </message>
+    <message>
+        <source>Legend — Collection 10</source>
+        <translation>लीजेंड — Collection 10</translation>
+    </message>
+    <message>
+        <source>Load coverage</source>
+        <translation>आवरण लोड करें</translation>
+    </message>
+    <message>
+        <source>Load coverage from the Inputs tab to browse MapBiomas by year.</source>
+        <translation>वर्ष के अनुसार MapBiomas ब्राउज़ करने हेतु Inputs टैब से आवरण लोड करें।</translation>
+    </message>
+    <message>
+        <source>Load the transition from the Inputs tab.</source>
+        <translation>Inputs टैब से परिवर्तन लोड करें।</translation>
+    </message>
+    <message>
+        <source>Load transition</source>
+        <translation>परिवर्तन लोड करें</translation>
+    </message>
+    <message>
+        <source>Longitude</source>
+        <translation>देशांतर</translation>
+    </message>
+    <message>
+        <source>Longitude (e.g.: -46.633308)</source>
+        <translation>देशांतर (उदा.: -46.633308)</translation>
+    </message>
+    <message>
+        <source>Longitude in decimal degrees (WGS84), −180 to 180</source>
+        <translation>दशमलव डिग्री में देशांतर (WGS84), −180 से 180</translation>
+    </message>
+    <message>
+        <source>Longitude is out of allowed range (-180 to 180).</source>
+        <translation>देशांतर अनुमत सीमा से बाहर है (-180 से 180)।</translation>
+    </message>
+    <message>
+        <source>MANUAL COORDINATE (WGS84)</source>
+        <translation>मैन्युअल निर्देशांक (WGS84)</translation>
+    </message>
+    <message>
+        <source>MULTISPECTRAL RGB (%d m)</source>
+        <translation>बहुवर्णक्रमीय RGB (%d मी)</translation>
+    </message>
+    <message>
+        <source>Manual marking mode. Enable raster selection to compute optimal points.</source>
+        <translation>मैन्युअल चिह्नांकन मोड। इष्टतम बिंदुओं की गणना हेतु रास्टर चयन सक्षम करें।</translation>
+    </message>
+    <message>
+        <source>Map the first year each pixel went from a source class to a target class, and chart the converted area per year. Pick a preset or build a custom source → target.</source>
+        <translation>प्रत्येक पिक्सेल पहली बार किस वर्ष किसी स्रोत वर्ग से लक्ष्य वर्ग में गया, उसे मैप करें, और प्रति वर्ष रूपांतरित क्षेत्र को चार्ट करें। एक प्रीसेट चुनें या एक कस्टम स्रोत → लक्ष्य बनाएं।</translation>
+    </message>
+    <message>
+        <source>Map the selected transition and chart its yearly area</source>
+        <translation>चयनित परिवर्तन को मैप करें और इसके वार्षिक क्षेत्र को चार्ट करें</translation>
+    </message>
+    <message>
+        <source>MapBiomas</source>
+        <translation>MapBiomas</translation>
+    </message>
+    <message>
+        <source>MapBiomas coverage {0} loaded into QGIS.</source>
+        <translation>MapBiomas आवरण {0} QGIS में लोड किया गया।</translation>
+    </message>
+    <message>
+        <source>MapBiomas transition</source>
+        <translation>MapBiomas परिवर्तन</translation>
+    </message>
+    <message>
+        <source>MapBiomas — Land Use &amp; Land Cover</source>
+        <translation>MapBiomas — भू-उपयोग और भू-आवरण</translation>
+    </message>
+    <message>
+        <source>Mark feature centroids</source>
+        <translation>फ़ीचर सेंट्रॉइड चिह्नित करें</translation>
+    </message>
+    <message>
+        <source>Mark feature samples</source>
+        <translation>फ़ीचर नमूने चिह्नित करें</translation>
+    </message>
+    <message>
+        <source>Mark feature samples by density</source>
+        <translation>घनत्व के अनुसार फ़ीचर नमूने चिह्नित करें</translation>
+    </message>
+    <message>
+        <source>Mark optimal points (raster)</source>
+        <translation>इष्टतम बिंदु चिह्नित करें (रास्टर)</translation>
+    </message>
+    <message>
+        <source>Marking mode enabled. Click on the map to add points.</source>
+        <translation>चिह्नांकन मोड सक्षम। बिंदु जोड़ने हेतु मानचित्र पर क्लिक करें।</translation>
+    </message>
+    <message>
+        <source>Marks per feature</source>
+        <translation>प्रति फ़ीचर चिह्न</translation>
+    </message>
+    <message>
+        <source>Mean monthly precipitation (bars) and mean temperatures (lines) across the year.</source>
+        <translation>वर्ष भर औसत मासिक वर्षा (बार) और औसत तापमान (रेखाएं)।</translation>
+    </message>
+    <message>
+        <source>Mean monthly precipitation and temperature</source>
+        <translation>औसत मासिक वर्षा और तापमान</translation>
+    </message>
+    <message>
+        <source>More FARM tools</source>
+        <translation>और FARM tools</translation>
+    </message>
+    <message>
+        <source>Multi-Satellite</source>
+        <translation>मल्टी-सैटेलाइट</translation>
+    </message>
+    <message>
+        <source>No MapBiomas coverage returned (Brazil only).</source>
+        <translation>कोई MapBiomas आवरण नहीं लौटाया गया (केवल ब्राज़ील)।</translation>
+    </message>
+    <message>
+        <source>No changelog available.</source>
+        <translation>कोई चेंजलॉग उपलब्ध नहीं।</translation>
+    </message>
+    <message>
+        <source>No login</source>
+        <translation>कोई लॉगिन नहीं</translation>
+    </message>
+    <message>
+        <source>No marks to clear.</source>
+        <translation>साफ़ करने हेतु कोई चिह्न नहीं।</translation>
+    </message>
+    <message>
+        <source>No marks to remove.</source>
+        <translation>हटाने हेतु कोई चिह्न नहीं।</translation>
+    </message>
+    <message>
+        <source>No points marked. Add map points before generating the PDF.</source>
+        <translation>कोई बिंदु चिह्नित नहीं। PDF उत्पन्न करने से पहले मानचित्र बिंदु जोड़ें।</translation>
+    </message>
+    <message>
+        <source>No points yet</source>
+        <translation>अभी कोई बिंदु नहीं</translation>
+    </message>
+    <message>
+        <source>No transition found in this area for: {0}</source>
+        <translation>इस क्षेत्र में इसके लिए कोई परिवर्तन नहीं मिला: {0}</translation>
+    </message>
+    <message>
+        <source>No valid optimal points found: raster {0} has no usable data inside the polygons of {1}.</source>
+        <translation>कोई वैध इष्टतम बिंदु नहीं मिले: रास्टर {0} में {1} के पॉलीगॉनों के भीतर कोई उपयोग योग्य डेटा नहीं है।</translation>
+    </message>
+    <message>
+        <source>No valid points found in CSV.</source>
+        <translation>CSV में कोई वैध बिंदु नहीं मिले।</translation>
+    </message>
+    <message>
+        <source>No valid sample marks found in layer {0}.</source>
+        <translation>लेयर {0} में कोई वैध नमूना चिह्न नहीं मिले।</translation>
+    </message>
+    <message>
+        <source>Nothing to save yet. Run an analysis first.</source>
+        <translation>अभी सहेजने हेतु कुछ नहीं। पहले एक विश्लेषण चलाएं।</translation>
+    </message>
+    <message>
+        <source>One mark per feature uses the polygon centroid.</source>
+        <translation>प्रति फ़ीचर एक चिह्न पॉलीगॉन सेंट्रॉइड का उपयोग करता है।</translation>
+    </message>
+    <message>
+        <source>Open chart in browser</source>
+        <translation>ब्राउज़र में ग्राफ़ खोलें</translation>
+    </message>
+    <message>
+        <source>Open in Google Maps</source>
+        <translation>Google Maps में खोलें</translation>
+    </message>
+    <message>
+        <source>Open in browser</source>
+        <translation>ब्राउज़र में खोलें</translation>
+    </message>
+    <message>
+        <source>Open route in Google Maps</source>
+        <translation>Google Maps में मार्ग खोलें</translation>
+    </message>
+    <message>
+        <source>Open the &lt;b&gt;Coordinates&lt;/b&gt; tab and pick a &lt;b&gt;data source&lt;/b&gt;.</source>
+        <translation>&lt;b&gt;Coordinates&lt;/b&gt; टैब खोलें और एक &lt;b&gt;डेटा स्रोत&lt;/b&gt; चुनें।</translation>
+    </message>
+    <message>
+        <source>Open the current route in Google Maps when at least 2 points exist.</source>
+        <translation>कम से कम 2 बिंदु मौजूद होने पर वर्तमान मार्ग को Google Maps में खोलें।</translation>
+    </message>
+    <message>
+        <source>Open the per-year chart full-screen in your web browser</source>
+        <translation>प्रति-वर्ष ग्राफ़ को अपने वेब ब्राउज़र में पूर्ण-स्क्रीन खोलें</translation>
+    </message>
+    <message>
+        <source>Open this chart full-screen in your web browser</source>
+        <translation>इस ग्राफ़ को अपने वेब ब्राउज़र में पूर्ण-स्क्रीन खोलें</translation>
+    </message>
+    <message>
+        <source>Optionally set a &lt;b&gt;comparison point B&lt;/b&gt; — pick it on the map, or press &lt;b&gt;Same location as A&lt;/b&gt;.</source>
+        <translation>वैकल्पिक रूप से एक &lt;b&gt;तुलना बिंदु B&lt;/b&gt; सेट करें — इसे मानचित्र पर चुनें, या &lt;b&gt;A के समान स्थान&lt;/b&gt; दबाएं।</translation>
+    </message>
+    <message>
+        <source>PDF generated successfully: {0}</source>
+        <translation>PDF सफलतापूर्वक उत्पन्न किया गया: {0}</translation>
+    </message>
+    <message>
+        <source>PDF saved, but could not be opened automatically.</source>
+        <translation>PDF सहेजा गया, पर स्वतः नहीं खोला जा सका।</translation>
+    </message>
+    <message>
+        <source>POLYGON SAMPLING</source>
+        <translation>पॉलीगॉन नमूनाकरण</translation>
+    </message>
+    <message>
+        <source>Pick a tool to get started</source>
+        <translation>आरंभ करने हेतु एक टूल चुनें</translation>
+    </message>
+    <message>
+        <source>Pick at least one source class and one target class.</source>
+        <translation>कम से कम एक स्रोत वर्ग और एक लक्ष्य वर्ग चुनें।</translation>
+    </message>
+    <message>
+        <source>Place one mark per polygon at the location of maximum raster value (e.g. NDVI peak) instead of geometric sampling</source>
+        <translation>ज्यामितीय नमूनाकरण के बजाय प्रत्येक पॉलीगॉन में अधिकतम रास्टर मान (उदा. NDVI शिखर) के स्थान पर एक चिह्न रखें</translation>
+    </message>
+    <message>
+        <source>Places exactly one mark per polygon at the pixel of maximum raster value (local-maximum detection with no-data and edge handling).</source>
+        <translation>प्रत्येक पॉलीगॉन में अधिकतम रास्टर मान वाले पिक्सेल पर ठीक एक चिह्न रखता है (नो-डेटा और किनारा प्रबंधन के साथ स्थानीय-अधिकतम पहचान)।</translation>
+    </message>
+    <message>
+        <source>Places marks from a regular grid clipped to each polygon. Good for balanced field coverage and repeatable spacing.</source>
+        <translation>प्रत्येक पॉलीगॉन तक कटे हुए एक नियमित ग्रिड से चिह्न रखता है। संतुलित खेत आवरण और दोहराने योग्य अंतराल हेतु अच्छा।</translation>
+    </message>
+    <message>
+        <source>Point</source>
+        <translation>बिंदु</translation>
+    </message>
+    <message>
+        <source>Point A</source>
+        <translation>बिंदु A</translation>
+    </message>
+    <message>
+        <source>Point B</source>
+        <translation>बिंदु B</translation>
+    </message>
+    <message>
+        <source>Point {0} deleted. {1} point(s) remaining.</source>
+        <translation>बिंदु {0} हटाया गया। {1} बिंदु शेष।</translation>
+    </message>
+    <message>
+        <source>Point {0} saved in WGS84: ({1:.6f}, {2:.6f})</source>
+        <translation>बिंदु {0} WGS84 में सहेजा गया: ({1:.6f}, {2:.6f})</translation>
+    </message>
+    <message>
+        <source>Point {index}: {lat:.6f}, {lon:.6f}</source>
+        <translation>बिंदु {index}: {lat:.6f}, {lon:.6f}</translation>
+    </message>
+    <message>
+        <source>Points list (tap to open on mobile)</source>
+        <translation>बिंदु सूची (मोबाइल पर खोलने हेतु टैप करें)</translation>
+    </message>
+    <message>
+        <source>Points selected using raster-based optimal location: {0} (Band {1}). Local maximum detection applied within each polygon boundary.</source>
+        <translation>रास्टर-आधारित इष्टतम स्थान का उपयोग करके चयनित बिंदु: {0} (बैंड {1})। प्रत्येक पॉलीगॉन सीमा के भीतर स्थानीय अधिकतम पहचान लागू।</translation>
+    </message>
+    <message>
+        <source>Press &lt;b&gt;Run analysis&lt;/b&gt; and wait while the data is downloaded.</source>
+        <translation>&lt;b&gt;Run analysis&lt;/b&gt; दबाएं और डेटा डाउनलोड होने तक प्रतीक्षा करें।</translation>
+    </message>
+    <message>
+        <source>Publications that use this tool must cite:</source>
+        <translation>इस टूल का उपयोग करने वाले प्रकाशनों को उद्धृत करना चाहिए:</translation>
+    </message>
+    <message>
+        <source>RAVI (Sentinel-2)</source>
+        <translation>RAVI (Sentinel-2)</translation>
+    </message>
+    <message>
+        <source>RAVI image %s into QGIS.</source>
+        <translation>RAVI छवि %s QGIS में।</translation>
+    </message>
+    <message>
+        <source>ROUTE</source>
+        <translation>मार्ग</translation>
+    </message>
+    <message>
+        <source>Raster layer for optimal point selection</source>
+        <translation>इष्टतम बिंदु चयन हेतु रास्टर लेयर</translation>
+    </message>
+    <message>
+        <source>Raster selected: {0} Band {1} | Ready to sample {2} feature(s)</source>
+        <translation>रास्टर चयनित: {0} बैंड {1} | {2} फ़ीचर का नमूना लेने हेतु तैयार</translation>
+    </message>
+    <message>
+        <source>Raster selected: {0} Band {1} | Select a polygon layer</source>
+        <translation>रास्टर चयनित: {0} बैंड {1} | एक पॉलीगॉन लेयर चुनें</translation>
+    </message>
+    <message>
+        <source>Raster {0} cannot be analyzed (web/tile layer). Choose a file-based raster.</source>
+        <translation>रास्टर {0} का विश्लेषण नहीं किया जा सकता (वेब/टाइल लेयर)। एक फ़ाइल-आधारित रास्टर चुनें।</translation>
+    </message>
+    <message>
+        <source>Ready</source>
+        <translation>तैयार</translation>
+    </message>
+    <message>
+        <source>Remove last mark</source>
+        <translation>अंतिम चिह्न हटाएं</translation>
+    </message>
+    <message>
+        <source>Remove the point markers from the map</source>
+        <translation>मानचित्र से बिंदु मार्कर हटाएं</translation>
+    </message>
+    <message>
+        <source>Render every MapBiomas year and browse them with the slider</source>
+        <translation>हर MapBiomas वर्ष रेंडर करें और उन्हें स्लाइडर से ब्राउज़ करें</translation>
+    </message>
+    <message>
+        <source>Renders all years (1985–2024) so you can browse them with the slider — this takes a moment.</source>
+        <translation>सभी वर्ष (1985–2024) रेंडर करता है ताकि आप उन्हें स्लाइडर से ब्राउज़ कर सकें — इसमें कुछ समय लगता है।</translation>
+    </message>
+    <message>
+        <source>Reorder, show or hide modules</source>
+        <translation>मॉड्यूल पुनर्व्यवस्थित करें, दिखाएं या छिपाएं</translation>
+    </message>
+    <message>
+        <source>Replace</source>
+        <translation>बदलें</translation>
+    </message>
+    <message>
+        <source>Reset to default</source>
+        <translation>डिफ़ॉल्ट पर रीसेट करें</translation>
+    </message>
+    <message>
+        <source>Route</source>
+        <translation>मार्ग</translation>
+    </message>
+    <message>
+        <source>Route opened in Google Maps with {0} point(s).</source>
+        <translation>Google Maps में {0} बिंदुओं के साथ मार्ग खोला गया।</translation>
+    </message>
+    <message>
+        <source>Route readiness</source>
+        <translation>मार्ग तैयारी</translation>
+    </message>
+    <message>
+        <source>Run an analysis first.</source>
+        <translation>पहले एक विश्लेषण चलाएं।</translation>
+    </message>
+    <message>
+        <source>Run analysis</source>
+        <translation>विश्लेषण चलाएं</translation>
+    </message>
+    <message>
+        <source>Run the RAVI analysis first.</source>
+        <translation>पहले RAVI विश्लेषण चलाएं।</translation>
+    </message>
+    <message>
+        <source>SATELLITES</source>
+        <translation>सैटेलाइट</translation>
+    </message>
+    <message>
+        <source>SESSION</source>
+        <translation>सत्र</translation>
+    </message>
+    <message>
+        <source>SUPER-RESOLUTION RGB — Landsat only (disabled)</source>
+        <translation>सुपर-रेज़ोल्यूशन RGB — केवल Landsat (अक्षम)</translation>
+    </message>
+    <message>
+        <source>Sampling quantity</source>
+        <translation>नमूनाकरण मात्रा</translation>
+    </message>
+    <message>
+        <source>Save CSV</source>
+        <translation>CSV सहेजें</translation>
+    </message>
+    <message>
+        <source>Save Field Guide PDF</source>
+        <translation>Field Guide PDF सहेजें</translation>
+    </message>
+    <message>
+        <source>Save chart data</source>
+        <translation>ग्राफ़ डेटा सहेजें</translation>
+    </message>
+    <message>
+        <source>Save daily data</source>
+        <translation>दैनिक डेटा सहेजें</translation>
+    </message>
+    <message>
+        <source>Save image</source>
+        <translation>छवि सहेजें</translation>
+    </message>
+    <message>
+        <source>Save points to CSV</source>
+        <translation>बिंदु CSV में सहेजें</translation>
+    </message>
+    <message>
+        <source>Save points to GPX</source>
+        <translation>बिंदु GPX में सहेजें</translation>
+    </message>
+    <message>
+        <source>Save the chart as a PNG image</source>
+        <translation>ग्राफ़ को एक PNG छवि के रूप में सहेजें</translation>
+    </message>
+    <message>
+        <source>Saved: {0}</source>
+        <translation>सहेजा गया: {0}</translation>
+    </message>
+    <message>
+        <source>Select a mark in the session list to delete it.</source>
+        <translation>इसे हटाने हेतु सत्र सूची में एक चिह्न चुनें।</translation>
+    </message>
+    <message>
+        <source>Select a polygon layer and a raster layer, then use Mark optimal points (raster).</source>
+        <translation>एक पॉलीगॉन लेयर और एक रास्टर लेयर चुनें, फिर इष्टतम बिंदु चिह्नित करें (रास्टर) का उपयोग करें।</translation>
+    </message>
+    <message>
+        <source>Select a polygon layer from the current project first.</source>
+        <translation>पहले वर्तमान प्रोजेक्ट से एक पॉलीगॉन लेयर चुनें।</translation>
+    </message>
+    <message>
+        <source>Select a raster layer for optimal point selection.</source>
+        <translation>इष्टतम बिंदु चयन हेतु एक रास्टर लेयर चुनें।</translation>
+    </message>
+    <message>
+        <source>Select a raster layer to compute optimal points.</source>
+        <translation>इष्टतम बिंदुओं की गणना हेतु एक रास्टर लेयर चुनें।</translation>
+    </message>
+    <message>
+        <source>Select at least one satellite.</source>
+        <translation>कम से कम एक सैटेलाइट चुनें।</translation>
+    </message>
+    <message>
+        <source>Setting up FARM tools…</source>
+        <translation>FARM tools सेट किया जा रहा है…</translation>
+    </message>
+    <message>
+        <source>Skipping %d non-Landsat date(s): super-resolution needs a panchromatic band.</source>
+        <translation>%d गैर-Landsat तिथियाँ छोड़ी जा रही हैं: सुपर-रेज़ोल्यूशन हेतु एक पैनक्रोमैटिक बैंड आवश्यक है।</translation>
+    </message>
+    <message>
+        <source>Source</source>
+        <translation>स्रोत</translation>
+    </message>
+    <message>
+        <source>Spread optimized</source>
+        <translation>अंतराल अनुकूलित</translation>
+    </message>
+    <message>
+        <source>Starting…</source>
+        <translation>आरंभ हो रहा है…</translation>
+    </message>
+    <message>
+        <source>Step %d of %d</source>
+        <translation>चरण %d / %d</translation>
+    </message>
+    <message>
+        <source>Super-resolution needs a panchromatic band (Landsat only).</source>
+        <translation>सुपर-रेज़ोल्यूशन हेतु एक पैनक्रोमैटिक बैंड आवश्यक है (केवल Landsat)।</translation>
+    </message>
+    <message>
+        <source>Systematic grid</source>
+        <translation>व्यवस्थित ग्रिड</translation>
+    </message>
+    <message>
+        <source>TO (TARGET)</source>
+        <translation>लक्ष्य (TO)</translation>
+    </message>
+    <message>
+        <source>TRANSITION (SOURCE → TARGET)</source>
+        <translation>परिवर्तन (स्रोत → लक्ष्य)</translation>
+    </message>
+    <message>
+        <source>Temporary layer added to the project: {0} ({1} point(s)).</source>
+        <translation>प्रोजेक्ट में अस्थायी लेयर जोड़ी गई: {0} ({1} बिंदु)।</translation>
+    </message>
+    <message>
+        <source>The RAVI module analyses the &lt;b&gt;Sentinel-2 Harmonized Surface Reflectance&lt;/b&gt; collection in Google Earth Engine. Pick an area, a date range and a vegetation index to build an interactive time series, then download imagery, composites and indices — no coding required.</source>
+        <translation>RAVI मॉड्यूल Google Earth Engine में &lt;b&gt;Sentinel-2 Harmonized Surface Reflectance&lt;/b&gt; संग्रह का विश्लेषण करता है। एक क्षेत्र, तिथि सीमा और वनस्पति सूचकांक चुनकर एक इंटरैक्टिव समय श्रृंखला बनाएं, फिर छवियाँ, कंपोज़िट और सूचकांक डाउनलोड करें — किसी कोडिंग की आवश्यकता नहीं।</translation>
+    </message>
+    <message>
+        <source>The chart above plots the index and reducer chosen on the Inputs tab across every available satellite — built automatically when you Run.</source>
+        <translation>ऊपर का ग्राफ़ Inputs टैब पर चुने गए सूचकांक और रिड्यूसर को प्रत्येक उपलब्ध सैटेलाइट में प्लॉट करता है — चलाने पर स्वतः निर्मित।</translation>
+    </message>
+    <message>
+        <source>The raster layer cannot be analyzed (no readable pixel grid).</source>
+        <translation>रास्टर लेयर का विश्लेषण नहीं किया जा सकता (कोई पढ़ने योग्य पिक्सेल ग्रिड नहीं)।</translation>
+    </message>
+    <message>
+        <source>The transition map appears here.</source>
+        <translation>परिवर्तन मानचित्र यहाँ दिखाई देता है।</translation>
+    </message>
+    <message>
+        <source>There are already {0} point(s) in this session.</source>
+        <translation>इस सत्र में पहले से ही {0} बिंदु हैं।</translation>
+    </message>
+    <message>
+        <source>There are no marked points to generate the PDF.</source>
+        <translation>PDF उत्पन्न करने हेतु कोई चिह्नित बिंदु नहीं हैं।</translation>
+    </message>
+    <message>
+        <source>There are no points to add.</source>
+        <translation>जोड़ने हेतु कोई बिंदु नहीं हैं।</translation>
+    </message>
+    <message>
+        <source>There are no points to export.</source>
+        <translation>निर्यात करने हेतु कोई बिंदु नहीं हैं।</translation>
+    </message>
+    <message>
+        <source>Thermo-pluviometric</source>
+        <translation>तापीय-वर्षामापी</translation>
+    </message>
+    <message>
+        <source>This sensor has too few bands for an RGB composite.</source>
+        <translation>इस सेंसर में RGB कंपोज़िट हेतु बहुत कम बैंड हैं।</translation>
+    </message>
+    <message>
+        <source>Toggle capture mode, then click on the map to add points</source>
+        <translation>कैप्चर मोड टॉगल करें, फिर बिंदु जोड़ने हेतु मानचित्र पर क्लिक करें</translation>
+    </message>
+    <message>
+        <source>Total points</source>
+        <translation>कुल बिंदु</translation>
+    </message>
+    <message>
+        <source>Transition</source>
+        <translation>परिवर्तन</translation>
+    </message>
+    <message>
+        <source>Transition layer loaded into QGIS: {0}</source>
+        <translation>QGIS में परिवर्तन लेयर लोड की गई: {0}</translation>
+    </message>
+    <message>
+        <source>Transition per year</source>
+        <translation>प्रति वर्ष परिवर्तन</translation>
+    </message>
+    <message>
+        <source>Trends</source>
+        <translation>Trends</translation>
+    </message>
+    <message>
+        <source>Unable to delete the selected mark.</source>
+        <translation>चयनित चिह्न को हटाया नहीं जा सका।</translation>
+    </message>
+    <message>
+        <source>Uncheck sensors you don't need — fewer satellites means less to load.</source>
+        <translation>जिन सेंसरों की आपको आवश्यकता नहीं उन्हें अनचेक करें — कम सैटेलाइट का अर्थ है लोड करने हेतु कम।</translation>
+    </message>
+    <message>
+        <source>Use direct map clicks for field capture, or select a polygon layer below to generate marks inside each feature.</source>
+        <translation>खेत कैप्चर हेतु सीधे मानचित्र क्लिक का उपयोग करें, या प्रत्येक फ़ीचर के भीतर चिह्न उत्पन्न करने हेतु नीचे एक पॉलीगॉन लेयर चुनें।</translation>
+    </message>
+    <message>
+        <source>Use raster-based optimal point selection</source>
+        <translation>रास्टर-आधारित इष्टतम बिंदु चयन का उपयोग करें</translation>
+    </message>
+    <message>
+        <source>VEGETATION INDEX (%d m)</source>
+        <translation>वनस्पति सूचकांक (%d मी)</translation>
+    </message>
+    <message>
+        <source>Variable:</source>
+        <translation>चर:</translation>
+    </message>
+    <message>
+        <source>Version {0}</source>
+        <translation>संस्करण {0}</translation>
+    </message>
+    <message>
+        <source>Welcome</source>
+        <translation>स्वागत</translation>
+    </message>
+    <message>
+        <source>Welcome to FARM tools</source>
+        <translation>FARM tools में आपका स्वागत है</translation>
+    </message>
+    <message>
+        <source>What's new</source>
+        <translation>नया क्या है</translation>
+    </message>
+    <message>
+        <source>Works without a Google Earth Engine sign-in</source>
+        <translation>Google Earth Engine साइन-इन के बिना काम करता है</translation>
+    </message>
+    <message>
+        <source>Year</source>
+        <translation>वर्ष</translation>
+    </message>
+    <message>
+        <source>Years</source>
+        <translation>वर्ष</translation>
+    </message>
+    <message>
+        <source>Years: {0}–{1}</source>
+        <translation>वर्ष: {0}–{1}</translation>
+    </message>
+    <message>
+        <source>Zigzag transect</source>
+        <translation>ज़िगज़ैग ट्रांसेक्ट</translation>
+    </message>
+    <message>
+        <source>centroid</source>
+        <translation>सेंट्रॉइड</translation>
+    </message>
+    <message>
+        <source>centroid mark(s)</source>
+        <translation>सेंट्रॉइड चिह्न</translation>
+    </message>
+    <message>
+        <source>points</source>
+        <translation>बिंदु</translation>
+    </message>
+    <message>
+        <source>rendering map {0}–{1}…</source>
+        <translation>मानचित्र {0}–{1} रेंडर हो रहा है…</translation>
+    </message>
+    <message>
+        <source>sample mark(s)</source>
+        <translation>नमूना चिह्न</translation>
+    </message>
+    <message>
+        <source>selected transition</source>
+        <translation>चयनित परिवर्तन</translation>
+    </message>
+    <message>
+        <source>spread optimized</source>
+        <translation>अंतराल अनुकूलित</translation>
+    </message>
+    <message>
+        <source>systematic grid</source>
+        <translation>व्यवस्थित ग्रिड</translation>
+    </message>
+    <message>
+        <source>to</source>
+        <translation>से</translation>
+    </message>
+    <message>
+        <source>updating {0}–{1}…</source>
+        <translation>{0}–{1} अपडेट हो रहा है…</translation>
+    </message>
+    <message>
+        <source>zigzag transect</source>
+        <translation>ज़िगज़ैग ट्रांसेक्ट</translation>
+    </message>
+    <message>
+        <source>{0:.1f} ha in {1}–{2}</source>
+        <translation>{0:.1f} हे {1}–{2} में</translation>
+    </message>
+    <message>
+        <source>{0} at 1 mark per {1} ha</source>
+        <translation>{0} प्रति {1} हे 1 चिह्न पर</translation>
+    </message>
+    <message>
+        <source>{0} mark(s) removed.</source>
+        <translation>{0} चिह्न हटाए गए।</translation>
+    </message>
+    <message>
+        <source>{0} optimal point(s) added from {1} (band {2}).</source>
+        <translation>{1} (बैंड {2}) से {0} इष्टतम बिंदु जोड़े गए।</translation>
+    </message>
+    <message>
+        <source>{0} optimal point(s) added from {1} (band {2}); {3} feature(s) skipped without valid raster data.</source>
+        <translation>{1} (बैंड {2}) से {0} इष्टतम बिंदु जोड़े गए; वैध रास्टर डेटा के बिना {3} फ़ीचर छोड़े गए।</translation>
+    </message>
+    <message>
+        <source>{0} point(s) imported successfully.</source>
+        <translation>{0} बिंदु सफलतापूर्वक आयात किए गए।</translation>
+    </message>
+    <message>
+        <source>{0} point(s) imported; {1} row(s) skipped.</source>
+        <translation>{0} बिंदु आयात किए गए; {1} पंक्तियाँ छोड़ी गईं।</translation>
+    </message>
+    <message>
+        <source>{0} {1} added from {2} using {3}.</source>
+        <translation>{3} का उपयोग करके {2} से {0} {1} जोड़े गए।</translation>
+    </message>
+    <message>
+        <source>{0} {1} added from {2} using {3}; {4} feature(s) skipped.</source>
+        <translation>{3} का उपयोग करके {2} से {0} {1} जोड़े गए; {4} फ़ीचर छोड़े गए।</translation>
+    </message>
+    <message>
+        <source>{0} — drag to reorder</source>
+        <translation>{0} — पुनर्व्यवस्थित करने हेतु खींचें</translation>
+    </message>
+    <message>
+        <source>⚙  Customize</source>
+        <translation>⚙  अनुकूलित करें</translation>
+    </message>
+    <message>
+        <source>⧉  Same location as A</source>
+        <translation>⧉  A के समान स्थान</translation>
+    </message>
+    <message>
+        <source>🌦️ ClimaPlots</source>
+        <translation>🌦️ ClimaPlots</translation>
+    </message>
+    <message>
+        <source>📅 Available coverage: &lt;b&gt;1999 to present&lt;/b&gt; — Landsat 7 (1999–2022), Landsat 8 (2013–), Landsat 9 (2021–), Sentinel-2 (2019–) and HLS Sentinel-2 (2015–). Dates outside a sensor's lifespan are skipped automatically.</source>
+        <translation>📅 उपलब्ध आवरण: &lt;b&gt;1999 से अब तक&lt;/b&gt; — Landsat 7 (1999–2022), Landsat 8 (2013–), Landsat 9 (2021–), Sentinel-2 (2019–) और HLS Sentinel-2 (2015–)। किसी सेंसर के जीवनकाल के बाहर की तिथियाँ स्वतः छोड़ दी जाती हैं।</translation>
+    </message>
+    <message>
+        <source>📊 What it produces</source>
+        <translation>📊 यह क्या उत्पन्न करता है</translation>
+    </message>
+    <message>
+        <source>📖 Citation</source>
+        <translation>📖 उद्धरण</translation>
+    </message>
+    <message>
+        <source>🔀 Compare two locations or two sources</source>
+        <translation>🔀 दो स्थानों या दो स्रोतों की तुलना करें</translation>
+    </message>
+    <message>
+        <source>🚀 Quick start</source>
+        <translation>🚀 त्वरित आरंभ</translation>
+    </message>
+    <message>
+        <source>🛰️ Multi-Satellite</source>
+        <translation>🛰️ मल्टी-सैटेलाइट</translation>
+    </message>
+    <message>
+        <source>🛰️ RAVI - Remote Analysis of Vegetation Index</source>
+        <translation>🛰️ RAVI - Remote Analysis of Vegetation Index</translation>
     </message>
 </context>
 </TS>
