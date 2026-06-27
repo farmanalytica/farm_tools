@@ -143,9 +143,27 @@ def _ordered_visible_modules():
         entry = by_key.get(key)
         if entry is not None:
             ordered.append(entry)
-    if "auth" in by_key:
+    if "auth" in by_key and visible_set_needs_auth():
         ordered.append(by_key["auth"])
     return ordered
+
+
+def visible_set_needs_auth():
+    """True if any visible (non-auth) module requires a GEE sign-in.
+
+    Single-module no-login builds (e.g. ClimaPlots, Field Guide) then drop the
+    GEE Configuration entry entirely — there is nothing to sign in for. The
+    sidebar rail consults this too, so both surfaces agree.
+    """
+    by_key = {entry[0]: entry for entry in _MODULES}
+    hidden = module_prefs.get_hidden()
+    for key in module_prefs.get_order():
+        if key in hidden:
+            continue
+        entry = by_key.get(key)
+        if entry is not None and entry[4] is False:  # gee_free is False
+            return True
+    return False
 
 
 def _ordered_hidden_modules():
@@ -785,6 +803,8 @@ def _build_hub_section(dialog):
         }
         """
     )
+    # No-login-only build: nothing to sign in for, so hide the status pill.
+    dialog.welcome_auth_badge.setVisible(visible_set_needs_auth())
     title_row.addWidget(dialog.welcome_auth_badge)
 
     # Opens the Customize-modules dialog (reorder / show-hide). Subtle, secondary
@@ -940,6 +960,11 @@ def rebuild_module_grid(dialog):
         host.updateGeometry()
     # Keep the teaser strip in sync — modules just hidden/shown move between grids.
     _populate_teaser_grid(dialog)
+    # Re-toggle the header sign-in pill: hiding/showing modules can flip whether
+    # any visible module still needs a GEE login.
+    badge = getattr(dialog, "welcome_auth_badge", None)
+    if badge is not None:
+        badge.setVisible(visible_set_needs_auth())
 
 
 def setup_welcome_page(dialog, page):
