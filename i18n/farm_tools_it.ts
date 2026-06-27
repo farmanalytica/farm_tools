@@ -8,20 +8,12 @@
         <translation>Configurazione GEE</translation>
     </message>
     <message>
-        <source>Inputs &amp; Parameters</source>
-        <translation>Ingressi e Parametri</translation>
-    </message>
-    <message>
         <source>Learn more</source>
         <translation>Scopri di più</translation>
     </message>
     <message>
         <source>GEE Authentication</source>
         <translation>Autenticazione GEE</translation>
-    </message>
-    <message>
-        <source>RAVI uses &lt;b&gt;Google Earth Engine&lt;/b&gt; for processing. To continue, you will need authorized access.</source>
-        <translation>RAVI utilizza &lt;b&gt;Google Earth Engine&lt;/b&gt; per l&apos;elaborazione. Per continuare è necessario un accesso autorizzato.</translation>
     </message>
     <message>
         <source>Requires an active GEE account and a Google Cloud Console project with the API enabled.</source>
@@ -80,28 +72,12 @@
         <translation>Buffer: %+d m</translation>
     </message>
     <message>
-        <source>Download to:</source>
-        <translation>Scarica in:</translation>
-    </message>
-    <message>
-        <source>Default Temporary Folder</source>
-        <translation>Cartella Temporanea Predefinita</translation>
-    </message>
-    <message>
-        <source>Browse...</source>
-        <translation>Sfoglia...</translation>
-    </message>
-    <message>
         <source>Download DEM</source>
         <translation>Scarica DEM</translation>
     </message>
     <message>
         <source>Auth</source>
         <translation>Autenticazione</translation>
-    </message>
-    <message>
-        <source>Select a layer.</source>
-        <translation>Seleziona un layer.</translation>
     </message>
     <message>
         <source>Missing Project ID.</source>
@@ -138,10 +114,6 @@
     <message>
         <source>Google Hybrid Layer loaded successfully</source>
         <translation>Layer Ibrido Google caricato correttamente</translation>
-    </message>
-    <message>
-        <source>Select DEM Download Folder</source>
-        <translation>Seleziona Cartella di Download DEM</translation>
     </message>
     <message>
         <source>Information</source>
@@ -184,18 +156,6 @@
         <translation>Verifica stato accesso…</translation>
     </message>
     <message>
-        <source>Not signed in</source>
-        <translation>Non connesso</translation>
-    </message>
-    <message>
-        <source>Credentials found — validate to finish</source>
-        <translation>Credenziali trovate — convalida per finire</translation>
-    </message>
-    <message>
-        <source>●  Signed in &amp; ready</source>
-        <translation>Connesso e pronto</translation>
-    </message>
-    <message>
         <source>Reopen the sign-in page</source>
         <translation>Riapri la pagina di accesso</translation>
     </message>
@@ -226,14 +186,6 @@
     <message>
         <source>Running…</source>
         <translation>In esecuzione…</translation>
-    </message>
-    <message>
-        <source>Loading…</source>
-        <translation>Caricamento…</translation>
-    </message>
-    <message>
-        <source>Working…</source>
-        <translation>Elaborazione…</translation>
     </message>
     <message>
         <source>START DATE</source>
@@ -352,36 +304,12 @@
         <translation>Banda: DpRVI</translation>
     </message>
     <message>
-        <source>Amplitude</source>
-        <translation>Ampiezza</translation>
-    </message>
-    <message>
         <source>Mean</source>
         <translation>Media</translation>
     </message>
     <message>
         <source>Median</source>
         <translation>Mediana</translation>
-    </message>
-    <message>
-        <source>Min</source>
-        <translation>Minimo</translation>
-    </message>
-    <message>
-        <source>Max</source>
-        <translation>Massimo</translation>
-    </message>
-    <message>
-        <source>Standard Deviation</source>
-        <translation>Deviazione Standard</translation>
-    </message>
-    <message>
-        <source>Sum</source>
-        <translation>Somma</translation>
-    </message>
-    <message>
-        <source>Area Under Curve (AUC)</source>
-        <translation>Area Sotto la Curva (AUC)</translation>
     </message>
     <message>
         <source>RGB: VV, VH, VV/VH Ratio</source>
@@ -656,10 +584,6 @@
         <translation>Seleziona la cartella di download</translation>
     </message>
     <message>
-        <source>Setting up RAVI…</source>
-        <translation>Configurazione di RAVI…</translation>
-    </message>
-    <message>
         <source>Setting up…</source>
         <translation>Configurazione…</translation>
     </message>
@@ -694,10 +618,6 @@
     <message>
         <source>%s Time Series</source>
         <translation>Serie temporale %s</translation>
-    </message>
-    <message>
-        <source>%s Time Series (Landsat 7/8/9)</source>
-        <translation>Serie temporale %s (Landsat 7/8/9)</translation>
     </message>
     <message>
         <source>&lt;b&gt;Area &amp;amp; Date Selection:&lt;/b&gt; Define the AOI and the period to scan</source>
@@ -794,10 +714,6 @@
     <message>
         <source>&lt;b&gt;Point &amp;amp; Per-Feature Analysis:&lt;/b&gt; Time series per clicked point or per polygon</source>
         <translation>&lt;b&gt;Analisi per punto e per feature:&lt;/b&gt; serie temporale per punto cliccato o per poligono</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;RAVI&lt;/b&gt; (Remote Analysis of Vegetation Indices) began as the undergraduate thesis of &lt;a href='{caio}' style='{ls}'&gt;Caio Arantes&lt;/a&gt;, supervised by &lt;a href='{lucas}' style='{ls}'&gt;Prof. Dr. Lucas dos Rios Amaral&lt;/a&gt;, and is now an open-source project maintained with the support of &lt;a href='{farm}' style='{ls}'&gt;FARM Analytica&lt;/a&gt;, co-founded by Caio. Committed to technology diffusion and the open-source philosophy, it brings &lt;b&gt;Google Earth Engine&lt;/b&gt; processing into QGIS — turning satellite archives into vegetation, soil, radar and climate insight, without leaving your map.</source>
-        <translation>&lt;b&gt;RAVI&lt;/b&gt; (Remote Analysis of Vegetation Indices) è nato come tesi di laurea triennale di &lt;a href='{caio}' style='{ls}'&gt;Caio Arantes&lt;/a&gt;, con la supervisione del &lt;a href='{lucas}' style='{ls}'&gt;Prof. Dr. Lucas dos Rios Amaral&lt;/a&gt;, ed è oggi un progetto open source mantenuto con il supporto di &lt;a href='{farm}' style='{ls}'&gt;FARM Analytica&lt;/a&gt;, cofondata da Caio. Impegnato nella diffusione tecnologica e nella filosofia open source, porta l'elaborazione di &lt;b&gt;Google Earth Engine&lt;/b&gt; in QGIS — trasformando gli archivi satellitari in informazioni su vegetazione, suolo, radar e clima, senza lasciare la mappa.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Results:&lt;/b&gt; Inspect the plot, adjust the filter, preview and download outputs</source>
@@ -928,14 +844,6 @@
         <translation>Impossibile visualizzare il grafico.</translation>
     </message>
     <message>
-        <source>Custom optical indices are not available for composites in this milestone.</source>
-        <translation>Gli indici ottici personalizzati non sono disponibili per i compositi in questa versione.</translation>
-    </message>
-    <message>
-        <source>Custom optical indices are not available in this milestone.</source>
-        <translation>Gli indici ottici personalizzati non sono disponibili in questa versione.</translation>
-    </message>
-    <message>
         <source>EXPRESSION</source>
         <translation>ESPRESSIONE</translation>
     </message>
@@ -944,20 +852,12 @@
         <translation>La data finale deve essere successiva a quella iniziale.</translation>
     </message>
     <message>
-        <source>Enter proxy (e.g. http://user:pass@host:port):</source>
-        <translation>Inserisci il proxy (es. http://user:pass@host:port):</translation>
-    </message>
-    <message>
         <source>Every run searches &lt;b&gt;Landsat 7, 8 and 9&lt;/b&gt; together. Each available date is tagged with its mission in the Results date list.</source>
         <translation>Ogni esecuzione cerca &lt;b&gt;Landsat 7, 8 e 9&lt;/b&gt; insieme. Ogni data disponibile è etichettata con la sua missione nell'elenco delle date dei Risultati.</translation>
     </message>
     <message>
         <source>Export Climate Data as CSV</source>
         <translation>Esporta dati climatici come CSV</translation>
-    </message>
-    <message>
-        <source>Export Optical Time Series as CSV</source>
-        <translation>Esporta serie temporale ottica come CSV</translation>
     </message>
     <message>
         <source>Extract a time series per clicked map point, or one series per polygon feature of the AOI layer keyed by an attribute.</source>
@@ -1020,14 +920,6 @@
         <translation>Mantieni Min &amp;lt; Max. I pixel entro entrambi gli intervalli sono mantenuti come suolo nudo.</translation>
     </message>
     <message>
-        <source>Landsat (Super-Res)</source>
-        <translation>Landsat (Super-Ris)</translation>
-    </message>
-    <message>
-        <source>Landsat Super-Resolution</source>
-        <translation>Super-risoluzione Landsat</translation>
-    </message>
-    <message>
         <source>Landsat image %s into QGIS.</source>
         <translation>Immagine Landsat %s in QGIS.</translation>
     </message>
@@ -1042,14 +934,6 @@
     <message>
         <source>MULTISPECTRAL RGB (30 m)</source>
         <translation>RGB MULTISPETTRALE (30 m)</translation>
-    </message>
-    <message>
-        <source>Max temperature</source>
-        <translation>Temperatura massima</translation>
-    </message>
-    <message>
-        <source>Min temperature</source>
-        <translation>Temperatura minima</translation>
     </message>
     <message>
         <source>Monthly precipitation</source>
@@ -1092,18 +976,6 @@
         <translation>Nessun dato di serie temporale per questa AOI e intervallo di date.</translation>
     </message>
     <message>
-        <source>Optical (Sentinel-2)</source>
-        <translation>Ottico (Sentinel-2)</translation>
-    </message>
-    <message>
-        <source>Optical Imagery (Sentinel-2)</source>
-        <translation>Immagini ottiche (Sentinel-2)</translation>
-    </message>
-    <message>
-        <source>Optical image %s into QGIS.</source>
-        <translation>Immagine ottica %s in QGIS.</translation>
-    </message>
-    <message>
         <source>Overlay accumulated monthly precipitation (NASA POWER) as bars on the time-series plot, over the same date range. Temperature is fetched too and included in the CSV export.</source>
         <translation>Sovrapponi la precipitazione mensile accumulata (NASA POWER) come barre sul grafico della serie temporale, nello stesso intervallo di date. Anche la temperatura viene recuperata e inclusa nell'esportazione CSV.</translation>
     </message>
@@ -1138,10 +1010,6 @@
     <message>
         <source>Poly order</source>
         <translation>Ordine del polinomio</translation>
-    </message>
-    <message>
-        <source>Precipitation</source>
-        <translation>Precipitazione</translation>
     </message>
     <message>
         <source>Proxy Settings</source>
@@ -1182,10 +1050,6 @@
     <message>
         <source>Run the Landsat analysis first.</source>
         <translation>Esegui prima l'analisi Landsat.</translation>
-    </message>
-    <message>
-        <source>Run the optical analysis first.</source>
-        <translation>Esegui prima l'analisi ottica.</translation>
     </message>
     <message>
         <source>Running...</source>
@@ -1244,10 +1108,6 @@
         <translation>Quota dell'AOI coperta da pixel validi (non mascherati), secondo le classi SCL scelte nella scheda Input. Misurata all'interno dell'AOI, riflette meglio nuvole e ombre locali rispetto alla copertura nuvolosa della scena.</translation>
     </message>
     <message>
-        <source>Single-date image of the index chosen on the Inputs tab, on 30 m surface reflectance.</source>
-        <translation>Immagine a data singola dell'indice scelto nella scheda Input, su riflettanza di superficie a 30 m.</translation>
-    </message>
-    <message>
         <source>Smoothed (Savitzky-Golay)</source>
         <translation>Smussato (Savitzky-Golay)</translation>
     </message>
@@ -1266,10 +1126,6 @@
     <message>
         <source>TIME-SERIES SPATIAL REDUCER</source>
         <translation>RIDUTTORE SPAZIALE DELLA SERIE TEMPORALE</translation>
-    </message>
-    <message>
-        <source>The Optical module analyses the &lt;b&gt;Sentinel-2 Harmonized Surface Reflectance&lt;/b&gt; collection in Google Earth Engine. Pick an area, a date range and a vegetation index to build an interactive time series, then download imagery, composites and indices — no coding required.</source>
-        <translation>Il modulo Ottico analizza la collezione &lt;b&gt;Sentinel-2 Harmonized Surface Reflectance&lt;/b&gt; in Google Earth Engine. Scegli un'area, un intervallo di date e un indice di vegetazione per costruire una serie temporale interattiva, poi scarica immagini, compositi e indici — senza programmare.</translation>
     </message>
     <message>
         <source>The SYSI module builds a &lt;b&gt;Synthetic Soil Image&lt;/b&gt;: a bare-soil reflectance composite derived from a multi-temporal Sentinel-2 collection. It runs the &lt;b&gt;GEOS3&lt;/b&gt; (Geospatial Soil Sensing System) algorithm of Demattê et al. (2018) on Google Earth Engine, keeping only the pixels that are bare soil across many dates and reducing them with a temporal &lt;b&gt;median&lt;/b&gt;. The result reveals the underlying soil surface free of vegetation and crop residue — no coding required.</source>
@@ -1306,10 +1162,6 @@
     <message>
         <source>DEMATTÊ, J. A. M.; FONGARO, C. T.; RIZZO, R.; SAFANELLI, J. L. &lt;i&gt;Geospatial Soil Sensing System (GEOS3): A powerful data mining procedure to retrieve soil spectral reflectance from satellite images.&lt;/i&gt; Remote Sensing of Environment, v. 212, p. 161–175, 2018. &lt;a href="https://doi.org/10.1016/j.rse.2018.04.047"&gt;doi:10.1016/j.rse.2018.04.047&lt;/a&gt;</source>
         <translation>DEMATTÊ, J. A. M.; FONGARO, C. T.; RIZZO, R.; SAFANELLI, J. L. &lt;i&gt;Geospatial Soil Sensing System (GEOS3): A powerful data mining procedure to retrieve soil spectral reflectance from satellite images.&lt;/i&gt; Remote Sensing of Environment, v. 212, p. 161–175, 2018. &lt;a href="https://doi.org/10.1016/j.rse.2018.04.047"&gt;doi:10.1016/j.rse.2018.04.047&lt;/a&gt;</translation>
-    </message>
-    <message>
-        <source>The chart above plots the index and reducer chosen on the Inputs tab across Landsat 7/8/9 — built automatically when you Run.</source>
-        <translation>Il grafico sopra rappresenta l'indice e il riduttore scelti nella scheda Input su Landsat 7/8/9 — costruito automaticamente all'esecuzione.</translation>
     </message>
     <message>
         <source>The synthetic soil image carries the Sentinel-2 surface-reflectance bands together with the soil indices computed during processing:</source>
@@ -1368,14 +1220,6 @@
         <translation>INDICE DI VEGETAZIONE (30 m)</translation>
     </message>
     <message>
-        <source>WHAT YOU CAN DO</source>
-        <translation>COSA PUOI FARE</translation>
-    </message>
-    <message>
-        <source>Welcome to RAVI</source>
-        <translation>Benvenuto in RAVI</translation>
-    </message>
-    <message>
         <source>Window</source>
         <translation>Finestra</translation>
     </message>
@@ -1408,10 +1252,6 @@
         <translation>🌱 Modulo SYSI - Immagine Sintetica del Suolo</translation>
     </message>
     <message>
-        <source>📅 Available coverage: &lt;b&gt;1999 to present&lt;/b&gt; — Landsat 7 (1999–2022), Landsat 8 (2013–) and Landsat 9 (2021–). Dates outside a mission's lifespan are skipped automatically.</source>
-        <translation>📅 Copertura disponibile: &lt;b&gt;dal 1999 a oggi&lt;/b&gt; — Landsat 7 (1999–2022), Landsat 8 (2013–) e Landsat 9 (2021–). Le date fuori dalla vita operativa di una missione vengono saltate automaticamente.</translation>
-    </message>
-    <message>
         <source>📋 Workflow</source>
         <translation>📋 Flusso di lavoro</translation>
     </message>
@@ -1424,16 +1264,8 @@
         <translation>🛰️ Bande</translation>
     </message>
     <message>
-        <source>🛰️ Landsat Super-Resolution</source>
-        <translation>🛰️ Super-risoluzione Landsat</translation>
-    </message>
-    <message>
         <source>🛰️ Landsat super-resolution is built on &lt;a href='{agrigee}' style='{ls}'&gt;AgriGEE.lite&lt;/a&gt;, in collaboration with its author &lt;a href='{mateus}' style='{ls}'&gt;Mateus Pinto&lt;/a&gt;.</source>
         <translation>🛰️ La super-risoluzione Landsat è costruita su &lt;a href='{agrigee}' style='{ls}'&gt;AgriGEE.lite&lt;/a&gt;, in collaborazione con il suo autore &lt;a href='{mateus}' style='{ls}'&gt;Mateus Pinto&lt;/a&gt;.</translation>
-    </message>
-    <message>
-        <source>🛰️ Optical Imagery Module - Sentinel-2</source>
-        <translation>🛰️ Modulo immagini ottiche - Sentinel-2</translation>
     </message>
     <message>
         <source>AOI</source>
@@ -1552,92 +1384,1358 @@
         <translation>🛰️ La super-risoluzione Landsat e la serie temporale degli indici di vegetazione sono basate su &lt;a href='{agrigee}' style='{ls}'&gt;AgriGEE.lite&lt;/a&gt;, in collaborazione con il suo autore &lt;a href='{mateus}' style='{ls}'&gt;Mateus Pinto&lt;/a&gt;.</translation>
     </message>
     <message>
-        <source>Optical time series</source>
-        <translation>Serie temporale ottica</translation>
+        <source>%s Multi-Satellite Time Series</source>
+        <translation>Serie temporale multi-satellite %s</translation>
     </message>
     <message>
-        <source>Custom indices</source>
-        <translation>Indici personalizzati</translation>
+        <source>(same source as A)</source>
+        <translation>(stessa fonte di A)</translation>
     </message>
     <message>
-        <source>Synthetic composite</source>
-        <translation>Composito sintetico</translation>
+        <source>+ Add</source>
+        <translation>+ Aggiungi</translation>
     </message>
     <message>
-        <source>Multispectral RGB</source>
-        <translation>RGB multispettrale</translation>
+        <source>&lt;b&gt;Annual trends&lt;/b&gt; for temperature, precipitation, relative humidity, irradiation, wind speed, reference ET₀ and growing degree days, each annotated with &lt;b&gt;Mann–Kendall&lt;/b&gt; trend and &lt;b&gt;Pettitt&lt;/b&gt; homogeneity tests.</source>
+        <translation>&lt;b&gt;Tendenze annuali&lt;/b&gt; per temperatura, precipitazione, umidità relativa, irradiazione, velocità del vento, ET₀ di riferimento e gradi giorno di crescita, ciascuna annotata con i test di tendenza di &lt;b&gt;Mann–Kendall&lt;/b&gt; e di omogeneità di &lt;b&gt;Pettitt&lt;/b&gt;.</translation>
     </message>
     <message>
-        <source>Landsat super-resolution</source>
-        <translation>Super-risoluzione Landsat</translation>
+        <source>&lt;b&gt;Climate indices&lt;/b&gt; — ETCCDI temperature and precipitation indices plus the Standardized Precipitation Index (SPI).</source>
+        <translation>&lt;b&gt;Indici climatici&lt;/b&gt; — indici ETCCDI di temperatura e precipitazione più lo Standardized Precipitation Index (SPI).</translation>
     </message>
     <message>
-        <source>SYSI — synthetic soil image</source>
-        <translation>SYSI — immagine sintetica del suolo</translation>
+        <source>&lt;b&gt;EasyDEM&lt;/b&gt; downloads ready-to-use terrain elevation models for your area of interest. Pick a polygon layer (or draw one), choose a DEM dataset such as SRTM or Copernicus, fine-tune the area with the buffer, and save a clipped GeoTIFF straight to your map.</source>
+        <translation>&lt;b&gt;EasyDEM&lt;/b&gt; scarica modelli di elevazione del terreno pronti all'uso per la tua area di interesse. Scegli un layer poligonale (o disegnane uno), scegli un dataset DEM come SRTM o Copernicus, regola l'area con il buffer e salva un GeoTIFF ritagliato direttamente sulla tua mappa.</translation>
     </message>
     <message>
-        <source>Radar (SAR)</source>
-        <translation>Radar (SAR)</translation>
+        <source>&lt;b&gt;FARM tools&lt;/b&gt; (formerly RAVI — Remote Analysis of Vegetation Indices) began as the undergraduate thesis of &lt;a href='{caio}' style='{ls}'&gt;Caio Arantes&lt;/a&gt;, supervised by &lt;a href='{lucas}' style='{ls}'&gt;Prof. Dr. Lucas dos Rios Amaral&lt;/a&gt;, and is now an open-source project maintained with the support of &lt;a href='{farm}' style='{ls}'&gt;FARM Analytica&lt;/a&gt;, co-founded by Caio. Committed to technology diffusion and the open-source philosophy, it brings &lt;b&gt;Google Earth Engine&lt;/b&gt; processing into QGIS — turning satellite archives into vegetation, soil, radar and climate insight, without leaving your map.</source>
+        <translation>&lt;b&gt;FARM tools&lt;/b&gt; (in precedenza RAVI — Remote Analysis of Vegetation Indices) è nato come tesi di laurea triennale di &lt;a href='{caio}' style='{ls}'&gt;Caio Arantes&lt;/a&gt;, con la supervisione del &lt;a href='{lucas}' style='{ls}'&gt;Prof. Dr. Lucas dos Rios Amaral&lt;/a&gt;, ed è oggi un progetto open source mantenuto con il supporto di &lt;a href='{farm}' style='{ls}'&gt;FARM Analytica&lt;/a&gt;, cofondata da Caio. Impegnato nella diffusione tecnologica e nella filosofia open source, porta l'elaborazione di &lt;b&gt;Google Earth Engine&lt;/b&gt; in QGIS — trasformando gli archivi satellitari in informazioni su vegetazione, suolo, radar e clima, senza lasciare la mappa.</translation>
     </message>
     <message>
-        <source>DEM download</source>
-        <translation>Download del DEM</translation>
+        <source>&lt;b&gt;Thermo-pluviometric diagram&lt;/b&gt; — the mean monthly precipitation and temperature regime of the location.</source>
+        <translation>&lt;b&gt;Diagramma termo-pluviometrico&lt;/b&gt; — il regime medio mensile di precipitazione e temperatura della località.</translation>
     </message>
     <message>
-        <source>Climate overlay</source>
-        <translation>Sovrapposizione climatica</translation>
+        <source>ABOUT</source>
+        <translation>INFORMAZIONI</translation>
     </message>
     <message>
-        <source>Point &amp;amp; feature analysis</source>
-        <translation>Analisi di punti &amp;amp; feature</translation>
+        <source>Accepts decimal coordinates with dot or comma separators.</source>
+        <translation>Accetta coordinate decimali con separatore punto o virgola.</translation>
     </message>
     <message>
-        <source>Batch download &amp;amp; CSV</source>
-        <translation>Download in batch &amp;amp; CSV</translation>
+        <source>Add Temporary Layer</source>
+        <translation>Aggiungi layer temporaneo</translation>
     </message>
     <message>
-        <source>Per-date Sentinel-2 vegetation-index series (NDVI, EVI, NDRE, NDWI, NBR…) over your AOI, with SCL cloud/shadow masking and date filtering</source>
-        <translation>Serie di indici di vegetazione Sentinel-2 per data (NDVI, EVI, NDRE, NDWI, NBR…) sulla tua AOI, con mascheratura di nuvole/ombre SCL e filtraggio per data</translation>
+        <source>Add a Google satellite basemap to help locate your point</source>
+        <translation>Aggiungi una mappa di base satellitare Google per aiutarti a localizzare il tuo punto</translation>
     </message>
     <message>
-        <source>Build your own index from band math and reuse it across the whole series</source>
-        <translation>Crea il tuo indice tramite operazioni tra bande e riutilizzalo su tutta la serie</translation>
+        <source>Add an optional &lt;b&gt;comparison point B&lt;/b&gt; to overlay a second series on the Trends chart, with trend statistics reported for both points. B can use its own data source, so the &lt;i&gt;same&lt;/i&gt; location can be compared across NASA POWER and Open-Meteo — use &lt;b&gt;Same location as A&lt;/b&gt; to copy point A's coordinates without re-clicking the map.</source>
+        <translation>Aggiungi un &lt;b&gt;punto di confronto B&lt;/b&gt; opzionale per sovrapporre una seconda serie sul grafico Tendenze, con statistiche di tendenza riportate per entrambi i punti. B può usare la propria fonte di dati, quindi è possibile confrontare la &lt;i&gt;stessa&lt;/i&gt; località tra NASA POWER e Open-Meteo — usa &lt;b&gt;Stessa località di A&lt;/b&gt; per copiare le coordinate del punto A senza ricliccare sulla mappa.</translation>
     </message>
     <message>
-        <source>Reduce a series to one image (mean, median, max, AUC…) for a clean snapshot</source>
-        <translation>Riduci una serie a una singola immagine (media, mediana, massimo, AUC…) per un'istantanea pulita</translation>
+        <source>Add at least 2 points</source>
+        <translation>Aggiungi almeno 2 punti</translation>
     </message>
     <message>
-        <source>True- and false-colour composites for any acquisition date, styled in QGIS</source>
-        <translation>Compositi a colori reali e falsi colori per qualsiasi data di acquisizione, stilizzati in QGIS</translation>
+        <source>Add at least 2 points to open a route in Google Maps.</source>
+        <translation>Aggiungi almeno 2 punti per aprire un percorso in Google Maps.</translation>
     </message>
     <message>
-        <source>Pan-sharpened 15 m Landsat 7/8/9 imagery, with a multi-mission vegetation-index time series — powered by AgriGEE.lite</source>
-        <translation>Immagini Landsat 7/8/9 pansharpened a 15 m, con una serie temporale di indici di vegetazione multi-missione — basata su AgriGEE.lite</translation>
+        <source>Add coordinate</source>
+        <translation>Aggiungi coordinata</translation>
     </message>
     <message>
-        <source>Bare-soil reflectance composite (GEOS3) from cloud-free pixels for soil mapping</source>
-        <translation>Composito di riflettanza del suolo nudo (GEOS3) da pixel privi di nuvole per la mappatura del suolo</translation>
+        <source>Add {0} — included in this plugin</source>
+        <translation>Aggiungi {0} — incluso in questo plugin</translation>
     </message>
     <message>
-        <source>Sentinel-1 VV/VH backscatter time series — cloud-independent monitoring</source>
-        <translation>Serie temporale di retrodiffusione VV/VH di Sentinel-1 — monitoraggio indipendente dalle nuvole</translation>
+        <source>Append</source>
+        <translation>Accoda</translation>
     </message>
     <message>
-        <source>Fetch terrain elevation models (SRTM, Copernicus…) clipped to your area</source>
-        <translation>Scarica modelli di elevazione del terreno (SRTM, Copernicus…) ritagliati sulla tua area</translation>
+        <source>Authentication is required to load MapBiomas data. Open the Auth page and validate your Google Cloud project ID.</source>
+        <translation>È richiesta l'autenticazione per caricare i dati MapBiomas. Apri la pagina Auth e convalida l'ID del tuo progetto Google Cloud.</translation>
     </message>
     <message>
-        <source>Overlay daily NASA POWER precipitation and min/max temperature on the plot</source>
-        <translation>Sovrapponi sul grafico le precipitazioni giornaliere e le temperature min/max di NASA POWER</translation>
+        <source>Band</source>
+        <translation>Banda</translation>
     </message>
     <message>
-        <source>Per-feature or per-point series with adjustable buffer and value extraction</source>
-        <translation>Serie per feature o per punto con buffer regolabile ed estrazione dei valori</translation>
+        <source>Band {0} is out of range for raster {1}.</source>
+        <translation>La banda {0} è fuori intervallo per il raster {1}.</translation>
     </message>
     <message>
-        <source>Export every selected date as rasters and the full data table as CSV</source>
-        <translation>Esporta ogni data selezionata come raster e l'intera tabella dati come CSV</translation>
+        <source>Batch super-resolution needs a panchromatic sensor (Landsat); none of the available dates qualify.</source>
+        <translation>La super-risoluzione in blocco richiede un sensore pancromatico (Landsat); nessuna delle date disponibili è idonea.</translation>
+    </message>
+    <message>
+        <source>Behind a corporate network? Set a proxy via &lt;b&gt;Proxy settings&lt;/b&gt; in the authentication page.</source>
+        <translation>Dietro una rete aziendale? Imposta un proxy tramite &lt;b&gt;Impostazioni proxy&lt;/b&gt; nella pagina di autenticazione.</translation>
+    </message>
+    <message>
+        <source>Browse the &lt;b&gt;MapBiomas Brasil Collection 10&lt;/b&gt; land-use / land-cover archive inside the module. Pick an AOI, then load the coverage years (browse them with the slider) or the Pasture→Crop transition. MapBiomas covers &lt;b&gt;Brazil only&lt;/b&gt;.</source>
+        <translation>Esplora l'archivio di uso/copertura del suolo &lt;b&gt;MapBiomas Brasil Collection 10&lt;/b&gt; all'interno del modulo. Scegli un'AOI, poi carica gli anni di copertura (sfogliali con il cursore) o la transizione Pascolo→Coltura. MapBiomas copre &lt;b&gt;solo il Brasile&lt;/b&gt;.</translation>
+    </message>
+    <message>
+        <source>Browse the &lt;b&gt;Trends&lt;/b&gt;, &lt;b&gt;Thermo-pluviometric&lt;/b&gt; and &lt;b&gt;Climate Indices&lt;/b&gt; tabs. Use &lt;b&gt;Open in browser&lt;/b&gt; for a full-screen chart, or &lt;b&gt;Save chart data&lt;/b&gt; to export a CSV.</source>
+        <translation>Esplora le schede &lt;b&gt;Tendenze&lt;/b&gt;, &lt;b&gt;Termo-pluviometrico&lt;/b&gt; e &lt;b&gt;Indici climatici&lt;/b&gt;. Usa &lt;b&gt;Apri nel browser&lt;/b&gt; per un grafico a schermo intero, o &lt;b&gt;Salva dati grafico&lt;/b&gt; per esportare un CSV.</translation>
+    </message>
+    <message>
+        <source>Builds a serpentine walk pattern across each polygon, similar to common zigzag soil sampling in the field.</source>
+        <translation>Costruisce un percorso a serpentina su ogni poligono, simile al comune campionamento del suolo a zigzag sul campo.</translation>
+    </message>
+    <message>
+        <source>CAPTURE</source>
+        <translation>CATTURA</translation>
+    </message>
+    <message>
+        <source>COMPARISON POINT B (OPTIONAL)</source>
+        <translation>PUNTO DI CONFRONTO B (OPZIONALE)</translation>
+    </message>
+    <message>
+        <source>COVERAGE</source>
+        <translation>COPERTURA</translation>
+    </message>
+    <message>
+        <source>CSV exported successfully: {0}</source>
+        <translation>CSV esportato correttamente: {0}</translation>
+    </message>
+    <message>
+        <source>CSV file has no header.</source>
+        <translation>Il file CSV non ha intestazione.</translation>
+    </message>
+    <message>
+        <source>Capture OFF</source>
+        <translation>Cattura OFF</translation>
+    </message>
+    <message>
+        <source>Capture ON</source>
+        <translation>Cattura ON</translation>
+    </message>
+    <message>
+        <source>Capture a coordinate by clicking on the map canvas</source>
+        <translation>Cattura una coordinata facendo clic sull'area della mappa</translation>
+    </message>
+    <message>
+        <source>Capture field points on the map, sample polygon features, and export routes, files, and PDF reports.</source>
+        <translation>Cattura punti di campo sulla mappa, campiona feature poligonali ed esporta percorsi, file e report PDF.</translation>
+    </message>
+    <message>
+        <source>Captured points appear here in collection order.</source>
+        <translation>I punti catturati appaiono qui nell'ordine di raccolta.</translation>
+    </message>
+    <message>
+        <source>Charting dependencies are still being provisioned. Restart QGIS once setup completes.</source>
+        <translation>Le dipendenze per i grafici sono ancora in fase di installazione. Riavvia QGIS al termine della configurazione.</translation>
+    </message>
+    <message>
+        <source>Choose a single-band or multi-band raster (e.g., NDVI composite) to identify the location of maximum vegetation value within each polygon</source>
+        <translation>Scegli un raster a banda singola o multibanda (es. composito NDVI) per individuare la posizione del valore massimo di vegetazione all'interno di ogni poligono</translation>
+    </message>
+    <message>
+        <source>Choose the ETCCDI climate index to plot</source>
+        <translation>Scegli l'indice climatico ETCCDI da tracciare</translation>
+    </message>
+    <message>
+        <source>Choose the climate variable to plot</source>
+        <translation>Scegli la variabile climatica da tracciare</translation>
+    </message>
+    <message>
+        <source>Choose whether to append imported points or replace the current list.</source>
+        <translation>Scegli se accodare i punti importati o sostituire l'elenco corrente.</translation>
+    </message>
+    <message>
+        <source>Choose whether to append the generated marks or replace the current list.</source>
+        <translation>Scegli se accodare i marker generati o sostituire l'elenco corrente.</translation>
+    </message>
+    <message>
+        <source>Chooses marks that maximize spacing inside each polygon. Good default for irregular areas and strong spatial distribution.</source>
+        <translation>Sceglie i marker che massimizzano la spaziatura all'interno di ogni poligono. Buona impostazione predefinita per aree irregolari e forte distribuzione spaziale.</translation>
+    </message>
+    <message>
+        <source>Clear all {0} captured point(s)?</source>
+        <translation>Cancellare tutti i {0} punto/i catturato/i?</translation>
+    </message>
+    <message>
+        <source>Clear marker</source>
+        <translation>Cancella marker</translation>
+    </message>
+    <message>
+        <source>Clear marks</source>
+        <translation>Cancella marker</translation>
+    </message>
+    <message>
+        <source>Click &lt;b&gt;Pick a point on the map&lt;/b&gt; and click a location on the canvas (or type the longitude/latitude manually).</source>
+        <translation>Fai clic su &lt;b&gt;Scegli un punto sulla mappa&lt;/b&gt; e fai clic su una posizione sull'area di disegno (oppure digita manualmente longitudine/latitudine).</translation>
+    </message>
+    <message>
+        <source>Click a point on the map (or enter Longitude/Latitude) first.</source>
+        <translation>Fai prima clic su un punto sulla mappa (o inserisci Longitudine/Latitudine).</translation>
+    </message>
+    <message>
+        <source>Click a point on the map to set the coordinate.</source>
+        <translation>Fai clic su un punto sulla mappa per impostare la coordinata.</translation>
+    </message>
+    <message>
+        <source>Click to open sign-in / Earth Engine configuration</source>
+        <translation>Fai clic per aprire l'accesso / la configurazione di Earth Engine</translation>
+    </message>
+    <message>
+        <source>ClimaPlots</source>
+        <translation>ClimaPlots</translation>
+    </message>
+    <message>
+        <source>ClimaPlots dependencies are still being provisioned. Restart QGIS to finish the download, or install the packages from requirements.txt manually.</source>
+        <translation>Le dipendenze di ClimaPlots sono ancora in fase di installazione. Riavvia QGIS per completare il download, o installa manualmente i pacchetti da requirements.txt.</translation>
+    </message>
+    <message>
+        <source>ClimaPlots fetches decades of daily climate data for any point on the map and turns it into interactive charts — no coding required. Choose between two data sources: &lt;b&gt;NASA POWER&lt;/b&gt; (from 1981) and &lt;b&gt;Open-Meteo (ERA5)&lt;/b&gt; (from 1940).</source>
+        <translation>ClimaPlots recupera decenni di dati climatici giornalieri per qualsiasi punto sulla mappa e li trasforma in grafici interattivi — senza bisogno di programmare. Scegli tra due fonti di dati: &lt;b&gt;NASA POWER&lt;/b&gt; (dal 1981) e &lt;b&gt;Open-Meteo (ERA5)&lt;/b&gt; (dal 1940).</translation>
+    </message>
+    <message>
+        <source>Climate Indices</source>
+        <translation>Indici climatici</translation>
+    </message>
+    <message>
+        <source>Climate data provider</source>
+        <translation>Provider di dati climatici</translation>
+    </message>
+    <message>
+        <source>Composite a vegetation index over the selected dates.</source>
+        <translation>Componi un indice di vegetazione sulle date selezionate.</translation>
+    </message>
+    <message>
+        <source>Converted area (ha)</source>
+        <translation>Area convertita (ha)</translation>
+    </message>
+    <message>
+        <source>Coordinates</source>
+        <translation>Coordinate</translation>
+    </message>
+    <message>
+        <source>Copy point A's coordinates here (e.g. to compare data sources)</source>
+        <translation>Copia qui le coordinate del punto A (es. per confrontare fonti di dati)</translation>
+    </message>
+    <message>
+        <source>Could not build route.</source>
+        <translation>Impossibile costruire il percorso.</translation>
+    </message>
+    <message>
+        <source>Could not capture the current map image.</source>
+        <translation>Impossibile catturare l'immagine corrente della mappa.</translation>
+    </message>
+    <message>
+        <source>Could not create the temporary point layer.</source>
+        <translation>Impossibile creare il layer di punti temporaneo.</translation>
+    </message>
+    <message>
+        <source>Could not load the map image for the PDF.</source>
+        <translation>Impossibile caricare l'immagine della mappa per il PDF.</translation>
+    </message>
+    <message>
+        <source>Could not open route in Google Maps.</source>
+        <translation>Impossibile aprire il percorso in Google Maps.</translation>
+    </message>
+    <message>
+        <source>Coverage</source>
+        <translation>Copertura</translation>
+    </message>
+    <message>
+        <source>Custom transition</source>
+        <translation>Transizione personalizzata</translation>
+    </message>
+    <message>
+        <source>Customize modules</source>
+        <translation>Personalizza moduli</translation>
+    </message>
+    <message>
+        <source>Custom…</source>
+        <translation>Personalizzata…</translation>
+    </message>
+    <message>
+        <source>DATA SOURCE</source>
+        <translation>FONTE DATI</translation>
+    </message>
+    <message>
+        <source>DOWNLOAD A SINGLE YEAR TO QGIS</source>
+        <translation>SCARICA UN SINGOLO ANNO IN QGIS</translation>
+    </message>
+    <message>
+        <source>Data not available</source>
+        <translation>Dati non disponibili</translation>
+    </message>
+    <message>
+        <source>Data source for the comparison point</source>
+        <translation>Fonte di dati per il punto di confronto</translation>
+    </message>
+    <message>
+        <source>Defaults to the Inputs-tab index; pick a different one here.</source>
+        <translation>Predefinito all'indice della scheda Input; scegline uno diverso qui.</translation>
+    </message>
+    <message>
+        <source>Delete selected mark</source>
+        <translation>Elimina marker selezionato</translation>
+    </message>
+    <message>
+        <source>Density by area</source>
+        <translation>Densità per area</translation>
+    </message>
+    <message>
+        <source>Distribution method</source>
+        <translation>Metodo di distribuzione</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>Fatto</translation>
+    </message>
+    <message>
+        <source>Download climate data for this point and build the charts</source>
+        <translation>Scarica i dati climatici per questo punto e costruisci i grafici</translation>
+    </message>
+    <message>
+        <source>Download the selected year's classification as a GeoTIFF raster layer (real class IDs, styled with the MapBiomas palette)</source>
+        <translation>Scarica la classificazione dell'anno selezionato come layer raster GeoTIFF (ID di classe reali, stilizzato con la palette MapBiomas)</translation>
+    </message>
+    <message>
+        <source>Download the selected year's classification as a QGIS raster layer</source>
+        <translation>Scarica la classificazione dell'anno selezionato come layer raster QGIS</translation>
+    </message>
+    <message>
+        <source>Download the transition raster (classed by transition year, limited to the selected year range) as a QGIS layer</source>
+        <translation>Scarica il raster di transizione (classificato per anno di transizione, limitato all'intervallo di anni selezionato) come layer QGIS</translation>
+    </message>
+    <message>
+        <source>Download to QGIS</source>
+        <translation>Scarica in QGIS</translation>
+    </message>
+    <message>
+        <source>Download year to QGIS</source>
+        <translation>Scarica anno in QGIS</translation>
+    </message>
+    <message>
+        <source>Downloading transition {0}–{1}…</source>
+        <translation>Download della transizione {0}–{1}…</translation>
+    </message>
+    <message>
+        <source>Downloading {0}…</source>
+        <translation>Download di {0}…</translation>
+    </message>
+    <message>
+        <source>Drag to reorder, uncheck to hide. Changes apply to both the sidebar and this welcome page. GEE Configuration stays pinned.</source>
+        <translation>Trascina per riordinare, deseleziona per nascondere. Le modifiche si applicano sia alla barra laterale sia a questa pagina di benvenuto. La Configurazione GEE rimane fissata.</translation>
+    </message>
+    <message>
+        <source>EasyDEM</source>
+        <translation>EasyDEM</translation>
+    </message>
+    <message>
+        <source>Enter proxy (e.g. http://[username]:[password]@host:port):</source>
+        <translation>Inserisci il proxy (es. http://[username]:[password]@host:port):</translation>
+    </message>
+    <message>
+        <source>Error adding manual coordinate.</source>
+        <translation>Errore nell'aggiunta della coordinata manuale.</translation>
+    </message>
+    <message>
+        <source>Error computing optimal points from raster {0}.</source>
+        <translation>Errore nel calcolo dei punti ottimali dal raster {0}.</translation>
+    </message>
+    <message>
+        <source>Error exporting CSV.</source>
+        <translation>Errore nell'esportazione del CSV.</translation>
+    </message>
+    <message>
+        <source>Error exporting GPX.</source>
+        <translation>Errore nell'esportazione del GPX.</translation>
+    </message>
+    <message>
+        <source>Error generating PDF.</source>
+        <translation>Errore nella generazione del PDF.</translation>
+    </message>
+    <message>
+        <source>Error generating PDF: {0}</source>
+        <translation>Errore nella generazione del PDF: {0}</translation>
+    </message>
+    <message>
+        <source>Error generating marks from layer {0}.</source>
+        <translation>Errore nella generazione dei marker dal layer {0}.</translation>
+    </message>
+    <message>
+        <source>Error importing CSV.</source>
+        <translation>Errore nell'importazione del CSV.</translation>
+    </message>
+    <message>
+        <source>Export GPS GPX</source>
+        <translation>Esporta GPX per GPS</translation>
+    </message>
+    <message>
+        <source>Export RAVI Time Series as CSV</source>
+        <translation>Esporta serie temporale RAVI come CSV</translation>
+    </message>
+    <message>
+        <source>Export Time Series as CSV</source>
+        <translation>Esporta serie temporale come CSV</translation>
+    </message>
+    <message>
+        <source>Export all</source>
+        <translation>Esporta tutto</translation>
+    </message>
+    <message>
+        <source>Export as CSV</source>
+        <translation>Esporta come CSV</translation>
+    </message>
+    <message>
+        <source>Export every table to one Excel file</source>
+        <translation>Esporta ogni tabella in un unico file Excel</translation>
+    </message>
+    <message>
+        <source>Export failed.</source>
+        <translation>Esportazione non riuscita.</translation>
+    </message>
+    <message>
+        <source>Export points CSV</source>
+        <translation>Esporta punti CSV</translation>
+    </message>
+    <message>
+        <source>Export the full daily series as CSV</source>
+        <translation>Esporta l'intera serie giornaliera come CSV</translation>
+    </message>
+    <message>
+        <source>Export the monthly climate normals as CSV</source>
+        <translation>Esporta le normali climatiche mensili come CSV</translation>
+    </message>
+    <message>
+        <source>Export the plotted annual series as CSV</source>
+        <translation>Esporta la serie annuale tracciata come CSV</translation>
+    </message>
+    <message>
+        <source>Export the selected index series as CSV</source>
+        <translation>Esporta la serie dell'indice selezionato come CSV</translation>
+    </message>
+    <message>
+        <source>FARM tools</source>
+        <translation>FARM tools</translation>
+    </message>
+    <message>
+        <source>FROM (SOURCE)</source>
+        <translation>DA (SORGENTE)</translation>
+    </message>
+    <message>
+        <source>Failed to download MapBiomas raster.</source>
+        <translation>Download del raster MapBiomas non riuscito.</translation>
+    </message>
+    <message>
+        <source>Failed to download transition raster.</source>
+        <translation>Download del raster di transizione non riuscito.</translation>
+    </message>
+    <message>
+        <source>Failed to fetch or process climate data.
+See the QGIS log for details.</source>
+        <translation>Impossibile recuperare o elaborare i dati climatici.
+Consulta il log di QGIS per i dettagli.</translation>
+    </message>
+    <message>
+        <source>Failed to load MapBiomas raster into QGIS.</source>
+        <translation>Caricamento del raster MapBiomas in QGIS non riuscito.</translation>
+    </message>
+    <message>
+        <source>Failed to load transition raster into QGIS.</source>
+        <translation>Caricamento del raster di transizione in QGIS non riuscito.</translation>
+    </message>
+    <message>
+        <source>Failed to read MapBiomas coverage images.</source>
+        <translation>Lettura delle immagini di copertura MapBiomas non riuscita.</translation>
+    </message>
+    <message>
+        <source>Failed to start writing the PDF.</source>
+        <translation>Impossibile avviare la scrittura del PDF.</translation>
+    </message>
+    <message>
+        <source>Failed to write the PDF file to the chosen destination.</source>
+        <translation>Impossibile scrivere il file PDF nella destinazione scelta.</translation>
+    </message>
+    <message>
+        <source>Fetching climate data...</source>
+        <translation>Recupero dei dati climatici...</translation>
+    </message>
+    <message>
+        <source>Field Guide</source>
+        <translation>Guida di campo</translation>
+    </message>
+    <message>
+        <source>Field Guide Marks</source>
+        <translation>Marker della Guida di campo</translation>
+    </message>
+    <message>
+        <source>Fill latitude and longitude to add a manual coordinate.</source>
+        <translation>Compila latitudine e longitudine per aggiungere una coordinata manuale.</translation>
+    </message>
+    <message>
+        <source>First year to download</source>
+        <translation>Primo anno da scaricare</translation>
+    </message>
+    <message>
+        <source>Fixed marks per feature</source>
+        <translation>Marker fissi per feature</translation>
+    </message>
+    <message>
+        <source>GPX exported successfully: {0}</source>
+        <translation>GPX esportato correttamente: {0}</translation>
+    </message>
+    <message>
+        <source>Generate PDF report</source>
+        <translation>Genera report PDF</translation>
+    </message>
+    <message>
+        <source>Generated at</source>
+        <translation>Generato il</translation>
+    </message>
+    <message>
+        <source>Generates the mark count from feature area using 1 mark per {0} ha. Features that resolve to 1 mark use the centroid automatically; larger features follow a regular internal grid.</source>
+        <translation>Genera il numero di marker dall'area della feature usando 1 marker ogni {0} ha. Le feature che si risolvono in 1 marker usano automaticamente il centroide; le feature più grandi seguono una griglia interna regolare.</translation>
+    </message>
+    <message>
+        <source>Generates the mark count from feature area using 1 mark per {0} ha. Features that resolve to 1 mark use the centroid automatically; larger features follow a zigzag field transect.</source>
+        <translation>Genera il numero di marker dall'area della feature usando 1 marker ogni {0} ha. Le feature che si risolvono in 1 marker usano automaticamente il centroide; le feature più grandi seguono un transetto di campo a zigzag.</translation>
+    </message>
+    <message>
+        <source>Generates the mark count from feature area using 1 mark per {0} ha. Features that resolve to 1 mark use the centroid automatically; larger features maximize internal spacing.</source>
+        <translation>Genera il numero di marker dall'area della feature usando 1 marker ogni {0} ha. Le feature che si risolvono in 1 marker usano automaticamente il centroide; le feature più grandi massimizzano la spaziatura interna.</translation>
+    </message>
+    <message>
+        <source>Get Started</source>
+        <translation>Inizia</translation>
+    </message>
+    <message>
+        <source>Header must contain longitude and latitude columns.</source>
+        <translation>L'intestazione deve contenere le colonne longitudine e latitudine.</translation>
+    </message>
+    <message>
+        <source>Hectares per mark</source>
+        <translation>Ettari per marker</translation>
+    </message>
+    <message>
+        <source>How pixels inside the AOI are aggregated to one value per date in the time-series plot. Median resists cloud/shadow outliers; mean is the classic average.</source>
+        <translation>Come i pixel all'interno dell'AOI vengono aggregati in un valore per data nel grafico della serie temporale. La mediana resiste ai valori anomali di nuvole/ombre; la media è la classica media.</translation>
+    </message>
+    <message>
+        <source>IMPORT / EXPORT</source>
+        <translation>IMPORTA / ESPORTA</translation>
+    </message>
+    <message>
+        <source>Image</source>
+        <translation>Immagine</translation>
+    </message>
+    <message>
+        <source>Image saved: {0}</source>
+        <translation>Immagine salvata: {0}</translation>
+    </message>
+    <message>
+        <source>Import coordinates from CSV, export the current session to CSV or GPX, or add the marks as a temporary layer.</source>
+        <translation>Importa coordinate da CSV, esporta la sessione corrente in CSV o GPX, oppure aggiungi i marker come layer temporaneo.</translation>
+    </message>
+    <message>
+        <source>Import points CSV</source>
+        <translation>Importa punti CSV</translation>
+    </message>
+    <message>
+        <source>Included in this plugin — click to add to your workspace.</source>
+        <translation>Incluso in questo plugin — fai clic per aggiungerlo al tuo spazio di lavoro.</translation>
+    </message>
+    <message>
+        <source>Index sucessfully saved.</source>
+        <translation>Indice salvato correttamente.</translation>
+    </message>
+    <message>
+        <source>Index:</source>
+        <translation>Indice:</translation>
+    </message>
+    <message>
+        <source>Invalid coordinates. Use decimal format (e.g.: -23.550520).</source>
+        <translation>Coordinate non valide. Usa il formato decimale (es.: -23.550520).</translation>
+    </message>
+    <message>
+        <source>Invalid polygon layer.</source>
+        <translation>Layer poligonale non valido.</translation>
+    </message>
+    <message>
+        <source>Just need one year? Download that year's classification straight into QGIS as a styled raster layer — no need to render every year first.</source>
+        <translation>Ti serve solo un anno? Scarica la classificazione di quell'anno direttamente in QGIS come layer raster stilizzato — senza bisogno di renderizzare prima ogni anno.</translation>
+    </message>
+    <message>
+        <source>LOCATION</source>
+        <translation>POSIZIONE</translation>
+    </message>
+    <message>
+        <source>Large route detected. Opening {0} Google Maps segments.</source>
+        <translation>Rilevato percorso esteso. Apertura di {0} segmenti in Google Maps.</translation>
+    </message>
+    <message>
+        <source>Large route split into {0} segments in Google Maps.</source>
+        <translation>Percorso esteso suddiviso in {0} segmenti in Google Maps.</translation>
+    </message>
+    <message>
+        <source>Last mark removed. {0} point(s) remaining.</source>
+        <translation>Ultimo marker rimosso. {0} punto/i rimanente/i.</translation>
+    </message>
+    <message>
+        <source>Last point</source>
+        <translation>Ultimo punto</translation>
+    </message>
+    <message>
+        <source>Last year to download</source>
+        <translation>Ultimo anno da scaricare</translation>
+    </message>
+    <message>
+        <source>Latitude</source>
+        <translation>Latitudine</translation>
+    </message>
+    <message>
+        <source>Latitude (e.g.: -23.550520)</source>
+        <translation>Latitudine (es.: -23.550520)</translation>
+    </message>
+    <message>
+        <source>Latitude in decimal degrees (WGS84), −90 to 90</source>
+        <translation>Latitudine in gradi decimali (WGS84), da −90 a 90</translation>
+    </message>
+    <message>
+        <source>Latitude is out of allowed range (-90 to 90).</source>
+        <translation>La latitudine è fuori dall'intervallo consentito (da -90 a 90).</translation>
+    </message>
+    <message>
+        <source>Layer {0} cannot be analyzed: web/tile rasters have no readable pixel grid. Choose a file-based raster.</source>
+        <translation>Il layer {0} non può essere analizzato: i raster web/tile non hanno una griglia di pixel leggibile. Scegli un raster basato su file.</translation>
+    </message>
+    <message>
+        <source>Leave empty for a single-point analysis</source>
+        <translation>Lascia vuoto per un'analisi a punto singolo</translation>
+    </message>
+    <message>
+        <source>Legend — Collection 10</source>
+        <translation>Legenda — Collection 10</translation>
+    </message>
+    <message>
+        <source>Load coverage</source>
+        <translation>Carica copertura</translation>
+    </message>
+    <message>
+        <source>Load coverage from the Inputs tab to browse MapBiomas by year.</source>
+        <translation>Carica la copertura dalla scheda Input per sfogliare MapBiomas per anno.</translation>
+    </message>
+    <message>
+        <source>Load the transition from the Inputs tab.</source>
+        <translation>Carica la transizione dalla scheda Input.</translation>
+    </message>
+    <message>
+        <source>Load transition</source>
+        <translation>Carica transizione</translation>
+    </message>
+    <message>
+        <source>Longitude</source>
+        <translation>Longitudine</translation>
+    </message>
+    <message>
+        <source>Longitude (e.g.: -46.633308)</source>
+        <translation>Longitudine (es.: -46.633308)</translation>
+    </message>
+    <message>
+        <source>Longitude in decimal degrees (WGS84), −180 to 180</source>
+        <translation>Longitudine in gradi decimali (WGS84), da −180 a 180</translation>
+    </message>
+    <message>
+        <source>Longitude is out of allowed range (-180 to 180).</source>
+        <translation>La longitudine è fuori dall'intervallo consentito (da -180 a 180).</translation>
+    </message>
+    <message>
+        <source>MANUAL COORDINATE (WGS84)</source>
+        <translation>COORDINATA MANUALE (WGS84)</translation>
+    </message>
+    <message>
+        <source>MULTISPECTRAL RGB (%d m)</source>
+        <translation>RGB MULTISPETTRALE (%d m)</translation>
+    </message>
+    <message>
+        <source>Manual marking mode. Enable raster selection to compute optimal points.</source>
+        <translation>Modalità di marcatura manuale. Abilita la selezione del raster per calcolare i punti ottimali.</translation>
+    </message>
+    <message>
+        <source>Map the first year each pixel went from a source class to a target class, and chart the converted area per year. Pick a preset or build a custom source → target.</source>
+        <translation>Mappa il primo anno in cui ogni pixel è passato da una classe sorgente a una classe target, e traccia l'area convertita per anno. Scegli un preset o costruisci una sorgente → target personalizzata.</translation>
+    </message>
+    <message>
+        <source>Map the selected transition and chart its yearly area</source>
+        <translation>Mappa la transizione selezionata e traccia la sua area annuale</translation>
+    </message>
+    <message>
+        <source>MapBiomas</source>
+        <translation>MapBiomas</translation>
+    </message>
+    <message>
+        <source>MapBiomas coverage {0} loaded into QGIS.</source>
+        <translation>Copertura MapBiomas {0} caricata in QGIS.</translation>
+    </message>
+    <message>
+        <source>MapBiomas transition</source>
+        <translation>Transizione MapBiomas</translation>
+    </message>
+    <message>
+        <source>MapBiomas — Land Use &amp; Land Cover</source>
+        <translation>MapBiomas — Uso e copertura del suolo</translation>
+    </message>
+    <message>
+        <source>Mark feature centroids</source>
+        <translation>Marca i centroidi delle feature</translation>
+    </message>
+    <message>
+        <source>Mark feature samples</source>
+        <translation>Marca campioni delle feature</translation>
+    </message>
+    <message>
+        <source>Mark feature samples by density</source>
+        <translation>Marca campioni delle feature per densità</translation>
+    </message>
+    <message>
+        <source>Mark optimal points (raster)</source>
+        <translation>Marca punti ottimali (raster)</translation>
+    </message>
+    <message>
+        <source>Marking mode enabled. Click on the map to add points.</source>
+        <translation>Modalità di marcatura abilitata. Fai clic sulla mappa per aggiungere punti.</translation>
+    </message>
+    <message>
+        <source>Marks per feature</source>
+        <translation>Marker per feature</translation>
+    </message>
+    <message>
+        <source>Mean monthly precipitation (bars) and mean temperatures (lines) across the year.</source>
+        <translation>Precipitazione media mensile (barre) e temperature medie (linee) nel corso dell'anno.</translation>
+    </message>
+    <message>
+        <source>Mean monthly precipitation and temperature</source>
+        <translation>Precipitazione e temperatura medie mensili</translation>
+    </message>
+    <message>
+        <source>More FARM tools</source>
+        <translation>Altri strumenti FARM</translation>
+    </message>
+    <message>
+        <source>Multi-Satellite</source>
+        <translation>Multi-satellite</translation>
+    </message>
+    <message>
+        <source>No MapBiomas coverage returned (Brazil only).</source>
+        <translation>Nessuna copertura MapBiomas restituita (solo Brasile).</translation>
+    </message>
+    <message>
+        <source>No changelog available.</source>
+        <translation>Nessun changelog disponibile.</translation>
+    </message>
+    <message>
+        <source>No login</source>
+        <translation>Nessun accesso</translation>
+    </message>
+    <message>
+        <source>No marks to clear.</source>
+        <translation>Nessun marker da cancellare.</translation>
+    </message>
+    <message>
+        <source>No marks to remove.</source>
+        <translation>Nessun marker da rimuovere.</translation>
+    </message>
+    <message>
+        <source>No points marked. Add map points before generating the PDF.</source>
+        <translation>Nessun punto marcato. Aggiungi punti sulla mappa prima di generare il PDF.</translation>
+    </message>
+    <message>
+        <source>No points yet</source>
+        <translation>Ancora nessun punto</translation>
+    </message>
+    <message>
+        <source>No transition found in this area for: {0}</source>
+        <translation>Nessuna transizione trovata in quest'area per: {0}</translation>
+    </message>
+    <message>
+        <source>No valid optimal points found: raster {0} has no usable data inside the polygons of {1}.</source>
+        <translation>Nessun punto ottimale valido trovato: il raster {0} non ha dati utilizzabili all'interno dei poligoni di {1}.</translation>
+    </message>
+    <message>
+        <source>No valid points found in CSV.</source>
+        <translation>Nessun punto valido trovato nel CSV.</translation>
+    </message>
+    <message>
+        <source>No valid sample marks found in layer {0}.</source>
+        <translation>Nessun marker di campione valido trovato nel layer {0}.</translation>
+    </message>
+    <message>
+        <source>Nothing to save yet. Run an analysis first.</source>
+        <translation>Niente da salvare ancora. Esegui prima un'analisi.</translation>
+    </message>
+    <message>
+        <source>One mark per feature uses the polygon centroid.</source>
+        <translation>Un marker per feature usa il centroide del poligono.</translation>
+    </message>
+    <message>
+        <source>Open chart in browser</source>
+        <translation>Apri grafico nel browser</translation>
+    </message>
+    <message>
+        <source>Open in Google Maps</source>
+        <translation>Apri in Google Maps</translation>
+    </message>
+    <message>
+        <source>Open in browser</source>
+        <translation>Apri nel browser</translation>
+    </message>
+    <message>
+        <source>Open route in Google Maps</source>
+        <translation>Apri percorso in Google Maps</translation>
+    </message>
+    <message>
+        <source>Open the &lt;b&gt;Coordinates&lt;/b&gt; tab and pick a &lt;b&gt;data source&lt;/b&gt;.</source>
+        <translation>Apri la scheda &lt;b&gt;Coordinate&lt;/b&gt; e scegli una &lt;b&gt;fonte di dati&lt;/b&gt;.</translation>
+    </message>
+    <message>
+        <source>Open the current route in Google Maps when at least 2 points exist.</source>
+        <translation>Apri il percorso corrente in Google Maps quando esistono almeno 2 punti.</translation>
+    </message>
+    <message>
+        <source>Open the per-year chart full-screen in your web browser</source>
+        <translation>Apri il grafico per anno a schermo intero nel tuo browser web</translation>
+    </message>
+    <message>
+        <source>Open this chart full-screen in your web browser</source>
+        <translation>Apri questo grafico a schermo intero nel tuo browser web</translation>
+    </message>
+    <message>
+        <source>Optionally set a &lt;b&gt;comparison point B&lt;/b&gt; — pick it on the map, or press &lt;b&gt;Same location as A&lt;/b&gt;.</source>
+        <translation>Imposta facoltativamente un &lt;b&gt;punto di confronto B&lt;/b&gt; — scegline uno sulla mappa, o premi &lt;b&gt;Stessa località di A&lt;/b&gt;.</translation>
+    </message>
+    <message>
+        <source>PDF generated successfully: {0}</source>
+        <translation>PDF generato correttamente: {0}</translation>
+    </message>
+    <message>
+        <source>PDF saved, but could not be opened automatically.</source>
+        <translation>PDF salvato, ma non è stato possibile aprirlo automaticamente.</translation>
+    </message>
+    <message>
+        <source>POLYGON SAMPLING</source>
+        <translation>CAMPIONAMENTO POLIGONI</translation>
+    </message>
+    <message>
+        <source>Pick a tool to get started</source>
+        <translation>Scegli uno strumento per iniziare</translation>
+    </message>
+    <message>
+        <source>Pick at least one source class and one target class.</source>
+        <translation>Scegli almeno una classe sorgente e una classe target.</translation>
+    </message>
+    <message>
+        <source>Place one mark per polygon at the location of maximum raster value (e.g. NDVI peak) instead of geometric sampling</source>
+        <translation>Posiziona un marker per poligono nella posizione di valore massimo del raster (es. picco NDVI) invece del campionamento geometrico</translation>
+    </message>
+    <message>
+        <source>Places exactly one mark per polygon at the pixel of maximum raster value (local-maximum detection with no-data and edge handling).</source>
+        <translation>Posiziona esattamente un marker per poligono sul pixel di valore massimo del raster (rilevamento del massimo locale con gestione di no-data e bordi).</translation>
+    </message>
+    <message>
+        <source>Places marks from a regular grid clipped to each polygon. Good for balanced field coverage and repeatable spacing.</source>
+        <translation>Posiziona i marker da una griglia regolare ritagliata su ogni poligono. Buono per una copertura di campo bilanciata e una spaziatura ripetibile.</translation>
+    </message>
+    <message>
+        <source>Point</source>
+        <translation>Punto</translation>
+    </message>
+    <message>
+        <source>Point A</source>
+        <translation>Punto A</translation>
+    </message>
+    <message>
+        <source>Point B</source>
+        <translation>Punto B</translation>
+    </message>
+    <message>
+        <source>Point {0} deleted. {1} point(s) remaining.</source>
+        <translation>Punto {0} eliminato. {1} punto/i rimanente/i.</translation>
+    </message>
+    <message>
+        <source>Point {0} saved in WGS84: ({1:.6f}, {2:.6f})</source>
+        <translation>Punto {0} salvato in WGS84: ({1:.6f}, {2:.6f})</translation>
+    </message>
+    <message>
+        <source>Point {index}: {lat:.6f}, {lon:.6f}</source>
+        <translation>Punto {index}: {lat:.6f}, {lon:.6f}</translation>
+    </message>
+    <message>
+        <source>Points list (tap to open on mobile)</source>
+        <translation>Elenco dei punti (tocca per aprire su dispositivo mobile)</translation>
+    </message>
+    <message>
+        <source>Points selected using raster-based optimal location: {0} (Band {1}). Local maximum detection applied within each polygon boundary.</source>
+        <translation>Punti selezionati usando la posizione ottimale basata su raster: {0} (Banda {1}). Rilevamento del massimo locale applicato all'interno di ogni confine poligonale.</translation>
+    </message>
+    <message>
+        <source>Press &lt;b&gt;Run analysis&lt;/b&gt; and wait while the data is downloaded.</source>
+        <translation>Premi &lt;b&gt;Esegui analisi&lt;/b&gt; e attendi mentre i dati vengono scaricati.</translation>
+    </message>
+    <message>
+        <source>Publications that use this tool must cite:</source>
+        <translation>Le pubblicazioni che usano questo strumento devono citare:</translation>
+    </message>
+    <message>
+        <source>RAVI (Sentinel-2)</source>
+        <translation>RAVI (Sentinel-2)</translation>
+    </message>
+    <message>
+        <source>RAVI image %s into QGIS.</source>
+        <translation>Immagine RAVI %s in QGIS.</translation>
+    </message>
+    <message>
+        <source>ROUTE</source>
+        <translation>PERCORSO</translation>
+    </message>
+    <message>
+        <source>Raster layer for optimal point selection</source>
+        <translation>Layer raster per la selezione dei punti ottimali</translation>
+    </message>
+    <message>
+        <source>Raster selected: {0} Band {1} | Ready to sample {2} feature(s)</source>
+        <translation>Raster selezionato: {0} Banda {1} | Pronto a campionare {2} feature</translation>
+    </message>
+    <message>
+        <source>Raster selected: {0} Band {1} | Select a polygon layer</source>
+        <translation>Raster selezionato: {0} Banda {1} | Seleziona un layer poligonale</translation>
+    </message>
+    <message>
+        <source>Raster {0} cannot be analyzed (web/tile layer). Choose a file-based raster.</source>
+        <translation>Il raster {0} non può essere analizzato (layer web/tile). Scegli un raster basato su file.</translation>
+    </message>
+    <message>
+        <source>Ready</source>
+        <translation>Pronto</translation>
+    </message>
+    <message>
+        <source>Remove last mark</source>
+        <translation>Rimuovi ultimo marker</translation>
+    </message>
+    <message>
+        <source>Remove the point markers from the map</source>
+        <translation>Rimuovi i marker dei punti dalla mappa</translation>
+    </message>
+    <message>
+        <source>Render every MapBiomas year and browse them with the slider</source>
+        <translation>Renderizza ogni anno MapBiomas e sfoglialo con il cursore</translation>
+    </message>
+    <message>
+        <source>Renders all years (1985–2024) so you can browse them with the slider — this takes a moment.</source>
+        <translation>Renderizza tutti gli anni (1985–2024) così puoi sfogliarli con il cursore — richiede un momento.</translation>
+    </message>
+    <message>
+        <source>Reorder, show or hide modules</source>
+        <translation>Riordina, mostra o nascondi moduli</translation>
+    </message>
+    <message>
+        <source>Replace</source>
+        <translation>Sostituisci</translation>
+    </message>
+    <message>
+        <source>Reset to default</source>
+        <translation>Ripristina predefiniti</translation>
+    </message>
+    <message>
+        <source>Route</source>
+        <translation>Percorso</translation>
+    </message>
+    <message>
+        <source>Route opened in Google Maps with {0} point(s).</source>
+        <translation>Percorso aperto in Google Maps con {0} punto/i.</translation>
+    </message>
+    <message>
+        <source>Route readiness</source>
+        <translation>Disponibilità percorso</translation>
+    </message>
+    <message>
+        <source>Run an analysis first.</source>
+        <translation>Esegui prima un'analisi.</translation>
+    </message>
+    <message>
+        <source>Run analysis</source>
+        <translation>Esegui analisi</translation>
+    </message>
+    <message>
+        <source>Run the RAVI analysis first.</source>
+        <translation>Esegui prima l'analisi RAVI.</translation>
+    </message>
+    <message>
+        <source>SATELLITES</source>
+        <translation>SATELLITI</translation>
+    </message>
+    <message>
+        <source>SESSION</source>
+        <translation>SESSIONE</translation>
+    </message>
+    <message>
+        <source>SUPER-RESOLUTION RGB — Landsat only (disabled)</source>
+        <translation>RGB SUPER-RISOLUZIONE — solo Landsat (disabilitato)</translation>
+    </message>
+    <message>
+        <source>Sampling quantity</source>
+        <translation>Quantità di campionamento</translation>
+    </message>
+    <message>
+        <source>Save CSV</source>
+        <translation>Salva CSV</translation>
+    </message>
+    <message>
+        <source>Save Field Guide PDF</source>
+        <translation>Salva PDF Guida di campo</translation>
+    </message>
+    <message>
+        <source>Save chart data</source>
+        <translation>Salva dati grafico</translation>
+    </message>
+    <message>
+        <source>Save daily data</source>
+        <translation>Salva dati giornalieri</translation>
+    </message>
+    <message>
+        <source>Save image</source>
+        <translation>Salva immagine</translation>
+    </message>
+    <message>
+        <source>Save points to CSV</source>
+        <translation>Salva punti in CSV</translation>
+    </message>
+    <message>
+        <source>Save points to GPX</source>
+        <translation>Salva punti in GPX</translation>
+    </message>
+    <message>
+        <source>Save the chart as a PNG image</source>
+        <translation>Salva il grafico come immagine PNG</translation>
+    </message>
+    <message>
+        <source>Saved: {0}</source>
+        <translation>Salvato: {0}</translation>
+    </message>
+    <message>
+        <source>Select a mark in the session list to delete it.</source>
+        <translation>Seleziona un marker nell'elenco della sessione per eliminarlo.</translation>
+    </message>
+    <message>
+        <source>Select a polygon layer and a raster layer, then use Mark optimal points (raster).</source>
+        <translation>Seleziona un layer poligonale e un layer raster, poi usa Marca punti ottimali (raster).</translation>
+    </message>
+    <message>
+        <source>Select a polygon layer from the current project first.</source>
+        <translation>Seleziona prima un layer poligonale dal progetto corrente.</translation>
+    </message>
+    <message>
+        <source>Select a raster layer for optimal point selection.</source>
+        <translation>Seleziona un layer raster per la selezione dei punti ottimali.</translation>
+    </message>
+    <message>
+        <source>Select a raster layer to compute optimal points.</source>
+        <translation>Seleziona un layer raster per calcolare i punti ottimali.</translation>
+    </message>
+    <message>
+        <source>Select at least one satellite.</source>
+        <translation>Seleziona almeno un satellite.</translation>
+    </message>
+    <message>
+        <source>Setting up FARM tools…</source>
+        <translation>Configurazione di FARM tools…</translation>
+    </message>
+    <message>
+        <source>Skipping %d non-Landsat date(s): super-resolution needs a panchromatic band.</source>
+        <translation>Esclusione di %d data/e non-Landsat: la super-risoluzione richiede una banda pancromatica.</translation>
+    </message>
+    <message>
+        <source>Source</source>
+        <translation>Fonte</translation>
+    </message>
+    <message>
+        <source>Spread optimized</source>
+        <translation>Distribuzione ottimizzata</translation>
+    </message>
+    <message>
+        <source>Starting…</source>
+        <translation>Avvio…</translation>
+    </message>
+    <message>
+        <source>Step %d of %d</source>
+        <translation>Passo %d di %d</translation>
+    </message>
+    <message>
+        <source>Super-resolution needs a panchromatic band (Landsat only).</source>
+        <translation>La super-risoluzione richiede una banda pancromatica (solo Landsat).</translation>
+    </message>
+    <message>
+        <source>Systematic grid</source>
+        <translation>Griglia sistematica</translation>
+    </message>
+    <message>
+        <source>TO (TARGET)</source>
+        <translation>A (TARGET)</translation>
+    </message>
+    <message>
+        <source>TRANSITION (SOURCE → TARGET)</source>
+        <translation>TRANSIZIONE (SORGENTE → TARGET)</translation>
+    </message>
+    <message>
+        <source>Temporary layer added to the project: {0} ({1} point(s)).</source>
+        <translation>Layer temporaneo aggiunto al progetto: {0} ({1} punto/i).</translation>
+    </message>
+    <message>
+        <source>The RAVI module analyses the &lt;b&gt;Sentinel-2 Harmonized Surface Reflectance&lt;/b&gt; collection in Google Earth Engine. Pick an area, a date range and a vegetation index to build an interactive time series, then download imagery, composites and indices — no coding required.</source>
+        <translation>Il modulo RAVI analizza la collezione &lt;b&gt;Sentinel-2 Harmonized Surface Reflectance&lt;/b&gt; in Google Earth Engine. Scegli un'area, un intervallo di date e un indice di vegetazione per costruire una serie temporale interattiva, poi scarica immagini, compositi e indici — senza programmare.</translation>
+    </message>
+    <message>
+        <source>The chart above plots the index and reducer chosen on the Inputs tab across every available satellite — built automatically when you Run.</source>
+        <translation>Il grafico sopra rappresenta l'indice e il riduttore scelti nella scheda Input su ogni satellite disponibile — costruito automaticamente all'esecuzione.</translation>
+    </message>
+    <message>
+        <source>The raster layer cannot be analyzed (no readable pixel grid).</source>
+        <translation>Il layer raster non può essere analizzato (nessuna griglia di pixel leggibile).</translation>
+    </message>
+    <message>
+        <source>The transition map appears here.</source>
+        <translation>La mappa di transizione appare qui.</translation>
+    </message>
+    <message>
+        <source>There are already {0} point(s) in this session.</source>
+        <translation>Ci sono già {0} punto/i in questa sessione.</translation>
+    </message>
+    <message>
+        <source>There are no marked points to generate the PDF.</source>
+        <translation>Non ci sono punti marcati per generare il PDF.</translation>
+    </message>
+    <message>
+        <source>There are no points to add.</source>
+        <translation>Non ci sono punti da aggiungere.</translation>
+    </message>
+    <message>
+        <source>There are no points to export.</source>
+        <translation>Non ci sono punti da esportare.</translation>
+    </message>
+    <message>
+        <source>Thermo-pluviometric</source>
+        <translation>Termo-pluviometrico</translation>
+    </message>
+    <message>
+        <source>This sensor has too few bands for an RGB composite.</source>
+        <translation>Questo sensore ha troppo poche bande per un composito RGB.</translation>
+    </message>
+    <message>
+        <source>Toggle capture mode, then click on the map to add points</source>
+        <translation>Attiva/disattiva la modalità di cattura, poi fai clic sulla mappa per aggiungere punti</translation>
+    </message>
+    <message>
+        <source>Total points</source>
+        <translation>Punti totali</translation>
+    </message>
+    <message>
+        <source>Transition</source>
+        <translation>Transizione</translation>
+    </message>
+    <message>
+        <source>Transition layer loaded into QGIS: {0}</source>
+        <translation>Layer di transizione caricato in QGIS: {0}</translation>
+    </message>
+    <message>
+        <source>Transition per year</source>
+        <translation>Transizione per anno</translation>
+    </message>
+    <message>
+        <source>Trends</source>
+        <translation>Tendenze</translation>
+    </message>
+    <message>
+        <source>Unable to delete the selected mark.</source>
+        <translation>Impossibile eliminare il marker selezionato.</translation>
+    </message>
+    <message>
+        <source>Uncheck sensors you don't need — fewer satellites means less to load.</source>
+        <translation>Deseleziona i sensori che non ti servono — meno satelliti significa meno dati da caricare.</translation>
+    </message>
+    <message>
+        <source>Use direct map clicks for field capture, or select a polygon layer below to generate marks inside each feature.</source>
+        <translation>Usa clic diretti sulla mappa per la cattura di campo, oppure seleziona un layer poligonale qui sotto per generare marker all'interno di ogni feature.</translation>
+    </message>
+    <message>
+        <source>Use raster-based optimal point selection</source>
+        <translation>Usa la selezione dei punti ottimali basata su raster</translation>
+    </message>
+    <message>
+        <source>VEGETATION INDEX (%d m)</source>
+        <translation>INDICE DI VEGETAZIONE (%d m)</translation>
+    </message>
+    <message>
+        <source>Variable:</source>
+        <translation>Variabile:</translation>
+    </message>
+    <message>
+        <source>Version {0}</source>
+        <translation>Versione {0}</translation>
+    </message>
+    <message>
+        <source>Welcome</source>
+        <translation>Benvenuto</translation>
+    </message>
+    <message>
+        <source>Welcome to FARM tools</source>
+        <translation>Benvenuto in FARM tools</translation>
+    </message>
+    <message>
+        <source>What's new</source>
+        <translation>Novità</translation>
+    </message>
+    <message>
+        <source>Works without a Google Earth Engine sign-in</source>
+        <translation>Funziona senza accesso a Google Earth Engine</translation>
+    </message>
+    <message>
+        <source>Year</source>
+        <translation>Anno</translation>
+    </message>
+    <message>
+        <source>Years</source>
+        <translation>Anni</translation>
+    </message>
+    <message>
+        <source>Years: {0}–{1}</source>
+        <translation>Anni: {0}–{1}</translation>
+    </message>
+    <message>
+        <source>Zigzag transect</source>
+        <translation>Transetto a zigzag</translation>
+    </message>
+    <message>
+        <source>centroid</source>
+        <translation>centroide</translation>
+    </message>
+    <message>
+        <source>centroid mark(s)</source>
+        <translation>marker centroide</translation>
+    </message>
+    <message>
+        <source>points</source>
+        <translation>punti</translation>
+    </message>
+    <message>
+        <source>rendering map {0}–{1}…</source>
+        <translation>rendering della mappa {0}–{1}…</translation>
+    </message>
+    <message>
+        <source>sample mark(s)</source>
+        <translation>marker di campione</translation>
+    </message>
+    <message>
+        <source>selected transition</source>
+        <translation>transizione selezionata</translation>
+    </message>
+    <message>
+        <source>spread optimized</source>
+        <translation>distribuzione ottimizzata</translation>
+    </message>
+    <message>
+        <source>systematic grid</source>
+        <translation>griglia sistematica</translation>
+    </message>
+    <message>
+        <source>to</source>
+        <translation>a</translation>
+    </message>
+    <message>
+        <source>updating {0}–{1}…</source>
+        <translation>aggiornamento {0}–{1}…</translation>
+    </message>
+    <message>
+        <source>zigzag transect</source>
+        <translation>transetto a zigzag</translation>
+    </message>
+    <message>
+        <source>{0:.1f} ha in {1}–{2}</source>
+        <translation>{0:.1f} ha in {1}–{2}</translation>
+    </message>
+    <message>
+        <source>{0} at 1 mark per {1} ha</source>
+        <translation>{0} a 1 marker ogni {1} ha</translation>
+    </message>
+    <message>
+        <source>{0} mark(s) removed.</source>
+        <translation>{0} marker rimosso/i.</translation>
+    </message>
+    <message>
+        <source>{0} optimal point(s) added from {1} (band {2}).</source>
+        <translation>{0} punto/i ottimale/i aggiunto/i da {1} (banda {2}).</translation>
+    </message>
+    <message>
+        <source>{0} optimal point(s) added from {1} (band {2}); {3} feature(s) skipped without valid raster data.</source>
+        <translation>{0} punto/i ottimale/i aggiunto/i da {1} (banda {2}); {3} feature saltata/e senza dati raster validi.</translation>
+    </message>
+    <message>
+        <source>{0} point(s) imported successfully.</source>
+        <translation>{0} punto/i importato/i correttamente.</translation>
+    </message>
+    <message>
+        <source>{0} point(s) imported; {1} row(s) skipped.</source>
+        <translation>{0} punto/i importato/i; {1} riga/righe saltata/e.</translation>
+    </message>
+    <message>
+        <source>{0} {1} added from {2} using {3}.</source>
+        <translation>{0} {1} aggiunto/i da {2} usando {3}.</translation>
+    </message>
+    <message>
+        <source>{0} {1} added from {2} using {3}; {4} feature(s) skipped.</source>
+        <translation>{0} {1} aggiunto/i da {2} usando {3}; {4} feature saltata/e.</translation>
+    </message>
+    <message>
+        <source>{0} — drag to reorder</source>
+        <translation>{0} — trascina per riordinare</translation>
+    </message>
+    <message>
+        <source>⚙  Customize</source>
+        <translation>⚙  Personalizza</translation>
+    </message>
+    <message>
+        <source>⧉  Same location as A</source>
+        <translation>⧉  Stessa località di A</translation>
+    </message>
+    <message>
+        <source>🌦️ ClimaPlots</source>
+        <translation>🌦️ ClimaPlots</translation>
+    </message>
+    <message>
+        <source>📅 Available coverage: &lt;b&gt;1999 to present&lt;/b&gt; — Landsat 7 (1999–2022), Landsat 8 (2013–), Landsat 9 (2021–), Sentinel-2 (2019–) and HLS Sentinel-2 (2015–). Dates outside a sensor's lifespan are skipped automatically.</source>
+        <translation>📅 Copertura disponibile: &lt;b&gt;dal 1999 a oggi&lt;/b&gt; — Landsat 7 (1999–2022), Landsat 8 (2013–), Landsat 9 (2021–), Sentinel-2 (2019–) e HLS Sentinel-2 (2015–). Le date fuori dalla vita operativa di un sensore vengono saltate automaticamente.</translation>
+    </message>
+    <message>
+        <source>📊 What it produces</source>
+        <translation>📊 Cosa produce</translation>
+    </message>
+    <message>
+        <source>📖 Citation</source>
+        <translation>📖 Citazione</translation>
+    </message>
+    <message>
+        <source>🔀 Compare two locations or two sources</source>
+        <translation>🔀 Confronta due località o due fonti</translation>
+    </message>
+    <message>
+        <source>🚀 Quick start</source>
+        <translation>🚀 Avvio rapido</translation>
+    </message>
+    <message>
+        <source>🛰️ Multi-Satellite</source>
+        <translation>🛰️ Multi-satellite</translation>
+    </message>
+    <message>
+        <source>🛰️ RAVI - Remote Analysis of Vegetation Index</source>
+        <translation>🛰️ RAVI - Remote Analysis of Vegetation Index</translation>
     </message>
 </context>
 </TS>
