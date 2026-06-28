@@ -162,19 +162,33 @@ export default [
     },
   },
 
-  // ── Imagery & time series — Landsat ──────────────────────────────
+  // ── Imagery & time series — Multi-Satellite ──────────────────────
+  {
+    id: 'multisat-sources',
+    category: 'imagery',
+    youtubeId: null,
+    wiki: 'landsat',
+    title: {
+      'en-US': 'Multi-Satellite: picking your sensors',
+      'pt-BR': 'Multi-Satélite: escolhendo os sensores',
+    },
+    desc: {
+      'en-US': 'Tick Landsat 7/8/9, Sentinel-2, HLS, or MODIS on the Inputs panel; the selection drives both date discovery and the time series, so fewer sensors means fewer Earth Engine queries. (~4 min)',
+      'pt-BR': 'Marque Landsat 7/8/9, Sentinel-2, HLS ou MODIS no painel de entradas; a seleção comanda tanto a busca de datas quanto a série temporal, então menos sensores significam menos consultas ao Earth Engine. (~4 min)',
+    },
+  },
   {
     id: 'landsat-timeseries',
     category: 'imagery',
     youtubeId: null,
     wiki: 'landsat',
     title: {
-      'en-US': 'Landsat: multi-mission time series (1999→now)',
-      'pt-BR': 'Landsat: série temporal multimissão (1999→hoje)',
+      'en-US': 'Multi-Satellite: merged index time series (1999→now)',
+      'pt-BR': 'Multi-Satélite: série temporal de índice mesclada (1999→hoje)',
     },
     desc: {
-      'en-US': 'Build a Landsat 7/8/9 Surface-Reflectance index series over the AOI, merged into one chronological record colour-coded by mission. (~4 min)',
-      'pt-BR': 'Monte uma série de índice em Refletância de Superfície Landsat 7/8/9 sobre a AOI, mesclada em um registro cronológico colorido por missão. (~4 min)',
+      'en-US': 'Each selected mission is queried within its own lifespan, then the per-sensor Surface-Reflectance index series are merged into one chronological record colour-coded by source. (~4 min)',
+      'pt-BR': 'Cada missão selecionada é consultada dentro de seu próprio período, e então as séries de índice em Refletância de Superfície por sensor são mescladas em um registro cronológico colorido por fonte. (~4 min)',
     },
   },
   {
@@ -187,8 +201,8 @@ export default [
       'pt-BR': 'Landsat: cor verdadeira pan-sharpened HSV 15 m',
     },
     desc: {
-      'en-US': 'How HSV pan-sharpening swaps the 15 m panchromatic band into the brightness channel to double apparent detail of the TOA true-colour image. (~4 min)',
-      'pt-BR': 'Como o pan-sharpening HSV troca a banda pancromática de 15 m no canal de brilho para dobrar o detalhe aparente da imagem TOA em cor verdadeira. (~4 min)',
+      'en-US': 'HSV pan-sharpening swaps the 15 m panchromatic band into the brightness channel to double the apparent detail of the TOA true-colour image. Landsat 7/8/9 only — Sentinel-2, HLS, and MODIS carry no pan band, so the super-res action is hidden for them. (~4 min)',
+      'pt-BR': 'O pan-sharpening HSV troca a banda pancromática de 15 m no canal de brilho para dobrar o detalhe aparente da imagem TOA em cor verdadeira. Só Landsat 7/8/9 — Sentinel-2, HLS e MODIS não têm banda pancromática, então a ação de super-resolução fica oculta para eles. (~4 min)',
     },
   },
   {
@@ -197,12 +211,12 @@ export default [
     youtubeId: null,
     wiki: 'landsat',
     title: {
-      'en-US': 'Landsat: SR indices & multispectral composites',
-      'pt-BR': 'Landsat: índices SR & composições multiespectrais',
+      'en-US': 'Multi-Satellite: SR indices & band composites',
+      'pt-BR': 'Multi-Satélite: índices SR & composições de bandas',
     },
     desc: {
-      'en-US': 'The 14 Surface-Reflectance indices (NDVI, EVI, SAVI/OSAVI/MSAVI, BSI, MNDWI…) and the four band combinations (real colour, CIR, SWIR composites). (~5 min)',
-      'pt-BR': 'Os 14 índices em Refletância de Superfície (NDVI, EVI, SAVI/OSAVI/MSAVI, BSI, MNDWI…) e as quatro combinações de bandas (cor real, falsa-cor, composições SWIR). (~5 min)',
+      'en-US': 'The 14 Surface-Reflectance indices (NDVI, EVI, SAVI/OSAVI/MSAVI, BSI, MNDWI…) and four band combinations (real colour, CIR, SWIR composites); MODIS, with only red and NIR, offers just the indices those two bands support. (~5 min)',
+      'pt-BR': 'Os 14 índices em Refletância de Superfície (NDVI, EVI, SAVI/OSAVI/MSAVI, BSI, MNDWI…) e quatro combinações de bandas (cor real, falsa-cor, composições SWIR); o MODIS, só com vermelho e NIR, oferece apenas os índices que essas duas bandas suportam. (~5 min)',
     },
   },
   {
@@ -211,12 +225,12 @@ export default [
     youtubeId: null,
     wiki: 'landsat',
     title: {
-      'en-US': 'Landsat: scene preview, batch & super-resolution',
-      'pt-BR': 'Landsat: pré-visualização, lote & super-resolução',
+      'en-US': 'Multi-Satellite: scene preview, batch & super-resolution',
+      'pt-BR': 'Multi-Satélite: pré-visualização, lote & super-resolução',
     },
     desc: {
-      'en-US': 'Browse cloud-masked scenes that pass the minimum-valid-coverage filter, preview on the canvas, and download in batch or at super-resolution. (~4 min)',
-      'pt-BR': 'Navegue por cenas mascaradas que passam no filtro de cobertura mínima válida, pré-visualize no mapa e baixe em lote ou em super-resolução. (~4 min)',
+      'en-US': 'Browse cloud-masked scenes that pass the minimum-valid-coverage filter, preview on the canvas, and download as GeoTIFF — in batch, or at 15 m super-resolution where the sensor has a pan band. (~4 min)',
+      'pt-BR': 'Navegue por cenas mascaradas que passam no filtro de cobertura mínima válida, pré-visualize no mapa e baixe como GeoTIFF — em lote, ou em super-resolução de 15 m quando o sensor tem banda pancromática. (~4 min)',
     },
   },
 
@@ -285,12 +299,12 @@ export default [
     youtubeId: null,
     wiki: 'mapbiomas',
     title: {
-      'en-US': 'MapBiomas: annual land-cover coverage (1985–2023)',
-      'pt-BR': 'MapBiomas: cobertura anual da terra (1985–2023)',
+      'en-US': 'MapBiomas: annual land-cover coverage (1985–2024)',
+      'pt-BR': 'MapBiomas: cobertura anual da terra (1985–2024)',
     },
     desc: {
-      'en-US': 'Step through 39 annual Collection 9 classifications with the year slider, read the official 63-class legend, and download a year as a styled classification raster. (~4 min)',
-      'pt-BR': 'Percorra as 39 classificações anuais da Coleção 9 com o controle de ano, leia a legenda oficial de 63 classes e baixe um ano como raster de classificação estilizado. (~4 min)',
+      'en-US': 'Step through 40 annual Collection 10 classifications (1985–2024) with the year slider, read the official MapBiomas legend, and download a year as a styled classification raster. (~4 min)',
+      'pt-BR': 'Percorra as 40 classificações anuais da Coleção 10 (1985–2024) com o controle de ano, leia a legenda oficial do MapBiomas e baixe um ano como raster de classificação estilizado. (~4 min)',
     },
   },
   {

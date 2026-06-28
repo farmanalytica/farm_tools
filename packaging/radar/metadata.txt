@@ -3,14 +3,14 @@ name=AGLgis
 qgisMinimumVersion=3.28
 qgisMaximumVersion=4.99
 description=Sentinel-1 SAR (VV/VH) backscatter time series and analysis-ready data preparation in Google Earth Engine — cloud-independent / Séries temporais de retroespalhamento SAR Sentinel-1 (VV/VH) e preparo de dados no Google Earth Engine — independente de nuvens
-version=8.0
+version=8.1
 author=FARM Analytica, Caio Arantes, Leandro Eloi, Lívia Scopel, Mateus Pinto da Silva, Bruna da Silva Brito Ribeiro, Isabella Alves da Cunha, Lucas Rios do Amaral
 email=contato@farmanalytica.com.br
 
-about=AGLgis is a graphical interface for Sentinel-1 SAR Backscatter Analysis-Ready-Data preparation in Google Earth Engine, inside QGIS. Build VV/VH backscatter time series for cloud-independent monitoring of crops, water and land surfaces, with border-noise correction, terrain flattening and speckle filtering. Requires a free Google Earth Engine account (sign-in and a project ID are set up inside the plugin). / O AGLgis é uma interface gráfica para o preparo de dados de retroespalhamento SAR Sentinel-1 (Analysis-Ready Data) no Google Earth Engine, dentro do QGIS. Gere séries temporais VV/VH para monitoramento independente de nuvens de culturas, água e superfícies, com correção de ruído de borda, achatamento de terreno e filtragem de speckle. Requer uma conta gratuita do Google Earth Engine (login e ID de projeto são configurados dentro do plugin).
+about=AGLgis is a graphical interface for Sentinel-1 SAR Backscatter Analysis-Ready-Data preparation in Google Earth Engine, inside QGIS. Build VV/VH backscatter time series for cloud-independent monitoring of crops, water and land surfaces, with border-noise correction, terrain flattening and speckle filtering. Requires a Google Earth Engine account (sign-in and a project ID are set up inside the plugin). / O AGLgis é uma interface gráfica para o preparo de dados de retroespalhamento SAR Sentinel-1 (Analysis-Ready Data) no Google Earth Engine, dentro do QGIS. Gere séries temporais VV/VH para monitoramento independente de nuvens de culturas, água e superfícies, com correção de ruído de borda, achatamento de terreno e filtragem de speckle. Requer uma conta do Google Earth Engine (login e ID de projeto são configurados dentro do plugin).
 
-tracker=https://github.com/farmanalytica/aglgis/issues
-repository=https://github.com/farmanalytica/aglgis
+tracker=https://github.com/farmanalytica/farm_tools/issues
+repository=https://github.com/farmanalytica/farm_tools
 # End of mandatory metadata
 
 # Recommended items:
@@ -22,7 +22,7 @@ changelog=
 # Tags are comma separated with spaces allowed
 tags=python, sentinel, sentinel-1, radar, sar, backscatter, google earth engine, remote sensing, raster, agriculture
 
-homepage=https://farmanalytica.github.io/AGLgis/
+homepage=https://farmtools.com.br/wiki/sar
 category=Raster
 icon=icon.png
 experimental=False

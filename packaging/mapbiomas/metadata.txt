@@ -2,12 +2,12 @@
 name=MapBiomas
 qgisMinimumVersion=3.28
 qgisMaximumVersion=4.99
-description=Brazilian land-use/land-cover by year (MapBiomas Collection 9) plus configurable land-use transition mapping / Uso e cobertura da terra do Brasil por ano (MapBiomas Coleção 9) e mapeamento configurável de transições de uso
-version=8.0
+description=Brazilian land-use/land-cover by year (MapBiomas Collection 10) plus configurable land-use transition mapping / Uso e cobertura da terra do Brasil por ano (MapBiomas Coleção 10) e mapeamento configurável de transições de uso
+version=8.1
 author=FARM Analytica, Caio Arantes, Leandro Eloi, Lívia Scopel, Mateus Pinto da Silva, Bruna da Silva Brito Ribeiro, Isabella Alves da Cunha, Lucas Rios do Amaral
 email=contato@farmanalytica.com.br
 
-about=MapBiomas browses MapBiomas Brasil Collection 9 land-use/land-cover by year (year slider + class legend), downloads any year to QGIS as a styled paletted raster, and runs configurable source-to-target transition analysis with presets (Pasture-to-Crop, Deforestation, Forest regrowth, Agricultural expansion, Urban). Powered by Google Earth Engine. Requires a free Google Earth Engine account (sign-in and a project ID are set up inside the plugin). / O MapBiomas navega o uso e cobertura da terra da Coleção 9 do MapBiomas Brasil por ano (slider de ano + legenda de classes), baixa qualquer ano para o QGIS como raster paletizado e executa análise configurável de transições com presets (Pasto-para-Agricultura, Desmatamento, Regeneração, Expansão agrícola, Urbano). Integrado ao Google Earth Engine. Requer uma conta gratuita do Google Earth Engine (login e ID de projeto são configurados dentro do plugin).
+about=MapBiomas browses MapBiomas Brasil Collection 10 land-use/land-cover by year (year slider + class legend), downloads any year to QGIS as a styled paletted raster, and runs configurable source-to-target transition analysis with presets (Pasture-to-Crop, Deforestation, Forest regrowth, Agricultural expansion, Urban). Powered by Google Earth Engine. Requires a Google Earth Engine account (sign-in and a project ID are set up inside the plugin). / O MapBiomas navega o uso e cobertura da terra da Coleção 10 do MapBiomas Brasil por ano (slider de ano + legenda de classes), baixa qualquer ano para o QGIS como raster paletizado e executa análise configurável de transições com presets (Pasto-para-Agricultura, Desmatamento, Regeneração, Expansão agrícola, Urbano). Integrado ao Google Earth Engine. Requer uma conta do Google Earth Engine (login e ID de projeto são configurados dentro do plugin).
 
 tracker=https://github.com/farmanalytica/farm_tools/issues
 repository=https://github.com/farmanalytica/farm_tools
@@ -22,7 +22,7 @@ changelog=
 # Tags are comma separated with spaces allowed
 tags=mapbiomas, brazil, land use, land cover, lulc, deforestation, transition, google earth engine, agriculture, raster
 
-homepage=https://farmtools.com.br
+homepage=https://farmtools.com.br/wiki/mapbiomas
 category=Raster
 icon=icon.png
 experimental=False

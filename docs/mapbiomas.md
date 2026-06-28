@@ -1,13 +1,13 @@
 # MapBiomas — Methodology
 
 > This document describes the data and scientific method behind the MapBiomas
-> module. The module draws on the MapBiomas Brasil Collection 9 land-use and
-> land-cover archive (1985–2023, 30 m resolution) to (1) display the annual
+> module. The module draws on the MapBiomas Brasil Collection 10 land-use and
+> land-cover archive (1985–2024, 30 m resolution) to (1) display the annual
 > land-cover classification for an area of interest, (2) detect and date the
 > first year each location changed from one land-cover class to another, and
 > (3) quantify the converted area, in hectares, per year. The goal is to let a
 > researcher see *what* the land was, *what* it became, and *when* the change
-> happened, over nearly four decades, for any chosen area in Brazil.
+> happened, over four decades, for any chosen area in Brazil.
 
 ## 1. Objective
 
@@ -15,7 +15,7 @@ The module answers three linked questions about a user-defined area of interest
 (AOI):
 
 1. **Coverage** — What was the land cover (forest, pasture, cropland, water,
-   urban, etc.) in each year from 1985 to 2023?
+   urban, etc.) in each year from 1985 to 2024?
 2. **Transition** — For a chosen "before → after" change (for example
    pasture becoming cropland, or forest being cleared), in which year did each
    location first make that change?
@@ -27,7 +27,7 @@ monitoring, and agricultural-expansion studies at farm to regional scale.
 
 ## 2. Data source
 
-All results are derived from **MapBiomas Brasil, Collection 9**, the annual
+All results are derived from **MapBiomas Brasil, Collection 10**, the annual
 land-use and land-cover mapping produced by the MapBiomas initiative for the
 entire Brazilian territory.
 
@@ -37,15 +37,15 @@ entire Brazilian territory.
   satellite series. Each 30 m × 30 m pixel therefore represents
   **0.09 hectares** of ground (30 × 30 ÷ 10 000), a constant used throughout the
   area calculations below.
-- **Temporal span** — 39 annual maps, one per year from **1985 through 2023**.
+- **Temporal span** — 40 annual maps, one per year from **1985 through 2024**.
 - **Class scheme** — Every pixel, in every year, is assigned a single
-  land-cover class from the official MapBiomas Collection 9 legend (forest
+  land-cover class from the official MapBiomas Collection 10 legend (forest
   formation, savanna, pasture, agriculture, mosaic of uses, urban area, water,
-  and so on). The module uses the published MapBiomas class identifiers,
+  and so on; Collection 10 adds class 75, photovoltaic plants). The module uses the published MapBiomas class identifiers,
   Portuguese class names, and official color palette unchanged, so that maps and
   legends match the MapBiomas reference exactly.
 
-The underlying product is the Collection 9 **integration asset**: a single,
+The underlying product is the Collection 10 **integration asset**: a single,
 harmonized annual classification in which each year's map has already been
 reconciled across MapBiomas thematic teams into one consistent class per pixel.
 
@@ -54,7 +54,7 @@ reconciled across MapBiomas thematic teams into one consistent class per pixel.
 The coverage view shows the annual classification: a map of the AOI for a chosen
 year in which every pixel is painted with the color of its land-cover class for
 that year. Moving through the years (via a year selector) shows how the
-landscape's land cover evolved across the 1985–2023 series.
+landscape's land cover evolved across the 1985–2024 series.
 
 Each annual map is a *snapshot*, not a measurement of change — it states what
 the dominant land cover was at each location in that single year. The class
@@ -77,7 +77,7 @@ expansion) and also lets the user define an arbitrary source and target set.
 For each location, the method records the **earliest** year in which the
 transition occurred, so that a pixel that changed and possibly changed again is
 attributed to its first qualifying change. Conceptually, for every year *Y* from
-**1986 to 2023** (1986 is the first year that has a prior year, 1985, to compare
+**1986 to 2024** (1986 is the first year that has a prior year, 1985, to compare
 against):
 
 1. **Was it source before?** Check whether the pixel belonged to a *source*
@@ -118,11 +118,11 @@ The module produces three complementary outputs:
   land was in this year."* Step through years to watch the landscape change.
 
 - **Transition map** — the first-transition-year map, colored by year on a
-  diverging (blue → red) scale spanning 1986–2023. Read it as *"this is where
+  diverging (blue → red) scale spanning 1986–2024. Read it as *"this is where
   the change happened, and the color tells you when"* — cooler colors mark early
   transitions, warmer colors mark recent ones. Unchanged land is blank, so the
   colored pixels are exactly the area that made the selected source → target
-  change. Because the color scale is pinned to the full 1986–2023 range, a given
+  change. Because the color scale is pinned to the full 1986–2024 range, a given
   year always has the same color, making maps comparable.
 
 - **Per-year area chart** — a bar chart of converted hectares per transition
@@ -142,7 +142,7 @@ the timing and magnitude of the change between those states.
 
 ## 6. Limitations & caveats
 
-- **Brazil only.** Collection 9 covers the Brazilian territory exclusively.
+- **Brazil only.** Collection 10 covers the Brazilian territory exclusively.
   Areas outside Brazil have no data and must not be analyzed with this module.
 - **Classification accuracy.** The land-cover classes are themselves a model
   output and carry mapping error. Accuracy varies by class, region, and year;
@@ -164,8 +164,8 @@ the timing and magnitude of the change between those states.
 
 - **MapBiomas Project** — Annual land-use and land-cover mapping of Brazil.
   Project, methodology, and data: https://mapbiomas.org
-- **Collection 9** — MapBiomas Brasil, Collection 9 of the annual series of
-  land-use and land-cover maps of Brazil (1985–2023), integration product.
+- **Collection 10** — MapBiomas Brasil, Collection 10 of the annual series of
+  land-use and land-cover maps of Brazil (1985–2024), integration product.
   See https://brasil.mapbiomas.org for the collection description, accuracy
   assessment, legend, and the official citation to use when publishing results
   derived from this data.

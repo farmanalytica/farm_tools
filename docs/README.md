@@ -8,7 +8,7 @@ end user — no code internals.
 
 | Module | Document | Summary |
 |---|---|---|
-| MapBiomas | [mapbiomas.md](mapbiomas.md) | Brazil land-use/land-cover (Collection 9, 1985–2023, 30 m); annual coverage and first-transition-year source→target analysis. |
+| MapBiomas | [mapbiomas.md](mapbiomas.md) | Brazil land-use/land-cover (Collection 10, 1985–2024, 30 m); annual coverage and first-transition-year source→target analysis. |
 | Optical | [optical.md](optical.md) | Sentinel-2 surface reflectance; SCL cloud masking, spectral indices, AOI time series, AUC composites. |
 | Multi-Satellite | [landsat.md](landsat.md) | Landsat 7/8/9 + Sentinel-2 + HLS + MODIS; per-sensor selection, HSV pan-sharpened 15 m RGB (Landsat), spectral indices, cloud masking, multi-mission SITS. |
 | SAR | [sar.md](sar.md) | Sentinel-1 C-band radar; analysis-ready VV/VH backscatter, dual-pol indices, dB time series. |

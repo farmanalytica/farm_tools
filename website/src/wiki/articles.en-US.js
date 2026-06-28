@@ -6,7 +6,7 @@ export default [
     title: 'Getting Started',
     summary: 'Install the plugin, set up Google Earth Engine, and authenticate.',
     sections: [
-      { p: 'FARM tools is a QGIS plugin powered by Google Earth Engine (GEE). Before using any module you need QGIS 3.28 or newer, a free GEE account, and a Google Cloud project with the Earth Engine API enabled.' },
+      { p: 'FARM tools is a QGIS plugin; most of its modules are powered by Google Earth Engine (GEE). Every module needs QGIS 3.28 or newer. The GEE-powered modules also need a GEE account and a Google Cloud project with the Earth Engine API enabled. ClimaPlots and Field Guide run without any GEE account.' },
       { h2: 'Installation' },
       { steps: [
         'Open QGIS and go to Plugins → Manage and Install Plugins.',
@@ -16,7 +16,7 @@ export default [
       { note: 'Dependencies are installed into the plugin\'s own extlibs folder and never shadow the packages shipped with QGIS (numpy, pandas, etc.). A QGIS/Python upgrade re-provisions them automatically.' },
       { h2: 'Google Earth Engine setup' },
       { steps: [
-        'Create a free GEE account at earthengine.google.com/signup.',
+        'Create a GEE account at earthengine.google.com/signup.',
         'Create a Google Cloud project at console.cloud.google.com and link it to your GEE account.',
         'In the Cloud Console, search for "Earth Engine API" and enable it.',
         'Open the Earth Engine Code Editor (code.earthengine.google.com) to find your project ID.',
@@ -256,10 +256,10 @@ export default [
     title: 'MapBiomas',
     summary: 'Brazilian land-use/land-cover by year and configurable transition analysis.',
     sections: [
-      { p: 'MapBiomas brings the MapBiomas Brasil Collection 9 annual land-use / land-cover archive into QGIS. Browse any year inside the module, download a year to QGIS as a styled classification raster, or analyze how the land changed over time. Coverage is Brazil-only and runs through Google Earth Engine.' },
+      { p: 'MapBiomas brings the MapBiomas Brasil Collection 10 annual land-use / land-cover archive into QGIS: 40 maps, one per year from 1985 to 2024, at 30 m. Browse any year inside the module, download a year to QGIS as a styled classification raster, or analyze how the land changed over time. Coverage is Brazil-only and runs through Google Earth Engine.' },
       { h2: 'Coverage' },
       { list: [
-        'Browse every year (1985–2023) in-module with a year slider, beside the official 63-class legend.',
+        'Browse every year from 1985 to 2024 in-module with a year slider, beside the official Collection 10 legend (Collection 10 adds class 75, photovoltaic plants).',
         'Download any single year to QGIS as a single-band classification raster styled with the official MapBiomas palette — real class IDs, so pixels stay queryable and analyzable.',
       ] },
       { h2: 'Transition analysis' },
@@ -269,7 +269,7 @@ export default [
         'Custom: pick any combination of source and target classes.',
         'A year-range slider filters the chart live and limits the exported transition layer, which loads into QGIS classed by transition year.',
       ] },
-      { note: 'MapBiomas Collection 9 covers Brazil only — areas outside Brazil return empty results. Requires Google Earth Engine authentication, like the other GEE modules.' },
+      { note: 'MapBiomas Collection 10 covers Brazil only — areas outside Brazil return empty results. Requires Google Earth Engine authentication, like the other GEE modules.' },
     ],
   },
   {

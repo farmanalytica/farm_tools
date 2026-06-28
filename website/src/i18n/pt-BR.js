@@ -50,7 +50,7 @@ export default {
       },
       dem: {
         title: 'DEM & Terreno',
-        desc: 'Baixe dados de elevação e derive produtos de terreno para qualquer área de interesse.',
+        desc: 'Baixe elevação de ~30 DEMs públicos para qualquer área, recortada e estilizada em Magma, pronta para análise de terreno no QGIS.',
       },
       sysi: {
         title: 'SYSI Solo Exposto',
@@ -58,7 +58,7 @@ export default {
       },
       climaplots: {
         title: 'ClimaPlots',
-        desc: 'Séries climáticas NASA POWER e gráficos interativos para qualquer área de interesse.',
+        desc: 'Diagnóstico climático para qualquer ponto — tendências NASA POWER & ERA5, diagrama climático, extremos ETCCDI e seca SPI. Sem conta GEE.',
       },
       fieldguide: {
         title: 'Guia de Campo',
@@ -66,7 +66,7 @@ export default {
       },
       mapbiomas: {
         title: 'MapBiomas',
-        desc: 'Explore o uso e cobertura da terra da Coleção 9 do Brasil por ano e execute análises configuráveis de transição de uso (ex.: pastagem → lavoura, desmatamento).',
+        desc: 'Explore o uso e cobertura da terra da Coleção 10 do Brasil por ano (1985–2024) e execute análises configuráveis de transição de uso (ex.: pastagem → lavoura, desmatamento).',
       },
     },
   },
@@ -77,7 +77,7 @@ export default {
     steps: [
       {
         title: 'Criar conta Google Earth Engine',
-        desc: 'Cadastre-se gratuitamente em earthengine.google.com.',
+        desc: 'Cadastre-se em earthengine.google.com.',
         link: 'Ir para Earth Engine',
         href: 'https://earthengine.google.com/signup/',
       },

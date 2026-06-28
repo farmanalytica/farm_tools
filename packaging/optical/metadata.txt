@@ -3,14 +3,14 @@ name=RAVI
 qgisMinimumVersion=3.28
 qgisMaximumVersion=4.99
 description=Per-date Sentinel-2 vegetation-index time series (NDVI, EVI, NDRE…) with cloud masking, plus multispectral imagery download / Séries temporais de índices de vegetação Sentinel-2 (NDVI, EVI, NDRE…) por data com mascaramento de nuvens e download de imagens
-version=8.0
+version=8.1
 author=FARM Analytica, Caio Arantes, Leandro Eloi, Lívia Scopel, Mateus Pinto da Silva, Bruna da Silva Brito Ribeiro, Isabella Alves da Cunha, Lucas Rios do Amaral
 email=contato@farmanalytica.com.br
 
-about=RAVI (Remote Analysis of Vegetation Indices) brings Sentinel-2 vegetation-index analysis into QGIS via Google Earth Engine. Build per-date time series of NDVI, EVI, NDRE and more with automatic cloud masking, choose the spatial reducer (mean/median), and download multispectral imagery clipped to your area of interest. Requires a free Google Earth Engine account (sign-in and a project ID are set up inside the plugin). / O RAVI (Análise Remota de Índices de Vegetação) traz a análise de índices de vegetação Sentinel-2 para o QGIS via Google Earth Engine. Gere séries temporais por data de NDVI, EVI, NDRE e mais com mascaramento automático de nuvens, escolha o redutor espacial (média/mediana) e baixe imagens multiespectrais recortadas para sua área de interesse. Requer uma conta gratuita do Google Earth Engine (login e ID de projeto são configurados dentro do plugin).
+about=RAVI (Remote Analysis of Vegetation Indices) brings Sentinel-2 vegetation-index analysis into QGIS via Google Earth Engine. Build per-date time series of NDVI, EVI, NDRE and more with automatic cloud masking, choose the spatial reducer (mean/median), and download multispectral imagery clipped to your area of interest. Requires a Google Earth Engine account (sign-in and a project ID are set up inside the plugin). / O RAVI (Análise Remota de Índices de Vegetação) traz a análise de índices de vegetação Sentinel-2 para o QGIS via Google Earth Engine. Gere séries temporais por data de NDVI, EVI, NDRE e mais com mascaramento automático de nuvens, escolha o redutor espacial (média/mediana) e baixe imagens multiespectrais recortadas para sua área de interesse. Requer uma conta do Google Earth Engine (login e ID de projeto são configurados dentro do plugin).
 
-tracker=https://github.com/farmanalytica/ravi-qgis-plugin/issues
-repository=https://github.com/farmanalytica/ravi-qgis-plugin
+tracker=https://github.com/farmanalytica/farm_tools/issues
+repository=https://github.com/farmanalytica/farm_tools
 # End of mandatory metadata
 
 # Recommended items:
@@ -22,7 +22,7 @@ changelog=
 # Tags are comma separated with spaces allowed
 tags=remote sensing, sentinel-2, google earth engine, vegetation index, ndvi, evi, ndre, time series, agriculture, precision agriculture
 
-homepage=https://www.raviqgis.org
+homepage=https://farmtools.com.br/wiki/optical
 category=Plugins
 icon=icon.png
 experimental=False

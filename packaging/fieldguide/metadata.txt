@@ -3,14 +3,14 @@ name=Field Guide
 qgisMinimumVersion=3.28
 qgisMaximumVersion=4.99
 description=Field routes, polygon sampling, raster-based optimal sampling points, CSV/GPX export and PDF reports in QGIS / Rotas de campo, amostragem por polígonos, pontos ótimos baseados em raster, exportação CSV/GPX e relatórios PDF no QGIS
-version=8.0
+version=8.1
 author=FARM Analytica, Caio Arantes, Leandro Eloi, Lívia Scopel, Mateus Pinto da Silva, Bruna da Silva Brito Ribeiro, Isabella Alves da Cunha, Lucas Rios do Amaral
 email=contato@farmanalytica.com.br
 
 about=Field Guide supports field sampling workflows in QGIS: capture points, sample polygons, find raster-based optimal sampling points (e.g. NDVI peak per polygon) with adjustable buffer and value extraction, and export results to CSV, GPX or PDF. No Google Earth Engine sign-in required. / O Guia de Campo apoia fluxos de amostragem de campo no QGIS: captura de pontos, amostragem de polígonos, pontos ótimos baseados em raster (ex.: pico de NDVI por polígono) com buffer ajustável e extração de valores, e exportação para CSV, GPX ou PDF. Não requer login no Google Earth Engine.
 
-tracker=https://github.com/farmanalytica/fieldguide/issues
-repository=https://github.com/farmanalytica/fieldguide
+tracker=https://github.com/farmanalytica/farm_tools/issues
+repository=https://github.com/farmanalytica/farm_tools
 # End of mandatory metadata
 
 # Recommended items:
@@ -22,7 +22,7 @@ changelog=
 # Tags are comma separated with spaces allowed
 tags=field sampling, gps, gpx, csv, pdf, point capture, polygon sampling, raster, agriculture, soil sampling, vector
 
-homepage=https://farmanalytica.github.io/fieldguide/
+homepage=https://farmtools.com.br/wiki/fieldguide
 category=Vector
 icon=icon.png
 experimental=False
