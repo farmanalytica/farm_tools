@@ -6,7 +6,7 @@ export default [
     title: 'Primeiros Passos',
     summary: 'Instale o plugin, configure o Google Earth Engine e autentique-se.',
     sections: [
-      { p: 'O FARM tools é um plugin QGIS integrado ao Google Earth Engine (GEE). Antes de usar qualquer módulo você precisa do QGIS 3.28 ou mais recente, uma conta GEE gratuita e um projeto Google Cloud com a Earth Engine API habilitada.' },
+      { p: 'O FARM tools é um plugin QGIS; a maioria dos módulos é integrada ao Google Earth Engine (GEE). Todo módulo precisa do QGIS 3.28 ou mais recente. Os módulos baseados no GEE também precisam de uma conta GEE e um projeto Google Cloud com a Earth Engine API habilitada. O ClimaPlots e o Guia de Campo funcionam sem nenhuma conta GEE.' },
       { h2: 'Instalação' },
       { steps: [
         'Abra o QGIS e vá em Complementos → Gerenciar e Instalar Complementos.',
@@ -16,7 +16,7 @@ export default [
       { note: 'As dependências são instaladas na pasta extlibs do próprio plugin e nunca substituem os pacotes que acompanham o QGIS (numpy, pandas etc.). Uma atualização do QGIS/Python reprovisiona tudo automaticamente.' },
       { h2: 'Configuração do Google Earth Engine' },
       { steps: [
-        'Crie uma conta GEE gratuita em earthengine.google.com/signup.',
+        'Crie uma conta GEE em earthengine.google.com/signup.',
         'Crie um projeto Google Cloud em console.cloud.google.com e vincule-o à sua conta GEE.',
         'No Console Cloud, procure por "Earth Engine API" e habilite-a.',
         'Abra o Editor de Código do Earth Engine (code.earthengine.google.com) para encontrar seu ID de projeto.',
@@ -256,10 +256,10 @@ export default [
     title: 'MapBiomas',
     summary: 'Uso e cobertura da terra do Brasil por ano e análise configurável de transições.',
     sections: [
-      { p: 'O MapBiomas traz o acervo anual de uso e cobertura da terra da Coleção 9 do MapBiomas Brasil para o QGIS. Explore qualquer ano dentro do módulo, baixe um ano para o QGIS como raster de classificação estilizado, ou analise como a terra mudou ao longo do tempo. A cobertura é apenas do Brasil e usa o Google Earth Engine.' },
+      { p: 'O MapBiomas traz o acervo anual de uso e cobertura da terra da Coleção 10 do MapBiomas Brasil para o QGIS: 40 mapas, um por ano de 1985 a 2024, a 30 m. Explore qualquer ano dentro do módulo, baixe um ano para o QGIS como raster de classificação estilizado, ou analise como a terra mudou ao longo do tempo. A cobertura é apenas do Brasil e usa o Google Earth Engine.' },
       { h2: 'Cobertura' },
       { list: [
-        'Explore todos os anos (1985–2023) no módulo com um controle deslizante de ano, ao lado da legenda oficial de 63 classes.',
+        'Explore todos os anos de 1985 a 2024 no módulo com um controle deslizante de ano, ao lado da legenda oficial da Coleção 10 (a Coleção 10 adiciona a classe 75, usinas fotovoltaicas).',
         'Baixe qualquer ano para o QGIS como um raster de classificação de banda única estilizado com a paleta oficial do MapBiomas — IDs de classe reais, mantendo os pixels consultáveis e analisáveis.',
       ] },
       { h2: 'Análise de transição' },
@@ -269,7 +269,7 @@ export default [
         'Personalizado: escolha qualquer combinação de classes de origem e destino.',
         'Um controle de intervalo de anos filtra o gráfico em tempo real e limita a camada de transição exportada, que carrega no QGIS classificada por ano de transição.',
       ] },
-      { note: 'A Coleção 9 do MapBiomas cobre apenas o Brasil — áreas fora do Brasil retornam resultados vazios. Requer autenticação no Google Earth Engine, como os demais módulos GEE.' },
+      { note: 'A Coleção 10 do MapBiomas cobre apenas o Brasil — áreas fora do Brasil retornam resultados vazios. Requer autenticação no Google Earth Engine, como os demais módulos GEE.' },
     ],
   },
   {

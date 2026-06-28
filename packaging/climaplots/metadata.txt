@@ -3,14 +3,14 @@ name=ClimaPlots
 qgisMinimumVersion=3.28
 qgisMaximumVersion=4.99
 description=Fetch 40+ years of daily climate data from NASA POWER or Open-Meteo (ERA5) for any point and build interactive charts in QGIS: trends with Mann-Kendall/Pettitt, thermo-pluviometric diagram, ETCCDI indices, SPI, ET0, growing degree days and wind / Obtenha 40+ anos de dados climáticos diários da NASA POWER ou Open-Meteo (ERA5) para qualquer ponto e gere gráficos interativos no QGIS: tendências com Mann-Kendall/Pettitt, diagrama termopluviométrico, índices ETCCDI, SPI, ET0, graus-dia e vento
-version=8.0
+version=8.1
 author=FARM Analytica, Caio Arantes, Leandro Eloi, Lívia Scopel, Mateus Pinto da Silva, Bruna da Silva Brito Ribeiro, Isabella Alves da Cunha, Lucas Rios do Amaral
 email=contato@farmanalytica.com.br
 
 about=ClimaPlots turns NASA POWER and Open-Meteo (ERA5) daily climate data into trends, indices and thermo-pluviometric diagrams for any point on Earth, directly in QGIS: annual trends with Mann-Kendall and Pettitt tests, ETCCDI indices, SPI, reference ET0, growing degree days and wind. No Google Earth Engine sign-in required. / O ClimaPlots transforma dados climáticos diários da NASA POWER e do Open-Meteo (ERA5) em tendências, índices e diagramas termopluviométricos para qualquer ponto da Terra, diretamente no QGIS: tendências anuais com testes de Mann-Kendall e Pettitt, índices ETCCDI, SPI, ET0 de referência, graus-dia e vento. Não requer login no Google Earth Engine.
 
-tracker=https://github.com/farmanalytica/climaplots/issues
-repository=https://github.com/farmanalytica/climaplots
+tracker=https://github.com/farmanalytica/farm_tools/issues
+repository=https://github.com/farmanalytica/farm_tools
 # End of mandatory metadata
 
 # Recommended items:
@@ -22,7 +22,7 @@ changelog=
 # Tags are comma separated with spaces allowed
 tags=climate, nasa power, era5, open-meteo, precipitation, temperature, weather, agroclimatology, charts, spi
 
-homepage=https://farmanalytica.github.io/climaplots/
+homepage=https://farmtools.com.br/wiki/climaplots
 category=Plugins
 icon=icon.png
 experimental=False

@@ -3,11 +3,11 @@ name=Multi-Satellite
 qgisMinimumVersion=3.28
 qgisMaximumVersion=4.99
 description=Pan-sharpened 15 m Landsat 7/8/9 imagery and multi-mission (Sentinel-2, HLS, MODIS) vegetation-index time series / Imagens Landsat 7/8/9 com pan-sharpening de 15 m e séries temporais de índices multi-missão (Sentinel-2, HLS, MODIS)
-version=8.0
+version=8.1
 author=FARM Analytica, Caio Arantes, Leandro Eloi, Lívia Scopel, Mateus Pinto da Silva, Bruna da Silva Brito Ribeiro, Isabella Alves da Cunha, Lucas Rios do Amaral
 email=contato@farmanalytica.com.br
 
-about=Multi-Satellite builds long-term vegetation-index time series across Landsat 7/8/9, Sentinel-2, HLS and MODIS, with per-sensor selection that adapts date discovery, resolution, super-resolution and RGB availability. Download pan-sharpened 15 m Landsat imagery and export the index series as CSV. Powered by Google Earth Engine. Requires a free Google Earth Engine account (sign-in and a project ID are set up inside the plugin). / O Multi-Satélite gera séries temporais de longo prazo de índices de vegetação entre Landsat 7/8/9, Sentinel-2, HLS e MODIS, com seleção por sensor que adapta a busca de datas, resolução, super-resolução e disponibilidade de RGB. Baixe imagens Landsat de 15 m com pan-sharpening e exporte a série em CSV. Integrado ao Google Earth Engine. Requer uma conta gratuita do Google Earth Engine (login e ID de projeto são configurados dentro do plugin).
+about=Multi-Satellite builds long-term vegetation-index time series across Landsat 7/8/9, Sentinel-2, HLS and MODIS, with per-sensor selection that adapts date discovery, resolution, super-resolution and RGB availability. Download pan-sharpened 15 m Landsat imagery and export the index series as CSV. Powered by Google Earth Engine. Requires a Google Earth Engine account (sign-in and a project ID are set up inside the plugin). / O Multi-Satélite gera séries temporais de longo prazo de índices de vegetação entre Landsat 7/8/9, Sentinel-2, HLS e MODIS, com seleção por sensor que adapta a busca de datas, resolução, super-resolução e disponibilidade de RGB. Baixe imagens Landsat de 15 m com pan-sharpening e exporte a série em CSV. Integrado ao Google Earth Engine. Requer uma conta do Google Earth Engine (login e ID de projeto são configurados dentro do plugin).
 
 tracker=https://github.com/farmanalytica/farm_tools/issues
 repository=https://github.com/farmanalytica/farm_tools
@@ -22,7 +22,7 @@ changelog=
 # Tags are comma separated with spaces allowed
 tags=remote sensing, landsat, sentinel-2, modis, hls, google earth engine, vegetation index, ndvi, time series, pan-sharpening
 
-homepage=https://farmtools.com.br
+homepage=https://farmtools.com.br/wiki/landsat
 category=Plugins
 icon=icon.png
 experimental=False
