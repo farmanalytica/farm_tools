@@ -7,8 +7,7 @@ export default [
   {
     id: 'intro',
     category: 'start',
-    youtubeId: 'ju4jlqBOt4k',
-    start: 2,
+    youtubeId: 'UqRL-3Tv3no',
     wiki: 'getting-started',
     title: {
       'en-US': 'FARM tools introduction',
