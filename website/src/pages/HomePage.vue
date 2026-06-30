@@ -55,7 +55,7 @@ const MODULES = [
       <p class="sec-lead">{{ t('intro.lead') }}</p>
       <div class="video-wrap">
         <iframe
-          src="https://www.youtube.com/embed/ju4jlqBOt4k?start=2"
+          src="https://www.youtube.com/embed/UqRL-3Tv3no"
           title="FARM tools introduction"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           allowfullscreen
