@@ -4,7 +4,7 @@ qgisMinimumVersion=3.28
 qgisMaximumVersion=4.99
 description=Toolbox of geo-analytics modules for research, education, agriculture, and land monitoring: vegetation index time series, multispectral/SAR/DEM downloads, bare-soil composites, climate plots, and field sampling
 description_pt=Conjunto de módulos de geoanálise para pesquisa, ensino, agricultura e monitoramento da terra: séries temporais de índices de vegetação, downloads multiespectrais/SAR/DEM, composições de solo exposto, gráficos climáticos e amostragem de campo
-version=8.1
+version=8.2
 author=FARM Analytica, Caio Arantes, Leandro Eloi, Lívia Scopel, Mateus Pinto da Silva, Bruna da Silva Brito Ribeiro, Isabella Alves da Cunha, Lucas Rios do Amaral
 email=contato@farmanalytica.com.br
 

@@ -3,7 +3,7 @@ name=RAVI
 qgisMinimumVersion=3.28
 qgisMaximumVersion=4.99
 description=Per-date Sentinel-2 vegetation-index time series (NDVI, EVI, NDRE…) with cloud masking, plus multispectral imagery download / Séries temporais de índices de vegetação Sentinel-2 (NDVI, EVI, NDRE…) por data com mascaramento de nuvens e download de imagens
-version=8.1
+version=8.2
 author=FARM Analytica, Caio Arantes, Leandro Eloi, Lívia Scopel, Mateus Pinto da Silva, Bruna da Silva Brito Ribeiro, Isabella Alves da Cunha, Lucas Rios do Amaral
 email=contato@farmanalytica.com.br
 

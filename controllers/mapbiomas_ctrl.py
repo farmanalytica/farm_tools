@@ -87,6 +87,7 @@ class MapBiomasCtrl:
         self._tx_per_year = []      # full per-year stats (for live range redraw)
         self._tx_source = None      # active transition source classes
         self._tx_target = None      # active transition target classes
+        self._tx_aoi_area_ha = None  # dissolved AOI area, for the % axis + summary
 
         # Re-rendering the transition MAP for a year window is a server-side
         # thumbnail (slow, network-bound), so it runs in its own worker — kept
@@ -190,6 +191,21 @@ class MapBiomasCtrl:
             return None
         return aoi
 
+    def _current_aoi_area_ha(self):
+        """Dissolved area (hectares) of the currently selected AOI layer.
+
+        Returns ``None`` if it cannot be computed (e.g. no layer selected) —
+        callers fall back to hiding the %-of-total axis rather than failing.
+        """
+        layer = self.dialog.mb_layer_combo.currentLayer()
+        if not layer:
+            return None
+        try:
+            area_m2 = AOIService.get_area_m2_from_layer(layer, use_selected_features=False)
+        except Exception:
+            return None
+        return area_m2 / 10_000.0
+
     def handle_load_coverage(self):
         """Render every MapBiomas year and enable the year slider."""
         aoi = self._resolve_aoi()
@@ -248,6 +264,7 @@ class MapBiomasCtrl:
         self.aoi = aoi
         self._tx_source = source
         self._tx_target = target
+        self._tx_aoi_area_ha = self._current_aoi_area_ha()
         self._set_busy(True)
         self._begin_progress(self.dialog.mb_tx_progress)
         self._worker = MapBiomasWorker(
@@ -640,11 +657,16 @@ class MapBiomasCtrl:
         return lo, hi, years, hectares, colors, in_total
 
     def _update_tx_summary(self, lo, hi, in_total):
-        self.dialog.mb_stats_summary.setText(
-            "{0} — {1}".format(
-                self._tx_label,
-                _tr("{0:.1f} ha in {1}–{2}").format(in_total, lo, hi),
+        area_ha = self._tx_aoi_area_ha
+        if area_ha and area_ha > 0:
+            pct = in_total / area_ha * 100
+            detail = _tr("{0:.1f} ha ({1:.1f}% of area) in {2}–{3}").format(
+                in_total, pct, lo, hi
             )
+        else:
+            detail = _tr("{0:.1f} ha in {1}–{2}").format(in_total, lo, hi)
+        self.dialog.mb_stats_summary.setText(
+            "{0} — {1}".format(self._tx_label, detail)
         )
 
     def handle_tx_range_changed(self, _value=None):
@@ -770,11 +792,38 @@ class MapBiomasCtrl:
         fig.update_layout(
             title=self._tx_label or _tr("Transition per year"),
             xaxis_title=_tr("Year"),
-            yaxis_title=_tr("Converted area (ha)"),
-            margin=dict(l=60, r=20, t=50, b=40),
+            yaxis=dict(title=_tr("Converted area (ha)")),
+            margin=dict(l=60, r=60, t=50, b=40),
             plot_bgcolor="#ffffff",
             paper_bgcolor="#ffffff",
         )
+
+        # Secondary axis mirrors the primary one, scaled to % of the total AOI
+        # area — same bars, just a second ruler. Needs an explicit range on
+        # both axes so the two stay in lockstep instead of autoranging apart.
+        area_ha = self._tx_aoi_area_ha
+        if area_ha and area_ha > 0 and hectares:
+            ymax = max(hectares) * 1.1 or 1.0
+            fig.update_layout(
+                yaxis=dict(title=_tr("Converted area (ha)"), range=[0, ymax]),
+                yaxis2=dict(
+                    title=_tr("% of total area"),
+                    overlaying="y",
+                    side="right",
+                    range=[0, ymax / area_ha * 100],
+                    ticksuffix="%",
+                    showgrid=False,
+                ),
+            )
+            # An overlaying axis only renders once some trace is anchored to it —
+            # add an invisible one so the right-side "%" ruler actually draws.
+            fig.add_trace(
+                go.Scatter(
+                    x=years, y=[h / area_ha * 100 for h in hectares],
+                    yaxis="y2", mode="markers", marker=dict(opacity=0),
+                    showlegend=False, hoverinfo="skip",
+                )
+            )
 
         self._tx_fig = fig
         self._tx_tmp_path = plotly_render.show_in_webview(

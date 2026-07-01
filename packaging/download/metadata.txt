@@ -3,7 +3,7 @@ name=EasyDEM
 qgisMinimumVersion=3.28
 qgisMaximumVersion=4.99
 description=Download and visualise Digital Elevation Models (SRTM, Copernicus…) via Google Earth Engine, clipped to your area / Baixe e visualize Modelos Digitais de Elevação (SRTM, Copernicus…) via Google Earth Engine, recortados para sua área
-version=8.1
+version=8.2
 author=FARM Analytica, Caio Arantes, Leandro Eloi, Lívia Scopel, Mateus Pinto da Silva, Bruna da Silva Brito Ribeiro, Isabella Alves da Cunha, Lucas Rios do Amaral
 email=contato@farmanalytica.com.br
 

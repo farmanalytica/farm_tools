@@ -3,7 +3,7 @@ name=MapBiomas
 qgisMinimumVersion=3.28
 qgisMaximumVersion=4.99
 description=Brazilian land-use/land-cover by year (MapBiomas Collection 10) plus configurable land-use transition mapping / Uso e cobertura da terra do Brasil por ano (MapBiomas Coleção 10) e mapeamento configurável de transições de uso
-version=8.1
+version=8.2
 author=FARM Analytica, Caio Arantes, Leandro Eloi, Lívia Scopel, Mateus Pinto da Silva, Bruna da Silva Brito Ribeiro, Isabella Alves da Cunha, Lucas Rios do Amaral
 email=contato@farmanalytica.com.br
 
