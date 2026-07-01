@@ -150,6 +150,12 @@ _PIXEL_AREA_HA = 30 * 30 / 10_000
 # Thumbnail size (longest edge, px) for the in-module PNG previews.
 _THUMB_DIMENSIONS = 1024
 
+# Study-area boundary line drawn on top of every thumbnail. Black reads
+# against both the coverage land-cover palette and the transition
+# blue->red diverging palette, where a red line would blend into the hot end.
+_BOUNDARY_COLOR = "000000"
+_BOUNDARY_WIDTH = 2
+
 
 class MapBiomasService:
     """Service layer for the MapBiomas coverage + transition previews."""
@@ -164,6 +170,20 @@ class MapBiomasService:
         return aoi.geometry().bounds().getInfo()
 
     @staticmethod
+    def _boundary_overlay(aoi):
+        """RGB line image tracing *aoi*'s polygon edge, masked everywhere else.
+
+        Meant to be ``.blend()``-ed on top of an already-clipped, already-
+        visualized image so the study-area contour stays visible against the
+        classification colors instead of relying on the clip's transparent
+        edge alone.
+        """
+        import ee
+
+        line = ee.Image().byte().paint(aoi, 1, _BOUNDARY_WIDTH)
+        return line.selfMask().visualize(palette=[_BOUNDARY_COLOR])
+
+    @staticmethod
     def _coverage_visualized(aoi, year):
         import ee
 
@@ -171,9 +191,10 @@ class MapBiomasService:
         image = ee.Image(MAPBIOMAS_COLLECTION_ASSET).select(
             f"classification_{year}"
         ).clip(geometry)
-        return image.visualize(
+        visualized = image.visualize(
             min=MAPBIOMAS_VIS_MIN, max=MAPBIOMAS_VIS_MAX, palette=MAPBIOMAS_PALETTE
         )
+        return visualized.blend(MapBiomasService._boundary_overlay(aoi))
 
     @staticmethod
     def _build_first_transition_year_image(aoi, source_classes, target_classes):
@@ -318,7 +339,7 @@ class MapBiomasService:
             min=MAPBIOMAS_TRANSITION_FIRST_YEAR,
             max=MAPBIOMAS_TRANSITION_LAST_YEAR,
             palette=MAPBIOMAS_TRANSITION_PALETTE,
-        )
+        ).blend(MapBiomasService._boundary_overlay(aoi))
         path = os.path.join(output_dir, "transition.png")
         MapBiomasService._download_thumb(visualized, region, path, timeout=240)
 
@@ -390,7 +411,7 @@ class MapBiomasService:
             min=MAPBIOMAS_TRANSITION_FIRST_YEAR,
             max=MAPBIOMAS_TRANSITION_LAST_YEAR,
             palette=MAPBIOMAS_TRANSITION_PALETTE,
-        )
+        ).blend(MapBiomasService._boundary_overlay(aoi))
         path = os.path.join(
             output_dir, "transition_{0}_{1}.png".format(year_min, year_max)
         )

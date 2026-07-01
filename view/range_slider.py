@@ -157,6 +157,16 @@ class RangeSlider(QWidget):
     def _clamped(self, v: float) -> float:
         return max(self._min, min(self._max, v))
 
+    def _label_rect(self, cx: float, lbl_w: float) -> QRectF:
+        """Label rect centered on *cx*, clamped so it can't run past either edge.
+
+        The track has only ``_PAD`` (10px) of clearance, less than half the
+        label width (22px) — without clamping, the near-edge label overflows
+        the widget and gets clipped by the parent layout.
+        """
+        x = max(0.0, min(self.width() - lbl_w, cx - lbl_w / 2))
+        return QRectF(x, 0, lbl_w, self._LABEL_H)
+
     # --------------------------------------------------------------- hover
 
     def _update_hover(self, x: float):
@@ -218,16 +228,8 @@ class RangeSlider(QWidget):
         hi_txt = f"{self.high():+.{self._decimals}f}"
         lbl_w  = 44
 
-        painter.drawText(
-            QRectF(lx - lbl_w / 2, 0, lbl_w, self._LABEL_H),
-            _ALIGN_LABEL,
-            lo_txt,
-        )
-        painter.drawText(
-            QRectF(hx - lbl_w / 2, 0, lbl_w, self._LABEL_H),
-            _ALIGN_LABEL,
-            hi_txt,
-        )
+        painter.drawText(self._label_rect(lx, lbl_w), _ALIGN_LABEL, lo_txt)
+        painter.drawText(self._label_rect(hx, lbl_w), _ALIGN_LABEL, hi_txt)
 
         painter.end()
 

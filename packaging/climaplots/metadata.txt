@@ -3,7 +3,7 @@ name=ClimaPlots
 qgisMinimumVersion=3.28
 qgisMaximumVersion=4.99
 description=Fetch 40+ years of daily climate data from NASA POWER or Open-Meteo (ERA5) for any point and build interactive charts in QGIS: trends with Mann-Kendall/Pettitt, thermo-pluviometric diagram, ETCCDI indices, SPI, ET0, growing degree days and wind / Obtenha 40+ anos de dados climáticos diários da NASA POWER ou Open-Meteo (ERA5) para qualquer ponto e gere gráficos interativos no QGIS: tendências com Mann-Kendall/Pettitt, diagrama termopluviométrico, índices ETCCDI, SPI, ET0, graus-dia e vento
-version=8.1
+version=8.2
 author=FARM Analytica, Caio Arantes, Leandro Eloi, Lívia Scopel, Mateus Pinto da Silva, Bruna da Silva Brito Ribeiro, Isabella Alves da Cunha, Lucas Rios do Amaral
 email=contato@farmanalytica.com.br
 

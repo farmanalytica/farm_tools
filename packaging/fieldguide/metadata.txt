@@ -3,7 +3,7 @@ name=Field Guide
 qgisMinimumVersion=3.28
 qgisMaximumVersion=4.99
 description=Field routes, polygon sampling, raster-based optimal sampling points, CSV/GPX export and PDF reports in QGIS / Rotas de campo, amostragem por polígonos, pontos ótimos baseados em raster, exportação CSV/GPX e relatórios PDF no QGIS
-version=8.1
+version=8.2
 author=FARM Analytica, Caio Arantes, Leandro Eloi, Lívia Scopel, Mateus Pinto da Silva, Bruna da Silva Brito Ribeiro, Isabella Alves da Cunha, Lucas Rios do Amaral
 email=contato@farmanalytica.com.br
 

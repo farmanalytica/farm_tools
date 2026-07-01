@@ -3,7 +3,7 @@ name=Multi-Satellite
 qgisMinimumVersion=3.28
 qgisMaximumVersion=4.99
 description=Pan-sharpened 15 m Landsat 7/8/9 imagery and multi-mission (Sentinel-2, HLS, MODIS) vegetation-index time series / Imagens Landsat 7/8/9 com pan-sharpening de 15 m e séries temporais de índices multi-missão (Sentinel-2, HLS, MODIS)
-version=8.1
+version=8.2
 author=FARM Analytica, Caio Arantes, Leandro Eloi, Lívia Scopel, Mateus Pinto da Silva, Bruna da Silva Brito Ribeiro, Isabella Alves da Cunha, Lucas Rios do Amaral
 email=contato@farmanalytica.com.br
 
