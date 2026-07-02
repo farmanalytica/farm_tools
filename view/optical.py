@@ -59,6 +59,7 @@ from .styles import (
     make_logo_label,
 )
 from .optical_filter_dialog import OpticalFilterDialog
+from .range_slider import RangeSlider
 from .optical_index_info import (
     CUSTOM_BAND_REFERENCE,
     CUSTOM_INDEX_LABEL,
@@ -342,6 +343,14 @@ def _build_inputs_tab(dialog, parent):
     aoi_row_lay.addWidget(dialog.s2_btn_hybrid_layer)
 
     inputs_lay.addWidget(aoi_row)
+
+    dialog.s2_aoi_area_lbl = QLabel("")
+    dialog.s2_aoi_area_lbl.setStyleSheet(
+        "color: #4a5650; font-size: 11px; font-weight: 600;"
+        " background: transparent; border: none;"
+    )
+    inputs_lay.addWidget(dialog.s2_aoi_area_lbl)
+
     inputs_lay.addSpacing(6)
 
     fields_grid = QGridLayout()
@@ -649,6 +658,29 @@ def _build_results_tab(dialog, parent):
     )
     dialog.s2_web_view.setMinimumHeight(200)
     plot_lay.addWidget(dialog.s2_web_view, 1)
+
+    # Date-range filter — a two-handle slider under the plot (same widget as
+    # the MapBiomas transition year filter). Dragging re-filters the cached
+    # series live; the controller configures its span after each run and
+    # keeps it hidden until then.
+    range_bar = QWidget()
+    dialog.s2_date_range_bar = range_bar
+    range_bar.setStyleSheet("background: transparent;")
+    range_lay = QHBoxLayout(range_bar)
+    range_lay.setContentsMargins(0, 0, 0, 0)
+    range_lay.setSpacing(10)
+    dialog.s2_date_range_lbl = QLabel("")
+    dialog.s2_date_range_lbl.setStyleSheet(
+        "color:#1b6b39; font-size:12px; font-weight:bold; background:transparent;"
+    )
+    range_lay.addWidget(dialog.s2_date_range_lbl)
+    # Placeholder span; the controller calls set_span() with day offsets and
+    # installs a label_fn that maps offsets back to ISO dates.
+    dialog.s2_date_range_slider = RangeSlider(0, 1, 0, 1, decimals=0)
+    range_lay.addWidget(dialog.s2_date_range_slider, 1)
+    range_bar.setVisible(False)
+    plot_lay.addWidget(range_bar)
+
     dialog.s2_results_splitter.addWidget(plot_container)
 
     scroll = QScrollArea()
@@ -1187,10 +1219,11 @@ def setup_optical_page(dialog, page):
     Populate the Optical (Sentinel-2) page with a three-tab layout.
 
     Exposes on dialog (selected):
-      s2_layer_combo, s2_btn_draw_aoi, s2_btn_hybrid_layer,
+      s2_layer_combo, s2_btn_draw_aoi, s2_btn_hybrid_layer, s2_aoi_area_lbl,
       s2_date_start, s2_date_end, s2_index_combo, s2_index_info, s2_ts_reducer_combo,
       s2_custom_container, s2_custom_name, s2_custom_expression, s2_btn_custom_save,
-      s2_web_view, s2_btn_adjust_filter, s2_btn_filter_dates, s2_btn_open_browser,
+      s2_web_view, s2_date_range_bar, s2_date_range_lbl, s2_date_range_slider,
+      s2_btn_adjust_filter, s2_btn_filter_dates, s2_btn_open_browser,
       s2_btn_download_csv, s2_btn_batch_download,
       s2_chk_smoothing, s2_smooth_window, s2_smooth_polyorder,
       s2_result_date_combo,
