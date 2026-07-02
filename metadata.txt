@@ -29,7 +29,10 @@ changelog=
           day offsets to ISO dates), adaptive label width, and set_span()
           reconfig without signal emission. Numeric year-range path (MapBiomas
           transition, SYSI filters) untouched. AOI-area label on Inputs tab
-          shows hectares below the layer picker.
+          shows hectares below the layer picker. Management Zones module:
+          integrated fork of Precision Zones for defining and analyzing
+          management boundaries within fields, with zoning workflows, per-zone
+          statistics, and export to QGIS for further analysis.
     8.1 - MapBiomas updated to Collection 10 (40 annual maps, 1985–2024; adds the
           photovoltaic-plant class). All plugin metadata now points to the
           shared farm_tools repository.
