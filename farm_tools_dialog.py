@@ -49,6 +49,7 @@ from .view.download_dem import setup_download_dem_page
 from .view.fieldguide import setup_fieldguide_page
 from .view.landsat import setup_landsat_page
 from .view.mapbiomas import setup_mapbiomas_page
+from .view.mzones import setup_mzones_page
 from .view.optical import setup_optical_page
 from .view.radar import setup_radar_page
 from .view.sysi import setup_sysi_page
@@ -191,6 +192,7 @@ class FarmToolsDialog(QDialog):
         self.sidebar.fieldguide_requested.connect(self._nav_to_fieldguide)
         self.sidebar.climaplots_requested.connect(self._nav_to_climaplots)
         self.sidebar.mapbiomas_requested.connect(self._nav_to_mapbiomas)
+        self.sidebar.mzones_requested.connect(self._nav_to_mzones)
         body_layout.addWidget(self.sidebar)
 
         content_container = QWidget()
@@ -221,6 +223,7 @@ class FarmToolsDialog(QDialog):
         self.fieldguide_page = QWidget()
         self.climaplots_page = QWidget()
         self.mapbiomas_page = QWidget()
+        self.mzones_page = QWidget()
 
         setup_welcome_page(self, self.welcome_page)
         setup_auth_page(self, self.auth_page)
@@ -232,6 +235,7 @@ class FarmToolsDialog(QDialog):
         setup_fieldguide_page(self, self.fieldguide_page)
         setup_climaplots_page(self, self.climaplots_page)
         setup_mapbiomas_page(self, self.mapbiomas_page)
+        setup_mzones_page(self, self.mzones_page)
 
         self.stack.addWidget(self.loading_page)
         self.stack.addWidget(self.welcome_page)
@@ -244,6 +248,7 @@ class FarmToolsDialog(QDialog):
         self.stack.addWidget(self.fieldguide_page)
         self.stack.addWidget(self.climaplots_page)
         self.stack.addWidget(self.mapbiomas_page)
+        self.stack.addWidget(self.mzones_page)
         self.stack.currentChanged.connect(self._sync_page_state)
 
         self.stack.setCurrentWidget(self.welcome_page)
@@ -474,6 +479,10 @@ class FarmToolsDialog(QDialog):
         """Switch the stacked widget to the MapBiomas page."""
         self.stack.setCurrentWidget(self.mapbiomas_page)
 
+    def show_mzones_page(self):
+        """Switch the stacked widget to the Management Zones page."""
+        self.stack.setCurrentWidget(self.mzones_page)
+
     def _nav_to_welcome(self):
         """Sidebar brand click — returns to the Welcome page."""
         self.show_welcome_page()
@@ -517,6 +526,10 @@ class FarmToolsDialog(QDialog):
         """Sidebar MapBiomas button — always navigates to the MapBiomas page."""
         self.show_mapbiomas_page()
 
+    def _nav_to_mzones(self):
+        """Sidebar Management Zones button — always navigates to the Management Zones page."""
+        self.show_mzones_page()
+
     def _active_module_key(self):
         """Manageable module key for the page currently shown, or None.
 
@@ -531,6 +544,7 @@ class FarmToolsDialog(QDialog):
             self.fieldguide_page: "fieldguide",
             self.climaplots_page: "climaplots",
             self.mapbiomas_page: "mapbiomas",
+            self.mzones_page: "mzones",
         }
         return mapping.get(self.stack.currentWidget())
 
@@ -629,6 +643,13 @@ class FarmToolsDialog(QDialog):
             self._header_title.setText(_tr("MapBiomas — Land Use & Land Cover"))
             self._help_url = WIKI_BASE + "mapbiomas"
             self.sidebar.set_active_page("mapbiomas")
+            self.footer.setVisible(False)
+            return
+
+        if current is self.mzones_page:
+            self._header_title.setText(_tr("Management Zones"))
+            self._help_url = WIKI_BASE + "mzones"
+            self.sidebar.set_active_page("mzones")
             self.footer.setVisible(False)
 
     def set_auth_busy(self, busy):

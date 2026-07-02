@@ -64,6 +64,7 @@ _REQUIRED_PACKAGES = {
     "pyhomogeneity": "pyhomogeneity",
     "xarray": "xarray",
     "bottleneck": "bottleneck",
+    "sklearn": "scikit-learn",
 }
 
 # Suppress the transient console window the pip subprocess would otherwise pop
