@@ -32,6 +32,7 @@ _FLAVOR_LABELS = {
     "climaplots": "ClimaPlots",
     "fieldguide": "Field Guide",
     "mapbiomas": "MapBiomas",
+    "mzones": "Management Zones",
 }
 
 
@@ -58,6 +59,7 @@ DEFAULT_ORDER = [
     "climaplots",
     "fieldguide",
     "mapbiomas",
+    "mzones",
 ]
 
 

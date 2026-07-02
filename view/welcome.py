@@ -126,6 +126,9 @@ _MODULES = [
     ("mapbiomas", "MapBiomas",
      "Brazilian land-use/land-cover by year plus pasture-to-crop transition mapping",
      "show_mapbiomas_page", False),
+    ("mzones", "Management Zones",
+     "Cluster yield/index/soil rasters into within-field zones (PCA + KMeans)",
+     "show_mzones_page", True),
     ("auth", "GEE Configuration",
      "Connect to Google Earth Engine — sign in and set your project ID",
      "show_auth_page", False),
@@ -412,6 +415,17 @@ def _draw_module_icon(kind: str, color: str, size: int = 30) -> QPixmap:
         edge.cubicTo(12, 7.5, 11, 9.5, 14, 10)
         painter.drawPath(edge)
         painter.fillRect(QRect(4, 11, 4, 4), QColor(color))
+    elif kind == "mzones":
+        # Management zones — a field outline split into zones, one filled.
+        painter.setPen(pen)
+        painter.drawRoundedRect(QRect(3, 4, 14, 12), 2, 2)
+        split = QPainterPath()
+        split.moveTo(3, 9)
+        split.cubicTo(7, 7.5, 9, 11, 12, 9.5)
+        split.cubicTo(14, 8.5, 15.5, 9, 17, 8.5)
+        painter.drawPath(split)
+        painter.drawLine(QPoint(10, 10), QPoint(10, 16))
+        painter.fillRect(QRect(11, 11, 5, 4), QColor(color))
     else:
         painter.setPen(pen)
         painter.drawLine(10, 3, 10, 12)

@@ -169,6 +169,7 @@ class Sidebar(QFrame):
         fieldguide_requested: emitted when the user clicks Field Guide.
         climaplots_requested: emitted when the user clicks ClimaPlots.
         mapbiomas_requested: emitted when the user clicks MapBiomas.
+        mzones_requested: emitted when the user clicks Management Zones.
     """
 
     welcome_requested = pyqtSignal()
@@ -181,6 +182,7 @@ class Sidebar(QFrame):
     fieldguide_requested = pyqtSignal()
     climaplots_requested = pyqtSignal()
     mapbiomas_requested = pyqtSignal()
+    mzones_requested = pyqtSignal()
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -296,6 +298,9 @@ class Sidebar(QFrame):
         self.btn_mapbiomas = self._make_button(_tr("MapBiomas"), "mapbiomas")
         self.btn_mapbiomas.clicked.connect(self.mapbiomas_requested.emit)
 
+        self.btn_mzones = self._make_button(_tr("Management Zones"), "mzones")
+        self.btn_mzones.clicked.connect(self.mzones_requested.emit)
+
         self._buttons = {
             "auth": self.btn_auth,
             "optical": self.btn_optical,
@@ -306,6 +311,7 @@ class Sidebar(QFrame):
             "fieldguide": self.btn_fieldguide,
             "climaplots": self.btn_climaplots,
             "mapbiomas": self.btn_mapbiomas,
+            "mzones": self.btn_mzones,
         }
         self._apply_module_layout()
         self.nav_scroll.setWidget(nav_container)
@@ -345,6 +351,7 @@ class Sidebar(QFrame):
         self._group.addButton(self.btn_fieldguide)
         self._group.addButton(self.btn_climaplots)
         self._group.addButton(self.btn_mapbiomas)
+        self._group.addButton(self.btn_mzones)
 
         self._version = _read_plugin_version()
         self.version_label = QLabel()
@@ -849,6 +856,17 @@ class Sidebar(QFrame):
             edge.cubicTo(12, 7.5, 11, 9.5, 14, 10)
             painter.drawPath(edge)
             painter.fillRect(QRectF(3.6, 10.6, 4.8, 4.8), QColor(color))
+        elif kind == "mzones":
+            # Management zones — a field outline split into zones, one filled.
+            painter.setPen(pen)
+            painter.drawRoundedRect(QRectF(3, 4, 14, 12), 2, 2)
+            split = QPainterPath()
+            split.moveTo(3, 9)
+            split.cubicTo(7, 7.5, 9, 11, 12, 9.5)
+            split.cubicTo(14, 8.5, 15.5, 9, 17, 8.5)
+            painter.drawPath(split)
+            painter.drawLine(QPointF(10.5, 10.2), QPointF(10.5, 16))
+            painter.fillRect(QRectF(11.4, 10.8, 4.8, 4.4), QColor(color))
         else:
             painter.setPen(pen)
             painter.drawLine(10, 3, 10, 12)

@@ -159,6 +159,12 @@ class FarmTools:
                 self.mapbiomas_ctrl.cleanup()
             except Exception:
                 pass
+        if getattr(self, "mzones_ctrl", None) is not None:
+            # Disconnect QgsProject layer signals.
+            try:
+                self.mzones_ctrl.cleanup()
+            except Exception:
+                pass
         QCoreApplication.removeTranslator(self._translator)
         for action in self.actions:
             self.interface.removePluginMenu(self.menu, action)
@@ -175,6 +181,7 @@ class FarmTools:
         from .controllers.fieldguide_ctrl import FieldGuideCtrl
         from .controllers.climaplots_ctrl import ClimaPlotsCtrl
         from .controllers.mapbiomas_ctrl import MapBiomasCtrl
+        from .controllers.mzones_ctrl import MZonesCtrl
 
         self._services_ready = True
         self.gee_service = GEEService()
@@ -189,6 +196,7 @@ class FarmTools:
         self.mapbiomas_ctrl = MapBiomasCtrl(
             self.dialog, self.interface, self.gee_service
         )
+        self.mzones_ctrl = MZonesCtrl(self.dialog, self.interface)
 
         saved_project_id = self.gee_service.get_saved_project_id()
         if saved_project_id:
@@ -256,6 +264,12 @@ class FarmTools:
         )
         self.dialog.s2_btn_filter_dates.clicked.connect(
             self.optical_ctrl.handle_filter_dates
+        )
+        self.dialog.s2_date_range_slider.low_changed.connect(
+            self.optical_ctrl.handle_date_range_changed
+        )
+        self.dialog.s2_date_range_slider.high_changed.connect(
+            self.optical_ctrl.handle_date_range_changed
         )
         self.dialog.s2_chk_smoothing.toggled.connect(
             self.optical_ctrl.handle_smoothing_changed
@@ -566,6 +580,42 @@ class FarmTools:
         )
         self.dialog.mb_tx_range.high_changed.connect(
             self.mapbiomas_ctrl.handle_tx_range_changed
+        )
+
+        # Management Zones (local pipeline; deps/tab wiring lives in the view)
+        self.dialog.mz_btn_deps_install.clicked.connect(self.mzones_ctrl.deps.install)
+        self.dialog.mz_btn_deps_recheck.clicked.connect(self.mzones_ctrl.deps.refresh)
+        self.dialog.mz_btn_resample.clicked.connect(self.mzones_ctrl.resample.run)
+        self.dialog.mz_btn_run_pca.clicked.connect(self.mzones_ctrl.pca.run_pca)
+        self.dialog.mz_btn_export_folder.clicked.connect(
+            self.mzones_ctrl.pca.choose_export_folder
+        )
+        self.dialog.mz_btn_export_report.clicked.connect(
+            self.mzones_ctrl.pca.export_report
+        )
+        self.dialog.mz_btn_export_pc.clicked.connect(
+            self.mzones_ctrl.pca.export_selected_pc
+        )
+        self.dialog.mz_btn_export_all_pcs.clicked.connect(
+            self.mzones_ctrl.pca.export_all_pcs
+        )
+        self.dialog.mz_btn_run_elbow.clicked.connect(self.mzones_ctrl.zones.run_elbow)
+        self.dialog.mz_btn_export_elbow_png.clicked.connect(
+            self.mzones_ctrl.zones.export_elbow_png
+        )
+        self.dialog.mz_btn_export_elbow_csv.clicked.connect(
+            self.mzones_ctrl.zones.export_elbow_csv
+        )
+        self.dialog.mz_btn_generate_zones.clicked.connect(
+            self.mzones_ctrl.zones.generate_zones
+        )
+        self.dialog.mz_btn_run_filter.clicked.connect(self.mzones_ctrl.filter.apply)
+        self.dialog.mz_btn_load_csv.clicked.connect(self.mzones_ctrl.analysis.load_csv)
+        self.dialog.mz_btn_run_analysis.clicked.connect(
+            self.mzones_ctrl.analysis.variance_reduction
+        )
+        self.dialog.mz_btn_export_boxplots.clicked.connect(
+            self.mzones_ctrl.analysis.export_boxplots
         )
 
         self.auth_ctrl.refresh_auth_status()
