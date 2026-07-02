@@ -10,11 +10,11 @@ DataFrame, including filter metadata, to the QGIS/Python console.
 import json
 import os
 import tempfile
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import pandas as pd
 
-from qgis.PyQt.QtCore import QCoreApplication, QUrl
+from qgis.PyQt.QtCore import QCoreApplication, QTimer, QUrl
 from qgis.PyQt.QtGui import QDesktopServices
 from qgis.PyQt.QtWidgets import QFileDialog, QProgressDialog
 from qgis.core import (
@@ -89,6 +89,14 @@ class OpticalCtrl:
         self._filter_settings = dict(DEFAULT_FILTER_SETTINGS)
         self._active_dates: list | None = None
         self._date_filter_dialog = None
+        # Date-range slider under the plot. ``_date_range`` is an inclusive
+        # (lo_iso, hi_iso) pair, or None when the full span is selected — it
+        # ANDs with the thresholds and the manual date selection inside
+        # _filtered_dataframe, so every consumer (plot, composite, batch
+        # download, CSV, single-date dropdown) respects it automatically.
+        self._date_range: tuple | None = None
+        self._range_epoch: datetime | None = None
+        self._range_full: tuple | None = None
         self._batch_worker: BatchDownloadWorker | None = None
         self._batch_dialog: QProgressDialog | None = None
         self._preview_worker: OpticalPreviewWorker | None = None
@@ -131,6 +139,13 @@ class OpticalCtrl:
         self.dialog.s2_filter_settings = dict(DEFAULT_FILTER_SETTINGS)
         self.update_index_combobox()
 
+        # Re-render after the date-range slider settles (same debounce the
+        # MapBiomas transition slider uses); the label updates on every tick.
+        self._range_timer = QTimer(self.dialog)
+        self._range_timer.setSingleShot(True)
+        self._range_timer.setInterval(200)
+        self._range_timer.timeout.connect(self._on_date_range_settled)
+
     def _release_worker(self):
         worker, self._optical_worker = self._optical_worker, None
         if worker is not None:
@@ -170,6 +185,7 @@ class OpticalCtrl:
         # Keep the Feature-ID dropdown in sync with the selected layer's
         # attributes, even when there is no canvas / interface to zoom.
         self._populate_feature_id_combo(layer)
+        self._update_aoi_area_label(layer)
 
         if not layer or not layer.isValid() or self.interface is None:
             return
@@ -184,6 +200,23 @@ class OpticalCtrl:
         extent.scale(self._CANVAS_SCALE_FACTOR)
         canvas.setExtent(extent)
         canvas.refresh()
+
+    def _update_aoi_area_label(self, layer):
+        """Show the dissolved AOI's total area (hectares) below the layer picker."""
+
+        if not layer or not layer.isValid():
+            self.dialog.s2_aoi_area_lbl.setText("")
+            return
+        try:
+            area_ha = AOIService.get_area_m2_from_layer(
+                layer, use_selected_features=False
+            ) / 10_000.0
+        except Exception:
+            self.dialog.s2_aoi_area_lbl.setText("")
+            return
+        self.dialog.s2_aoi_area_lbl.setText(
+            _tr("Total area: {0:,.2f} ha").format(area_ha)
+        )
 
     def handle_optical_run(self):
         """Fetch the optical time series and plot it on the results page."""
@@ -270,6 +303,10 @@ class OpticalCtrl:
         if not data_rows:
             self.dataframe = pd.DataFrame()
             self.dialog.s2_web_view.setHtml("")
+            self._date_range = None
+            self._range_epoch = None
+            self._range_full = None
+            self.dialog.s2_date_range_bar.setVisible(False)
             self.dialog.s2_set_tab(1)
             self.dialog.pop_message(
                 _tr("No Sentinel-2 images found for this date range."), "warning"
@@ -297,6 +334,7 @@ class OpticalCtrl:
         self._active_plot_view = "aoi"
         self._populate_feature_id_combo()
 
+        self._configure_date_range_slider()
         self._refresh_result_dates()
         self._render_timeseries()
         self._update_view_buttons()
@@ -335,11 +373,75 @@ class OpticalCtrl:
         return df["date"].dropna().astype(str).tolist()
 
     def _filtered_dataframe(self) -> pd.DataFrame:
-        """Cached series after thresholds and the manual date selection."""
+        """Cached series after thresholds, the manual date selection and the
+        date-range slider."""
         df = self.dataframe[self._filter_mask(self.dataframe, self._filter_settings)]
         if self._active_dates is not None:
             df = df[df["date"].astype(str).isin(self._active_dates)]
+        if self._date_range is not None:
+            lo, hi = self._date_range
+            dates = df["date"].astype(str)
+            df = df[(dates >= lo) & (dates <= hi)]
         return df
+
+    # -- date-range slider (below the plot) --------------------------------
+    def _configure_date_range_slider(self):
+        """Adopt the fresh run's date span (full range selected) and reveal
+        the slider. Values are day offsets from the first acquisition; the
+        label_fn maps them back to ISO dates on the handles."""
+        self._date_range = None
+        dates = self.dataframe["date"].dropna().astype(str).tolist()
+        if not dates:
+            self._range_epoch = None
+            self._range_full = None
+            self.dialog.s2_date_range_bar.setVisible(False)
+            return
+        lo_iso, hi_iso = min(dates), max(dates)
+        self._range_epoch = datetime.strptime(lo_iso, "%Y-%m-%d")
+        self._range_full = (lo_iso, hi_iso)
+        span = (datetime.strptime(hi_iso, "%Y-%m-%d") - self._range_epoch).days
+        slider = self.dialog.s2_date_range_slider
+        slider.label_fn = self._range_offset_to_iso
+        slider.set_span(0, span, 0, span)
+        self._update_date_range_label()
+        self.dialog.s2_date_range_bar.setVisible(True)
+
+    def _range_offset_to_iso(self, offset) -> str:
+        if self._range_epoch is None:
+            return str(offset)
+        day = self._range_epoch + timedelta(days=int(round(offset)))
+        return day.strftime("%Y-%m-%d")
+
+    def _slider_range_dates(self) -> tuple:
+        slider = self.dialog.s2_date_range_slider
+        return (
+            self._range_offset_to_iso(slider.low()),
+            self._range_offset_to_iso(slider.high()),
+        )
+
+    def _update_date_range_label(self):
+        lo_iso, hi_iso = self._slider_range_dates()
+        self.dialog.s2_date_range_lbl.setText(
+            _tr("Dates: {0} – {1}").format(lo_iso, hi_iso)
+        )
+
+    def handle_date_range_changed(self, _value=None):
+        """Slider tick: track the new range, refresh the label live and start
+        the debounce that re-renders once the handle settles."""
+        if self._range_epoch is None:
+            return
+        lo_iso, hi_iso = self._slider_range_dates()
+        self._date_range = (
+            None if (lo_iso, hi_iso) == self._range_full else (lo_iso, hi_iso)
+        )
+        self._update_date_range_label()
+        self._range_timer.start()
+
+    def _on_date_range_settled(self):
+        if self.dataframe is None or self.dataframe.empty:
+            return
+        self._refresh_result_dates()
+        self._render_timeseries()
 
     def _refresh_result_dates(self):
         """Repopulate the single-image date dropdown from the filtered series."""

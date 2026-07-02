@@ -99,6 +99,7 @@ class RangeSlider(QWidget):
         low: float,
         high: float,
         decimals: int = 2,
+        label_fn=None,
         parent=None,
     ):
         super().__init__(parent)
@@ -107,6 +108,10 @@ class RangeSlider(QWidget):
         self._low = float(low)
         self._high = float(high)
         self._decimals = decimals
+        # Optional value -> text callable for the floating handle labels
+        # (e.g. map a day offset to an ISO date). None keeps the numeric
+        # format.
+        self.label_fn = label_fn
         self._pressed: str | None = None   # 'low' | 'high' | None
         self._hovered: str | None = None   # 'low' | 'high' | None
 
@@ -139,6 +144,21 @@ class RangeSlider(QWidget):
             self._high = v
             self.update()
             self.high_changed.emit(self.high())
+
+    def set_span(self, minimum: float, maximum: float, low: float, high: float):
+        """Reconfigure bounds and both handles at once, without emitting.
+
+        Used when the underlying data changes (e.g. a new analysis run) and
+        the slider must adopt a fresh domain; callers re-render themselves, so
+        no change signals fire.
+        """
+        self._min = float(minimum)
+        self._max = float(maximum)
+        if self._max <= self._min:  # degenerate domain — avoid div-by-zero
+            self._max = self._min + 1.0
+        self._low = max(self._min, min(self._max, float(low)))
+        self._high = max(self._low, min(self._max, float(high)))
+        self.update()
 
     # --------------------------------------------------------------- geometry
 
@@ -224,9 +244,18 @@ class RangeSlider(QWidget):
         painter.setFont(font)
         painter.setPen(_C_LABEL)
 
-        lo_txt = f"{self.low():+.{self._decimals}f}"
-        hi_txt = f"{self.high():+.{self._decimals}f}"
-        lbl_w  = 44
+        if self.label_fn is not None:
+            lo_txt = self.label_fn(self.low())
+            hi_txt = self.label_fn(self.high())
+        else:
+            lo_txt = f"{self.low():+.{self._decimals}f}"
+            hi_txt = f"{self.high():+.{self._decimals}f}"
+        fm = painter.fontMetrics()
+        lbl_w = max(
+            44,
+            fm.horizontalAdvance(lo_txt) + 6,
+            fm.horizontalAdvance(hi_txt) + 6,
+        )
 
         painter.drawText(self._label_rect(lx, lbl_w), _ALIGN_LABEL, lo_txt)
         painter.drawText(self._label_rect(hx, lbl_w), _ALIGN_LABEL, hi_txt)
