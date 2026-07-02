@@ -3,7 +3,7 @@ name=EasyDEM
 qgisMinimumVersion=3.28
 qgisMaximumVersion=4.99
 description=Download and visualise Digital Elevation Models (SRTM, Copernicus…) via Google Earth Engine, clipped to your area / Baixe e visualize Modelos Digitais de Elevação (SRTM, Copernicus…) via Google Earth Engine, recortados para sua área
-version=8.2
+version=9.0
 author=FARM Analytica, Caio Arantes, Leandro Eloi, Lívia Scopel, Mateus Pinto da Silva, Bruna da Silva Brito Ribeiro, Isabella Alves da Cunha, Lucas Rios do Amaral
 email=contato@farmanalytica.com.br
 
@@ -17,6 +17,20 @@ repository=https://github.com/farmanalytica/farm_tools
 
 hasProcessingProvider=no
 changelog=
+    9.0 - RAVI plot date-range filtering: two-handle slider below the plot lets
+          you narrow the cached time series by date span. Dragging updates the
+          label live and re-renders the plot after settling (200 ms debounce).
+          The date selection ANDs with existing filters (thresholds, manual
+          per-date selection) and automatically constrains composite generation,
+          batch download, CSV export, and single-image dropdown. RangeSlider
+          widget gains optional label_fn for custom value→text mapping (e.g.
+          day offsets to ISO dates), adaptive label width, and set_span()
+          reconfig without signal emission. Numeric year-range path (MapBiomas
+          transition, SYSI filters) untouched. AOI-area label on Inputs tab
+          shows hectares below the layer picker. Management Zones module:
+          integrated fork of Precision Zones for defining and analyzing
+          management boundaries within fields, with zoning workflows, per-zone
+          statistics, and export to QGIS for further analysis.
     8.0 - now built from the unified FARM tools codebase. Ships defaulting to this module; the other FARM tools modules are discoverable from the welcome page's "More tools" section and as separate plugins.
 
 # Tags are comma separated with spaces allowed
