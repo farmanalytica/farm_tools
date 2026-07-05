@@ -587,9 +587,6 @@ class FarmTools:
         self.dialog.mz_btn_deps_recheck.clicked.connect(self.mzones_ctrl.deps.refresh)
         self.dialog.mz_btn_resample.clicked.connect(self.mzones_ctrl.resample.run)
         self.dialog.mz_btn_run_pca.clicked.connect(self.mzones_ctrl.pca.run_pca)
-        self.dialog.mz_btn_export_folder.clicked.connect(
-            self.mzones_ctrl.pca.choose_export_folder
-        )
         self.dialog.mz_btn_export_report.clicked.connect(
             self.mzones_ctrl.pca.export_report
         )

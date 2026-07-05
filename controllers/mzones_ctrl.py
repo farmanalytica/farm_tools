@@ -6,10 +6,12 @@ step controllers ported from precision_zones. Signal wiring happens in
 ``farm_tools.py``; widgets live on the dialog as ``mz_*`` attributes
 (published by ``view/mzones.py``).
 
-The pipeline runs synchronously on the UI thread (faithful to the source
-plugin); long steps are wrapped in a wait cursor.
+Light steps run synchronously on the UI thread wrapped in a wait cursor;
+the resampling/extraction and elbow + silhouette steps run on worker
+threads (``workers/mzones_worker.py``) with progress on their buttons.
 """
 import os
+import shutil
 from contextlib import contextmanager
 
 import numpy as np
@@ -19,12 +21,13 @@ from qgis.PyQt.QtWidgets import QApplication, QFileDialog
 from qgis.core import QgsProject, QgsRasterLayer
 
 from .. import extlibs_manager
+from ..managers.settings_manager import SettingsManager
+from ..renderers.raster_renderer_utils import RasterRendererUtils
 from ..services.mzones import (
     clustering_service,
     export_service,
     filter_service,
     pca_service,
-    resampling_service,
     variance_service,
     zones_service,
 )
@@ -37,12 +40,10 @@ from ..services.mzones.deps import (
 from ..services.mzones.export_service import NoPointsInZones
 from ..services.mzones.i18n import tr
 from ..services.mzones.notify import Notifier
-from ..services.mzones.raster_io import (
-    find_layer_by_name,
-    read_ref_metadata_from_layer,
-)
+from ..services.mzones.raster_io import read_ref_metadata_from_layer
 from ..services.mzones.session import PZSession
 from ..services.mzones.variance_service import NoZonesData
+from ..workers.mzones_worker import ElbowWorker, ResampleWorker
 
 
 @contextmanager
@@ -56,6 +57,16 @@ def _wait_cursor():
 
 def _stem_filename(title: str) -> str:
     return title.replace("/", "-").replace(":", "-")
+
+
+def _export_folder(dialog, notifier):
+    """Global download folder from the Welcome page, or None (with warning)."""
+    pasta = (SettingsManager.load_download_folder() or "").strip()
+    if not pasta or not os.path.isdir(pasta):
+        notifier.warning(dialog, tr("Error"),
+                         tr("No download folder set. Choose one on the Welcome page."))
+        return None
+    return pasta
 
 
 def _nome_base_zonas(k: int, fonte_tag: str, pcs) -> str:
@@ -101,17 +112,25 @@ class DepsController:
 
 
 class ResampleController:
-    """Data tab: read inputs, call resampling_service, store state."""
+    """Data tab: read inputs, run resampling_service on a worker, store state."""
 
     def __init__(self, iface, dialog, session, notifier):
         self.iface = iface
         self.dialog = dialog
         self.session = session
         self.notifier = notifier
+        self._worker = None
+        self._btn_text = None
 
     def run(self):
         dlg = self.dialog
         ses = self.session
+        if self._worker is not None and self._worker.isRunning():
+            # Second click while running = cancel request.
+            self._worker.cancel()
+            dlg.mz_btn_resample.setEnabled(False)
+            dlg.mz_btn_resample.setText(tr("Cancelling…"))
+            return
 
         contorno_layer = dlg.mz_vector_combo.currentLayer()
         if contorno_layer is None:
@@ -121,15 +140,14 @@ class ResampleController:
         # A geographic boundary is auto-reprojected to its UTM CRS by the
         # resampling service.
 
-        itens = dlg.mz_raster_list.selectedItems()
         rasters = []
-        for item in itens:
-            layer = find_layer_by_name(item.text())
+        for layer_id in dlg.mz_checked_raster_ids():
+            layer = QgsProject.instance().mapLayer(layer_id)
             if isinstance(layer, QgsRasterLayer) and layer.isValid():
                 rasters.append(layer)
         if not rasters:
             self.notifier.warning(dlg, tr("Error"),
-                                  tr("Select at least one raster."))
+                                  tr("Check at least one raster."))
             return
 
         res_txt = dlg.mz_resolution_input.text().strip()
@@ -143,21 +161,58 @@ class ResampleController:
             return
         ses.res_alvo = resolucao
 
-        def _progress(title, msg, level=0):
-            self.notifier.status(title, msg, level)
+        self._btn_text = dlg.mz_btn_resample.text()
+        dlg.mz_btn_resample.setText(tr("Cancel"))
 
+        self._worker = ResampleWorker(contorno_layer, rasters, resolucao)
+        self._worker.status.connect(self.notifier.status)
+        self._worker.finished.connect(self._on_done)
+        self._worker.cancelled.connect(self._on_cancelled)
+        self._worker.dep_missing.connect(self._on_dep_missing)
+        self._worker.failed.connect(self._on_failed)
+        self._worker.start()
+
+    def stop_worker(self):
+        """Cancel and join a running resample worker (plugin unload)."""
+        worker = self._worker
+        if worker is None:
+            return
         try:
-            with _wait_cursor():
-                result = resampling_service.resample_and_extract(
-                    contorno_layer, rasters, resolucao, progress=_progress)
-        except DependencyMissing as e:
-            self.notifier.warning(dlg, tr("Missing dependency"),
-                                  e.user_message())
-            return
-        except Exception as e:
-            self.notifier.critical(dlg, tr("Error"),
-                                   tr("Failed to generate/extract values: {}").format(str(e)))
-            return
+            worker.status.disconnect()
+            worker.finished.disconnect()
+            worker.cancelled.disconnect()
+            worker.dep_missing.disconnect()
+            worker.failed.disconnect()
+        except Exception:
+            pass
+        if worker.isRunning():
+            worker.cancel()
+            worker.wait()
+        self._worker = None
+
+    def _reset_btn(self):
+        btn = self.dialog.mz_btn_resample
+        if self._btn_text:
+            btn.setText(self._btn_text)
+        btn.setEnabled(True)
+
+    def _on_cancelled(self):
+        self._reset_btn()
+        self.notifier.status(tr("Resampling"), tr("Cancelled by user."), 1)
+
+    def _on_dep_missing(self, msg):
+        self._reset_btn()
+        self.notifier.warning(self.dialog, tr("Missing dependency"), msg)
+
+    def _on_failed(self, msg):
+        self._reset_btn()
+        self.notifier.critical(self.dialog, tr("Error"),
+                               tr("Failed to generate/extract values: {}").format(msg))
+
+    def _on_done(self, result):
+        self._reset_btn()
+        dlg = self.dialog
+        ses = self.session
 
         # status messages for cleaning
         if result.n_removed > 0:
@@ -252,13 +307,6 @@ class PCAController:
                            tr("PCA analysis finished successfully."))
 
     # ---------------------------------------------------------------- export
-    def choose_export_folder(self):
-        pasta = QFileDialog.getExistingDirectory(
-            self.dialog, tr("Choose folder to save"))
-        if pasta:
-            self.session.pasta_exportacao = pasta
-            self.dialog.mz_export_path_lbl.setText(pasta)
-
     def export_report(self):
         dlg = self.dialog
         ses = self.session
@@ -266,8 +314,7 @@ class PCAController:
             self.notifier.warning(dlg, tr("Error"),
                                   tr("Run PCA before exporting the report."))
             return
-        pasta = ses.pasta_exportacao or QFileDialog.getExistingDirectory(
-            dlg, tr("Choose folder to save"))
+        pasta = _export_folder(dlg, self.notifier)
         if not pasta:
             return
         try:
@@ -286,9 +333,9 @@ class PCAController:
         # infer from the first selected raster (or the filter/analysis combo)
         try:
             ref_layer = None
-            sel = dlg.mz_raster_list.selectedItems()
-            if sel:
-                ref_layer = find_layer_by_name(sel[0].text())
+            checked = dlg.mz_checked_raster_ids()
+            if checked:
+                ref_layer = QgsProject.instance().mapLayer(checked[0])
             if ref_layer is None:
                 ref_layer = (dlg.mz_filter_raster_combo.currentLayer()
                              or dlg.mz_analysis_raster_combo.currentLayer())
@@ -399,21 +446,31 @@ class PCAController:
 
 
 class ZonesController:
-    """Zones tab: elbow/silhouette analysis, PNG/CSV export, zone raster."""
+    """Zones tab: elbow/silhouette analysis, PNG/CSV export, zone raster.
+
+    The elbow run happens on an ``ElbowWorker`` thread; table/plot updates
+    land back on the UI thread via signals."""
 
     def __init__(self, iface, dialog, session, notifier):
         self.iface = iface
         self.dialog = dialog
         self.session = session
         self.notifier = notifier
+        self._worker = None
+        self._fonte_str = None
+        self._btn_text = None
 
     # ------------------------------------------------ elbow + silhouette
     def run_elbow(self):
         dlg = self.dialog
         ses = self.session
+        if self._worker is not None and self._worker.isRunning():
+            # Second click while running = cancel request.
+            self._worker.cancel()
+            dlg.mz_btn_run_elbow.setEnabled(False)
+            dlg.mz_btn_run_elbow.setText(tr("Cancelling…"))
+            return
         try:
-            pd = import_pandas()
-
             use_pca = dlg.mz_rad_pca.isChecked()
 
             if use_pca:
@@ -439,9 +496,76 @@ class ZonesController:
             k_min = dlg.mz_kmin_spin.value()
             k_max = dlg.mz_kmax_spin.value()
             ses._ultimo_kminmax = (k_min, k_max)
+        except DependencyMissing as e:
+            self.notifier.warning(dlg, tr("Missing dependency"),
+                                  e.user_message())
+            return
+        except Exception as e:
+            self.notifier.critical(dlg, tr("Zones analysis error"), str(e))
+            return
 
-            with _wait_cursor():
-                elbow = clustering_service.elbow_silhouette(dados, k_min, k_max)
+        self._fonte_str = fonte_str
+        self._btn_text = dlg.mz_btn_run_elbow.text()
+        dlg.mz_btn_run_elbow.setText(tr("Cancel"))
+
+        self._worker = ElbowWorker(dados, k_min, k_max)
+        self._worker.progress.connect(self._on_elbow_progress)
+        self._worker.finished.connect(self._on_elbow_done)
+        self._worker.cancelled.connect(self._on_elbow_cancelled)
+        self._worker.dep_missing.connect(self._on_elbow_dep_missing)
+        self._worker.failed.connect(self._on_elbow_failed)
+        self._worker.start()
+
+    def stop_worker(self):
+        """Interrupt and join a running elbow worker (plugin unload)."""
+        worker = self._worker
+        if worker is None:
+            return
+        try:
+            worker.progress.disconnect()
+            worker.finished.disconnect()
+            worker.cancelled.disconnect()
+            worker.dep_missing.disconnect()
+            worker.failed.disconnect()
+        except Exception:
+            pass
+        if worker.isRunning():
+            worker.cancel()
+            worker.wait()
+        self._worker = None
+
+    def _on_elbow_progress(self, done, total):
+        if self._worker is not None and self._worker.isInterruptionRequested():
+            return  # keep the "Cancelling…" label
+        self.dialog.mz_btn_run_elbow.setText(
+            tr("Cancel ({}/{})").format(done, total))
+
+    def _reset_elbow_btn(self):
+        btn = self.dialog.mz_btn_run_elbow
+        if self._btn_text:
+            btn.setText(self._btn_text)
+        btn.setEnabled(True)
+
+    def _on_elbow_cancelled(self):
+        self._reset_elbow_btn()
+        self.notifier.status(tr("Zones analysis"), tr("Cancelled by user."), 1)
+
+    def _on_elbow_dep_missing(self, msg):
+        self._reset_elbow_btn()
+        self.notifier.warning(self.dialog, tr("Missing dependency"), msg)
+
+    def _on_elbow_failed(self, msg):
+        self._reset_elbow_btn()
+        self.notifier.critical(self.dialog, tr("Zones analysis error"), msg)
+
+    def _on_elbow_done(self, elbow):
+        self._reset_elbow_btn()
+        dlg = self.dialog
+        ses = self.session
+        fonte_str = self._fonte_str or ""
+        try:
+            pd = import_pandas()
+
             ks, inercia, silhuetas = elbow.ks, elbow.inertia, elbow.silhouettes
 
             dlg.mz_indices_table.setRowCount(len(ks))
@@ -594,12 +718,12 @@ class ZonesController:
                                       tr("Reference grid not available. Run the resampling step."))
                 return
 
-            if not ses.pasta_exportacao:
-                pasta = QFileDialog.getExistingDirectory(
-                    dlg, tr("Choose a folder to save zones"))
-                if not pasta:
-                    return
-                ses.pasta_exportacao = pasta
+            pasta_exportacao = _export_folder(dlg, self.notifier)
+            if not pasta_exportacao:
+                return
+
+            apply_filter = dlg.mz_zones_filter_check.isChecked()
+            raio = int(dlg.mz_zones_filter_radius.value())
 
             with _wait_cursor():
                 zonas = clustering_service.final_kmeans(dados, n_zonas)
@@ -608,16 +732,23 @@ class ZonesController:
                 df["Zona"] = zonas + 1
 
                 layer_title = _nome_base_zonas(n_zonas, modo_tag, pcs if use_pca else None)
-                out_basename = f"zonas_manejo_k{n_zonas}_{modo_tag}.tif"
-                out_path = os.path.join(ses.pasta_exportacao, out_basename)
+                suffix = "_filtered" if apply_filter else ""
+                out_basename = f"zonas_manejo_k{n_zonas}_{modo_tag}{suffix}.tif"
+                out_path = os.path.join(pasta_exportacao, out_basename)
 
                 zones_service.rasterize_zones(df, crs_authid, ses.ref_gt, ses.grid_shape, out_path)
 
-            layer_raster = QgsRasterLayer(out_path, layer_title)
-            if not layer_raster.isValid():
-                raise Exception(tr("Failed to load generated raster."))
+                if apply_filter:
+                    # Same smoothing as the Filter tab, baked into the saved file.
+                    result = filter_service.apply_majority_filter(
+                        out_path, crs_authid, raio)
+                    shutil.copyfile(result.out_path, out_path)
+                    layer_title = tr("{} – majority (r={})").format(layer_title, raio)
 
-            QgsProject.instance().addMapLayer(layer_raster)
+            layer_raster = RasterRendererUtils.load_pseudocolor_raster(
+                out_path, layer_title, 1, dlg.mz_zones_ramp_combo.currentText())
+            if layer_raster is None:
+                raise Exception(tr("Failed to load generated raster."))
             dlg.mz_refresh_rasters()
 
             self.notifier.info(dlg, tr("Zones generated"),
@@ -654,19 +785,19 @@ class FilterController:
                     src_path, raster.crs().authid(), raio, threshold)
 
             layer_name = tr("{} – majority (r={})").format(raster.name(), result.raio)
-            out_layer = QgsRasterLayer(result.out_path, layer_name, "gdal")
-            if not out_layer.isValid():
+            out_layer = RasterRendererUtils.load_pseudocolor_raster(
+                result.out_path, layer_name, 1,
+                dlg.mz_filter_ramp_combo.currentText())
+            if out_layer is None:
                 raise Exception(tr("Invalid/unreadable output."))
 
             try:
-                out_layer.setRenderer(raster.renderer().clone())
                 if result.nodata is not None:
                     out_layer.dataProvider().setNoDataValue(1, float(result.nodata))
                 out_layer.triggerRepaint()
             except Exception:
                 pass
 
-            QgsProject.instance().addMapLayer(out_layer)
             dlg.mz_refresh_rasters()
 
             self.notifier.info(
@@ -872,13 +1003,26 @@ class MZonesCtrl:
         self.filter = FilterController(interface, dialog, self.session, self.notifier)
         self.analysis = AnalysisController(interface, dialog, self.session, self.notifier)
 
-        # Keep the multi-select raster list in sync with the project.
+        # Keep the checkable raster list in sync with the project
+        # (add/remove/rename).
         self._project = QgsProject.instance()
-        self._project.layersAdded.connect(self._on_layers_changed)
+        self._project.layersAdded.connect(self._on_layers_added)
         self._project.layersRemoved.connect(self._on_layers_changed)
+        self._watched_layers = []
+        self._watch_renames(self._project.mapLayers().values())
 
         self.dialog.mz_refresh_rasters()
         self.deps.refresh()
+
+    def _watch_renames(self, layers):
+        for layer in layers:
+            if isinstance(layer, QgsRasterLayer):
+                layer.nameChanged.connect(self._on_layers_changed)
+                self._watched_layers.append(layer)
+
+    def _on_layers_added(self, layers):
+        self._watch_renames(layers)
+        self._on_layers_changed()
 
     def _on_layers_changed(self, *_args):
         try:
@@ -887,8 +1031,19 @@ class MZonesCtrl:
             pass
 
     def cleanup(self):
+        for ctrl in (self.zones, self.resample):
+            try:
+                ctrl.stop_worker()
+            except Exception:
+                pass
         try:
-            self._project.layersAdded.disconnect(self._on_layers_changed)
+            self._project.layersAdded.disconnect(self._on_layers_added)
             self._project.layersRemoved.disconnect(self._on_layers_changed)
         except Exception:
             pass
+        for layer in self._watched_layers:
+            try:
+                layer.nameChanged.disconnect(self._on_layers_changed)
+            except Exception:
+                pass
+        self._watched_layers = []

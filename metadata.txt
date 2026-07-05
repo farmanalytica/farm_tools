@@ -32,7 +32,18 @@ changelog=
           shows hectares below the layer picker. Management Zones module:
           integrated fork of Precision Zones for defining and analyzing
           management boundaries within fields, with zoning workflows, per-zone
-          statistics, and export to QGIS for further analysis.
+          statistics, and export to QGIS for further analysis. Zone outputs
+          save to the global download folder from the Welcome page (per-module
+          folder picker removed). Data tab UX: the input-raster list stays in
+          sync with the project (add/remove/rename), rasters are picked with
+          checkboxes, and resolution defaults to 10 m. Generate zones can
+          optionally apply the mode (majority) filter to the output in one
+          step, and generated/filtered zone rasters load with a single-band
+          pseudocolor renderer and a selectable color ramp. Resampling and the
+          elbow + silhouette analysis run in background workers: the dialog
+          stays responsive, buttons show live progress, and a second click
+          cancels the run. Silhouette scores are subsampled on large grids for
+          much faster cluster evaluation.
     8.1 - MapBiomas updated to Collection 10 (40 annual maps, 1985–2024; adds the
           photovoltaic-plant class). All plugin metadata now points to the
           shared farm_tools repository.

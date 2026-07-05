@@ -26,6 +26,10 @@ from .raster_io import compute_grid, estimate_utm_crs
 from .data_cleaning import limpar_dataframe
 
 
+class OperationCancelled(Exception):
+    """Raised when the caller's feedback requested cancellation."""
+
+
 @dataclass
 class ResampleResult:
     df: Any                              # cleaned points DataFrame (may be empty)
@@ -42,11 +46,14 @@ class ResampleResult:
 
 
 def resample_and_extract(contorno_layer, rasters, resolucao: float,
-                         progress: Optional[Callable] = None) -> ResampleResult:
+                         progress: Optional[Callable] = None,
+                         feedback=None) -> ResampleResult:
     """Warp/resample + clip each raster to the boundary grid, then sample
     pixel-centroid points across all rasters into a DataFrame.
 
-    `progress(title, msg, level)` is an optional status sink.
+    `progress(title, msg, level)` is an optional status sink. `feedback` is an
+    optional QgsProcessingFeedback; cancelling it aborts the running
+    processing algorithm and raises OperationCancelled at the next check.
     Raises Exception(translated) on hard failures.
     """
     pd = import_pandas()
@@ -57,7 +64,12 @@ def resample_and_extract(contorno_layer, rasters, resolucao: float,
 
     context = QgsProcessingContext()
     context.setTransformContext(QgsProject.instance().transformContext())
-    feedback = QgsProcessingFeedback()
+    if feedback is None:
+        feedback = QgsProcessingFeedback()
+
+    def _check_cancel():
+        if feedback.isCanceled():
+            raise OperationCancelled()
 
     # 0) auto-reproject a geographic boundary to its appropriate UTM CRS so the
     #    resolution (meters) and metric grid are well defined. Silent by design:
@@ -97,6 +109,7 @@ def resample_and_extract(contorno_layer, rasters, resolucao: float,
     extent_str = f"{x_min},{x_max},{y_min},{y_max}"
 
     for raster in rasters:
+        _check_cancel()
         _say(tr("Processing"),
              tr("Reprojecting/resampling {}...").format(raster.name()))
 
@@ -168,6 +181,7 @@ def resample_and_extract(contorno_layer, rasters, resolucao: float,
             except Exception:
                 produced = False
 
+        _check_cancel()
         if not produced:
             raise Exception(tr("Warp produced no output."))
 
@@ -197,6 +211,7 @@ def resample_and_extract(contorno_layer, rasters, resolucao: float,
             primeira_saida = layer_saida
             referencia_raster = layer_saida
 
+    _check_cancel()
     if primeira_saida is None:
         raise Exception(tr("Resampling failed."))
 
@@ -218,6 +233,7 @@ def resample_and_extract(contorno_layer, rasters, resolucao: float,
         raise Exception(tr("Invalid points layer."))
 
     for raster in imagens_recortadas:
+        _check_cancel()
         nome_campo = raster.name()
         _say(tr("Processing"),
              tr("Extracting values from {}...").format(nome_campo))
@@ -235,6 +251,7 @@ def resample_and_extract(contorno_layer, rasters, resolucao: float,
         if not layer_pontos.isValid():
             raise Exception(tr("Failed to load layer with values from {}.").format(nome_campo))
 
+    _check_cancel()
     features = []
     campos = [f.name() for f in layer_pontos.fields()]
     for feat in layer_pontos.getFeatures():
