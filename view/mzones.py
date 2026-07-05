@@ -17,6 +17,7 @@ from qgis.PyQt.QtCore import Qt, QCoreApplication
 from qgis.PyQt.QtGui import QGuiApplication
 from qgis.PyQt.QtWidgets import (
     QAbstractItemView,
+    QCheckBox,
     QComboBox,
     QDialog,
     QFrame,
@@ -25,6 +26,7 @@ from qgis.PyQt.QtWidgets import (
     QLabel,
     QLineEdit,
     QListWidget,
+    QListWidgetItem,
     QPlainTextEdit,
     QPushButton,
     QRadioButton,
@@ -46,6 +48,7 @@ from matplotlib.figure import Figure
 from .radar import (
     _TAB_ACTIVE,
     _TAB_INACTIVE,
+    _add_ramp_items,
     _field_label,
     _make_divider,
     _prepare_field,
@@ -62,6 +65,19 @@ _TAB_KEYS = ("intro", "data", "pca", "zones", "filter", "analysis")
 
 # Chips on the intro tab track the packages the pipeline imports lazily.
 _DEP_NAMES = ("pandas", "scikit-learn", "scipy")
+
+_COLOR_RAMPS = ["Viridis", "Magma", "Plasma", "Inferno", "RdYlGn", "Greys"]
+
+
+def _ramp_combo():
+    combo = QComboBox()
+    _prepare_field(combo, 30)
+    combo.setMinimumWidth(90)
+    combo.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToContents)
+    _add_ramp_items(combo, _COLOR_RAMPS)
+    combo.setCurrentText("RdYlGn")
+    combo.setToolTip(_tr("Color ramp used to render the zones raster."))
+    return combo
 
 
 def _h_lbl(html, style=""):
@@ -350,23 +366,24 @@ def _build_data_tab(dialog, parent):
     p.addWidget(_field_label(_tr("INPUT RASTERS")))
     dialog.mz_raster_list = QListWidget()
     dialog.mz_raster_list.setSelectionMode(
-        QAbstractItemView.SelectionMode.ExtendedSelection
+        QAbstractItemView.SelectionMode.NoSelection
     )
     dialog.mz_raster_list.setMinimumHeight(140)
     dialog.mz_raster_list.setStyleSheet(
         "QListWidget { background: #ffffff; border: 1px solid #d0d0d0;"
         " border-radius: 6px; font-size: 12px; }"
-        "QListWidget::item:selected { background: #e8f5e9; color: #1a1a1a; }"
+        "QListWidget::item { padding: 2px; }"
     )
     dialog.mz_raster_list.setToolTip(
-        _tr("Pick one or more rasters to combine. Hold Ctrl or Shift to multi-select.")
+        _tr("Check one or more rasters to combine in the pipeline.")
     )
     p.addWidget(dialog.mz_raster_list)
-    p.addWidget(_hint(_tr("Select one or more — Ctrl/Shift for multiple.")))
+    p.addWidget(_hint(_tr("Check the rasters to process.")))
 
     p = _panel(lay)
     p.addWidget(_field_label(_tr("RESOLUTION (M)")))
     dialog.mz_resolution_input = _prepare_field(QLineEdit())
+    dialog.mz_resolution_input.setText("10")
     dialog.mz_resolution_input.setPlaceholderText(_tr("e.g. 10"))
     dialog.mz_resolution_input.setToolTip(
         _tr("Output pixel size in meters. Match your highest-resolution raster.")
@@ -383,18 +400,38 @@ def _build_data_tab(dialog, parent):
     lay.addStretch(1)
 
     def _refresh_rasters():
-        """Rebuild the raster list from the project, preserving selection."""
-        selected = {i.text() for i in dialog.mz_raster_list.selectedItems()}
+        """Rebuild the raster list from the project, preserving checked state.
+
+        Items carry the layer id (UserRole) so checks survive renames and
+        duplicate layer names stay unambiguous.
+        """
+        checked = set(_checked_raster_ids())
         dialog.mz_raster_list.clear()
-        for layer in QgsProject.instance().mapLayers().values():
-            if isinstance(layer, QgsRasterLayer):
-                dialog.mz_raster_list.addItem(layer.name())
-        for i in range(dialog.mz_raster_list.count()):
-            item = dialog.mz_raster_list.item(i)
-            if item.text() in selected:
-                item.setSelected(True)
+        rasters = [
+            layer for layer in QgsProject.instance().mapLayers().values()
+            if isinstance(layer, QgsRasterLayer)
+        ]
+        for layer in sorted(rasters, key=lambda l: l.name().lower()):
+            item = QListWidgetItem(layer.name())
+            item.setData(Qt.ItemDataRole.UserRole, layer.id())
+            item.setFlags(item.flags() | Qt.ItemFlag.ItemIsUserCheckable)
+            item.setCheckState(
+                Qt.CheckState.Checked if layer.id() in checked
+                else Qt.CheckState.Unchecked
+            )
+            dialog.mz_raster_list.addItem(item)
+
+    def _checked_raster_ids():
+        """Layer ids of the checked rasters, in list order."""
+        lst = dialog.mz_raster_list
+        return [
+            lst.item(i).data(Qt.ItemDataRole.UserRole)
+            for i in range(lst.count())
+            if lst.item(i).checkState() == Qt.CheckState.Checked
+        ]
 
     dialog.mz_refresh_rasters = _refresh_rasters
+    dialog.mz_checked_raster_ids = _checked_raster_ids
 
 
 # ----------------------------------------------------------------------- pca
@@ -416,10 +453,6 @@ def _build_pca_tab(dialog, parent):
 
     p = _panel(lay)
     p.addWidget(_field_label(_tr("EXPORT")))
-    dialog.mz_btn_export_folder = _secondary(QPushButton(_tr("Choose folder to save")))
-    p.addWidget(dialog.mz_btn_export_folder)
-    dialog.mz_export_path_lbl = _hint(_tr("No folder selected"))
-    p.addWidget(dialog.mz_export_path_lbl)
     dialog.mz_btn_export_report = _secondary(QPushButton(_tr("Export full report (CSV)")))
     p.addWidget(dialog.mz_btn_export_report)
 
@@ -543,6 +576,47 @@ def _build_zones_tab(dialog, parent):
     final_row.addStretch()
     p.addLayout(final_row)
     p.addWidget(_hint(_tr("Pick k from the Elbow/Silhouette results above.")))
+
+    filt_row = QHBoxLayout()
+    dialog.mz_zones_filter_check = QCheckBox(_tr("Apply mode filter to output"))
+    dialog.mz_zones_filter_check.setChecked(True)
+    dialog.mz_zones_filter_check.setToolTip(
+        _tr("Smooth the generated zones with the majority (mode) filter "
+            "from the Filter tab.")
+    )
+    filt_row.addWidget(dialog.mz_zones_filter_check)
+    dialog.mz_zones_filter_radius_lbl = QLabel(_tr("Window size:"))
+    dialog.mz_zones_filter_radius_lbl.setStyleSheet(
+        "color: #616161; font-size: 12px; background: transparent;"
+    )
+    filt_row.addWidget(dialog.mz_zones_filter_radius_lbl)
+    dialog.mz_zones_filter_radius = QSpinBox()
+    dialog.mz_zones_filter_radius.setRange(3, 99)
+    dialog.mz_zones_filter_radius.setSingleStep(2)
+    dialog.mz_zones_filter_radius.setValue(5)
+    dialog.mz_zones_filter_radius.setToolTip(
+        _tr("Filter radius in pixels; larger = smoother, fewer speckles.")
+    )
+    filt_row.addWidget(dialog.mz_zones_filter_radius)
+    filt_row.addStretch()
+    p.addLayout(filt_row)
+
+    def _toggle_zones_filter(on):
+        dialog.mz_zones_filter_radius.setEnabled(bool(on))
+        dialog.mz_zones_filter_radius_lbl.setEnabled(bool(on))
+
+    dialog.mz_zones_filter_check.toggled.connect(_toggle_zones_filter)
+    _toggle_zones_filter(dialog.mz_zones_filter_check.isChecked())
+
+    ramp_row = QHBoxLayout()
+    ramp_lbl = QLabel(_tr("Color ramp:"))
+    ramp_lbl.setStyleSheet("color: #616161; font-size: 12px; background: transparent;")
+    ramp_row.addWidget(ramp_lbl)
+    dialog.mz_zones_ramp_combo = _ramp_combo()
+    ramp_row.addWidget(dialog.mz_zones_ramp_combo)
+    ramp_row.addStretch()
+    p.addLayout(ramp_row)
+
     dialog.mz_btn_generate_zones = _primary(
         QPushButton(_tr("Generate management zones (as raster)"))
     )
@@ -594,6 +668,10 @@ def _build_filter_tab(dialog, parent):
     )
     p.addWidget(dialog.mz_window_spin)
     p.addWidget(_hint(_tr("Window size: 3 = 7x7 pixels, 5 = 11x11 pixels, etc.")))
+
+    p.addWidget(_field_label(_tr("COLOR RAMP")))
+    dialog.mz_filter_ramp_combo = _ramp_combo()
+    p.addWidget(dialog.mz_filter_ramp_combo)
 
     dialog.mz_btn_run_filter = _primary(QPushButton(_tr("Run Mode Filter")))
     lay.addWidget(dialog.mz_btn_run_filter)
@@ -669,14 +747,16 @@ def setup_mzones_page(dialog, page):
 
     Exposes on dialog:
       mz_vector_combo, mz_raster_list, mz_resolution_input, mz_btn_resample,
-      mz_btn_run_pca, mz_pca_table, mz_btn_export_folder, mz_export_path_lbl,
+      mz_btn_run_pca, mz_pca_table,
       mz_btn_export_report, mz_pc_export_combo, mz_btn_export_pc,
       mz_btn_export_all_pcs,
       mz_rad_pca, mz_rad_orig, mz_pc_selector, mz_kmin_spin, mz_kmax_spin,
       mz_btn_run_elbow, mz_indices_table, mz_elbow_canvas, mz_elbow_axes,
       mz_btn_export_elbow_png, mz_btn_export_elbow_csv, mz_final_k_spin,
+      mz_zones_filter_check, mz_zones_filter_radius, mz_zones_ramp_combo,
       mz_btn_generate_zones,
-      mz_filter_raster_combo, mz_window_spin, mz_btn_run_filter,
+      mz_filter_raster_combo, mz_window_spin, mz_filter_ramp_combo,
+      mz_btn_run_filter,
       mz_analysis_raster_combo, mz_vr_lbl, mz_result_table, mz_btn_load_csv,
       mz_col_x_combo, mz_col_y_combo, mz_col_attr_combo, mz_btn_run_analysis,
       mz_btn_export_boxplots,
@@ -844,7 +924,7 @@ def setup_mzones_page(dialog, page):
         step_lbl.setText(_tr("Step %d of %d") % (index + 1, n_tabs))
         for i, btn in enumerate(tab_buttons):
             btn.setStyleSheet(_TAB_ACTIVE if i == index else _TAB_INACTIVE)
-        if index == 1:  # Data tab: sync the multi-select list with the project
+        if index == 1:  # Data tab: sync the checkable raster list with the project
             dialog.mz_refresh_rasters()
 
     dialog.mz_set_tab = _set_tab

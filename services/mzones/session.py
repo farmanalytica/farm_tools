@@ -36,9 +36,6 @@ class PZSession:
     res_alvo: Optional[float] = None                # resolution (m)
     referencia_raster: Any = None                   # QgsRasterLayer
 
-    # Export
-    pasta_exportacao: Optional[str] = None
-
     # Layer lookups populated when the dialog opens
     vector_layers: dict = field(default_factory=dict)
     raster_layers: dict = field(default_factory=dict)
