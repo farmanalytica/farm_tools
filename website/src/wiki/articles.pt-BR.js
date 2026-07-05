@@ -36,10 +36,10 @@ export default [
   {
     slug: 'optical',
     icon: '🌿',
-    title: 'Óptico (Sentinel-2)',
+    title: 'RAVI (Sentinel-2)',
     summary: 'Séries temporais de índices de vegetação, filtragem de nuvens, composições e download multiespectral.',
     sections: [
-      { p: 'O módulo Óptico trabalha com o acervo harmonizado de refletância de superfície Sentinel-2 (COPERNICUS/S2_SR_HARMONIZED): resolução de 10 m, revisita de ~5 dias, 12 bandas espectrais úteis mais a banda de qualidade SCL. É o carro-chefe para monitoramento de culturas e vegetação. Todo o processamento roda no Google Earth Engine, sem necessidade de baixar o acervo.' },
+      { p: 'O módulo RAVI trabalha com o acervo harmonizado de refletância de superfície Sentinel-2 (COPERNICUS/S2_SR_HARMONIZED): resolução de 10 m, revisita de ~5 dias, 12 bandas espectrais úteis mais a banda de qualidade SCL. É o carro-chefe para monitoramento de culturas e vegetação. Todo o processamento roda no Google Earth Engine, sem necessidade de baixar o acervo.' },
       { h2: 'Séries temporais de índices de vegetação' },
       { p: 'Monte uma série temporal de um índice espectral sobre sua AOI para qualquer intervalo de datas. Como uma AOI próxima à borda de um tile pode retornar mais de uma imagem por data, o módulo mantém exatamente uma cena por data (pontuada pela cobertura da AOI, com a nebulosidade do tile como desempate) e então reduz o índice na AOI a 10 m para cada data. Escolha o redutor espacial em Entradas — média (padrão) ou mediana (mais robusta a outliers residuais).' },
       { p: 'São 19 índices embutidos, agrupados pelo que medem:' },
@@ -194,7 +194,7 @@ export default [
       { list: [
         'Explicar anomalias em séries de NDVI — quedas após geada, platôs durante seca.',
         'Avaliar a mudança climática recente em uma fazenda, área experimental ou bacia.',
-        'Documentar o contexto meteorológico em relatórios de campo; no módulo Óptico a série de chuva pode ser sobreposta ao gráfico de vegetação.',
+        'Documentar o contexto meteorológico em relatórios de campo; no módulo RAVI a série de chuva pode ser sobreposta ao gráfico de vegetação.',
       ] },
       { note: 'Os valores são em grade, não de estação — microclimas topográficos/costeiros abruptos são suavizados. POWER e ERA5 diferem em método, resolução e ano inicial, então o mesmo ponto pode dar valores ou tendências um pouco diferentes; compará-los via ponto B é informativo. Os resultados de tendência dependem da janela escolhida — prefira o período defensável mais longo.' },
     ],
@@ -282,7 +282,7 @@ export default [
       { table: {
         headers: ['Módulo', 'Saídas'],
         rows: [
-          ['Óptico', 'Séries de índices (gráfico + CSV), imagens e composições GeoTIFF, download multiespectral em lote'],
+          ['RAVI', 'Séries de índices (gráfico + CSV), imagens e composições GeoTIFF, download multiespectral em lote'],
           ['Landsat', 'Séries temporais, cenas GeoTIFF, downloads em lote e super-resolução'],
           ['SAR', 'Séries e gráficos de retroespalhamento, camadas raster estilizadas, download GeoTIFF'],
           ['DEM', 'Elevação GeoTIFF recortada, renderização hillshade/terreno'],

@@ -36,10 +36,10 @@ export default [
   {
     slug: 'optical',
     icon: '🌿',
-    title: 'Optical (Sentinel-2)',
+    title: 'RAVI (Sentinel-2)',
     summary: 'Vegetation index time series, cloud filtering, composites, and multispectral download.',
     sections: [
-      { p: 'The Optical module works with the harmonized Sentinel-2 surface-reflectance archive (COPERNICUS/S2_SR_HARMONIZED): 10 m resolution, ~5-day revisit, 12 usable spectral bands plus the SCL quality band. It is the workhorse for crop and vegetation monitoring. All processing runs server-side on Google Earth Engine, so no archive download is needed.' },
+      { p: 'The RAVI module works with the harmonized Sentinel-2 surface-reflectance archive (COPERNICUS/S2_SR_HARMONIZED): 10 m resolution, ~5-day revisit, 12 usable spectral bands plus the SCL quality band. It is the workhorse for crop and vegetation monitoring. All processing runs server-side on Google Earth Engine, so no archive download is needed.' },
       { h2: 'Vegetation index time series' },
       { p: 'Build a time series of a chosen spectral index over your AOI for any date range. Because an AOI near a tile edge can return more than one image per date, the module keeps exactly one scene per date (scored by AOI footprint coverage, with tile cloudiness as tie-breaker), then reduces the index over the AOI at 10 m for each kept date. Choose the spatial reducer on Inputs — mean (default) or median (more robust to residual outliers).' },
       { p: 'Nineteen indices are built in, grouped by what they measure:' },
@@ -194,7 +194,7 @@ export default [
       { list: [
         'Explain anomalies in NDVI series — drops after frost, plateaus during drought.',
         'Assess recent climatic change at a farm, trial site, or watershed.',
-        'Document weather context in field reports; in the Optical module the rainfall series can be overlaid on the vegetation chart.',
+        'Document weather context in field reports; in the RAVI module the rainfall series can be overlaid on the vegetation chart.',
       ] },
       { note: 'Values are gridded, not station data — sharp topographic/coastal microclimates are smoothed out. POWER and ERA5 differ in method, resolution, and start year, so the same point can yield somewhat different values or trends; comparing them via point B is informative. Trend results depend on the chosen window — prefer the longest defensible period.' },
     ],
@@ -282,7 +282,7 @@ export default [
       { table: {
         headers: ['Module', 'Outputs'],
         rows: [
-          ['Optical', 'Index time series (chart + CSV), GeoTIFF imagery and composites, multispectral batch download'],
+          ['RAVI', 'Index time series (chart + CSV), GeoTIFF imagery and composites, multispectral batch download'],
           ['Landsat', 'Time series, GeoTIFF scenes, batch and super-resolution downloads'],
           ['SAR', 'Backscatter series and plots, styled raster layers, GeoTIFF download'],
           ['DEM', 'Clipped GeoTIFF elevation, hillshade/terrain rendering'],

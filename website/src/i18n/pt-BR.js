@@ -19,7 +19,7 @@ export default {
     previewSubtitle: 'Oito módulos, um plugin QGIS',
     previewLabel: 'Módulos',
     previewItems: [
-      'Imagens Óptico & multi-satélite',
+      'Imagens RAVI & multi-satélite',
       'Radar SAR & terreno DEM',
       'Solo exposto & dados climáticos',
       'Amostragem de campo & exportações',
@@ -37,7 +37,7 @@ export default {
     wikiLink: 'Ler na wiki',
     items: {
       optical: {
-        title: 'Óptico (Sentinel-2)',
+        title: 'RAVI (Sentinel-2)',
         desc: 'Séries temporais de índices de vegetação (NDVI, EVI, SAVI, GNDVI), imagens RGB e sintéticas e download multiespectral.',
       },
       landsat: {
@@ -107,7 +107,7 @@ export default {
       },
       {
         title: 'Escolher módulo & configurar',
-        desc: 'Escolha um módulo — Óptico, Multi-Satélite, SAR, DEM, SYSI, ClimaPlots, Guia de Campo ou MapBiomas — defina sua área e parâmetros, e execute.',
+        desc: 'Escolha um módulo — RAVI, Multi-Satélite, SAR, DEM, SYSI, ClimaPlots, Guia de Campo ou MapBiomas — defina sua área e parâmetros, e execute.',
         link: '',
         href: '',
       },
@@ -161,7 +161,7 @@ export default {
     nowPlaying: 'Reproduzindo agora',
     modules: {
       'getting-started': 'Primeiros passos',
-      optical: 'Óptico (Sentinel-2)',
+      optical: 'RAVI (Sentinel-2)',
       landsat: 'Multi-Satélite',
       sar: 'SAR (Sentinel-1)',
       mapbiomas: 'MapBiomas',
