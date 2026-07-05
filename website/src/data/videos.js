@@ -1,4 +1,4 @@
-// Tutorial video catalog. `youtubeId: null` renders a "coming soon" placeholder;
+﻿// Tutorial video catalog. `youtubeId: null` renders a "coming soon" placeholder;
 // fill in the ID once the video is published. Every entry maps to one feature of
 // a module and is scoped for a 2–5 minute clip. Categories drive grouping on the
 // Tutorials page (see CATEGORY_ORDER in TutorialsPage.vue).
@@ -47,15 +47,15 @@ export default [
     },
   },
 
-  // ── Imagery & time series — Optical (Sentinel-2) ─────────────────
+  // ── Imagery & time series — RAVI (Sentinel-2) ────────────────────
   {
     id: 'optical-timeseries',
     category: 'imagery',
     youtubeId: null,
     wiki: 'optical',
     title: {
-      'en-US': 'Optical: vegetation index time series',
-      'pt-BR': 'Óptico: séries temporais de índices de vegetação',
+      'en-US': 'RAVI: vegetation index time series',
+      'pt-BR': 'RAVI: séries temporais de índices de vegetação',
     },
     desc: {
       'en-US': 'Build a Sentinel-2 index time series over your AOI, with one-scene-per-date deduplication and an interactive date-by-date chart. (~4 min)',
@@ -68,8 +68,8 @@ export default [
     youtubeId: null,
     wiki: 'optical',
     title: {
-      'en-US': 'Optical: choosing among 19 spectral indices',
-      'pt-BR': 'Óptico: escolhendo entre 19 índices espectrais',
+      'en-US': 'RAVI: choosing among 19 spectral indices',
+      'pt-BR': 'RAVI: escolhendo entre 19 índices espectrais',
     },
     desc: {
       'en-US': 'When to use NDVI, EVI/EVI2, SAVI/MSAVI, red-edge and chlorophyll indices (NDRE, ReCI, MTCI), moisture and burn indices — and how to define your own custom index. (~5 min)',
@@ -82,8 +82,8 @@ export default [
     youtubeId: null,
     wiki: 'optical',
     title: {
-      'en-US': 'Optical: cloud masking, quality filters & smoothing',
-      'pt-BR': 'Óptico: máscara de nuvens, filtros de qualidade & suavização',
+      'en-US': 'RAVI: cloud masking, quality filters & smoothing',
+      'pt-BR': 'RAVI: máscara de nuvens, filtros de qualidade & suavização',
     },
     desc: {
       'en-US': 'Apply the SCL cloud/shadow mask, screen dates by tile cloud, in-AOI valid-pixel % and footprint coverage, and de-noise the curve with a Savitzky-Golay filter. (~5 min)',
@@ -96,8 +96,8 @@ export default [
     youtubeId: null,
     wiki: 'optical',
     title: {
-      'en-US': 'Optical: point & per-field sampling',
-      'pt-BR': 'Óptico: amostragem por ponto & por talhão',
+      'en-US': 'RAVI: point & per-field sampling',
+      'pt-BR': 'RAVI: amostragem por ponto & por talhão',
     },
     desc: {
       'en-US': 'Extract the single-pixel series under a clicked point and a per-feature mean series per polygon, all plotted against the AOI-average reference curve. (~4 min)',
@@ -110,8 +110,8 @@ export default [
     youtubeId: null,
     wiki: 'optical',
     title: {
-      'en-US': 'Optical: single-date RGB & index rasters',
-      'pt-BR': 'Óptico: rasters RGB & de índice por data',
+      'en-US': 'RAVI: single-date RGB & index rasters',
+      'pt-BR': 'RAVI: rasters RGB & de índice por data',
     },
     desc: {
       'en-US': 'Render any date as a true/false-colour RGB composite or a single-index pseudocolour raster, clipped to the AOI and exported as 10 m GeoTIFF. (~4 min)',
@@ -124,8 +124,8 @@ export default [
     youtubeId: null,
     wiki: 'optical',
     title: {
-      'en-US': 'Optical: composites & Area-Under-Curve maps',
-      'pt-BR': 'Óptico: composições & mapas de Área-Sob-a-Curva',
+      'en-US': 'RAVI: composites & Area-Under-Curve maps',
+      'pt-BR': 'RAVI: composições & mapas de Área-Sob-a-Curva',
     },
     desc: {
       'en-US': 'Collapse the season into one map — mean, median, min/max, amplitude, standard deviation, sum, or the trapezoidal AUC as a cumulative-productivity proxy. (~5 min)',
@@ -138,8 +138,8 @@ export default [
     youtubeId: null,
     wiki: 'optical',
     title: {
-      'en-US': 'Optical: multispectral batch download',
-      'pt-BR': 'Óptico: download multiespectral em lote',
+      'en-US': 'RAVI: multispectral batch download',
+      'pt-BR': 'RAVI: download multiespectral em lote',
     },
     desc: {
       'en-US': 'Batch-download the full multispectral stack (or selected bands) for every displayed date as GeoTIFF, on a background thread that keeps QGIS responsive. (~3 min)',
@@ -152,8 +152,8 @@ export default [
     youtubeId: null,
     wiki: 'optical',
     title: {
-      'en-US': 'Optical: rainfall overlay on the index chart',
-      'pt-BR': 'Óptico: sobreposição de chuva no gráfico de índice',
+      'en-US': 'RAVI: rainfall overlay on the index chart',
+      'pt-BR': 'RAVI: sobreposição de chuva no gráfico de índice',
     },
     desc: {
       'en-US': 'Overlay NASA POWER monthly precipitation bars beneath the vegetation curve to relate green-up and stress to weather on a shared time axis. (~3 min)',

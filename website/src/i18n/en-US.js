@@ -19,7 +19,7 @@ export default {
     previewSubtitle: 'Eight modules, one QGIS plugin',
     previewLabel: 'Modules',
     previewItems: [
-      'Optical & multi-satellite imagery',
+      'RAVI & multi-satellite imagery',
       'SAR radar & DEM terrain',
       'Bare-soil & climate data',
       'Field sampling & exports',
@@ -37,7 +37,7 @@ export default {
     wikiLink: 'Read in the wiki',
     items: {
       optical: {
-        title: 'Optical (Sentinel-2)',
+        title: 'RAVI (Sentinel-2)',
         desc: 'Vegetation index time series (NDVI, EVI, SAVI, GNDVI), RGB and composite imagery, and multispectral download.',
       },
       landsat: {
@@ -107,7 +107,7 @@ export default {
       },
       {
         title: 'Pick a module & configure',
-        desc: 'Choose a module — Optical, Multi-Satellite, SAR, DEM, SYSI, ClimaPlots, Field Guide, or MapBiomas — set your area and parameters, then run.',
+        desc: 'Choose a module — RAVI, Multi-Satellite, SAR, DEM, SYSI, ClimaPlots, Field Guide, or MapBiomas — set your area and parameters, then run.',
         link: '',
         href: '',
       },
@@ -168,7 +168,7 @@ export default {
     },
     modules: {
       'getting-started': 'Getting started',
-      optical: 'Optical (Sentinel-2)',
+      optical: 'RAVI (Sentinel-2)',
       landsat: 'Multi-Satellite',
       sar: 'SAR (Sentinel-1)',
       mapbiomas: 'MapBiomas',
