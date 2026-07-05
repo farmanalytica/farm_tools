@@ -35,15 +35,13 @@ const MODULES = [
           </a>
         </div>
       </div>
-      <aside class="hero-card" aria-hidden="true">
-        <div class="hero-card-head">
-          <strong>{{ t('hero.previewTitle') }}</strong>
-          <p>{{ t('hero.previewSubtitle') }}</p>
-        </div>
-        <div class="hero-card-body">
-          <strong>{{ t('hero.previewLabel') }}</strong>
-          <div v-for="(item, i) in t('hero.previewItems')" :key="i" class="hero-item">{{ item }}</div>
-        </div>
+      <aside class="hero-card">
+        <img
+          class="hero-shot"
+          src="/welcomepage_screenshot.png"
+          :alt="t('hero.previewTitle')"
+          loading="eager"
+        />
       </aside>
     </div>
   </section>
@@ -273,58 +271,15 @@ const MODULES = [
 .hero-card {
   background: var(--white);
   border-radius: 20px;
-  padding: 1.4rem;
+  padding: 0.6rem;
   box-shadow: var(--sh-lg);
 }
 
-.hero-card-head {
-  background: linear-gradient(135deg, #c8e8db, #aad4c4);
-  border-radius: 12px;
-  padding: 1.4rem 1.6rem;
-  text-align: center;
-  margin-bottom: 1.2rem;
-}
-
-.hero-card-head strong {
+.hero-shot {
   display: block;
-  font-family: 'Fraunces', serif;
-  font-size: 1.12rem;
-  color: var(--primary);
-  margin-bottom: 0.25rem;
-}
-
-.hero-card-head p {
-  color: var(--accent);
-  font-size: 0.87rem;
-  margin: 0;
-}
-
-.hero-card-body strong {
-  display: block;
-  font-size: 0.78rem;
-  font-weight: 600;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.07em;
-  margin-bottom: 0.7rem;
-}
-
-.hero-item {
-  display: flex;
-  align-items: center;
-  gap: 0.65rem;
-  font-size: 0.9rem;
-  color: var(--text-soft);
-  padding: 0.3rem 0;
-}
-
-.hero-item::before {
-  content: '';
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--accent);
-  flex-shrink: 0;
+  width: 100%;
+  height: auto;
+  border-radius: 14px;
 }
 
 .video-wrap {
