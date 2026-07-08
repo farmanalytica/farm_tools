@@ -35,6 +35,7 @@ from qgis.PyQt.QtWidgets import (
     QButtonGroup,
     QDialog,
     QFrame,
+    QGridLayout,
     QHBoxLayout,
     QLabel,
     QPushButton,
@@ -119,7 +120,8 @@ def _read_plugin_changelog() -> str:
 
 
 SIDEBAR_COLLAPSED_WIDTH = 64
-SIDEBAR_EXPANDED_WIDTH = 220
+SIDEBAR_EXPANDED_WIDTH = 208
+SIDEBAR_EXPANDED_CONTENT_WIDTH = 176
 # Brand logo icon: grows on expand. Pixmap rendered at MAX so it stays crisp
 # while iconSize animates between the two states.
 BRAND_ICON_COLLAPSED = 32
@@ -188,8 +190,9 @@ class Sidebar(QFrame):
         super().__init__(parent)
         self.setObjectName("Sidebar")
         self._active_page = "auth"
-        self._expanded = False
-        self.setFixedWidth(SIDEBAR_COLLAPSED_WIDTH)
+        # Rail starts expanded, then changes only when the user taps the toggle.
+        self._expanded = True
+        self.setFixedWidth(SIDEBAR_EXPANDED_WIDTH)
         self.setAttribute(Qt.WidgetAttribute.WA_StyledBackground, True)
 
         self._width_animation = QVariantAnimation(self)
@@ -205,7 +208,7 @@ class Sidebar(QFrame):
         self._brand_icon_animation.valueChanged.connect(self._set_brand_icon_size)
 
         self._build()
-        self._apply_expanded_state(False)
+        self._apply_expanded_state(True)
         self.set_active_page("auth")
 
     def _build(self) -> None:
@@ -224,7 +227,28 @@ class Sidebar(QFrame):
         # indicator and wiring as the other pages — it navigates to Welcome.
         self.btn_welcome = self._build_brand_panel()
         self.btn_welcome.clicked.connect(self.welcome_requested.emit)
-        brand_block_lay.addWidget(self.btn_welcome, 0, Qt.AlignmentFlag.AlignHCenter)
+
+        self.brand_header = QWidget()
+        self.brand_header.setObjectName("sidebarBrandHeader")
+        brand_header_lay = QGridLayout(self.brand_header)
+        brand_header_lay.setContentsMargins(0, 0, 0, 0)
+        brand_header_lay.setSpacing(0)
+        brand_header_lay.addWidget(
+            self.btn_welcome, 0, 0, Qt.AlignmentFlag.AlignCenter
+        )
+        self.btn_toggle_header = QPushButton("")
+        self.btn_toggle_header.setObjectName("sidebarToggleButton")
+        self.btn_toggle_header.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.btn_toggle_header.setFixedSize(26, 26)
+        self.btn_toggle_header.setAccessibleName(_tr("Toggle sidebar"))
+        self.btn_toggle_header.clicked.connect(self._toggle_expanded)
+        brand_header_lay.addWidget(
+            self.btn_toggle_header,
+            0,
+            0,
+            Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter,
+        )
+        brand_block_lay.addWidget(self.brand_header, 0, Qt.AlignmentFlag.AlignHCenter)
         brand_block_lay.addSpacing(8)
         self.brand_divider = QFrame()
         self.brand_divider.setObjectName("sidebarBrandDivider")
@@ -236,6 +260,16 @@ class Sidebar(QFrame):
             }
         """)
         brand_block_lay.addWidget(self.brand_divider, 0, Qt.AlignmentFlag.AlignHCenter)
+        brand_block_lay.addSpacing(8)
+        self.btn_toggle_collapsed = QPushButton("")
+        self.btn_toggle_collapsed.setObjectName("sidebarToggleButton")
+        self.btn_toggle_collapsed.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.btn_toggle_collapsed.setFixedSize(26, 26)
+        self.btn_toggle_collapsed.setAccessibleName(_tr("Toggle sidebar"))
+        self.btn_toggle_collapsed.clicked.connect(self._toggle_expanded)
+        brand_block_lay.addWidget(
+            self.btn_toggle_collapsed, 0, Qt.AlignmentFlag.AlignHCenter
+        )
         brand_block_lay.addSpacing(10)
         lay.addWidget(self.brand_block)
 
@@ -414,7 +448,7 @@ class Sidebar(QFrame):
             icon.addPixmap(pix, QIcon.Mode.Normal, QIcon.State.On)
             icon.addPixmap(pix, QIcon.Mode.Active, QIcon.State.Off)
             btn.setIcon(icon)
-            btn.setIconSize(QSize(BRAND_ICON_COLLAPSED, BRAND_ICON_COLLAPSED))
+            btn.setIconSize(QSize(BRAND_ICON_EXPANDED, BRAND_ICON_EXPANDED))
             self._brand_has_icon = True
         else:
             btn.setText("FARM")
@@ -522,15 +556,8 @@ class Sidebar(QFrame):
 
         dlg.exec()
 
-    def enterEvent(self, event) -> None:
-        """Expand the navigation rail while the pointer is over it."""
-        self._apply_expanded_state(True)
-        super().enterEvent(event)
-
-    def leaveEvent(self, event) -> None:
-        """Collapse back to an icon rail after the pointer leaves it."""
-        self._apply_expanded_state(False)
-        super().leaveEvent(event)
+    def _toggle_expanded(self) -> None:
+        self._apply_expanded_state(not self._expanded)
 
     def _apply_expanded_state(self, expanded: bool) -> None:
         self._expanded = expanded
@@ -540,11 +567,27 @@ class Sidebar(QFrame):
         for btn in self._buttons.values():
             btn.setText(btn.property("navText") if expanded else "")
             btn.setToolTip("" if expanded else btn.property("navText"))
-            btn.setFixedWidth(188 if expanded else 42)
+            btn.setFixedWidth(SIDEBAR_EXPANDED_CONTENT_WIDTH if expanded else 42)
 
-        self.btn_welcome.setFixedWidth(188 if expanded else 42)
-        self.brand_block.setFixedWidth(188 if expanded else 42)
-        self.brand_divider.setFixedWidth(188 if expanded else 28)
+        self.btn_welcome.setFixedWidth(
+            SIDEBAR_EXPANDED_CONTENT_WIDTH if expanded else 42
+        )
+        self.brand_header.setFixedWidth(
+            SIDEBAR_EXPANDED_CONTENT_WIDTH if expanded else 42
+        )
+        self.brand_block.setFixedWidth(
+            SIDEBAR_EXPANDED_CONTENT_WIDTH if expanded else 42
+        )
+        self.brand_divider.setFixedWidth(
+            SIDEBAR_EXPANDED_CONTENT_WIDTH if expanded else 28
+        )
+        toggle_text = "‹" if expanded else "›"
+        toggle_tip = _tr("Collapse sidebar") if expanded else _tr("Expand sidebar")
+        for toggle in (self.btn_toggle_header, self.btn_toggle_collapsed):
+            toggle.setText(toggle_text)
+            toggle.setToolTip(toggle_tip)
+        self.btn_toggle_header.setVisible(expanded)
+        self.btn_toggle_collapsed.setVisible(not expanded)
 
         # External scrollbar is visible only when expanded and content overflows.
         # Collapsed rail stays clean; wheel scrolling still works regardless.
@@ -608,9 +651,12 @@ class Sidebar(QFrame):
 
     def _stylesheet(self, expanded: bool) -> str:
         button_padding = "0 8px 0 8px" if expanded else "0"
+        brand_padding = "0 18px 0 0" if expanded else "0"
         button_radius = "8px"
         button_text_align = "left" if expanded else "center"
-        button_width = "188px" if expanded else "42px"
+        button_width = (
+            f"{SIDEBAR_EXPANDED_CONTENT_WIDTH}px" if expanded else "42px"
+        )
         return f"""
         QFrame#Sidebar {{
             background-color: qlineargradient(
@@ -638,7 +684,7 @@ class Sidebar(QFrame):
         QPushButton#sidebarNavButton[brand="true"] {{
             min-height: {BRAND_ICON_EXPANDED + 6}px;
             max-height: {BRAND_ICON_EXPANDED + 6}px;
-            padding-left: {"18px" if expanded else "0"};
+            padding: {brand_padding};
         }}
         QPushButton#sidebarNavButton:hover {{
             background-color: rgba(255, 255, 255, 22);
@@ -650,6 +696,23 @@ class Sidebar(QFrame):
         }}
         QPushButton#sidebarNavButton:disabled {{
             color: {SIDEBAR_MUTED};
+        }}
+        QPushButton#sidebarToggleButton {{
+            background-color: rgba(255, 255, 255, 16);
+            color: rgba(255, 255, 255, 210);
+            border: 1px solid rgba(255, 255, 255, 34);
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            padding: 0;
+        }}
+        QPushButton#sidebarToggleButton:hover {{
+            background-color: rgba(255, 255, 255, 30);
+            color: #ffffff;
+            border-color: rgba(255, 255, 255, 68);
+        }}
+        QPushButton#sidebarToggleButton:pressed {{
+            background-color: rgba(255, 255, 255, 42);
         }}
         QScrollArea#sidebarNavScroll, QWidget#sidebarNavContainer,
         QWidget#sidebarNavRow {{

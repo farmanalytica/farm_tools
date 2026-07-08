@@ -91,6 +91,8 @@ def resample_and_extract(contorno_layer, rasters, resolucao: float,
         contorno_layer = reproj
 
     # 1) snapped reference grid
+    if hasattr(contorno_layer, "updateExtents"):
+        contorno_layer.updateExtents()
     gt, (rows, cols) = compute_grid(contorno_layer.extent(), resolucao)
     ref_gt = gt
     ref_crs_wkt = contorno_layer.crs().toWkt()

@@ -17,6 +17,36 @@ from qgis.core import (
 from .i18n import tr
 
 
+def _finite_number(value):
+    try:
+        return math.isfinite(float(value))
+    except (TypeError, ValueError):
+        return False
+
+
+def _extent_bounds(extent):
+    return (
+        extent.xMinimum(),
+        extent.xMaximum(),
+        extent.yMinimum(),
+        extent.yMaximum(),
+    )
+
+
+def _validate_extent(extent):
+    x_min, x_max, y_min, y_max = _extent_bounds(extent)
+    values = (x_min, x_max, y_min, y_max)
+    if not all(_finite_number(value) for value in values):
+        raise ValueError(
+            tr("Boundary extent is invalid. Check that the boundary layer has valid geometry.")
+        )
+    if x_max <= x_min or y_max <= y_min:
+        raise ValueError(
+            tr("Boundary extent has zero area. Check that the boundary layer has valid geometry.")
+        )
+    return x_min, x_max, y_min, y_max
+
+
 def obter_raster_por_nome(nome):
     for camada in QgsProject.instance().mapLayers().values():
         if isinstance(camada, QgsRasterLayer) and camada.name() == nome:
@@ -35,10 +65,13 @@ def find_layer_by_name(nome):
 def estimate_utm_crs(layer):
     """Return the appropriate WGS84 / UTM CRS for a layer, from its extent
     centroid (mirrors geopandas estimate_utm_crs). EPSG 326xx N / 327xx S."""
+    if hasattr(layer, "updateExtents"):
+        layer.updateExtents()
     src = layer.crs()
     ext = layer.extent()
-    cx = (ext.xMinimum() + ext.xMaximum()) / 2.0
-    cy = (ext.yMinimum() + ext.yMaximum()) / 2.0
+    x_min, x_max, y_min, y_max = _validate_extent(ext)
+    cx = (x_min + x_max) / 2.0
+    cy = (y_min + y_max) / 2.0
 
     wgs = QgsCoordinateReferenceSystem.fromEpsgId(4326)
     if src != wgs:
@@ -47,6 +80,11 @@ def estimate_utm_crs(layer):
         lon, lat = pt.x(), pt.y()
     else:
         lon, lat = cx, cy
+
+    if not (_finite_number(lon) and _finite_number(lat)):
+        raise ValueError(
+            tr("Boundary extent could not be transformed to WGS84. Check the boundary CRS.")
+        )
 
     zone = int((lon + 180.0) / 6.0) % 60 + 1
     epsg = (32600 if lat >= 0 else 32700) + zone
@@ -58,10 +96,10 @@ def compute_grid(extent, resolucao: float):
 
     Returns (geotransform, (rows, cols)).
     """
-    x_min = extent.xMinimum()
-    x_max = extent.xMaximum()
-    y_min = extent.yMinimum()
-    y_max = extent.yMaximum()
+    if not _finite_number(resolucao) or float(resolucao) <= 0:
+        raise ValueError(tr("Resolution must be a positive number."))
+    resolucao = float(resolucao)
+    x_min, x_max, y_min, y_max = _validate_extent(extent)
 
     x0 = math.floor(x_min / resolucao) * resolucao
     y0 = math.ceil(y_max / resolucao) * resolucao
@@ -75,6 +113,8 @@ def compute_grid(extent, resolucao: float):
 def xy_to_rowcol(gt, x: float, y: float):
     """Convert (X, Y) to (row, col) using a geotransform. None on failure."""
     if gt is None:
+        return None
+    if not (_finite_number(x) and _finite_number(y)):
         return None
     try:
         col = int((x - gt[0]) / gt[1])
