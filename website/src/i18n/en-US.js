@@ -53,7 +53,7 @@ export default {
         desc: 'Download elevation from ~30 public DEMs for any area, clipped and Magma-styled, ready for terrain analysis in QGIS.',
       },
       sysi: {
-        title: 'SYSI Bare Soil',
+        title: 'Bare Soil',
         desc: 'Synthetic bare-soil image composites using GEOS3 multi-temporal bare-soil detection.',
       },
       climaplots: {
@@ -107,7 +107,7 @@ export default {
       },
       {
         title: 'Pick a module & configure',
-        desc: 'Choose a module — RAVI, Multi-Satellite, SAR, DEM, SYSI, ClimaPlots, Field Guide, or MapBiomas — set your area and parameters, then run.',
+        desc: 'Choose a module — RAVI, Multi-Satellite, SAR, DEM, Bare Soil, ClimaPlots, Field Guide, or MapBiomas — set your area and parameters, then run.',
         link: '',
         href: '',
       },
@@ -173,7 +173,7 @@ export default {
       sar: 'SAR (Sentinel-1)',
       mapbiomas: 'MapBiomas',
       dem: 'Elevation (DEM)',
-      sysi: 'Bare soil (SYSI)',
+      sysi: 'Bare Soil',
       climaplots: 'Climate (ClimaPlots)',
       fieldguide: 'Field Guide',
     },

@@ -53,7 +53,7 @@ export default {
         desc: 'Baixe elevação de ~30 DEMs públicos para qualquer área, recortada e estilizada em Magma, pronta para análise de terreno no QGIS.',
       },
       sysi: {
-        title: 'SYSI Solo Exposto',
+        title: 'Solo Exposto',
         desc: 'Composições sintéticas de solo exposto usando detecção multitemporal de solo exposto GEOS3.',
       },
       climaplots: {
@@ -107,7 +107,7 @@ export default {
       },
       {
         title: 'Escolher módulo & configurar',
-        desc: 'Escolha um módulo — RAVI, Multi-Satélite, SAR, DEM, SYSI, ClimaPlots, Guia de Campo ou MapBiomas — defina sua área e parâmetros, e execute.',
+        desc: 'Escolha um módulo — RAVI, Multi-Satélite, SAR, DEM, Solo Exposto, ClimaPlots, Guia de Campo ou MapBiomas — defina sua área e parâmetros, e execute.',
         link: '',
         href: '',
       },
@@ -166,7 +166,7 @@ export default {
       sar: 'SAR (Sentinel-1)',
       mapbiomas: 'MapBiomas',
       dem: 'Elevação (DEM)',
-      sysi: 'Solo exposto (SYSI)',
+      sysi: 'Solo Exposto',
       climaplots: 'Clima (ClimaPlots)',
       fieldguide: 'Guia de Campo',
     },

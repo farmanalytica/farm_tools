@@ -145,10 +145,10 @@ export default [
   {
     slug: 'sysi',
     icon: '🟤',
-    title: 'SYSI Solo Exposto',
+    title: 'Solo Exposto',
     summary: 'Composições sintéticas de solo exposto para mapeamento de solos.',
     sections: [
-      { p: 'O SYSI (Synthetic Soil Image) constrói uma composição em que cada pixel mostra a superfície do solo livre de vegetação — mesmo que nenhuma data isolada mostre toda a área exposta. Construído a partir do acervo harmonizado de refletância de superfície Sentinel-2 (de 2017 em diante) a 10 m, é um insumo-chave para mapeamento digital de solos, delineamento de classes de solo e zonas de manejo. A regra de solo exposto segue o método GEOS3 de Demattê et al. (2018).' },
+      { p: 'O módulo Solo Exposto constrói uma Imagem Sintética de Solo (SYSI): uma composição em que cada pixel mostra a superfície do solo livre de vegetação — mesmo que nenhuma data isolada mostre toda a área exposta. Construído a partir do acervo harmonizado de refletância de superfície Sentinel-2 (de 2017 em diante) a 10 m, é um insumo-chave para mapeamento digital de solos, delineamento de classes de solo e zonas de manejo. A regra de solo exposto segue o método GEOS3 de Demattê et al. (2018).' },
       { h2: 'Como funciona' },
       { steps: [
         'Você define a AOI, um intervalo de datas, os meses do calendário a incluir, uma cobertura máxima de nuvens e as faixas de limiar de NDVI/NBR2.',
@@ -158,7 +158,7 @@ export default [
         'O resultado é uma imagem de 9 bandas a 10 m (Azul, Verde, Vermelho, Red-edge 2, NIR, SWIR1, SWIR2, NDVI, NBR2), renderizada no QGIS e exportável como GeoTIFF.',
       ] },
       { note: 'Restrinja os meses à estação local de pousio/preparo, quando o solo tende a estar mais exposto. Faixas de NDVI/NBR2 permissivas admitem vegetação esparsa ou resíduo; faixas estritas descartam solo válido e reduzem a cobertura.' },
-      { h2: 'O que fazer com um SYSI' },
+      { h2: 'O que fazer com uma imagem de solo exposto' },
       { list: [
         'Delinear classes de solo e transições visualmente — diferenças de cor acompanham textura e matéria orgânica.',
         'Apoiar o plano de amostragem: posicione amostras de solo onde a composição mostra zonas distintas.',
@@ -286,7 +286,7 @@ export default [
           ['Landsat', 'Séries temporais, cenas GeoTIFF, downloads em lote e super-resolução'],
           ['SAR', 'Séries e gráficos de retroespalhamento, camadas raster estilizadas, download GeoTIFF'],
           ['DEM', 'Elevação GeoTIFF recortada, renderização hillshade/terreno'],
-          ['SYSI', 'Composição sintética de solo exposto como camada renderizada / GeoTIFF'],
+          ['Solo Exposto', 'Composição sintética de solo exposto como camada renderizada / GeoTIFF'],
           ['ClimaPlots', 'Gráficos e dados de séries climáticas'],
           ['Guia de Campo', 'CSV, GPX, camada temporária QGIS, relatório PDF, rotas Google Maps'],
           ['MapBiomas', 'GeoTIFF de classificação por ano e GeoTIFF de transição (classificado por ano de transição), camadas estilizadas por paleta'],

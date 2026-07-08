@@ -108,7 +108,7 @@ _MODULES = [
     ("landsat", "Multi-Satellite",
      "Pan-sharpened 15 m Landsat 7/8/9 imagery and multi-mission index series",
      "show_landsat_page", False),
-    ("sysi", "SYSI — Synthetic Soil Image",
+    ("sysi", "Bare Soil",
      "Bare-soil reflectance composite (GEOS3) from cloud-free pixels for soil mapping",
      "show_sysi_page", False),
     ("radar", "Radar (SAR) data",

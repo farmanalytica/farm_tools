@@ -598,7 +598,7 @@ class FarmToolsDialog(QDialog):
             return
 
         if current is self.sysi_page:
-            self._header_title.setText(_tr("Synthetic Soil Image (SYSI)"))
+            self._header_title.setText(_tr("Bare Soil"))
             self._help_url = WIKI_BASE + "sysi"
             self.sidebar.set_active_page("sysi")
             self.footer.setVisible(False)
