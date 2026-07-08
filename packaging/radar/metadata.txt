@@ -3,7 +3,7 @@ name=AGLgis
 qgisMinimumVersion=3.28
 qgisMaximumVersion=4.99
 description=Sentinel-1 SAR (VV/VH) backscatter time series and analysis-ready data preparation in Google Earth Engine — cloud-independent / Séries temporais de retroespalhamento SAR Sentinel-1 (VV/VH) e preparo de dados no Google Earth Engine — independente de nuvens
-version=9.1
+version=9.2
 author=FARM Analytica
 email=contato@farmanalytica.com.br
 
