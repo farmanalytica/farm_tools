@@ -47,7 +47,7 @@ changelog=
 # Tags are comma separated with spaces allowed
 tags=remote sensing, landsat, sentinel-2, modis, hls, google earth engine, vegetation index, ndvi, time series, pan-sharpening
 
-homepage=https://farmtools.org/wiki/landsat
+homepage=https://farmtools.org
 category=Plugins
 icon=icon.png
 experimental=False

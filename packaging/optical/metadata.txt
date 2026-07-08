@@ -47,7 +47,7 @@ changelog=
 # Tags are comma separated with spaces allowed
 tags=remote sensing, sentinel-2, google earth engine, vegetation index, ndvi, evi, ndre, time series, agriculture, precision agriculture
 
-homepage=https://farmtools.org/wiki/optical
+homepage=https://farmtools.org
 category=Plugins
 icon=icon.png
 experimental=False

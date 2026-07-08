@@ -47,7 +47,7 @@ changelog=
 # Tags are comma separated with spaces allowed
 tags=dem, elevation, srtm, copernicus, terrain, slope, google earth engine, raster, hydrology
 
-homepage=https://farmtools.org/wiki/dem
+homepage=https://farmtools.org
 category=Raster
 icon=icon.png
 experimental=False
