@@ -40,6 +40,7 @@ export default [
     summary: 'Séries temporais de índices de vegetação, filtragem de nuvens, composições e download multiespectral.',
     sections: [
       { p: 'O módulo RAVI trabalha com o acervo harmonizado de refletância de superfície Sentinel-2 (COPERNICUS/S2_SR_HARMONIZED): resolução de 10 m, revisita de ~5 dias, 12 bandas espectrais úteis mais a banda de qualidade SCL. É o carro-chefe para monitoramento de culturas e vegetação. Todo o processamento roda no Google Earth Engine, sem necessidade de baixar o acervo.' },
+      { p: 'O RAVI (Remote Analysis of Vegetation Indices) teve início como trabalho de conclusão de curso (TCC) de Caio Arantes, sob orientação do Prof. Dr. Lucas dos Rios Amaral, e hoje é um projeto de código aberto mantido com o apoio da FARM Analytica, cofundada por Caio.' },
       { h2: 'Séries temporais de índices de vegetação' },
       { p: 'Monte uma série temporal de um índice espectral sobre sua AOI para qualquer intervalo de datas. Como uma AOI próxima à borda de um tile pode retornar mais de uma imagem por data, o módulo mantém exatamente uma cena por data (pontuada pela cobertura da AOI, com a nebulosidade do tile como desempate) e então reduz o índice na AOI a 10 m para cada data. Escolha o redutor espacial em Entradas — média (padrão) ou mediana (mais robusta a outliers residuais).' },
       { p: 'São 19 índices embutidos, agrupados pelo que medem:' },

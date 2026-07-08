@@ -63,7 +63,7 @@ def _tr(text):
 
 
 # Per-module help: the "?" button opens the matching wiki section on the site.
-WIKI_BASE = "https://www.farmtools.com.br/wiki/"
+WIKI_BASE = "https://www.farmtools.org/wiki/"
 WIKI_DEFAULT = WIKI_BASE + "getting-started"
 
 

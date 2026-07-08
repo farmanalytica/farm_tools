@@ -40,6 +40,7 @@ export default [
     summary: 'Vegetation index time series, cloud filtering, composites, and multispectral download.',
     sections: [
       { p: 'The RAVI module works with the harmonized Sentinel-2 surface-reflectance archive (COPERNICUS/S2_SR_HARMONIZED): 10 m resolution, ~5-day revisit, 12 usable spectral bands plus the SCL quality band. It is the workhorse for crop and vegetation monitoring. All processing runs server-side on Google Earth Engine, so no archive download is needed.' },
+      { p: 'RAVI (Remote Analysis of Vegetation Indices) began as the undergraduate thesis of Caio Arantes, supervised by Prof. Dr. Lucas dos Rios Amaral, and is now an open-source project maintained with the support of FARM Analytica, co-founded by Caio.' },
       { h2: 'Vegetation index time series' },
       { p: 'Build a time series of a chosen spectral index over your AOI for any date range. Because an AOI near a tile edge can return more than one image per date, the module keeps exactly one scene per date (scored by AOI footprint coverage, with tile cloudiness as tie-breaker), then reduces the index over the AOI at 10 m for each kept date. Choose the spatial reducer on Inputs — mean (default) or median (more robust to residual outliers).' },
       { p: 'Nineteen indices are built in, grouped by what they measure:' },

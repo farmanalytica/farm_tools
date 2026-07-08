@@ -159,19 +159,7 @@ const MODULES = [
       <p class="sec-label">{{ t('about.label') }}</p>
       <h2>{{ t('about.title') }}</h2>
       <div class="about-box">
-        <p>
-          {{ t('about.textPre') }}<a
-            class="about-link"
-            href="https://www.linkedin.com/in/caioarantes/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >Caio Arantes</a>{{ t('about.textMid') }}<a
-            class="about-link"
-            href="https://www.linkedin.com/in/lucas-rios-do-amaral-bb302449/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >Prof. Dr. Lucas dos Rios Amaral</a>{{ t('about.textPost') }}
-        </p>
+        <p>{{ t('about.text') }}</p>
         <div class="partner-row">
           <img class="partner-logo" src="/farm_analytica_logo.svg" alt="FARM Analytica" />
           <div class="partner-info">

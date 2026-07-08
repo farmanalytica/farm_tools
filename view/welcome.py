@@ -91,7 +91,7 @@ def _svg_pixmap(filename: str, size: int) -> QPixmap:
 _URL_CAIO = "https://www.linkedin.com/in/caioarantes/"
 _URL_LUCAS = "https://www.linkedin.com/in/lucas-rios-do-amaral-bb302449/"
 _URL_FARM = "https://farmanalytica.com.br"
-_URL_SITE = "https://www.farmtools.com.br"
+_URL_SITE = "https://www.farmtools.org"
 _URL_MATEUS = "https://www.linkedin.com/in/mateuspinto/"
 _URL_AGRIGEE = "https://github.com/mateuspinto/AgriGEE.lite"
 _LINK_STYLE = "color:#1b6b39; font-weight:bold; text-decoration:none;"
@@ -750,81 +750,6 @@ def _build_teaser_card(dialog, kind, name, desc, gee_free=False):
     return card
 
 
-def _build_about_section():
-    """About card below the grid: the RAVI/FARM story, collaboration and links."""
-    frame = QFrame()
-    frame.setObjectName("aboutCard")
-    frame.setStyleSheet("""
-        QFrame#aboutCard {
-            background-color: #ffffff;
-            border: 1px solid #e4e7e5;
-            border-radius: 12px;
-        }
-        QFrame#aboutCard QLabel { background: transparent; border: none; }
-    """)
-    lay = QVBoxLayout(frame)
-    lay.setContentsMargins(20, 18, 20, 18)
-    lay.setSpacing(10)
-
-    caption = QLabel(_tr("ABOUT"))
-    caption.setStyleSheet(
-        "color: #1b6b39; font-size: 11px; letter-spacing: 1px; font-weight: bold;"
-    )
-    lay.addWidget(caption)
-
-    story = QLabel(
-        _tr(
-            "<b>FARM tools</b> (formerly RAVI — Remote Analysis of Vegetation Indices) "
-            "began as the undergraduate thesis of "
-            "<a href='{caio}' style='{ls}'>Caio Arantes</a>, supervised by "
-            "<a href='{lucas}' style='{ls}'>Prof. Dr. Lucas dos Rios Amaral</a>, "
-            "and is now an open-source project maintained with the support of "
-            "<a href='{farm}' style='{ls}'>FARM Analytica</a>, co-founded by Caio. "
-            "Committed to technology diffusion and the open-source philosophy, it "
-            "brings <b>Google Earth Engine</b> processing into QGIS — turning "
-            "satellite archives into vegetation, soil, radar and climate insight, "
-            "without leaving your map."
-        ).format(caio=_URL_CAIO, lucas=_URL_LUCAS, farm=_URL_FARM, ls=_LINK_STYLE)
-    )
-    story.setWordWrap(True)
-    story.setTextFormat(Qt.TextFormat.RichText)
-    story.setOpenExternalLinks(True)
-    story.setStyleSheet("color: #555555; font-size: 12px; line-height: 1.4;")
-    lay.addWidget(story)
-
-    collab = QLabel(
-        _tr(
-            "🛰️ Landsat super-resolution is built on "
-            "<a href='{agrigee}' style='{ls}'>AgriGEE.lite</a>, in collaboration "
-            "with its author <a href='{mateus}' style='{ls}'>Mateus Pinto</a>."
-        ).format(agrigee=_URL_AGRIGEE, mateus=_URL_MATEUS, ls=_LINK_STYLE)
-    )
-    collab.setWordWrap(True)
-    collab.setTextFormat(Qt.TextFormat.RichText)
-    collab.setOpenExternalLinks(True)
-    collab.setStyleSheet(
-        "color: #1b5e20; font-size: 11px; background: #e8f5e9;"
-        " border-radius: 4px; padding: 8px 10px;"
-    )
-    lay.addWidget(collab)
-
-    footer = QLabel(
-        _tr(
-            "Learn more and read the setup guide at "
-            "<a href='{site}' style='{ls}'>www.farmtools.com.br</a> · "
-            "Commercial inquiries: "
-            "<a href='{farm}' style='{ls}'>FARM Analytica</a>"
-        ).format(site=_URL_SITE, farm=_URL_FARM, ls=_LINK_STYLE)
-    )
-    footer.setWordWrap(True)
-    footer.setTextFormat(Qt.TextFormat.RichText)
-    footer.setOpenExternalLinks(True)
-    footer.setStyleSheet("color: #9e9e9e; font-size: 11px; padding-top: 4px;")
-    lay.addWidget(footer)
-
-    return frame
-
-
 def _build_folder_section(dialog):
     """Download-folder picker, shared by every module's export action.
 
@@ -1000,8 +925,6 @@ def _build_hub_section(dialog):
 
     outer.addSpacing(16)
     outer.addWidget(_build_folder_section(dialog))
-    outer.addSpacing(16)
-    outer.addWidget(_build_about_section())
     outer.addStretch(1)
 
     return container

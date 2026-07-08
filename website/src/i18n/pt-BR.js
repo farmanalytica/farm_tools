@@ -142,9 +142,7 @@ export default {
   about: {
     label: 'Projeto',
     title: 'Sobre o Projeto',
-    textPre: 'O FARM tools teve início como trabalho de conclusão de curso (TCC) de ',
-    textMid: ', desenvolvido sob orientação do ',
-    textPost: '. Atualmente é um projeto gratuito e de código aberto, mantido com o apoio da FARM Analytica, comprometido com a difusão tecnológica e o espírito do software livre.',
+    text: 'O FARM tools é um projeto gratuito e de código aberto, mantido com o apoio da FARM Analytica, comprometido com a difusão tecnológica e o espírito do software livre.',
     sponsorLabel: 'Apoiado por',
     sponsorDesc: 'Tecnologia e inteligência de campo trabalhando juntas para apoiar operações práticas.',
     whatsapp: 'Fale no WhatsApp',
