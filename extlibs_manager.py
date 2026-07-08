@@ -59,6 +59,8 @@ _QGIS_PROVIDED = (
 # requirements set rather than name it directly.
 _REQUIRED_PACKAGES = {
     "agrigee_lite": None,
+    "ee": None,
+    "cryptography": None,
     "climdex": "pyclimdex",
     "pymannkendall": "pymannkendall",
     "pyhomogeneity": "pyhomogeneity",
@@ -72,6 +74,18 @@ _REQUIRED_PACKAGES = {
 _NO_WINDOW = getattr(subprocess, "CREATE_NO_WINDOW", 0)
 
 
+def _pkg_present(pkg: str) -> bool:
+    """A package counts as present only when importable: a dir with
+    __init__.py or a single-module .py. A bare dir is not enough — an
+    interrupted upgrade (locked .pyd while QGIS holds the DLL) can leave a
+    gutted package where only the compiled extension survived, which the old
+    isdir() check accepted forever."""
+    return (
+        os.path.isfile(os.path.join(EXTLIBS_PATH, pkg, "__init__.py"))
+        or os.path.isfile(os.path.join(EXTLIBS_PATH, pkg + ".py"))
+    )
+
+
 def _missing_pip_specs():
     """pip requirement strings for the required packages absent from extlibs/.
 
@@ -80,11 +94,7 @@ def _missing_pip_specs():
     """
     specs = []
     for pkg, pip_name in _REQUIRED_PACKAGES.items():
-        present = (
-            os.path.isdir(os.path.join(EXTLIBS_PATH, pkg))
-            or os.path.isfile(os.path.join(EXTLIBS_PATH, pkg + ".py"))
-        )
-        if present:
+        if _pkg_present(pkg):
             continue
         if pip_name is None:
             return None  # core package missing -> full reinstall
@@ -141,13 +151,7 @@ def bundle_complete() -> bool:
     """
     if not os.path.isdir(EXTLIBS_PATH):
         return False
-    for pkg in _REQUIRED_PACKAGES:
-        if os.path.isdir(os.path.join(EXTLIBS_PATH, pkg)):
-            continue
-        if os.path.isfile(os.path.join(EXTLIBS_PATH, pkg + ".py")):
-            continue
-        return False
-    return True
+    return all(_pkg_present(pkg) for pkg in _REQUIRED_PACKAGES)
 
 
 def needs_provision() -> bool:
