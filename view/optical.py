@@ -202,6 +202,18 @@ def _build_intro_tab(_dialog, parent):
             )
         )
     )
+    lay.addSpacing(2)
+    lay.addWidget(
+        _para(
+            _tr(
+                "RAVI (Remote Analysis of Vegetation Indices) began as the "
+                "undergraduate thesis of <b>Caio Arantes</b>, supervised by "
+                "<b>Prof. Dr. Lucas dos Rios Amaral</b>, and is now an open-source "
+                "project maintained with the support of <b>FARM Analytica</b>, "
+                "co-founded by Caio."
+            )
+        )
+    )
 
     lay.addWidget(_h2(_tr("📋 Workflow")))
     lay.addWidget(_divider())

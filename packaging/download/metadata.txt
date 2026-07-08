@@ -4,7 +4,7 @@ qgisMinimumVersion=3.28
 qgisMaximumVersion=4.99
 description=Download and visualise Digital Elevation Models (SRTM, Copernicus…) via Google Earth Engine, clipped to your area / Baixe e visualize Modelos Digitais de Elevação (SRTM, Copernicus…) via Google Earth Engine, recortados para sua área
 version=9.1
-author=FARM Analytica, Caio Arantes, Leandro Eloi, Lívia Scopel, Mateus Pinto da Silva, Bruna da Silva Brito Ribeiro, Isabella Alves da Cunha, Lucas Rios do Amaral
+author=FARM Analytica
 email=contato@farmanalytica.com.br
 
 about=EasyDEM downloads digital elevation models (SRTM, Copernicus and more) clipped to your area of interest and derives terrain products directly in QGIS, using Google Earth Engine — no coding required. Requires a Google Earth Engine account (sign-in and a project ID are set up inside the plugin). / O EasyDEM baixa modelos digitais de elevação (SRTM, Copernicus e outros) recortados para sua área de interesse e deriva produtos de terreno diretamente no QGIS, usando o Google Earth Engine — sem precisar programar. Requer uma conta do Google Earth Engine (login e ID de projeto são configurados dentro do plugin).
@@ -47,7 +47,7 @@ changelog=
 # Tags are comma separated with spaces allowed
 tags=dem, elevation, srtm, copernicus, terrain, slope, google earth engine, raster, hydrology
 
-homepage=https://farmtools.com.br/wiki/dem
+homepage=https://farmtools.org/wiki/dem
 category=Raster
 icon=icon.png
 experimental=False
