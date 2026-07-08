@@ -47,7 +47,7 @@ changelog=
 # Tags are comma separated with spaces allowed
 tags=python, sentinel, sentinel-1, radar, sar, backscatter, google earth engine, remote sensing, raster, agriculture
 
-homepage=https://farmtools.org/wiki/sar
+homepage=https://farmtools.org
 category=Raster
 icon=icon.png
 experimental=False

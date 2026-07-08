@@ -47,7 +47,7 @@ changelog=
 # Tags are comma separated with spaces allowed
 tags=field sampling, gps, gpx, csv, pdf, point capture, polygon sampling, raster, agriculture, soil sampling, vector
 
-homepage=https://farmtools.org/wiki/fieldguide
+homepage=https://farmtools.org
 category=Vector
 icon=icon.png
 experimental=False

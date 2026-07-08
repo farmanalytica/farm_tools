@@ -47,7 +47,7 @@ changelog=
 # Tags are comma separated with spaces allowed
 tags=mapbiomas, brazil, land use, land cover, lulc, deforestation, transition, google earth engine, agriculture, raster
 
-homepage=https://farmtools.org/wiki/mapbiomas
+homepage=https://farmtools.org
 category=Raster
 icon=icon.png
 experimental=False

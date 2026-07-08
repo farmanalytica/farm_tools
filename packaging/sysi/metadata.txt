@@ -47,7 +47,7 @@ changelog=
 # Tags are comma separated with spaces allowed
 tags=remote sensing, soil, bare soil, geos3, synthetic soil image, google earth engine, digital soil mapping, agriculture, raster
 
-homepage=https://farmtools.org/wiki/sysi
+homepage=https://farmtools.org
 category=Raster
 icon=icon.png
 experimental=False

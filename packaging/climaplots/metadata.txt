@@ -47,7 +47,7 @@ changelog=
 # Tags are comma separated with spaces allowed
 tags=climate, nasa power, era5, open-meteo, precipitation, temperature, weather, agroclimatology, charts, spi
 
-homepage=https://farmtools.org/wiki/climaplots
+homepage=https://farmtools.org
 category=Plugins
 icon=icon.png
 experimental=False
