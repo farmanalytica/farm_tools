@@ -12,6 +12,9 @@ need: opening clicked links in the system browser (WebKit uses link
 delegation, WebEngine needs a custom page that intercepts navigation).
 """
 
+import os
+import sys
+
 from qgis.PyQt.QtGui import QDesktopServices
 
 try:
@@ -19,6 +22,29 @@ try:
 
     USING_WEBENGINE = False
 except ImportError:  # Qt6 / QGIS 4: WebKit is gone, use WebEngine
+    # QGIS 4.0.x Windows packaging ships QtWebEngine without the ANGLE GL
+    # runtime (libEGL.dll / libGLESv2.dll), so every QtWebEngineProcess.exe
+    # child — renderer and GPU process alike — dies at startup with
+    # STATUS_DLL_NOT_FOUND (0xC0000135) and web views stay permanently blank.
+    # Running Chromium in-process sidesteps the broken helper entirely. The
+    # flag must be in the environment before WebEngine initializes, and it is
+    # process-wide, so gate it on the ANGLE DLL actually being absent.
+    if sys.platform == "win32":
+        try:
+            from qgis.PyQt.QtCore import QLibraryInfo
+
+            _exe_dir = QLibraryInfo.path(
+                QLibraryInfo.LibraryPath.LibraryExecutablesPath
+            )
+            if not os.path.isfile(os.path.join(_exe_dir, "libGLESv2.dll")):
+                _flags = os.environ.get("QTWEBENGINE_CHROMIUM_FLAGS", "")
+                if "--single-process" not in _flags:
+                    os.environ["QTWEBENGINE_CHROMIUM_FLAGS"] = (
+                        _flags + " --single-process"
+                    ).strip()
+        except Exception:
+            pass
+
     from qgis.PyQt.QtWebEngineCore import QWebEnginePage
     from qgis.PyQt.QtWebEngineWidgets import QWebEngineView as QWebView
 
