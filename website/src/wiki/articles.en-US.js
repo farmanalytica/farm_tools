@@ -145,10 +145,10 @@ export default [
   {
     slug: 'sysi',
     icon: '🟤',
-    title: 'SYSI Bare Soil',
+    title: 'Bare Soil',
     summary: 'Synthetic bare-soil image composites for soil mapping.',
     sections: [
-      { p: 'SYSI (Synthetic Soil Image) builds a composite where every pixel shows the soil surface free of vegetation — even though no single date shows the whole area bare. Built from the harmonized Sentinel-2 surface-reflectance archive (2017 onward) at 10 m, it is a key input for digital soil mapping, soil-class delineation, and management zones. The bare-soil rule follows the GEOS3 method of Demattê et al. (2018).' },
+      { p: 'The Bare Soil module builds a Synthetic Soil Image (SYSI): a composite where every pixel shows the soil surface free of vegetation — even though no single date shows the whole area bare. Built from the harmonized Sentinel-2 surface-reflectance archive (2017 onward) at 10 m, it is a key input for digital soil mapping, soil-class delineation, and management zones. The bare-soil rule follows the GEOS3 method of Demattê et al. (2018).' },
       { h2: 'How it works' },
       { steps: [
         'You set the AOI, a date range, the calendar months to include, a maximum cloud cover, and the NDVI/NBR2 threshold ranges.',
@@ -158,7 +158,7 @@ export default [
         'The result is a 9-band, 10 m image (Blue, Green, Red, Red-edge 2, NIR, SWIR1, SWIR2, NDVI, NBR2), rendered in QGIS and exportable as GeoTIFF.',
       ] },
       { note: 'Restrict the months to the local fallow/tillage season so soil is most likely exposed. Permissive NDVI/NBR2 ranges admit sparse vegetation or residue; strict ranges discard valid soil and shrink coverage.' },
-      { h2: 'What you can do with a SYSI' },
+      { h2: 'What you can do with a bare-soil image' },
       { list: [
         'Delineate soil classes and transitions visually — color differences track texture and organic matter.',
         'Support sampling design: place soil samples where the composite shows distinct zones.',
@@ -286,7 +286,7 @@ export default [
           ['Landsat', 'Time series, GeoTIFF scenes, batch and super-resolution downloads'],
           ['SAR', 'Backscatter series and plots, styled raster layers, GeoTIFF download'],
           ['DEM', 'Clipped GeoTIFF elevation, hillshade/terrain rendering'],
-          ['SYSI', 'Synthetic bare-soil composite as a rendered layer / GeoTIFF'],
+          ['Bare Soil', 'Synthetic bare-soil composite as a rendered layer / GeoTIFF'],
           ['ClimaPlots', 'Climate series charts and data'],
           ['Field Guide', 'CSV, GPX, temporary QGIS layer, PDF report, Google Maps routes'],
           ['MapBiomas', 'Classification GeoTIFF per year and transition GeoTIFF (classed by transition year), styled paletted layers'],

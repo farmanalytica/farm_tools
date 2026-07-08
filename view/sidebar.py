@@ -277,7 +277,7 @@ class Sidebar(QFrame):
         self.btn_optical = self._make_button(_tr("RAVI (Sentinel-2)"), "optical")
         self.btn_optical.clicked.connect(self.optical_requested.emit)
 
-        self.btn_sysi = self._make_button(_tr("SYSI"), "sysi")
+        self.btn_sysi = self._make_button(_tr("Bare Soil"), "sysi")
         self.btn_sysi.clicked.connect(self.sysi_requested.emit)
 
         self.btn_radar = self._make_button(_tr("Radar (SAR) data"), "radar")

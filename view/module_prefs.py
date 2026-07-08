@@ -26,7 +26,7 @@ except Exception:
 _FLAVOR_LABELS = {
     "optical": "RAVI",
     "landsat": "Multi-Satellite",
-    "sysi": "SYSI",
+    "sysi": "Bare Soil",
     "radar": "AGLgis",
     "download": "EasyDEM",
     "climaplots": "ClimaPlots",

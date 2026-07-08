@@ -351,15 +351,15 @@ export default [
     },
   },
 
-  // ── Terrain, soil & climate — SYSI bare soil ─────────────────────
+  // ── Terrain, soil & climate — Bare Soil (SYSI) ───────────────────
   {
     id: 'sysi-generate',
     category: 'terrain',
     youtubeId: null,
     wiki: 'sysi',
     title: {
-      'en-US': 'SYSI: generating a synthetic bare-soil image',
-      'pt-BR': 'SYSI: gerando uma imagem sintética de solo exposto',
+      'en-US': 'Bare Soil: generating a synthetic bare-soil image',
+      'pt-BR': 'Solo Exposto: gerando uma imagem sintética de solo exposto',
     },
     desc: {
       'en-US': 'How GEOS3 keeps only genuine bare-soil pixels across years and a temporal median fills gaps into one seamless 9-band, 10 m soil-reflectance image. (~5 min)',
@@ -372,8 +372,8 @@ export default [
     youtubeId: null,
     wiki: 'sysi',
     title: {
-      'en-US': 'SYSI: tuning months, thresholds & reading the result',
-      'pt-BR': 'SYSI: ajustando meses, limiares & lendo o resultado',
+      'en-US': 'Bare Soil: tuning months, thresholds & reading the result',
+      'pt-BR': 'Solo Exposto: ajustando meses, limiares & lendo o resultado',
     },
     desc: {
       'en-US': 'Restrict to the fallow/tillage months, set the NDVI and NBR2 ranges, and interpret soil colour (iron oxides, organic matter, sandy/eroded surfaces). (~5 min)',
