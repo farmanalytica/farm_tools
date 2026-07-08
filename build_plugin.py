@@ -84,6 +84,7 @@ INCLUDE_ASSETS = [
     "assets/logo_white.svg",           # view/sidebar.py brand button
     "assets/plotly-1.58.5.min.js",   # view/plotly_render.py, view/sar_plot.py
     "assets/ravi.svg",                 # view/welcome.py RAVI card logo
+    "assets/ravi_white_background.svg",  # view/sidebar.py RAVI module icon
     "assets/climaplots.svg",           # view/welcome.py ClimaPlots card logo
     "assets/sentinel1.svg",            # view/welcome.py radar card logo
     "assets/fieldguide.svg",           # view/welcome.py Field Guide card logo
