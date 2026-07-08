@@ -281,11 +281,16 @@ class FlowLayout(QLayout):
         # Column count from minimum card width; then stretch cards to fill row.
         n_cols = max(1, (available_w + spacing) // (min_w + spacing))
         card_w = max(min_w, (available_w - (n_cols - 1) * spacing) // n_cols)
+        # Cap the stretch so wide viewports don't inflate cards into short-text,
+        # tall-empty tiles; centre the leftover width so the grid stays balanced.
+        card_w = min(card_w, _CARD_MAX_WIDTH)
+        row_w = n_cols * card_w + (n_cols - 1) * spacing
+        x_offset = max(0, (available_w - row_w) // 2)
 
         for i, item in enumerate(self._items):
             col = i % n_cols
             row = i // n_cols
-            x = effective.x() + col * (card_w + spacing)
+            x = effective.x() + x_offset + col * (card_w + spacing)
             y = effective.y() + row * (card_h + spacing)
             if not test_only:
                 item.setGeometry(QRect(QPoint(x, y), QSize(card_w, card_h)))
@@ -438,7 +443,13 @@ def _draw_module_icon(kind: str, color: str, size: int = 30) -> QPixmap:
 
 
 _CARD_WIDTH = 248
-# Tall enough for a one-line title plus a four-line wrapped description.
+# Cap on how wide a card may stretch to fill a row. Without it, a wide viewport
+# inflates each card far beyond its text, so the blurb wraps to 1–2 lines and
+# leaves tall empty space under it. Capping keeps cards near their natural width
+# (blurb fills the height) and lets more columns pack in — a denser grid.
+_CARD_MAX_WIDTH = 272
+# Tall enough for a one-line title plus a four-line wrapped description
+# (translated blurbs, e.g. pt_BR, run longer than the English source).
 _CARD_HEIGHT = 116
 
 
