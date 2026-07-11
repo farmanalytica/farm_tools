@@ -1,16 +1,19 @@
-# Landsat — Methodology
+# Multi-Satellite — Methodology
 
-> This module turns the open Landsat archive into decision-ready imagery and
-> vegetation time series over a user-defined area of interest (AOI). It draws
-> on Landsat 7, 8 and 9 (USGS/NASA Collection 2) through Google Earth Engine,
-> cloud-masks every scene, and offers two complementary products: a
+> This module (formerly *Landsat*) turns several open optical archives into
+> decision-ready imagery and vegetation time series over a user-defined area of
+> interest (AOI). A satellite registry dispatches each request per sensor, so
+> the same indices, RGB modes, cloud masking and coverage filter apply across
+> every source you tick: **Landsat 7/8/9**, **Sentinel-2**, **HLS Sentinel-2**
+> and **MODIS (8-day)**, all through Google Earth Engine. For the pan-capable
+> Landsat sensors it offers two complementary products: a
 > **15 m pan-sharpened true-colour image** built from Top-of-Atmosphere (TOA)
-> reflectance, and **30 m spectral products** (vegetation indices and
-> multispectral composites) built from atmospherically-corrected Surface
-> Reflectance (SR). A multi-mission vegetation-index time series (a Satellite
-> Image Time Series, or SITS) is produced alongside, summarising how the AOI's
-> condition evolves across the full archive. This note describes the data and
-> the science, not the software.
+> reflectance, and **spectral products** (vegetation indices and multispectral
+> composites) built from atmospherically-corrected Surface Reflectance (SR). A
+> multi-mission vegetation-index time series (a Satellite Image Time Series, or
+> SITS) is produced alongside, summarising how the AOI's condition evolves
+> across the selected sources. This note describes the data and the science,
+> not the software.
 
 ## 1. Objective
 
@@ -24,9 +27,9 @@ view of an area's surface condition over time, from a single map window:
 2. **Measure vegetation and water quantitatively.** Spectral indices computed
    on Surface Reflectance turn raw bands into physically interpretable numbers
    (greenness, water content, soil exposure).
-3. **Track change.** A combined Landsat 7/8/9 index time series places any
-   single date in the context of the whole record (1999 to present), revealing
-   seasonality, trends, disturbances and recovery.
+3. **Track change.** A combined multi-mission index time series places any
+   single date in the context of the whole record — back to 1999 with
+   Landsat 7 — revealing seasonality, trends, disturbances and recovery.
 
 Every product is restricted to scenes that actually cover the AOI well and are
 sufficiently cloud-free, so the user is never shown a date that is mostly
@@ -34,24 +37,37 @@ cloud or mostly outside the frame.
 
 ## 2. Data sources
 
-All imagery comes from the **USGS Landsat Collection 2, Tier 1** archive,
-accessed through Google Earth Engine. Tier 1 is the highest-quality tier:
-scenes are radiometrically calibrated and co-registered to sub-pixel geometric
-accuracy, which is the prerequisite for stacking dates into a time series.
+Sources are declared in a satellite registry; ticking a sensor on the Inputs
+panel adds it to date discovery, the time series and downloads. Restricting the
+selection means fewer Earth Engine queries. All imagery is accessed through
+Google Earth Engine.
 
-| Sensor / Collection | Resolution | Temporal coverage | Bands used |
-|---|---|---|---|
-| **Landsat 7 ETM+** (`LANDSAT/LE07/C02/T1_L2` SR, `…/T1_TOA` TOA) | 30 m optical, 15 m panchromatic | 1999-04-15 → 2022-04-06 | blue, green, red, NIR, SWIR1, SWIR2, pan |
-| **Landsat 8 OLI/TIRS** (`LANDSAT/LC08/C02/T1_L2`, `…/T1_TOA`) | 30 m optical, 15 m panchromatic | 2013-04-11 → present | blue, green, red, NIR, SWIR1, SWIR2, pan |
-| **Landsat 9 OLI-2/TIRS-2** (`LANDSAT/LC09/C02/T1_L2`, `…/T1_TOA`) | 30 m optical, 15 m panchromatic | 2021-11-01 → present | blue, green, red, NIR, SWIR1, SWIR2, pan |
+| Sensor / Collection | Native resolution | Temporal coverage | Pan band? | RGB? | Notes |
+|---|---|---|---|---|---|
+| **Landsat 8 OLI/TIRS** (`LANDSAT/LC08/C02/T1_L2` SR, `…/T1_TOA` TOA) | 30 m optical, 15 m pan | 2013-04-11 → present | yes (15 m super-res) | yes | Collection 2, Tier 1 |
+| **Landsat 9 OLI-2/TIRS-2** (`LANDSAT/LC09/C02/T1_L2`, `…/T1_TOA`) | 30 m optical, 15 m pan | 2021-11-01 → present | yes (15 m super-res) | yes | Collection 2, Tier 1 |
+| **Landsat 7 ETM+** (`LANDSAT/LE07/C02/T1_L2`, `…/T1_TOA`) | 30 m optical, 15 m pan | 1999-04-15 → 2022-04-06 | yes (15 m super-res) | yes | SLC-off striping after 2003 |
+| **Sentinel-2** (harmonized SR) | 10 m | 2015 → present | no | yes | native 10 m beats pan-sharpened 15 m; Cloud Score+ masking |
+| **HLS Sentinel-2** | 30 m | 2015 → present | no | yes | harmonised to the Landsat grid; Fmask quality mask |
+| **MODIS (8-day)** Terra+Aqua | 250 m | 2000 → present | no | no | red + NIR only → reduced index set; **off by default** |
+
+The Landsat sources come from the **USGS Collection 2, Tier 1** archive — the
+highest-quality tier, radiometrically calibrated and co-registered to sub-pixel
+accuracy, the prerequisite for stacking dates into a time series.
 
 **Coverage and revisit.** Coverage is global. Each Landsat satellite revisits a
-given location every **16 days**; because Landsat 8 and 9 are phased 8 days
-apart, their combined revisit is effectively **8 days** for dates after late
-2021, and adding Landsat 7 thickens the historical record back to 1999. A
-request whose date range falls outside a given mission's lifespan simply
-returns no scenes for that mission — there is no error, the other missions
-still contribute.
+location every **16 days**; Landsat 8 and 9 are phased 8 days apart, so their
+combined revisit is effectively **8 days** after late 2021, and adding Landsat 7
+thickens the record back to 1999. Sentinel-2 adds ~5-day, 10 m coverage from
+2015; MODIS contributes 250 m composites every 8 days for regional context. A
+request whose date range falls outside a source's lifespan simply returns no
+scenes for it — there is no error, the other sources still contribute.
+
+**Per-sensor capabilities are gated automatically.** Only the pan-capable
+Landsat sensors expose the 15 m super-resolution action; RGB composites are
+offered only on the multi-band sources (everything except MODIS); and MODIS,
+carrying only red and NIR, is restricted to the indices those two bands support
+— the index pickers filter to match the current selection.
 
 **Landsat 5 is deliberately excluded.** The TM sensor on Landsat 5 carries no
 panchromatic band, so the headline 15 m pan-sharpened product cannot be built
@@ -84,12 +100,13 @@ transferred.
 
 ### 3.1 Scene discovery
 
-For the chosen AOI and date range, the archive is searched across all three
-missions. Candidate scenes are filtered by spatial intersection with the AOI
-and by acquisition date, then passed through the cloud mask and the
+For the chosen AOI and date range, the archive is searched across every
+selected source. Candidate scenes are filtered by spatial intersection with the
+AOI and by acquisition date, then passed through the cloud mask and the
 minimum-valid-coverage test (below). The surviving acquisition dates are
-de-duplicated, tagged with their mission, and sorted chronologically, so the
-user is offered only dates that yield a usable image over the AOI.
+de-duplicated, tagged with their source, and sorted chronologically, so the
+user is offered only dates that yield a usable image over the AOI. The date
+selector and the download products share one compact panel.
 
 ### 3.2 Cloud and quality masking
 
@@ -100,11 +117,14 @@ measured or displayed. Two mechanisms are used:
   per-pixel quality band. The mask removes pixels flagged as **cloud, cloud
   shadow, cirrus, dilated cloud, and saturated**, keeping only confidently
   clear pixels.
-- **Simple Cloud Score (TOA only).** The pan-sharpened TOA product receives an
-  additional pass: Earth Engine's Landsat Simple Cloud Score assigns each pixel
-  a 0–100 cloud-likelihood, and pixels above a strictness threshold (default
-  **15**, lower = stricter) are discarded. This suppresses bright haze that the
-  bitmask alone can miss in the un-corrected TOA data.
+- **Simple Cloud Score (Landsat TOA only).** The pan-sharpened TOA product
+  receives an additional pass: Earth Engine's Landsat Simple Cloud Score assigns
+  each pixel a 0–100 cloud-likelihood, and pixels above a strictness threshold
+  (default **15**, lower = stricter) are discarded. This suppresses bright haze
+  that the bitmask alone can miss in the un-corrected TOA data.
+- **Per-sensor masks.** The non-Landsat sources carry their own quality mask:
+  Sentinel-2 uses a **Cloud Score+** threshold, and HLS Sentinel-2 uses its
+  **Fmask** quality flag, applied before any index is computed.
 
 Masking is on by default. Disabling it returns more dates but much noisier
 imagery, and is only advisable when clouds are not a concern.
@@ -236,11 +256,16 @@ index is reduced to a single representative value over the AOI — the spatial
 **median** by default (robust to residual outliers), with **mean** available.
 This is computed entirely server-side; no rasters are downloaded for the chart.
 
-Each mission is queried only within the overlap of its own lifespan and the
-requested range, then the three series (Landsat 7, 8, 9) are merged into one
-chronological record and plotted as one trace per mission. Because the missions
-share a common 30 m SR calibration, their values are directly comparable,
-giving a continuous index history from 1999 to the present.
+Each source is queried only within the overlap of its own lifespan and the
+requested range, then the per-sensor series are merged into one chronological
+record and plotted as one trace per source. Because the optical sources share a
+comparable SR calibration, their values can be read together, giving a
+continuous index history that can stretch from 1999 (Landsat 7) to the present.
+The series can be exported as CSV alongside the interactive in-browser chart.
+
+> Cross-sensor offsets are real: Sentinel-2 (10 m) and MODIS (250 m) reduce over
+> different pixel populations than Landsat (30 m). Read the per-source traces as
+> complementary rather than perfectly interchangeable.
 
 ## 4. Outputs & interpretation
 

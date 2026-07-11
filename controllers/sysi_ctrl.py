@@ -153,7 +153,7 @@ class SYSICtrl:
         if self.gee_service and not self.gee_service.is_authenticated:
             self.dialog.pop_message(
                 _tr(
-                    "Authentication is required to generate SYSI data. "
+                    "Authentication is required to generate Bare Soil data. "
                     "Please go to the Auth page and validate your Google Cloud "
                     "project ID."
                 ),
@@ -194,7 +194,7 @@ class SYSICtrl:
         params["output_folder"] = (
             SettingsManager.load_download_folder() or tempfile.gettempdir()
         )
-        params["label"] = "SYSI"
+        params["label"] = "Bare Soil"
 
         self._set_generate_busy(True)
 
@@ -222,7 +222,7 @@ class SYSICtrl:
             filename = os.path.basename(output_path)
             self.interface.messageBar().pushMessage(
                 "FARM tools",
-                _tr("SYSI '%s' generated and loaded into QGIS.") % filename,
+                _tr("Bare Soil image '%s' generated and loaded into QGIS.") % filename,
             )
 
     def _on_sysi_failed(self, message: str):
@@ -248,7 +248,7 @@ class SYSICtrl:
         layer = QgsRasterLayer(path, label)
         if not layer.isValid():
             self.dialog.pop_message(
-                _tr("Failed to load SYSI raster into QGIS."), "warning"
+                _tr("Failed to load Bare Soil raster into QGIS."), "warning"
             )
             return
 

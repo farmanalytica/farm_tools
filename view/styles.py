@@ -6,6 +6,38 @@ Stylesheet constants are defined here so individual page modules can reuse
 the same visual language without duplicating long Qt stylesheet strings.
 """
 
+import os
+
+from qgis.PyQt.QtCore import Qt, QRectF
+from qgis.PyQt.QtGui import QPainter, QPixmap
+from qgis.PyQt.QtSvg import QSvgRenderer
+from qgis.PyQt.QtWidgets import QLabel
+
+_ASSETS_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "assets")
+
+
+def make_logo_label(filename, height=56):
+    """Return a left-aligned QLabel showing an assets/ SVG at ``height`` px.
+
+    Aspect ratio is preserved (width derived from the SVG's own ratio). Returns
+    an empty QLabel if the asset is missing/invalid so a bad file degrades to a
+    blank gap rather than crashing the page."""
+    label = QLabel()
+    renderer = QSvgRenderer(os.path.join(_ASSETS_DIR, filename))
+    size = renderer.defaultSize()
+    if not renderer.isValid() or size.height() <= 0:
+        return label
+
+    width = max(1, round(height * size.width() / size.height()))
+    pix = QPixmap(width, height)
+    pix.fill(Qt.GlobalColor.transparent)
+    painter = QPainter(pix)
+    painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+    renderer.render(painter, QRectF(0, 0, width, height))
+    painter.end()
+    label.setPixmap(pix)
+    return label
+
 STYLE_DIALOG = """
 QDialog {
     background-color: #f5f5f5;

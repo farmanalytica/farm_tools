@@ -66,9 +66,9 @@ jobs:
           if-no-files-found: error
 
   publish:
-    name: Commit zips to main
+    name: Upload zips to release
     needs: build
-    # always() so a single flaky/unsupported target doesn't block committing the
+    # always() so a single flaky/unsupported target doesn't block publishing the
     # bundles that DID build; runtime pip fallback covers any missing tag.
     if: ${{ always() && inputs.commit }}
     runs-on: ubuntu-latest
@@ -83,20 +83,20 @@ jobs:
           path: _extlibs_dl
           merge-multiple: true
 
-      - name: Move zips to repo root
+      - name: Move zips to working dir
         run: |
           cp _extlibs_dl/extlibs-*.zip .
           rm -rf _extlibs_dl
           ls -lh extlibs-*.zip
 
-      - name: Commit & push
+      - name: Upload to GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add extlibs-*.zip
-          if git diff --cached --quiet; then
-            echo "No changes to commit."
-          else
-            git commit -m "ci: rebuild extlibs bundles"
-            git push
-          fi
+          # Create or update release with tag "version15"
+          gh release create version15 extlibs-*.zip \
+            --target main \
+            --title "Extlibs bundles" \
+            --notes "Prebuilt Python dependency bundles for farm_tools" \
+            --clobber 2>/dev/null || \
+          gh release upload version15 extlibs-*.zip --clobber

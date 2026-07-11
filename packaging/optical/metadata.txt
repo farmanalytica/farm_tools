@@ -1,0 +1,55 @@
+[general]
+name=RAVI
+qgisMinimumVersion=3.28
+qgisMaximumVersion=4.99
+description=Per-date Sentinel-2 vegetation-index time series (NDVI, EVI, NDRE…) with cloud masking, plus multispectral imagery download / Séries temporais de índices de vegetação Sentinel-2 (NDVI, EVI, NDRE…) por data com mascaramento de nuvens e download de imagens
+version=9.2
+author=FARM Analytica
+email=contato@farmanalytica.com.br
+
+about=RAVI (Remote Analysis of Vegetation Indices) brings Sentinel-2 vegetation-index analysis into QGIS via Google Earth Engine. Build per-date time series of NDVI, EVI, NDRE and more with automatic cloud masking, choose the spatial reducer (mean/median), and download multispectral imagery clipped to your area of interest. Requires a Google Earth Engine account (sign-in and a project ID are set up inside the plugin). / O RAVI (Análise Remota de Índices de Vegetação) traz a análise de índices de vegetação Sentinel-2 para o QGIS via Google Earth Engine. Gere séries temporais por data de NDVI, EVI, NDRE e mais com mascaramento automático de nuvens, escolha o redutor espacial (média/mediana) e baixe imagens multiespectrais recortadas para sua área de interesse. Requer uma conta do Google Earth Engine (login e ID de projeto são configurados dentro do plugin).
+
+tracker=https://github.com/farmanalytica/farm_tools/issues
+repository=https://github.com/farmanalytica/farm_tools
+# End of mandatory metadata
+
+# Recommended items:
+
+hasProcessingProvider=no
+changelog=
+    9.0 - RAVI plot date-range filtering: two-handle slider below the plot lets
+          you narrow the cached time series by date span. Dragging updates the
+          label live and re-renders the plot after settling (200 ms debounce).
+          The date selection ANDs with existing filters (thresholds, manual
+          per-date selection) and automatically constrains composite generation,
+          batch download, CSV export, and single-image dropdown. RangeSlider
+          widget gains optional label_fn for custom value→text mapping (e.g.
+          day offsets to ISO dates), adaptive label width, and set_span()
+          reconfig without signal emission. Numeric year-range path (MapBiomas
+          transition, SYSI filters) untouched. AOI-area label on Inputs tab
+          shows hectares below the layer picker. Management Zones module:
+          integrated fork of Precision Zones for defining and analyzing
+          management boundaries within fields, with zoning workflows, per-zone
+          statistics, and export to QGIS for further analysis. Zone outputs
+          save to the global download folder from the Welcome page (per-module
+          folder picker removed). Data tab UX: the input-raster list stays in
+          sync with the project (add/remove/rename), rasters are picked with
+          checkboxes, and resolution defaults to 10 m. Generate zones can
+          optionally apply the mode (majority) filter to the output in one
+          step, and generated/filtered zone rasters load with a single-band
+          pseudocolor renderer and a selectable color ramp. Resampling and the
+          elbow + silhouette analysis run in background workers: the dialog
+          stays responsive, buttons show live progress, and a second click
+          cancels the run. Silhouette scores are subsampled on large grids for
+          much faster cluster evaluation.
+    8.0 - now built from the unified FARM tools codebase. Ships defaulting to this module; the other FARM tools modules are discoverable from the welcome page's "More tools" section and as separate plugins.
+
+# Tags are comma separated with spaces allowed
+tags=remote sensing, sentinel-2, google earth engine, vegetation index, ndvi, evi, ndre, time series, agriculture, precision agriculture
+
+homepage=https://farmtools.org
+category=Plugins
+icon=icon.png
+experimental=False
+deprecated=False
+server=False

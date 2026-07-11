@@ -6,7 +6,7 @@ export default [
     title: 'Getting Started',
     summary: 'Install the plugin, set up Google Earth Engine, and authenticate.',
     sections: [
-      { p: 'FARM tools is a QGIS plugin powered by Google Earth Engine (GEE). Before using any module you need QGIS 3.28 or newer, a free GEE account, and a Google Cloud project with the Earth Engine API enabled.' },
+      { p: 'FARM tools is a QGIS plugin; most of its modules are powered by Google Earth Engine (GEE). Every module needs QGIS 3.28 or newer. The GEE-powered modules also need a GEE account and a Google Cloud project with the Earth Engine API enabled. ClimaPlots and Field Guide run without any GEE account.' },
       { h2: 'Installation' },
       { steps: [
         'Open QGIS and go to Plugins → Manage and Install Plugins.',
@@ -16,7 +16,7 @@ export default [
       { note: 'Dependencies are installed into the plugin\'s own extlibs folder and never shadow the packages shipped with QGIS (numpy, pandas, etc.). A QGIS/Python upgrade re-provisions them automatically.' },
       { h2: 'Google Earth Engine setup' },
       { steps: [
-        'Create a free GEE account at earthengine.google.com/signup.',
+        'Create a GEE account at earthengine.google.com/signup.',
         'Create a Google Cloud project at console.cloud.google.com and link it to your GEE account.',
         'In the Cloud Console, search for "Earth Engine API" and enable it.',
         'Open the Earth Engine Code Editor (code.earthengine.google.com) to find your project ID.',
@@ -36,12 +36,13 @@ export default [
   {
     slug: 'optical',
     icon: '🌿',
-    title: 'Optical (Sentinel-2)',
+    title: 'RAVI (Sentinel-2)',
     summary: 'Vegetation index time series, cloud filtering, composites, and multispectral download.',
     sections: [
-      { p: 'The Optical module works with the harmonized Sentinel-2 surface-reflectance archive (COPERNICUS/S2_SR_HARMONIZED): 10 m resolution, ~5-day revisit, 12 usable spectral bands plus the SCL quality band. It is the workhorse for crop and vegetation monitoring. All processing runs server-side on Google Earth Engine, so no archive download is needed.' },
+      { p: 'The RAVI module works with the harmonized Sentinel-2 surface-reflectance archive (COPERNICUS/S2_SR_HARMONIZED): 10 m resolution, ~5-day revisit, 12 usable spectral bands plus the SCL quality band. It is the workhorse for crop and vegetation monitoring. All processing runs server-side on Google Earth Engine, so no archive download is needed.' },
+      { p: 'RAVI (Remote Analysis of Vegetation Indices) began as the undergraduate thesis of Caio Arantes, supervised by Prof. Dr. Lucas dos Rios Amaral, and is now an open-source project maintained with the support of FARM Analytica, co-founded by Caio.' },
       { h2: 'Vegetation index time series' },
-      { p: 'Build a time series of a chosen spectral index over your AOI for any date range. Because an AOI near a tile edge can return more than one image per date, the module keeps exactly one scene per date (scored by AOI footprint coverage, with tile cloudiness as tie-breaker), then averages the index over the AOI at 10 m for each kept date.' },
+      { p: 'Build a time series of a chosen spectral index over your AOI for any date range. Because an AOI near a tile edge can return more than one image per date, the module keeps exactly one scene per date (scored by AOI footprint coverage, with tile cloudiness as tie-breaker), then reduces the index over the AOI at 10 m for each kept date. Choose the spatial reducer on Inputs — mean (default) or median (more robust to residual outliers).' },
       { p: 'Nineteen indices are built in, grouped by what they measure:' },
       { list: [
         'Greenness / vigour — NDVI, GNDVI, EVI, EVI2, SAVI, MSAVI, ARVI, VARI, TVI, SFDVI.',
@@ -69,21 +70,30 @@ export default [
   {
     slug: 'landsat',
     icon: '🛰️',
-    title: 'Landsat',
-    summary: 'Decades-long time series and imagery for historical monitoring.',
+    title: 'Multi-Satellite',
+    summary: 'Multi-mission imagery and index time series — Landsat 7/8/9, Sentinel-2, HLS, MODIS.',
     sections: [
-      { p: 'The Landsat module reaches back to 1999 — Landsat 7, 8, and 9 (USGS Collection 2, Tier 1) — making it the right choice for historical land-use analysis, long-term crop performance, and change detection beyond the Sentinel era (2015+). Landsat 5 is deliberately excluded because its TM sensor carries no panchromatic band, so the 15 m pan-sharpened product cannot be built from it.' },
+      { p: 'The Multi-Satellite module (formerly Landsat) merges several optical missions into one workflow for imagery and vegetation-index time series. A satellite registry dispatches each request per sensor, so the same indices, RGB modes, cloud masking and coverage filter apply across every source you select.' },
+      { h2: 'Available sources' },
+      { p: 'Tick the sensors you want on the Inputs panel — your selection limits both date discovery and the time series, so fewer sources means fewer Earth Engine queries:' },
+      { list: [
+        'Landsat 8 / 9 / 7 (USGS Collection 2, Tier 1) — 30 m optical + 15 m panchromatic, back to 1999. The only sources with a pan band, so the 15 m super-resolution product is built from these.',
+        'Sentinel-2 — 10 m surface reflectance, native detail that already beats Landsat\'s pan-sharpened 15 m (no pan band, so no super-res).',
+        'HLS Sentinel-2 — 30 m, harmonised to the Landsat grid with an Fmask quality mask.',
+        'MODIS (8-day) — 250 m Terra+Aqua composites, off by default. Carries only red and NIR bands, so no RGB composite and only the red/NIR indices are offered; the index pickers filter accordingly.',
+      ] },
+      { p: 'Landsat 5 is deliberately excluded: its TM sensor has no panchromatic band, so the headline 15 m pan-sharpened product cannot be built from it.' },
       { h2: 'Look at TOA, measure on SR' },
-      { p: 'Two physically different products are used, each for the job it suits best. The sharp 15 m true-colour image is built from Top-of-Atmosphere (TOA) reflectance, where spatial detail matters more than absolute calibration; all quantitative indices and composites are computed on atmospherically-corrected Surface Reflectance (SR) at 30 m.' },
+      { p: 'For Landsat, two physically different products are used, each for the job it suits best. The sharp 15 m true-colour image is built from Top-of-Atmosphere (TOA) reflectance, where spatial detail matters more than absolute calibration; all quantitative indices and composites are computed on atmospherically-corrected Surface Reflectance (SR).' },
       { h2: '15 m pan-sharpened true colour' },
-      { p: 'HSV pan-sharpening doubles the apparent detail of the true-colour image: the 30 m RGB is converted to Hue–Saturation–Value, the 15 m panchromatic band replaces the brightness (value) channel, and the result is converted back to RGB — taking its colour from the 30 m bands and its detail from the 15 m pan band. Ideal for delineating field boundaries, tracks, and small features.' },
+      { p: 'For the pan-capable Landsat sensors, HSV pan-sharpening doubles the apparent detail of the true-colour image: the 30 m RGB is converted to Hue–Saturation–Value, the 15 m panchromatic band replaces the brightness (value) channel, and the result is converted back to RGB — taking its colour from the 30 m bands and its detail from the 15 m pan band. Ideal for delineating field boundaries, tracks, and small features. The super-resolution action is hidden for sources with no pan band (Sentinel-2, HLS, MODIS).' },
       { h2: 'Spectral indices & composites' },
-      { p: 'Fourteen Surface-Reflectance indices are offered (none require a red-edge band, which Landsat lacks): greenness — NDVI, GNDVI, EVI, EVI2; soil-adjusted — SAVI, OSAVI, MSAVI; atmosphere/chlorophyll — ARVI, CIgreen, CIred, MCARI; water and bare soil — NDWI (NIR–SWIR1), MNDWI, BSI. For qualitative interpretation, four band combinations are provided: real colour, colour-infrared (NIR·Red·Green), SWIR1·NIR·Red, and SWIR2·NIR·Green.' },
-      { h2: 'Long-term time series (SITS)' },
-      { p: 'A Satellite Image Time Series of the chosen index is built across the full archive, reduced over the AOI by the spatial median (default; mean available). Each mission is queried within its own lifespan and the Landsat 7/8/9 series are merged into one chronological record, colour-coded by mission, giving a continuous index history from 1999 to the present.' },
+      { p: 'Fourteen Surface-Reflectance indices are offered (none require a red-edge band, which Landsat lacks): greenness — NDVI, GNDVI, EVI, EVI2; soil-adjusted — SAVI, OSAVI, MSAVI; atmosphere/chlorophyll — ARVI, CIgreen, CIred, MCARI; water and bare soil — NDWI (NIR–SWIR1), MNDWI, BSI. MODIS, with only red and NIR, is restricted to the indices those two bands support. For qualitative interpretation, four band combinations are provided on the multi-band sensors: real colour, colour-infrared (NIR·Red·Green), SWIR1·NIR·Red, and SWIR2·NIR·Green.' },
+      { h2: 'Multi-mission time series (SITS)' },
+      { p: 'A Satellite Image Time Series of the chosen index is built across the selected sources, reduced over the AOI by the spatial median (default; mean available). Each mission is queried within its own lifespan, then the per-sensor series are merged into one chronological record, colour-coded by source — a continuous index history that can stretch from 1999 (Landsat 7) to the present. Export it as CSV, or open the interactive chart in your browser.' },
       { h2: 'Scene discovery & download' },
-      { p: 'Scenes are cloud-masked (QA_PIXEL bitmask everywhere, plus a Simple Cloud Score pass on TOA) and kept only if they pass a minimum-valid-coverage filter (default 80% of clear, in-AOI pixels) — so you are never shown a date that is mostly cloud or off-frame. Preview surviving dates on the canvas and download as GeoTIFF; powered by agrigee-lite, the module also supports batch download and super-resolution downloads.' },
-      { note: 'Landsat revisit (16 days per satellite, ~8 days for L8+L9 combined) and 30 m resolution make it coarser than Sentinel-2 — prefer the Optical module for current-season monitoring and Landsat for history. The Landsat 7 scan-line corrector failed in 2003, leaving striped gaps; prefer Landsat 8/9 for gapless post-2013 work.' },
+      { p: 'The date selector and download products live in one compact panel. Scenes are cloud-masked (QA_PIXEL bitmask plus a Simple Cloud Score pass on Landsat TOA; Cloud Score+ for Sentinel-2; Fmask for HLS) and kept only if they pass a minimum-valid-coverage filter (default 80% of clear, in-AOI pixels) — so you are never shown a date that is mostly cloud or off-frame. Results labels go dynamic per selected sensor (native resolution, super-res gated to pan-capable sensors, RGB gated to multi-band ones). Pick the index to write into the download, preview surviving dates on the canvas, and download as GeoTIFF; powered by agrigee-lite, the module also supports batch and super-resolution downloads.' },
+      { note: 'Landsat revisit (16 days per satellite, ~8 days for L8+L9 combined) and 30 m resolution make it coarser than Sentinel-2 — add Sentinel-2 for current-season detail and Landsat for history. The Landsat 7 scan-line corrector failed in 2003, leaving striped gaps; prefer Landsat 8/9 for gapless post-2013 work. MODIS at 250 m is for regional, not field-scale, work.' },
     ],
   },
   {
@@ -136,10 +146,10 @@ export default [
   {
     slug: 'sysi',
     icon: '🟤',
-    title: 'SYSI Bare Soil',
+    title: 'Bare Soil',
     summary: 'Synthetic bare-soil image composites for soil mapping.',
     sections: [
-      { p: 'SYSI (Synthetic Soil Image) builds a composite where every pixel shows the soil surface free of vegetation — even though no single date shows the whole area bare. Built from the harmonized Sentinel-2 surface-reflectance archive (2017 onward) at 10 m, it is a key input for digital soil mapping, soil-class delineation, and management zones. The bare-soil rule follows the GEOS3 method of Demattê et al. (2018).' },
+      { p: 'The Bare Soil module builds a Synthetic Soil Image (SYSI): a composite where every pixel shows the soil surface free of vegetation — even though no single date shows the whole area bare. Built from the harmonized Sentinel-2 surface-reflectance archive (2017 onward) at 10 m, it is a key input for digital soil mapping, soil-class delineation, and management zones. The bare-soil rule follows the GEOS3 method of Demattê et al. (2018).' },
       { h2: 'How it works' },
       { steps: [
         'You set the AOI, a date range, the calendar months to include, a maximum cloud cover, and the NDVI/NBR2 threshold ranges.',
@@ -149,7 +159,7 @@ export default [
         'The result is a 9-band, 10 m image (Blue, Green, Red, Red-edge 2, NIR, SWIR1, SWIR2, NDVI, NBR2), rendered in QGIS and exportable as GeoTIFF.',
       ] },
       { note: 'Restrict the months to the local fallow/tillage season so soil is most likely exposed. Permissive NDVI/NBR2 ranges admit sparse vegetation or residue; strict ranges discard valid soil and shrink coverage.' },
-      { h2: 'What you can do with a SYSI' },
+      { h2: 'What you can do with a bare-soil image' },
       { list: [
         'Delineate soil classes and transitions visually — color differences track texture and organic matter.',
         'Support sampling design: place soil samples where the composite shows distinct zones.',
@@ -185,7 +195,7 @@ export default [
       { list: [
         'Explain anomalies in NDVI series — drops after frost, plateaus during drought.',
         'Assess recent climatic change at a farm, trial site, or watershed.',
-        'Document weather context in field reports; in the Optical module the rainfall series can be overlaid on the vegetation chart.',
+        'Document weather context in field reports; in the RAVI module the rainfall series can be overlaid on the vegetation chart.',
       ] },
       { note: 'Values are gridded, not station data — sharp topographic/coastal microclimates are smoothed out. POWER and ERA5 differ in method, resolution, and start year, so the same point can yield somewhat different values or trends; comparing them via point B is informative. Trend results depend on the chosen window — prefer the longest defensible period.' },
     ],
@@ -247,10 +257,10 @@ export default [
     title: 'MapBiomas',
     summary: 'Brazilian land-use/land-cover by year and configurable transition analysis.',
     sections: [
-      { p: 'MapBiomas brings the MapBiomas Brasil Collection 9 annual land-use / land-cover archive into QGIS. Browse any year inside the module, download a year to QGIS as a styled classification raster, or analyze how the land changed over time. Coverage is Brazil-only and runs through Google Earth Engine.' },
+      { p: 'MapBiomas brings the MapBiomas Brasil Collection 10 annual land-use / land-cover archive into QGIS: 40 maps, one per year from 1985 to 2024, at 30 m. Browse any year inside the module, download a year to QGIS as a styled classification raster, or analyze how the land changed over time. Coverage is Brazil-only and runs through Google Earth Engine.' },
       { h2: 'Coverage' },
       { list: [
-        'Browse every year (1985–2023) in-module with a year slider, beside the official 63-class legend.',
+        'Browse every year from 1985 to 2024 in-module with a year slider, beside the official Collection 10 legend (Collection 10 adds class 75, photovoltaic plants).',
         'Download any single year to QGIS as a single-band classification raster styled with the official MapBiomas palette — real class IDs, so pixels stay queryable and analyzable.',
       ] },
       { h2: 'Transition analysis' },
@@ -260,7 +270,7 @@ export default [
         'Custom: pick any combination of source and target classes.',
         'A year-range slider filters the chart live and limits the exported transition layer, which loads into QGIS classed by transition year.',
       ] },
-      { note: 'MapBiomas Collection 9 covers Brazil only — areas outside Brazil return empty results. Requires Google Earth Engine authentication, like the other GEE modules.' },
+      { note: 'MapBiomas Collection 10 covers Brazil only — areas outside Brazil return empty results. Requires Google Earth Engine authentication, like the other GEE modules.' },
     ],
   },
   {
@@ -273,11 +283,11 @@ export default [
       { table: {
         headers: ['Module', 'Outputs'],
         rows: [
-          ['Optical', 'Index time series (chart + CSV), GeoTIFF imagery and composites, multispectral batch download'],
+          ['RAVI', 'Index time series (chart + CSV), GeoTIFF imagery and composites, multispectral batch download'],
           ['Landsat', 'Time series, GeoTIFF scenes, batch and super-resolution downloads'],
           ['SAR', 'Backscatter series and plots, styled raster layers, GeoTIFF download'],
           ['DEM', 'Clipped GeoTIFF elevation, hillshade/terrain rendering'],
-          ['SYSI', 'Synthetic bare-soil composite as a rendered layer / GeoTIFF'],
+          ['Bare Soil', 'Synthetic bare-soil composite as a rendered layer / GeoTIFF'],
           ['ClimaPlots', 'Climate series charts and data'],
           ['Field Guide', 'CSV, GPX, temporary QGIS layer, PDF report, Google Maps routes'],
           ['MapBiomas', 'Classification GeoTIFF per year and transition GeoTIFF (classed by transition year), styled paletted layers'],

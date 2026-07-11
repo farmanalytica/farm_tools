@@ -109,10 +109,10 @@ def _build_intro_tab(_dialog, parent):
         line.setStyleSheet("color:#e6f2fa;")
         return line
 
-    lay.addWidget(_h1(_tr("🌱 SYSI Module - Synthetic Soil Image")))
+    lay.addWidget(_h1(_tr("🌱 Bare Soil Module")))
     lay.addSpacing(2)
     lay.addWidget(_para(_tr(
-        "The SYSI module builds a <b>Synthetic Soil Image</b>: a bare-soil "
+        "The Bare Soil module builds a <b>Synthetic Soil Image</b>: a bare-soil "
         "reflectance composite derived from a multi-temporal Sentinel-2 "
         "collection. It runs the <b>GEOS3</b> (Geospatial Soil Sensing System) "
         "algorithm of Demattê et al. (2018) on Google Earth Engine, keeping "
@@ -131,7 +131,7 @@ def _build_intro_tab(_dialog, parent):
     for i, text in enumerate([
         _tr("<b>Inputs:</b> Select the area (AOI), date range and bare-soil parameters"),
         _tr("<b>Generate:</b> Run the composite to build the synthetic soil image"),
-        _tr("<b>Load:</b> The SYSI raster is loaded into QGIS automatically"),
+        _tr("<b>Load:</b> The bare-soil raster is loaded into QGIS automatically"),
     ], 1):
         wf_lay.addWidget(_para(f"{i}. {text}"))
     lay.addWidget(wf_frame)
@@ -617,7 +617,7 @@ def setup_sysi_page(dialog, page):
     btn_intro_next.setStyleSheet(STYLE_BTN_PRIMARY)
     nav_lay.addWidget(btn_intro_next)
 
-    btn_generate = QPushButton(_tr("Generate SYSI"))
+    btn_generate = QPushButton(_tr("Generate Bare Soil Image"))
     btn_generate.setMinimumWidth(120)
     btn_generate.setFixedHeight(30)
     btn_generate.setStyleSheet(STYLE_BTN_PRIMARY)

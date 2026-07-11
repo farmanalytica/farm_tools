@@ -69,9 +69,12 @@ def setup_auth_page(dialog, page):
     right_lay.setContentsMargins(0, 0, 0, 0)
     right_lay.setSpacing(12)
 
+    right_lay.addStretch(1)
+
     auth_heading = QLabel(_tr("GEE Authentication"))
+    auth_heading.setAlignment(Qt.AlignmentFlag.AlignHCenter)
     auth_heading.setStyleSheet(
-        "color: #1a1a1a; font-size: 16px; font-weight: bold;"
+        "color: #1b6b39; font-size: 20px; font-weight: bold; letter-spacing: 0.5px;"
     )
     right_lay.addWidget(auth_heading)
 
@@ -83,7 +86,7 @@ def setup_auth_page(dialog, page):
     card.setStyleSheet("""
         QFrame {
             background-color: #ffffff;
-            border: 2px solid #1b6b39;
+            border: 1px solid #e5e5e5;
             border-radius: 12px;
         }
         QLabel { background: transparent; border: none; }

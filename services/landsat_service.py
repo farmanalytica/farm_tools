@@ -25,7 +25,9 @@ from __future__ import annotations
 
 import os
 import tempfile
+from dataclasses import dataclass, field
 from datetime import datetime, timedelta
+from typing import Callable, Optional
 
 import requests
 
@@ -35,11 +37,12 @@ except ImportError:
     gdal = None
 
 
-# Missions exposed by the page. Landsat 5 is excluded: it carries no
-# panchromatic band, so pan-sharpening (the page's headline feature) is
-# impossible. Imported lazily inside helpers because ``agrigee_lite`` only lands
-# on sys.path after extlibs provisioning.
-MISSIONS = ["Landsat 8", "Landsat 9", "Landsat 7"]
+# Satellite sources are declared in the ``SATELLITES`` registry (defined after
+# ``_mission_class`` below, once the build helpers it references exist).
+# ``MISSIONS`` — the ordered display-name list the page iterates — is derived
+# from it. All agrigee_lite classes are imported lazily inside the build
+# closures because the library only lands on sys.path after extlibs
+# provisioning.
 
 # Vegetation indices computable from the six Landsat SR bands
 # (blue, green, red, nir, swir1, swir2). Display name -> agrigee_lite key.
@@ -85,6 +88,145 @@ def _mission_class(mission: str):
     }[mission]
 
 
+# -- per-sensor build closures ---------------------------------------------
+# Each returns a configured (but not yet min-valid-tuned) agrigee_lite sat.
+# Constructors differ per sensor, so the differences are absorbed here rather
+# than leaking into the service methods: Landsat takes ``tier`` +
+# ``use_cloud_mask`` (+ optional pan-sharpening), Sentinel-2 a Cloud Score Plus
+# threshold, HLS a Fmask quality flag. ``tier`` is accepted by every closure for
+# a uniform call site even where the sensor ignores it.
+def _landsat_builders(mission: str):
+    """Return ``(build_sr, build_superres)`` closures for a Landsat mission."""
+
+    def build_sr(indices, use_cloud_mask, tier):
+        return _mission_class(mission)(
+            indices=indices, use_sr=True, tier=tier,
+            use_cloud_mask=use_cloud_mask, border_pixels_to_erode=0,
+        )
+
+    def build_superres(use_cloud_mask, tier):
+        # TOA + pan band are mandatory for pan-sharpening or agrigee_lite raises.
+        return _mission_class(mission)(
+            bands={"blue", "green", "red", "pan"}, use_sr=False,
+            use_pan_sharpening=True, tier=tier,
+            use_cloud_mask=use_cloud_mask, border_pixels_to_erode=0,
+        )
+
+    return build_sr, build_superres
+
+
+def _s2_build_sr(indices, use_cloud_mask, tier):
+    """Sentinel-2 SR (10 m, BOA from 2019). No ``tier``; clouds are handled by
+    Cloud Score Plus, so unchecking the mask relaxes its threshold to 0 (keep
+    every pixel) rather than toggling a QA bitmask."""
+    from agrigee_lite.sat.sentinel2 import Sentinel2
+
+    return Sentinel2(
+        indices=indices, use_sr=True,
+        cloud_probability_threshold=0.7 if use_cloud_mask else 0.0,
+        border_pixels_to_erode=0,
+    )
+
+
+def _hls_s2_build_sr(indices, use_cloud_mask, tier):
+    """HLS Sentinel-2 (30 m, harmonised to Landsat). Fmask quality mask in place
+    of the QA bitmask; no ``tier``."""
+    from agrigee_lite.sat.hls import HLSSentinel2
+
+    return HLSSentinel2(
+        indices=indices, use_quality_mask=use_cloud_mask,
+        border_pixels_to_erode=0,
+    )
+
+
+def _modis_build_sr(indices, use_cloud_mask, tier):
+    """MODIS Terra+Aqua 8-day composites (250 m). Carries only red+nir bands, so
+    no RGB composite and only the red/nir vegetation indices (see
+    ``_MODIS_INDEX_KEYS``). No ``tier``."""
+    from agrigee_lite.sat.modis import Modis8Days
+
+    return Modis8Days(
+        indices=indices, use_cloud_mask=use_cloud_mask,
+        border_pixels_to_erode=0,
+    )
+
+
+# Indices computable from MODIS's two bands (red, nir) only — agrigee_lite's
+# ``availableIndices`` would reject the rest (they need green/blue/swir). Subset
+# of LANDSAT_INDEX_KEYS so the keys stay in sync.
+_MODIS_INDEX_KEYS = {
+    name: LANDSAT_INDEX_KEYS[name]
+    for name in ("NDVI", "EVI2", "SAVI", "OSAVI", "MSAVI", "CIred")
+}
+
+
+@dataclass(frozen=True)
+class SatSpec:
+    """Declarative capabilities of one satellite source on the page.
+
+    ``build_sr`` builds the surface-reflectance sat used for indices, the
+    multispectral RGB composite and date discovery. ``build_superres`` builds
+    the pan-sharpened TOA sat for the 15 m super-res product; ``None`` means the
+    sensor has no panchromatic band and the super-res action is unavailable for
+    it. ``index_keys`` is the subset of vegetation indices the sensor's bands can
+    compute (display name -> agrigee_lite key); ``color`` is the time-series
+    trace colour.
+    """
+
+    label: str
+    build_sr: Callable                              # (indices, use_cloud_mask, tier) -> sat
+    pixel_size: int
+    build_superres: Optional[Callable] = None       # (use_cloud_mask, tier) -> sat | None
+    multispectral: bool = True
+    index_keys: dict = field(default_factory=lambda: dict(LANDSAT_INDEX_KEYS))
+    color: str = "#1b6b39"
+    default_on: bool = True                          # checkbox state on first show
+
+    @property
+    def has_superres(self) -> bool:
+        return self.build_superres is not None
+
+
+def _landsat_spec(label: str, color: str) -> SatSpec:
+    build_sr, build_superres = _landsat_builders(label)
+    return SatSpec(
+        label=label, build_sr=build_sr, build_superres=build_superres,
+        pixel_size=30, color=color,
+    )
+
+
+# Registry of selectable sources, in display order. Landsat 5 stays out (no pan
+# band → no super-res, the historical headline feature). Sentinel-2 and HLS add
+# genuine multi-satellite coverage; both are optical and share the friendly band
+# vocabulary, so the RGB modes and indices port unchanged. Neither carries a
+# panchromatic band, so ``build_superres`` is None (S-2's native 10 m already
+# beats Landsat's pan-sharpened 15 m).
+SATELLITES = {
+    spec.label: spec
+    for spec in (
+        _landsat_spec("Landsat 8", "#1b6b39"),
+        _landsat_spec("Landsat 9", "#2a5d84"),
+        _landsat_spec("Landsat 7", "#d98f00"),
+        SatSpec("Sentinel-2", _s2_build_sr, pixel_size=10, color="#7b3fa0"),
+        SatSpec("HLS Sentinel-2", _hls_s2_build_sr, pixel_size=30, color="#0a7e8c"),
+        # MODIS: 250 m, red+nir only — no RGB composite, reduced index set, and
+        # off by default (coarse; opt-in to keep the default run light).
+        SatSpec(
+            "MODIS (8-day)", _modis_build_sr, pixel_size=250, color="#c2410c",
+            multispectral=False, index_keys=_MODIS_INDEX_KEYS, default_on=False,
+        ),
+    )
+}
+
+# Ordered display-name list the page iterates (date discovery, time-series
+# merge, batch). Derived from the registry so a new source appears everywhere by
+# adding one ``SATELLITES`` entry.
+MISSIONS = list(SATELLITES)
+
+# Per-mission trace colours, surfaced for the controller's chart renderer.
+MISSION_COLORS = {label: spec.color for label, spec in SATELLITES.items()}
+
+
 class LandsatService:
     """Earth-Engine logic for the Landsat super-resolution page."""
 
@@ -114,16 +256,18 @@ class LandsatService:
         mission: str, use_cloud_mask: bool, tier: int,
         min_valid_pct: float = 0, aoi_area_m2: float = None,
     ):
-        """TOA + pan-sharpening satellite (effective 15 m). ``use_sr`` must be
-        False and ``pan`` must be selected or agrigee_lite raises ValueError."""
-        sat = _mission_class(mission)(
-            bands={"blue", "green", "red", "pan"},
-            use_sr=False,
-            use_pan_sharpening=True,
-            tier=tier,
-            use_cloud_mask=use_cloud_mask,
-            border_pixels_to_erode=0,
-        )
+        """TOA + pan-sharpening satellite (effective 15 m) for ``mission``.
+
+        Raises ValueError for sensors without a panchromatic band (Sentinel-2,
+        HLS, …) — the page must gate the super-res action on
+        ``SATELLITES[mission].has_superres``.
+        """
+        spec = SATELLITES[mission]
+        if not spec.has_superres:
+            raise ValueError(
+                f"{mission} has no panchromatic band; super-resolution is unavailable."
+            )
+        sat = spec.build_superres(use_cloud_mask, tier)
         return LandsatService._apply_min_valid(sat, aoi_area_m2, min_valid_pct)
 
     @staticmethod
@@ -131,14 +275,10 @@ class LandsatService:
         mission: str, use_cloud_mask: bool, tier: int, indices=None,
         min_valid_pct: float = 0, aoi_area_m2: float = None,
     ):
-        """Surface-reflectance satellite (30 m), optionally with one index."""
-        sat = _mission_class(mission)(
-            indices=indices,
-            use_sr=True,
-            tier=tier,
-            use_cloud_mask=use_cloud_mask,
-            border_pixels_to_erode=0,
-        )
+        """Surface-reflectance satellite for ``mission`` (native resolution),
+        optionally with indices. Dispatches to the registry build closure, which
+        absorbs the per-sensor constructor differences."""
+        sat = SATELLITES[mission].build_sr(indices, use_cloud_mask, tier)
         return LandsatService._apply_min_valid(sat, aoi_area_m2, min_valid_pct)
 
     # -- helpers -----------------------------------------------------------
@@ -191,9 +331,11 @@ class LandsatService:
         tier: int = 1,
         min_valid_pct: float = 0,
         aoi_area_m2: float = None,
+        missions: list = None,
     ) -> list:
-        """Available acquisition dates over the AOI/date-range across all
-        missions (Landsat 7/8/9), as ``(date, mission)`` tuples sorted by date.
+        """Available acquisition dates over the AOI/date-range across the
+        selected missions (default: every registered satellite), as
+        ``(date, mission)`` tuples sorted by date.
 
         ``ZZ_USER_TIME_DUMMY`` is the per-image date string agrigee_lite tags
         during its valid-pixel filtering step. Missions whose temporal range
@@ -204,7 +346,7 @@ class LandsatService:
         """
         feature = LandsatService._feature(aoi, date_start, date_end)
         out = []
-        for mission in MISSIONS:
+        for mission in (missions or MISSIONS):
             sat = LandsatService._build_sr_sat(
                 mission, use_cloud_mask, tier,
                 min_valid_pct=min_valid_pct, aoi_area_m2=aoi_area_m2,
@@ -280,16 +422,17 @@ class LandsatService:
         reducer: str = "median",
         min_valid_pct: float = 0,
         aoi_area_m2: float = None,
+        missions: list = None,
     ):
-        """Combined index time series across all missions (L7/8/9) as a single
-        DataFrame with columns ``dates``, ``AOI_average`` and ``mission``,
-        sorted by date. Shaped for the plotly renderer reused from the optical
-        page (``view/sar_plot.render_chart_html``)."""
+        """Combined index time series across the selected missions (default: all
+        registered satellites) as a single DataFrame with columns ``dates``,
+        ``AOI_average`` and ``mission``, sorted by date. Shaped for the plotly
+        renderer reused from the optical page (``view/sar_plot.render_chart_html``)."""
         import pandas as pd
 
         index_key = LANDSAT_INDEX_KEYS.get(index_name, "ndvi")
         frames = []
-        for mission in MISSIONS:
+        for mission in (missions or MISSIONS):
             try:
                 df = LandsatService.get_index_timeseries(
                     shapely_geom,

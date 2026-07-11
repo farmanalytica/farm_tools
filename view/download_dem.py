@@ -26,7 +26,12 @@ from qgis.PyQt.QtWidgets import (
 from qgis.core import QgsMapLayerProxyModel
 from qgis.gui import QgsMapLayerComboBox
 
-from .styles import STYLE_AOI_PAGE, STYLE_BTN_PRIMARY, STYLE_BTN_SECONDARY
+from .styles import (
+    STYLE_AOI_PAGE,
+    STYLE_BTN_PRIMARY,
+    STYLE_BTN_SECONDARY,
+    make_logo_label,
+)
 
 
 def _tr(text):
@@ -128,6 +133,9 @@ def setup_download_dem_page(dialog, page):
     scroll_lay = QVBoxLayout(scroll_content)
     scroll_lay.setContentsMargins(0, 0, 6, 0)
     scroll_lay.setSpacing(6)
+
+    scroll_lay.addWidget(make_logo_label("easydem.svg", height=48))
+    scroll_lay.addSpacing(4)
 
     intro = QLabel(
         _tr(

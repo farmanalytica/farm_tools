@@ -252,7 +252,7 @@ class SYSIService:
         response = requests.get(download_url, timeout=300)
         if not response.ok:
             raise RuntimeError(
-                "SYSI download failed (HTTP {}): {}".format(
+                "Bare Soil download failed (HTTP {}): {}".format(
                     response.status_code, response.reason
                 )
             )
@@ -262,7 +262,7 @@ class SYSIService:
             if (output_folder and os.path.isdir(output_folder))
             else tempfile.gettempdir()
         )
-        output_path = SYSIService._get_unique_path(target_dir, "SYSI_composite.tiff")
+        output_path = SYSIService._get_unique_path(target_dir, "BareSoil_composite.tiff")
 
         with open(output_path, "wb") as fh:
             fh.write(response.content)

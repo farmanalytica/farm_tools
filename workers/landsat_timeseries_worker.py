@@ -29,6 +29,7 @@ class LandsatTimeseriesWorker(QThread):
         reducer,
         min_valid_pct=0,
         aoi_area_m2=None,
+        missions=None,
     ):
         super().__init__()
         self._geom = shapely_geom
@@ -40,6 +41,7 @@ class LandsatTimeseriesWorker(QThread):
         self._reducer = reducer
         self._min_valid_pct = min_valid_pct
         self._aoi_area_m2 = aoi_area_m2
+        self._missions = missions
 
     def run(self):
         try:
@@ -53,6 +55,7 @@ class LandsatTimeseriesWorker(QThread):
                 reducer=self._reducer,
                 min_valid_pct=self._min_valid_pct,
                 aoi_area_m2=self._aoi_area_m2,
+                missions=self._missions,
             )
             self.finished.emit(df, self._index_name)
         except Exception as e:

@@ -50,6 +50,7 @@ from .view.download_dem import setup_download_dem_page
 from .view.fieldguide import setup_fieldguide_page
 from .view.landsat import setup_landsat_page
 from .view.mapbiomas import setup_mapbiomas_page
+from .view.mzones import setup_mzones_page
 from .view.optical import setup_optical_page
 from .view.radar import setup_radar_page
 from .view.sysi import setup_sysi_page
@@ -63,7 +64,7 @@ def _tr(text):
 
 
 # Per-module help: the "?" button opens the matching wiki section on the site.
-WIKI_BASE = "https://www.farmtools.com.br/wiki/"
+WIKI_BASE = "https://www.farmtools.org/wiki/"
 WIKI_DEFAULT = WIKI_BASE + "getting-started"
 
 
@@ -193,6 +194,7 @@ class FarmToolsDialog(QDialog):
         self.sidebar.fieldguide_requested.connect(self._nav_to_fieldguide)
         self.sidebar.climaplots_requested.connect(self._nav_to_climaplots)
         self.sidebar.mapbiomas_requested.connect(self._nav_to_mapbiomas)
+        self.sidebar.mzones_requested.connect(self._nav_to_mzones)
         body_layout.addWidget(self.sidebar)
 
         content_container = QWidget()
@@ -224,6 +226,7 @@ class FarmToolsDialog(QDialog):
         self.fieldguide_page = QWidget()
         self.climaplots_page = QWidget()
         self.mapbiomas_page = QWidget()
+        self.mzones_page = QWidget()
 
         setup_welcome_page(self, self.welcome_page)
         setup_auth_page(self, self.auth_page)
@@ -236,6 +239,7 @@ class FarmToolsDialog(QDialog):
         setup_fieldguide_page(self, self.fieldguide_page)
         setup_climaplots_page(self, self.climaplots_page)
         setup_mapbiomas_page(self, self.mapbiomas_page)
+        setup_mzones_page(self, self.mzones_page)
 
         self.stack.addWidget(self.loading_page)
         self.stack.addWidget(self.welcome_page)
@@ -249,13 +253,13 @@ class FarmToolsDialog(QDialog):
         self.stack.addWidget(self.fieldguide_page)
         self.stack.addWidget(self.climaplots_page)
         self.stack.addWidget(self.mapbiomas_page)
+        self.stack.addWidget(self.mzones_page)
         self.stack.currentChanged.connect(self._sync_page_state)
 
         self.stack.setCurrentWidget(self.welcome_page)
         self._sync_page_state(self.stack.currentIndex())
 
         main_layout.addWidget(body_container, 1)
-
 
     def _build_loading_page(self):
         loading_page = QWidget()
@@ -290,7 +294,6 @@ class FarmToolsDialog(QDialog):
         loading_layout.addStretch()
         return loading_page
 
-
     def _build_header(self):
         """
         Build and return the dialog header widget.
@@ -309,9 +312,7 @@ class FarmToolsDialog(QDialog):
         header_layout.setSpacing(0)
 
         self._header_title = QLabel(_tr("GEE Configuration"))
-        self._header_title.setStyleSheet(
-            "color: #616161; font-size: 13px;"
-        )
+        self._header_title.setStyleSheet("color: #616161; font-size: 13px;")
         header_layout.addWidget(self._header_title)
 
         header_layout.addStretch()
@@ -371,7 +372,6 @@ class FarmToolsDialog(QDialog):
         buttons.accepted.connect(_accept)
         buttons.rejected.connect(dialog.reject)
         dialog.exec()
-
 
     def _build_footer(self):
         """
@@ -440,7 +440,6 @@ class FarmToolsDialog(QDialog):
 
         return footer
 
-
     def show_loading_page(self):
         """Switch the stacked widget to the loading/download page."""
         self.stack.setCurrentWidget(self.loading_page)
@@ -489,6 +488,10 @@ class FarmToolsDialog(QDialog):
         """Switch the stacked widget to the MapBiomas page."""
         self.stack.setCurrentWidget(self.mapbiomas_page)
 
+    def show_mzones_page(self):
+        """Switch the stacked widget to the Management Zones page."""
+        self.stack.setCurrentWidget(self.mzones_page)
+
     def _nav_to_welcome(self):
         """Sidebar brand click — returns to the Welcome page."""
         self.show_welcome_page()
@@ -536,13 +539,48 @@ class FarmToolsDialog(QDialog):
         """Sidebar MapBiomas button — always navigates to the MapBiomas page."""
         self.show_mapbiomas_page()
 
+    def _nav_to_mzones(self):
+        """Sidebar Management Zones button — always navigates to the Management Zones page."""
+        self.show_mzones_page()
+
+    def _active_module_key(self):
+        """Manageable module key for the page currently shown, or None.
+
+        Auth is excluded — it is pinned and can never be hidden, so it never
+        needs a fallback."""
+        mapping = {
+            self.optical_page: "optical",
+            self.sysi_page: "sysi",
+            self.radar_page: "radar",
+            self.dem_page: "download",
+            self.landsat_page: "landsat",
+            self.fieldguide_page: "fieldguide",
+            self.climaplots_page: "climaplots",
+            self.mapbiomas_page: "mapbiomas",
+            self.mzones_page: "mzones",
+        }
+        return mapping.get(self.stack.currentWidget())
+
+    def refresh_modules(self):
+        """Rebuild the sidebar rail and welcome grid from saved module prefs.
+
+        Called by the Customize-modules dialog after it applies changes. If the
+        page currently shown was just hidden, fall back to the welcome hub.
+        """
+        from .view.module_prefs import get_hidden
+        from .view.welcome import rebuild_module_grid
+
+        self.sidebar.refresh_modules()
+        rebuild_module_grid(self)
+        if self._active_module_key() in get_hidden():
+            self.show_welcome_page()
+
     def _sync_page_state(self, index):
         """Keep header and sidebar state aligned with the current stack page."""
         current = self.stack.widget(index)
 
-        # Proxy settings matter on the auth page (network setup) and on the
-        # ClimaPlots page (its data fetchers honor the same proxy).
-        self.proxy_btn.setVisible(current in (self.auth_page, self.climaplots_page))
+        # Proxy settings matter on the auth page (network setup)
+        self.proxy_btn.setVisible(current is self.auth_page)
 
         if current is self.loading_page:
             self._header_title.setText(_tr("Setting up…"))
@@ -573,14 +611,14 @@ class FarmToolsDialog(QDialog):
             return
 
         if current is self.optical_page:
-            self._header_title.setText(_tr("Optical Imagery (Sentinel-2)"))
+            self._header_title.setText(_tr("RAVI (Sentinel-2)"))
             self._help_url = WIKI_BASE + "optical"
             self.sidebar.set_active_page("optical")
             self.footer.setVisible(False)
             return
 
         if current is self.sysi_page:
-            self._header_title.setText(_tr("Synthetic Soil Image (SYSI)"))
+            self._header_title.setText(_tr("Bare Soil"))
             self._help_url = WIKI_BASE + "sysi"
             self.sidebar.set_active_page("sysi")
             self.footer.setVisible(False)
@@ -601,7 +639,7 @@ class FarmToolsDialog(QDialog):
             return
 
         if current is self.landsat_page:
-            self._header_title.setText(_tr("Landsat Super-Resolution"))
+            self._header_title.setText(_tr("Multi-Satellite"))
             self._help_url = WIKI_BASE + "landsat"
             self.sidebar.set_active_page("landsat")
             self.footer.setVisible(False)
@@ -626,7 +664,13 @@ class FarmToolsDialog(QDialog):
             self._help_url = WIKI_BASE + "mapbiomas"
             self.sidebar.set_active_page("mapbiomas")
             self.footer.setVisible(False)
+            return
 
+        if current is self.mzones_page:
+            self._header_title.setText(_tr("Management Zones"))
+            self._help_url = WIKI_BASE + "mzones"
+            self.sidebar.set_active_page("mzones")
+            self.footer.setVisible(False)
 
     def set_auth_busy(self, busy):
         """
@@ -705,8 +749,8 @@ class FarmToolsDialog(QDialog):
             elif state != "checking":
                 self.btn_authenticate.setText(_tr("🔑   Validate ID"))
 
-        self.auth_status_badge.setText(_tr(text).replace("&", "&&"))
-        self.auth_status_badge.setStyleSheet(
+        badge_text = _tr(text).replace("&", "&&")
+        badge_style = (
             """
             QPushButton {
                 background-color: transparent;
@@ -720,6 +764,14 @@ class FarmToolsDialog(QDialog):
             """
             % (fg,)
         )
+        self.auth_status_badge.setText(badge_text)
+        self.auth_status_badge.setStyleSheet(badge_style)
+
+        # Keep the welcome-page mirror badge in sync (if that page is built).
+        welcome_badge = getattr(self, "welcome_auth_badge", None)
+        if welcome_badge is not None:
+            welcome_badge.setText(badge_text)
+            welcome_badge.setStyleSheet(badge_style)
 
     def set_auth_status(self, text, url=""):
         """Show a non-blocking status line; if ``url`` is given, append a

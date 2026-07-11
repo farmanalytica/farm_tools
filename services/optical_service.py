@@ -47,6 +47,7 @@ class OpticalService:
         apply_scl: bool,
         invalid_scl_values: List[int],
         custom_expression: str = None,
+        reducer: str = "mean",
     ) -> List[Dict[str, Any]]:
 
         collection = OpticalService._build_base_collection(aoi, date_start, date_end)
@@ -62,7 +63,7 @@ class OpticalService:
                 )
 
             processed_image = OpticalService._calculate_image_metadata(
-                processed_image, image.select("SCL"), aoi, invalid_scl_values
+                processed_image, image.select("SCL"), aoi, invalid_scl_values, reducer
             )
             return processed_image
 
@@ -164,6 +165,7 @@ class OpticalService:
         scl_band: ee.Image,
         aoi: ee.FeatureCollection,
         invalid_scl_values: List[int],
+        reducer: str = "mean",
     ) -> ee.Image:
 
         geometry = aoi.geometry()
@@ -206,13 +208,14 @@ class OpticalService:
             0,
         )
 
-        mean_dict = image.select("index").reduceRegion(
-            reducer=ee.Reducer.mean(),
+        ee_reducer = ee.Reducer.median() if reducer == "median" else ee.Reducer.mean()
+        aoi_dict = image.select("index").reduceRegion(
+            reducer=ee_reducer,
             geometry=geometry,
             scale=10,
             maxPixels=1e9,
         )
-        aoi_average = mean_dict.get("index")
+        aoi_average = aoi_dict.get("index")
 
         return image.set(
             {

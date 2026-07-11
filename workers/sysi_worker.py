@@ -65,6 +65,6 @@ class SYSIWorker(QThread):
                 self._aoi,
                 output_folder=p.get("output_folder"),
             )
-            self.finished.emit(output_path, p.get("label", "SYSI"))
+            self.finished.emit(output_path, p.get("label", "Bare Soil"))
         except Exception as exc:
             self.failed.emit(str(exc))
