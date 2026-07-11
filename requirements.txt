@@ -18,3 +18,7 @@ pyhomogeneity>=1.1
 pyclimdex>=0.0.1
 xarray
 bottleneck
+
+# Management Zones page: PCA + KMeans clustering. numpy/scipy are QGIS-provided
+# (stripped from extlibs); scikit-learn is not shipped with QGIS.
+scikit-learn

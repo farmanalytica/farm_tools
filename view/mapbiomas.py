@@ -104,7 +104,7 @@ def _image_label(placeholder):
 
 
 def _legend_html():
-    """Static MapBiomas Collection 9 legend as rich-text swatch rows.
+    """Static MapBiomas Collection 10 legend as rich-text swatch rows.
 
     QLabel rich text ignores sized ``inline-block`` spans, so the color cue is a
     colored ■ glyph (which Qt rich text does honor) followed by the class label;
@@ -149,7 +149,7 @@ def _build_inputs_tab(dialog, parent):
     lay.setSpacing(12)
 
     intro = QLabel(_tr(
-        "Browse the <b>MapBiomas Brasil Collection 9</b> land-use / land-cover "
+        "Browse the <b>MapBiomas Brasil Collection 10</b> land-use / land-cover "
         "archive inside the module. Pick an AOI, then load the coverage years "
         "(browse them with the slider) or the Pasture→Crop transition. "
         "MapBiomas covers <b>Brazil only</b>."
@@ -210,7 +210,7 @@ def _build_inputs_tab(dialog, parent):
     cov_lay.addWidget(_field_label(_tr("COVERAGE")))
 
     cov_note = QLabel(_tr(
-        "Renders all years (1985–2023) so you can browse them with the slider — "
+        "Renders all years (1985–2024) so you can browse them with the slider — "
         "this takes a moment."
     ))
     cov_note.setWordWrap(True)
@@ -399,7 +399,7 @@ def _build_coverage_tab(dialog, parent):
     legend_inner_lay = QVBoxLayout(legend_inner)
     legend_inner_lay.setContentsMargins(10, 10, 10, 10)
     legend_inner_lay.setSpacing(0)
-    legend_title = QLabel(_tr("Legend — Collection 9"))
+    legend_title = QLabel(_tr("Legend — Collection 10"))
     legend_title.setStyleSheet(
         "color:#1b6b39; font-size:11px; font-weight:bold; background:transparent;"
     )

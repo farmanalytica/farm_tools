@@ -19,7 +19,7 @@ export default {
     previewSubtitle: 'Oito módulos, um plugin QGIS',
     previewLabel: 'Módulos',
     previewItems: [
-      'Imagens Óptico & Landsat',
+      'Imagens RAVI & multi-satélite',
       'Radar SAR & terreno DEM',
       'Solo exposto & dados climáticos',
       'Amostragem de campo & exportações',
@@ -37,12 +37,12 @@ export default {
     wikiLink: 'Ler na wiki',
     items: {
       optical: {
-        title: 'Óptico (Sentinel-2)',
+        title: 'RAVI (Sentinel-2)',
         desc: 'Séries temporais de índices de vegetação (NDVI, EVI, SAVI, GNDVI), imagens RGB e sintéticas e download multiespectral.',
       },
       landsat: {
-        title: 'Landsat',
-        desc: 'Séries temporais e imagens Landsat de décadas para monitoramento histórico de terras e culturas.',
+        title: 'Multi-Satélite',
+        desc: 'Imagens e séries de índice multimissão — Landsat 7/8/9, Sentinel-2, HLS e MODIS — com seleção por sensor.',
       },
       sar: {
         title: 'SAR (Sentinel-1)',
@@ -50,15 +50,15 @@ export default {
       },
       dem: {
         title: 'DEM & Terreno',
-        desc: 'Baixe dados de elevação e derive produtos de terreno para qualquer área de interesse.',
+        desc: 'Baixe elevação de ~30 DEMs públicos para qualquer área, recortada e estilizada em Magma, pronta para análise de terreno no QGIS.',
       },
       sysi: {
-        title: 'SYSI Solo Exposto',
+        title: 'Solo Exposto',
         desc: 'Composições sintéticas de solo exposto usando detecção multitemporal de solo exposto GEOS3.',
       },
       climaplots: {
         title: 'ClimaPlots',
-        desc: 'Séries climáticas NASA POWER e gráficos interativos para qualquer área de interesse.',
+        desc: 'Diagnóstico climático para qualquer ponto — tendências NASA POWER & ERA5, diagrama climático, extremos ETCCDI e seca SPI. Sem conta GEE.',
       },
       fieldguide: {
         title: 'Guia de Campo',
@@ -66,7 +66,7 @@ export default {
       },
       mapbiomas: {
         title: 'MapBiomas',
-        desc: 'Explore o uso e cobertura da terra da Coleção 9 do Brasil por ano e execute análises configuráveis de transição de uso (ex.: pastagem → lavoura, desmatamento).',
+        desc: 'Explore o uso e cobertura da terra da Coleção 10 do Brasil por ano (1985–2024) e execute análises configuráveis de transição de uso (ex.: pastagem → lavoura, desmatamento).',
       },
     },
   },
@@ -77,7 +77,7 @@ export default {
     steps: [
       {
         title: 'Criar conta Google Earth Engine',
-        desc: 'Cadastre-se gratuitamente em earthengine.google.com.',
+        desc: 'Cadastre-se em earthengine.google.com.',
         link: 'Ir para Earth Engine',
         href: 'https://earthengine.google.com/signup/',
       },
@@ -107,7 +107,7 @@ export default {
       },
       {
         title: 'Escolher módulo & configurar',
-        desc: 'Escolha um módulo — Óptico, Landsat, SAR, DEM, SYSI, ClimaPlots, Guia de Campo ou MapBiomas — defina sua área e parâmetros, e execute.',
+        desc: 'Escolha um módulo — RAVI, Multi-Satélite, SAR, DEM, Solo Exposto, ClimaPlots, Guia de Campo ou MapBiomas — defina sua área e parâmetros, e execute.',
         link: '',
         href: '',
       },
@@ -142,9 +142,7 @@ export default {
   about: {
     label: 'Projeto',
     title: 'Sobre o Projeto',
-    textPre: 'O FARM tools teve início como trabalho de conclusão de curso (TCC) de ',
-    textMid: ', desenvolvido sob orientação do ',
-    textPost: '. Atualmente é um projeto gratuito e de código aberto, mantido com o apoio da FARM Analytica, comprometido com a difusão tecnológica e o espírito do software livre.',
+    text: 'O FARM tools é um projeto gratuito e de código aberto, mantido com o apoio da FARM Analytica, comprometido com a difusão tecnológica e o espírito do software livre.',
     sponsorLabel: 'Apoiado por',
     sponsorDesc: 'Tecnologia e inteligência de campo trabalhando juntas para apoiar operações práticas.',
     whatsapp: 'Fale no WhatsApp',
@@ -161,12 +159,12 @@ export default {
     nowPlaying: 'Reproduzindo agora',
     modules: {
       'getting-started': 'Primeiros passos',
-      optical: 'Óptico (Sentinel-2)',
-      landsat: 'Landsat',
+      optical: 'RAVI (Sentinel-2)',
+      landsat: 'Multi-Satélite',
       sar: 'SAR (Sentinel-1)',
       mapbiomas: 'MapBiomas',
       dem: 'Elevação (DEM)',
-      sysi: 'Solo exposto (SYSI)',
+      sysi: 'Solo Exposto',
       climaplots: 'Clima (ClimaPlots)',
       fieldguide: 'Guia de Campo',
     },

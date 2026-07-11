@@ -21,12 +21,12 @@ FARM tools is a fork of the RAVI plugin with a distinct plugin identity (folder
 |---|---|
 | **Optical** (Sentinel-2) | Vegetation-index time series, per-point / per-feature analysis, cloud (SCL) filtering, image preview, composites, multispectral download |
 | **SAR** (Sentinel-1) | Backscatter retrieval, date filtering, plotting, styled rendering |
-| **Landsat** (Super-Res) | Pan-sharpened 15 m Landsat 7/8/9 imagery + multi-mission index series via `agrigee-lite` |
-| **EasyDEM** | Digital Elevation Model catalog browse + download + hillshade/terrain rendering |
-| **SYSI** | Synthetic Soil Image (bare-soil reflectance composite) generation |
+| **Multi-Satellite** | Multi-mission index time series and imagery — Landsat 7/8/9, Sentinel-2, HLS, MODIS — with 15 m HSV pan-sharpening on the pan-capable Landsat sensors, via `agrigee-lite` |
+| **EasyDEM** | Digital Elevation Model catalog browse + AOI-aware download + Magma elevation rendering |
+| **Bare Soil** | Synthetic Soil Image (bare-soil reflectance composite) generation |
 | **ClimaPlots** | Climate trends, indices and thermo diagrams from NASA POWER / Open-Meteo daily data |
 | **Field Guide** | Per-feature / per-point raster sampling with adjustable buffer + PDF report export |
-| **MapBiomas** | In-module MapBiomas Brasil Collection 9 land-use/land-cover viewer: annual coverage (1985–2023) browsed by a year slider, plus configurable source→target first-transition analysis (presets + custom classes) with a converted-area bar chart and map that filter live to a year-range slider. Export any coverage year, or the range-limited transition, to QGIS as a styled raster. See [docs/mapbiomas.md](docs/mapbiomas.md) |
+| **MapBiomas** | In-module MapBiomas Brasil Collection 10 land-use/land-cover viewer: annual coverage (1985–2024) browsed by a year slider, plus configurable source→target first-transition analysis (presets + custom classes) with a converted-area bar chart and map that filter live to a year-range slider. Export any coverage year, or the range-limited transition, to QGIS as a styled raster. See [docs/mapbiomas.md](docs/mapbiomas.md) |
 | **GEE Configuration** | GEE sign-in — personal OAuth **and** service-account key |
 
 ## Requirements
@@ -132,7 +132,7 @@ appears once per layer. To work on a feature, follow its name across the tree:
 | **SAR** (S1) | `view/radar.py` | `SARCtrl` | `SARService` | `SARWorker`, `SARPreviewWorker`, `SARCompositeWorker`, `SARBatchDownloadWorker` |
 | **Landsat** | `view/landsat.py` | `LandsatCtrl` | `LandsatService` | `LandsatWorker`, `LandsatPreviewWorker`, `LandsatTimeseriesWorker`, `LandsatBatchWorker` |
 | **DEM** (EasyDEM) | `view/download_dem.py` | `DEMCtrl` | `DEMService`, `DEMRegistry` | `DatasetAvailabilityWorker`, `DemDownloadWorker` |
-| **SYSI** | `view/sysi.py` | `SYSICtrl` | `SYSIService` | `SYSIWorker` |
+| **Bare Soil** (SYSI) | `view/sysi.py` | `SYSICtrl` | `SYSIService` | `SYSIWorker` |
 | **ClimaPlots** | `view/climaplots.py` | `ClimaPlotsCtrl` | `services/climaplots/` package | `ClimaPlotsAnalysisWorker` |
 | **Field Guide** | `view/fieldguide.py` | `FieldGuideCtrl` | `FieldGuideService`, `fieldguide_pdf/` | — (synchronous, local raster sampling) |
 | **MapBiomas** | `view/mapbiomas.py` | `MapBiomasCtrl` | `MapBiomasService` | `MapBiomasWorker` |

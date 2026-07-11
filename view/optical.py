@@ -43,6 +43,7 @@ from .radar import (
     _SLIDER_STYLE,
     _TAB_ACTIVE,
     _TAB_INACTIVE,
+    _add_ramp_items,
     _caption,
     _field_label,
     _flow,
@@ -51,8 +52,14 @@ from .radar import (
     _prepare_field,
     _section_panel,
 )
-from .styles import STYLE_BTN_PRIMARY, STYLE_BTN_SECONDARY, STYLE_CHECKBOX
+from .styles import (
+    STYLE_BTN_PRIMARY,
+    STYLE_BTN_SECONDARY,
+    STYLE_CHECKBOX,
+    make_logo_label,
+)
 from .optical_filter_dialog import OpticalFilterDialog
+from .range_slider import RangeSlider
 from .optical_index_info import (
     CUSTOM_BAND_REFERENCE,
     CUSTOM_INDEX_LABEL,
@@ -181,15 +188,29 @@ def _build_intro_tab(_dialog, parent):
         line.setStyleSheet("color:#e6f2fa;")
         return line
 
-    lay.addWidget(_h1(_tr("🛰️ Optical Imagery Module - Sentinel-2")))
+    lay.addWidget(make_logo_label("ravi.svg"))
+    lay.addSpacing(6)
+    lay.addWidget(_h1(_tr("🛰️ RAVI - Remote Analysis of Vegetation Index")))
     lay.addSpacing(2)
     lay.addWidget(
         _para(
             _tr(
-                "The Optical module analyses the <b>Sentinel-2 Harmonized Surface "
+                "The RAVI module analyses the <b>Sentinel-2 Harmonized Surface "
                 "Reflectance</b> collection in Google Earth Engine. Pick an area, a date "
                 "range and a vegetation index to build an interactive time series, then "
                 "download imagery, composites and indices — no coding required."
+            )
+        )
+    )
+    lay.addSpacing(2)
+    lay.addWidget(
+        _para(
+            _tr(
+                "RAVI (Remote Analysis of Vegetation Indices) began as the "
+                "undergraduate thesis of <b>Caio Arantes</b>, supervised by "
+                "<b>Prof. Dr. Lucas dos Rios Amaral</b>, and is now an open-source "
+                "project maintained with the support of <b>FARM Analytica</b>, "
+                "co-founded by Caio."
             )
         )
     )
@@ -334,6 +355,14 @@ def _build_inputs_tab(dialog, parent):
     aoi_row_lay.addWidget(dialog.s2_btn_hybrid_layer)
 
     inputs_lay.addWidget(aoi_row)
+
+    dialog.s2_aoi_area_lbl = QLabel("")
+    dialog.s2_aoi_area_lbl.setStyleSheet(
+        "color: #4a5650; font-size: 11px; font-weight: 600;"
+        " background: transparent; border: none;"
+    )
+    inputs_lay.addWidget(dialog.s2_aoi_area_lbl)
+
     inputs_lay.addSpacing(6)
 
     fields_grid = QGridLayout()
@@ -393,6 +422,26 @@ def _build_inputs_tab(dialog, parent):
         " border: 1px solid #d6e4ef; border-radius: 6px; padding: 8px;"
     )
     index_lay.addWidget(dialog.s2_index_info)
+
+    index_lay.addWidget(_make_divider())
+    index_lay.addWidget(_field_label(_tr("TIME-SERIES SPATIAL REDUCER")))
+    dialog.s2_ts_reducer_combo = QComboBox()
+    _prepare_field(dialog.s2_ts_reducer_combo)
+    dialog.s2_ts_reducer_combo.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToContents)
+    # Label, stable reducer key (matches OpticalService.get_time_series).
+    for _label, _key in ((_tr("Mean"), "mean"), (_tr("Median"), "median")):
+        dialog.s2_ts_reducer_combo.addItem(_label, _key)
+    dialog.s2_ts_reducer_combo.view().setStyleSheet(_POPUP_VIEW_STYLE)
+    index_lay.addWidget(dialog.s2_ts_reducer_combo)
+
+    reducer_hint = QLabel(_tr(
+        "How pixels inside the AOI are aggregated to one value per date in the "
+        "time-series plot. Median resists cloud/shadow outliers; mean is the "
+        "classic average."
+    ))
+    reducer_hint.setWordWrap(True)
+    reducer_hint.setStyleSheet("color: #757575; font-size: 11px; background: transparent; border: none;")
+    index_lay.addWidget(reducer_hint)
 
     # --- Inline custom-index builder (hidden unless Custom… selected) ----
     dialog.s2_custom_container = QWidget()
@@ -621,6 +670,29 @@ def _build_results_tab(dialog, parent):
     )
     dialog.s2_web_view.setMinimumHeight(200)
     plot_lay.addWidget(dialog.s2_web_view, 1)
+
+    # Date-range filter — a two-handle slider under the plot (same widget as
+    # the MapBiomas transition year filter). Dragging re-filters the cached
+    # series live; the controller configures its span after each run and
+    # keeps it hidden until then.
+    range_bar = QWidget()
+    dialog.s2_date_range_bar = range_bar
+    range_bar.setStyleSheet("background: transparent;")
+    range_lay = QHBoxLayout(range_bar)
+    range_lay.setContentsMargins(0, 0, 0, 0)
+    range_lay.setSpacing(10)
+    dialog.s2_date_range_lbl = QLabel("")
+    dialog.s2_date_range_lbl.setStyleSheet(
+        "color:#1b6b39; font-size:12px; font-weight:bold; background:transparent;"
+    )
+    range_lay.addWidget(dialog.s2_date_range_lbl)
+    # Placeholder span; the controller calls set_span() with day offsets and
+    # installs a label_fn that maps offsets back to ISO dates.
+    dialog.s2_date_range_slider = RangeSlider(0, 1, 0, 1, decimals=0)
+    range_lay.addWidget(dialog.s2_date_range_slider, 1)
+    range_bar.setVisible(False)
+    plot_lay.addWidget(range_bar)
+
     dialog.s2_results_splitter.addWidget(plot_container)
 
     scroll = QScrollArea()
@@ -867,7 +939,7 @@ def _build_results_tab(dialog, parent):
     dialog.s2_vi_ramp_combo.setSizeAdjustPolicy(
         QComboBox.SizeAdjustPolicy.AdjustToContents
     )
-    dialog.s2_vi_ramp_combo.addItems(_COLOR_RAMPS)
+    _add_ramp_items(dialog.s2_vi_ramp_combo, _COLOR_RAMPS)
     dialog.s2_vi_ramp_combo.setCurrentText("RdYlGn")
     dialog.s2_vi_ramp_combo.view().setStyleSheet(_POPUP_VIEW_STYLE)
     dialog.s2_btn_vi_preview = QPushButton(_tr("Preview"))
@@ -933,7 +1005,7 @@ def _build_results_tab(dialog, parent):
     dialog.s2_composite_ramp_combo.setSizeAdjustPolicy(
         QComboBox.SizeAdjustPolicy.AdjustToContents
     )
-    dialog.s2_composite_ramp_combo.addItems(_COLOR_RAMPS)
+    _add_ramp_items(dialog.s2_composite_ramp_combo, _COLOR_RAMPS)
     dialog.s2_composite_ramp_combo.setCurrentText("RdYlGn")
     dialog.s2_composite_ramp_combo.view().setStyleSheet(_POPUP_VIEW_STYLE)
 
@@ -1159,10 +1231,11 @@ def setup_optical_page(dialog, page):
     Populate the Optical (Sentinel-2) page with a three-tab layout.
 
     Exposes on dialog (selected):
-      s2_layer_combo, s2_btn_draw_aoi, s2_btn_hybrid_layer,
-      s2_date_start, s2_date_end, s2_index_combo, s2_index_info,
+      s2_layer_combo, s2_btn_draw_aoi, s2_btn_hybrid_layer, s2_aoi_area_lbl,
+      s2_date_start, s2_date_end, s2_index_combo, s2_index_info, s2_ts_reducer_combo,
       s2_custom_container, s2_custom_name, s2_custom_expression, s2_btn_custom_save,
-      s2_web_view, s2_btn_adjust_filter, s2_btn_filter_dates, s2_btn_open_browser,
+      s2_web_view, s2_date_range_bar, s2_date_range_lbl, s2_date_range_slider,
+      s2_btn_adjust_filter, s2_btn_filter_dates, s2_btn_open_browser,
       s2_btn_download_csv, s2_btn_batch_download,
       s2_chk_smoothing, s2_smooth_window, s2_smooth_polyorder,
       s2_result_date_combo,

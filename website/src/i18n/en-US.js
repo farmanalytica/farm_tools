@@ -19,7 +19,7 @@ export default {
     previewSubtitle: 'Eight modules, one QGIS plugin',
     previewLabel: 'Modules',
     previewItems: [
-      'Optical & Landsat imagery',
+      'RAVI & multi-satellite imagery',
       'SAR radar & DEM terrain',
       'Bare-soil & climate data',
       'Field sampling & exports',
@@ -37,12 +37,12 @@ export default {
     wikiLink: 'Read in the wiki',
     items: {
       optical: {
-        title: 'Optical (Sentinel-2)',
+        title: 'RAVI (Sentinel-2)',
         desc: 'Vegetation index time series (NDVI, EVI, SAVI, GNDVI), RGB and composite imagery, and multispectral download.',
       },
       landsat: {
-        title: 'Landsat',
-        desc: 'Decades-long Landsat time series and imagery for historical land and crop monitoring.',
+        title: 'Multi-Satellite',
+        desc: 'Multi-mission imagery and index time series — Landsat 7/8/9, Sentinel-2, HLS and MODIS — with per-sensor selection.',
       },
       sar: {
         title: 'SAR (Sentinel-1)',
@@ -50,15 +50,15 @@ export default {
       },
       dem: {
         title: 'DEM & Terrain',
-        desc: 'Download elevation data and derive terrain products for any area of interest.',
+        desc: 'Download elevation from ~30 public DEMs for any area, clipped and Magma-styled, ready for terrain analysis in QGIS.',
       },
       sysi: {
-        title: 'SYSI Bare Soil',
+        title: 'Bare Soil',
         desc: 'Synthetic bare-soil image composites using GEOS3 multi-temporal bare-soil detection.',
       },
       climaplots: {
         title: 'ClimaPlots',
-        desc: 'NASA POWER climate series and interactive charts for any area of interest.',
+        desc: 'Climate diagnosis for any point — NASA POWER & ERA5 trends, climate diagram, ETCCDI extremes, and SPI drought. No GEE account needed.',
       },
       fieldguide: {
         title: 'Field Guide',
@@ -66,7 +66,7 @@ export default {
       },
       mapbiomas: {
         title: 'MapBiomas',
-        desc: 'Browse Brazilian Collection 9 land-use/land-cover by year and run configurable land-use transition analysis (e.g. pasture → crop, deforestation).',
+        desc: 'Browse Brazilian Collection 10 land-use/land-cover by year (1985–2024) and run configurable land-use transition analysis (e.g. pasture → crop, deforestation).',
       },
     },
   },
@@ -77,7 +77,7 @@ export default {
     steps: [
       {
         title: 'Create a Google Earth Engine account',
-        desc: 'Sign up for free at earthengine.google.com.',
+        desc: 'Sign up at earthengine.google.com.',
         link: 'Go to Earth Engine',
         href: 'https://earthengine.google.com/signup/',
       },
@@ -107,7 +107,7 @@ export default {
       },
       {
         title: 'Pick a module & configure',
-        desc: 'Choose a module — Optical, Landsat, SAR, DEM, SYSI, ClimaPlots, Field Guide, or MapBiomas — set your area and parameters, then run.',
+        desc: 'Choose a module — RAVI, Multi-Satellite, SAR, DEM, Bare Soil, ClimaPlots, Field Guide, or MapBiomas — set your area and parameters, then run.',
         link: '',
         href: '',
       },
@@ -142,9 +142,7 @@ export default {
   about: {
     label: 'Project',
     title: 'About the Project',
-    textPre: 'FARM tools began as the undergraduate final project (TCC) of ',
-    textMid: ', developed under the supervision of ',
-    textPost: '. Today it is a free and open-source project maintained with the support of FARM Analytica, committed to technology diffusion and the open-source philosophy.',
+    text: 'FARM tools is a free and open-source project maintained with the support of FARM Analytica, committed to technology diffusion and the open-source philosophy.',
     sponsorLabel: 'Supported by',
     sponsorDesc: 'Technology and field intelligence working together to support practical operations.',
     whatsapp: 'Talk on WhatsApp',
@@ -168,12 +166,12 @@ export default {
     },
     modules: {
       'getting-started': 'Getting started',
-      optical: 'Optical (Sentinel-2)',
-      landsat: 'Landsat',
+      optical: 'RAVI (Sentinel-2)',
+      landsat: 'Multi-Satellite',
       sar: 'SAR (Sentinel-1)',
       mapbiomas: 'MapBiomas',
       dem: 'Elevation (DEM)',
-      sysi: 'Bare soil (SYSI)',
+      sysi: 'Bare Soil',
       climaplots: 'Climate (ClimaPlots)',
       fieldguide: 'Field Guide',
     },

@@ -10,6 +10,7 @@ configured download folder.
 from __future__ import annotations
 
 from qgis.PyQt.QtCore import QCoreApplication
+from qgis.core import Qgis
 
 from ..managers.settings_manager import SettingsManager
 from ..renderers.car_renderer import CarRenderer
@@ -76,7 +77,9 @@ class CarCtrl:
         try:
             CarRenderer.load_car_to_qgis(geojson_path, car_code, self.interface)
             self.interface.messageBar().pushMessage(
-                "FARM tools", _tr("CAR '%s' loaded successfully.") % car_code
+                "FARM tools",
+                _tr("CAR '%s' loaded successfully.") % car_code,
+                level=Qgis.Critical,
             )
         except Exception as e:
             self.dialog.pop_message(str(e), "warning")

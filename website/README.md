@@ -12,7 +12,7 @@ auto-detected from the browser).
 |---|---|
 | `/` | Landing page: hero, intro video, modules, workflow, GEE setup, resources, about |
 | `/tutorials` | YouTube video tutorials grouped by category. Videos with no published ID render a "coming soon" placeholder |
-| `/wiki/:slug` | Written documentation per module (getting started, Optical, Landsat, SAR, DEM, SYSI, ClimaPlots, Field Guide, exports, FAQ) |
+| `/wiki/:slug` | Written documentation per module (getting started, Optical, Landsat, SAR, DEM, Bare Soil, ClimaPlots, Field Guide, exports, FAQ) |
 
 ## Development
 

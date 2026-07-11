@@ -19,15 +19,28 @@ from qgis.PyQt.QtCore import (
     pyqtSignal,
 )
 from qgis.PyQt.QtCore import QPointF
-from qgis.PyQt.QtGui import QColor, QFont, QIcon, QPainter, QPainterPath, QPen, QPixmap
+from qgis.PyQt.QtGui import (
+    QColor,
+    QFont,
+    QIcon,
+    QPainter,
+    QPainterPath,
+    QPen,
+    QPixmap,
+)
+from qgis.PyQt.QtSvg import QSvgRenderer
+
+from . import module_prefs
 from qgis.PyQt.QtWidgets import (
     QButtonGroup,
     QDialog,
     QFrame,
+    QGridLayout,
     QHBoxLayout,
     QLabel,
     QPushButton,
     QScrollArea,
+    QScrollBar,
     QSizePolicy,
     QTextBrowser,
     QVBoxLayout,
@@ -37,6 +50,17 @@ from qgis.PyQt.QtWidgets import (
 
 def _tr(text):
     return QCoreApplication.translate("RAVI", text)
+
+
+# Nav kinds that carry their own brand logo (SVG) instead of a drawn line icon.
+# Mirrors welcome.py's _LOGO_SVGS so the sidebar and hub stay visually in sync.
+_LOGO_SVGS = {
+    "optical": "ravi_white_background.svg",
+    "climaplots": "climaplots.svg",
+    "radar": "sentinel1.svg",
+    "fieldguide": "fieldguide.svg",
+    "download": "easydem.svg",
+}
 
 
 def _read_plugin_version() -> str:
@@ -96,10 +120,11 @@ def _read_plugin_changelog() -> str:
 
 
 SIDEBAR_COLLAPSED_WIDTH = 64
-SIDEBAR_EXPANDED_WIDTH = 184
+SIDEBAR_EXPANDED_WIDTH = 208
+SIDEBAR_EXPANDED_CONTENT_WIDTH = 176
 # Brand logo icon: grows on expand. Pixmap rendered at MAX so it stays crisp
 # while iconSize animates between the two states.
-BRAND_ICON_COLLAPSED = 38
+BRAND_ICON_COLLAPSED = 32
 BRAND_ICON_EXPANDED = 60
 BRAND_ICON_MAX = 128
 SIDEBAR_GREEN = "#1F6B3A"
@@ -146,11 +171,11 @@ class Sidebar(QFrame):
         fieldguide_requested: emitted when the user clicks Field Guide.
         climaplots_requested: emitted when the user clicks ClimaPlots.
         mapbiomas_requested: emitted when the user clicks MapBiomas.
+        mzones_requested: emitted when the user clicks Management Zones.
     """
 
     welcome_requested = pyqtSignal()
     auth_requested = pyqtSignal()
-    car_requested = pyqtSignal()
     optical_requested = pyqtSignal()
     sysi_requested = pyqtSignal()
     radar_requested = pyqtSignal()
@@ -159,13 +184,16 @@ class Sidebar(QFrame):
     fieldguide_requested = pyqtSignal()
     climaplots_requested = pyqtSignal()
     mapbiomas_requested = pyqtSignal()
+    mzones_requested = pyqtSignal()
+    car_requested = pyqtSignal()
 
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setObjectName("Sidebar")
         self._active_page = "auth"
-        self._expanded = False
-        self.setFixedWidth(SIDEBAR_COLLAPSED_WIDTH)
+        # Rail starts expanded, then changes only when the user taps the toggle.
+        self._expanded = True
+        self.setFixedWidth(SIDEBAR_EXPANDED_WIDTH)
         self.setAttribute(Qt.WidgetAttribute.WA_StyledBackground, True)
 
         self._width_animation = QVariantAnimation(self)
@@ -181,7 +209,7 @@ class Sidebar(QFrame):
         self._brand_icon_animation.valueChanged.connect(self._set_brand_icon_size)
 
         self._build()
-        self._apply_expanded_state(False)
+        self._apply_expanded_state(True)
         self.set_active_page("auth")
 
     def _build(self) -> None:
@@ -200,7 +228,28 @@ class Sidebar(QFrame):
         # indicator and wiring as the other pages — it navigates to Welcome.
         self.btn_welcome = self._build_brand_panel()
         self.btn_welcome.clicked.connect(self.welcome_requested.emit)
-        brand_block_lay.addWidget(self.btn_welcome, 0, Qt.AlignmentFlag.AlignHCenter)
+
+        self.brand_header = QWidget()
+        self.brand_header.setObjectName("sidebarBrandHeader")
+        brand_header_lay = QGridLayout(self.brand_header)
+        brand_header_lay.setContentsMargins(0, 0, 0, 0)
+        brand_header_lay.setSpacing(0)
+        brand_header_lay.addWidget(
+            self.btn_welcome, 0, 0, Qt.AlignmentFlag.AlignCenter
+        )
+        self.btn_toggle_header = QPushButton("")
+        self.btn_toggle_header.setObjectName("sidebarToggleButton")
+        self.btn_toggle_header.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.btn_toggle_header.setFixedSize(26, 26)
+        self.btn_toggle_header.setAccessibleName(_tr("Toggle sidebar"))
+        self.btn_toggle_header.clicked.connect(self._toggle_expanded)
+        brand_header_lay.addWidget(
+            self.btn_toggle_header,
+            0,
+            0,
+            Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter,
+        )
+        brand_block_lay.addWidget(self.brand_header, 0, Qt.AlignmentFlag.AlignHCenter)
         brand_block_lay.addSpacing(8)
         self.brand_divider = QFrame()
         self.brand_divider.setObjectName("sidebarBrandDivider")
@@ -212,6 +261,16 @@ class Sidebar(QFrame):
             }
         """)
         brand_block_lay.addWidget(self.brand_divider, 0, Qt.AlignmentFlag.AlignHCenter)
+        brand_block_lay.addSpacing(8)
+        self.btn_toggle_collapsed = QPushButton("")
+        self.btn_toggle_collapsed.setObjectName("sidebarToggleButton")
+        self.btn_toggle_collapsed.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.btn_toggle_collapsed.setFixedSize(26, 26)
+        self.btn_toggle_collapsed.setAccessibleName(_tr("Toggle sidebar"))
+        self.btn_toggle_collapsed.clicked.connect(self._toggle_expanded)
+        brand_block_lay.addWidget(
+            self.btn_toggle_collapsed, 0, Qt.AlignmentFlag.AlignHCenter
+        )
         brand_block_lay.addSpacing(10)
         lay.addWidget(self.brand_block)
 
@@ -241,50 +300,83 @@ class Sidebar(QFrame):
         nav_lay = QVBoxLayout(nav_container)
         nav_lay.setContentsMargins(0, 0, 0, 0)
         nav_lay.setSpacing(8)
+        self._nav_lay = nav_lay
 
+        # Buttons are created once and kept in a key->button map; their order in
+        # the rail and whether they are shown is driven by module_prefs and
+        # (re)applied in _apply_module_layout. "auth" is pinned first and never
+        # hidden, so it is not part of the manageable set.
         self.btn_auth = self._make_button(_tr("Auth"), "auth")
         self.btn_auth.clicked.connect(self.auth_requested.emit)
-        nav_lay.addWidget(self.btn_auth)
 
-        self.btn_optical = self._make_button(_tr("Optical (Sentinel-2)"), "optical")
+        self.btn_optical = self._make_button(_tr("RAVI (Sentinel-2)"), "optical")
         self.btn_optical.clicked.connect(self.optical_requested.emit)
-        nav_lay.addWidget(self.btn_optical)
 
-        self.btn_sysi = self._make_button(_tr("SYSI"), "sysi")
+        self.btn_sysi = self._make_button(_tr("Bare Soil"), "sysi")
         self.btn_sysi.clicked.connect(self.sysi_requested.emit)
-        nav_lay.addWidget(self.btn_sysi)
 
         self.btn_radar = self._make_button(_tr("Radar (SAR) data"), "radar")
         self.btn_radar.clicked.connect(self.radar_requested.emit)
-        nav_lay.addWidget(self.btn_radar)
 
         self.btn_download = self._make_button(_tr("EasyDEM"), "download")
         self.btn_download.clicked.connect(self.dem_requested.emit)
-        nav_lay.addWidget(self.btn_download)
 
-        self.btn_landsat = self._make_button(_tr("Landsat (Super-Res)"), "landsat")
+        self.btn_landsat = self._make_button(_tr("Multi-Satellite"), "landsat")
         self.btn_landsat.clicked.connect(self.landsat_requested.emit)
-        nav_lay.addWidget(self.btn_landsat)
 
         self.btn_fieldguide = self._make_button(_tr("Field Guide"), "fieldguide")
         self.btn_fieldguide.clicked.connect(self.fieldguide_requested.emit)
-        nav_lay.addWidget(self.btn_fieldguide)
 
         self.btn_climaplots = self._make_button(_tr("ClimaPlots"), "climaplots")
         self.btn_climaplots.clicked.connect(self.climaplots_requested.emit)
-        nav_lay.addWidget(self.btn_climaplots)
 
         self.btn_mapbiomas = self._make_button(_tr("MapBiomas"), "mapbiomas")
         self.btn_mapbiomas.clicked.connect(self.mapbiomas_requested.emit)
-        nav_lay.addWidget(self.btn_mapbiomas)
+
+        self.btn_mzones = self._make_button(_tr("Management Zones"), "mzones")
+        self.btn_mzones.clicked.connect(self.mzones_requested.emit)
 
         self.btn_car = self._make_button(_tr("Análise CAR"), "car")
         self.btn_car.clicked.connect(self.car_requested.emit)
-        nav_lay.addWidget(self.btn_car)
 
-        nav_lay.addStretch(1)
+        self._buttons = {
+            "auth": self.btn_auth,
+            "optical": self.btn_optical,
+            "sysi": self.btn_sysi,
+            "radar": self.btn_radar,
+            "download": self.btn_download,
+            "landsat": self.btn_landsat,
+            "fieldguide": self.btn_fieldguide,
+            "climaplots": self.btn_climaplots,
+            "mapbiomas": self.btn_mapbiomas,
+            "mzones": self.btn_mzones,
+            "car": self.btn_car,
+        }
+        self._apply_module_layout()
         self.nav_scroll.setWidget(nav_container)
-        lay.addWidget(self.nav_scroll, 1)
+
+        # Place an external QScrollBar to the LEFT of the scroll area inside an
+        # HBoxLayout. This avoids the RTL trick that caused the scrollbar to
+        # paint over the button icons, and gives full control over styling.
+        nav_row = QWidget()
+        nav_row.setObjectName("sidebarNavRow")
+        nav_row_lay = QHBoxLayout(nav_row)
+        nav_row_lay.setContentsMargins(0, 0, 0, 0)
+        nav_row_lay.setSpacing(4)
+
+        self.nav_scrollbar = QScrollBar(Qt.Orientation.Vertical)
+        self.nav_scrollbar.setObjectName("sidebarNavScrollbar")
+        self.nav_scrollbar.setFixedWidth(4)
+        self.nav_scrollbar.hide()
+        nav_row_lay.addWidget(self.nav_scrollbar)
+        nav_row_lay.addWidget(self.nav_scroll, 1)
+
+        internal = self.nav_scroll.verticalScrollBar()
+        internal.rangeChanged.connect(self._on_nav_scroll_range_changed)
+        internal.valueChanged.connect(self.nav_scrollbar.setValue)
+        self.nav_scrollbar.valueChanged.connect(internal.setValue)
+
+        lay.addWidget(nav_row, 1)
 
         self._group = QButtonGroup(self)
         self._group.setExclusive(True)
@@ -298,6 +390,7 @@ class Sidebar(QFrame):
         self._group.addButton(self.btn_fieldguide)
         self._group.addButton(self.btn_climaplots)
         self._group.addButton(self.btn_mapbiomas)
+        self._group.addButton(self.btn_mzones)
         self._group.addButton(self.btn_car)
 
         self._version = _read_plugin_version()
@@ -361,7 +454,7 @@ class Sidebar(QFrame):
             icon.addPixmap(pix, QIcon.Mode.Normal, QIcon.State.On)
             icon.addPixmap(pix, QIcon.Mode.Active, QIcon.State.Off)
             btn.setIcon(icon)
-            btn.setIconSize(QSize(BRAND_ICON_COLLAPSED, BRAND_ICON_COLLAPSED))
+            btn.setIconSize(QSize(BRAND_ICON_EXPANDED, BRAND_ICON_EXPANDED))
             self._brand_has_icon = True
         else:
             btn.setText("FARM")
@@ -380,6 +473,43 @@ class Sidebar(QFrame):
         btn.setToolTip(text)
         return btn
 
+    def _apply_module_layout(self) -> None:
+        """Lay out nav buttons per saved prefs: auth pinned first, the rest in
+        user order, hidden ones detached. Reused buttons are re-parented by
+        addWidget, so this is also the refresh path after a prefs change."""
+        lay = self._nav_lay
+        # Detach every current item (buttons + trailing stretch) without
+        # deleting the buttons — they are reused below.
+        while lay.count():
+            lay.takeAt(0)
+
+        from .welcome import visible_set_needs_auth
+
+        hidden = module_prefs.get_hidden()
+        # Auth is pinned first, but only when a visible module actually needs a
+        # GEE sign-in — a no-login-only build hides it entirely.
+        needs_auth = visible_set_needs_auth()
+        for key in ["auth"] + module_prefs.get_order():
+            btn = self._buttons.get(key)
+            if btn is None:
+                continue
+            if key == "auth":
+                if not needs_auth:
+                    btn.hide()
+                    continue
+            elif key in hidden:
+                btn.hide()
+                continue
+            btn.show()
+            lay.addWidget(btn)
+        lay.addStretch(1)
+
+    def refresh_modules(self) -> None:
+        """Re-apply stored order/visibility, then restore the expand state so
+        button widths/labels match the current rail mode."""
+        self._apply_module_layout()
+        self._apply_expanded_state(self._expanded)
+
     def set_active_page(self, page: str) -> None:
         """Highlight the button matching ``page`` (``'auth'``, ``'optical'``, ``'sysi'``, ``'radar'``, ``'download'``, ``'landsat'`` or ``'fieldguide'``)."""
         self._active_page = page
@@ -389,16 +519,8 @@ class Sidebar(QFrame):
         # then restore it.
         self._group.setExclusive(False)
         self.btn_welcome.setChecked(page == "welcome")
-        self.btn_auth.setChecked(page == "auth")
-        self.btn_optical.setChecked(page == "optical")
-        self.btn_sysi.setChecked(page == "sysi")
-        self.btn_radar.setChecked(page == "radar")
-        self.btn_download.setChecked(page == "download")
-        self.btn_landsat.setChecked(page == "landsat")
-        self.btn_fieldguide.setChecked(page == "fieldguide")
-        self.btn_climaplots.setChecked(page == "climaplots")
-        self.btn_mapbiomas.setChecked(page == "mapbiomas")
-        self.btn_car.setChecked(page == "car")
+        for key, btn in self._buttons.items():
+            btn.setChecked(page == key)
         self._group.setExclusive(True)
         self._sync_brand_visibility()
 
@@ -440,39 +562,45 @@ class Sidebar(QFrame):
 
         dlg.exec()
 
-    def enterEvent(self, event) -> None:
-        """Expand the navigation rail while the pointer is over it."""
-        self._apply_expanded_state(True)
-        super().enterEvent(event)
-
-    def leaveEvent(self, event) -> None:
-        """Collapse back to an icon rail after the pointer leaves it."""
-        self._apply_expanded_state(False)
-        super().leaveEvent(event)
+    def _toggle_expanded(self) -> None:
+        self._apply_expanded_state(not self._expanded)
 
     def _apply_expanded_state(self, expanded: bool) -> None:
         self._expanded = expanded
         side_margin = 14 if expanded else 11
         self._layout.setContentsMargins(side_margin, 18, side_margin, 18)
 
-        for btn in (self.btn_auth, self.btn_optical, self.btn_sysi, self.btn_radar, self.btn_download, self.btn_landsat, self.btn_fieldguide, self.btn_climaplots, self.btn_mapbiomas, self.btn_car):
+        for btn in self._buttons.values():
             btn.setText(btn.property("navText") if expanded else "")
             btn.setToolTip("" if expanded else btn.property("navText"))
-            btn.setFixedWidth(156 if expanded else 42)
+            btn.setFixedWidth(SIDEBAR_EXPANDED_CONTENT_WIDTH if expanded else 42)
 
-        self.btn_welcome.setFixedWidth(156 if expanded else 42)
-        self.brand_block.setFixedWidth(156 if expanded else 42)
-        self.brand_divider.setFixedWidth(156 if expanded else 28)
-
-        # Scrollbar only while expanded; collapsed rail stays clean (wheel still
-        # scrolls). Snap back to the top when collapsing so the icon rail always
-        # starts at Auth.
-        self.nav_scroll.setVerticalScrollBarPolicy(
-            Qt.ScrollBarPolicy.ScrollBarAsNeeded if expanded
-            else Qt.ScrollBarPolicy.ScrollBarAlwaysOff
+        self.btn_welcome.setFixedWidth(
+            SIDEBAR_EXPANDED_CONTENT_WIDTH if expanded else 42
         )
+        self.brand_header.setFixedWidth(
+            SIDEBAR_EXPANDED_CONTENT_WIDTH if expanded else 42
+        )
+        self.brand_block.setFixedWidth(
+            SIDEBAR_EXPANDED_CONTENT_WIDTH if expanded else 42
+        )
+        self.brand_divider.setFixedWidth(
+            SIDEBAR_EXPANDED_CONTENT_WIDTH if expanded else 28
+        )
+        toggle_text = "‹" if expanded else "›"
+        toggle_tip = _tr("Collapse sidebar") if expanded else _tr("Expand sidebar")
+        for toggle in (self.btn_toggle_header, self.btn_toggle_collapsed):
+            toggle.setText(toggle_text)
+            toggle.setToolTip(toggle_tip)
+        self.btn_toggle_header.setVisible(expanded)
+        self.btn_toggle_collapsed.setVisible(not expanded)
+
+        # External scrollbar is visible only when expanded and content overflows.
+        # Collapsed rail stays clean; wheel scrolling still works regardless.
+        internal = self.nav_scroll.verticalScrollBar()
+        self.nav_scrollbar.setVisible(expanded and internal.maximum() > 0)
         if not expanded:
-            self.nav_scroll.verticalScrollBar().setValue(0)
+            internal.setValue(0)
 
         if self._version:
             self.version_label.setText(
@@ -490,6 +618,13 @@ class Sidebar(QFrame):
         self._animate_brand_icon(
             BRAND_ICON_EXPANDED if expanded else BRAND_ICON_COLLAPSED
         )
+
+    def _on_nav_scroll_range_changed(self, min_val: int, max_val: int) -> None:
+        internal = self.nav_scroll.verticalScrollBar()
+        self.nav_scrollbar.setRange(min_val, max_val)
+        self.nav_scrollbar.setPageStep(internal.pageStep())
+        self.nav_scrollbar.setSingleStep(internal.singleStep())
+        self.nav_scrollbar.setVisible(self._expanded and max_val > 0)
 
     def _sync_brand_visibility(self) -> None:
         self.brand_block.setVisible(True)
@@ -521,10 +656,13 @@ class Sidebar(QFrame):
         self.btn_welcome.setIconSize(QSize(side, side))
 
     def _stylesheet(self, expanded: bool) -> str:
-        button_padding = "0 12px 0 10px" if expanded else "0"
+        button_padding = "0 8px 0 8px" if expanded else "0"
+        brand_padding = "0 18px 0 0" if expanded else "0"
         button_radius = "8px"
         button_text_align = "left" if expanded else "center"
-        button_width = "156px" if expanded else "42px"
+        button_width = (
+            f"{SIDEBAR_EXPANDED_CONTENT_WIDTH}px" if expanded else "42px"
+        )
         return f"""
         QFrame#Sidebar {{
             background-color: qlineargradient(
@@ -552,6 +690,7 @@ class Sidebar(QFrame):
         QPushButton#sidebarNavButton[brand="true"] {{
             min-height: {BRAND_ICON_EXPANDED + 6}px;
             max-height: {BRAND_ICON_EXPANDED + 6}px;
+            padding: {brand_padding};
         }}
         QPushButton#sidebarNavButton:hover {{
             background-color: rgba(255, 255, 255, 22);
@@ -564,29 +703,47 @@ class Sidebar(QFrame):
         QPushButton#sidebarNavButton:disabled {{
             color: {SIDEBAR_MUTED};
         }}
-        QScrollArea#sidebarNavScroll, QWidget#sidebarNavContainer {{
+        QPushButton#sidebarToggleButton {{
+            background-color: rgba(255, 255, 255, 16);
+            color: rgba(255, 255, 255, 210);
+            border: 1px solid rgba(255, 255, 255, 34);
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            padding: 0;
+        }}
+        QPushButton#sidebarToggleButton:hover {{
+            background-color: rgba(255, 255, 255, 30);
+            color: #ffffff;
+            border-color: rgba(255, 255, 255, 68);
+        }}
+        QPushButton#sidebarToggleButton:pressed {{
+            background-color: rgba(255, 255, 255, 42);
+        }}
+        QScrollArea#sidebarNavScroll, QWidget#sidebarNavContainer,
+        QWidget#sidebarNavRow {{
             background: transparent;
             border: none;
         }}
-        QScrollArea#sidebarNavScroll QScrollBar:vertical {{
+        QScrollBar#sidebarNavScrollbar:vertical {{
             background: transparent;
-            width: 5px;
-            margin: 0;
+            width: 4px;
+            margin: 6px 0 6px 0;
         }}
-        QScrollArea#sidebarNavScroll QScrollBar::handle:vertical {{
-            background: rgba(255, 255, 255, 60);
-            border-radius: 2px;
-            min-height: 24px;
+        QScrollBar#sidebarNavScrollbar::handle:vertical {{
+            background: rgba(159, 224, 180, 100);
+            border-radius: 1px;
+            min-height: 20px;
         }}
-        QScrollArea#sidebarNavScroll QScrollBar::handle:vertical:hover {{
-            background: rgba(255, 255, 255, 110);
+        QScrollBar#sidebarNavScrollbar::handle:vertical:hover {{
+            background: rgba(159, 224, 180, 200);
         }}
-        QScrollArea#sidebarNavScroll QScrollBar::add-line:vertical,
-        QScrollArea#sidebarNavScroll QScrollBar::sub-line:vertical {{
+        QScrollBar#sidebarNavScrollbar::add-line:vertical,
+        QScrollBar#sidebarNavScrollbar::sub-line:vertical {{
             height: 0;
         }}
-        QScrollArea#sidebarNavScroll QScrollBar::add-page:vertical,
-        QScrollArea#sidebarNavScroll QScrollBar::sub-page:vertical {{
+        QScrollBar#sidebarNavScrollbar::add-page:vertical,
+        QScrollBar#sidebarNavScrollbar::sub-page:vertical {{
             background: transparent;
         }}
         """
@@ -600,6 +757,14 @@ class Sidebar(QFrame):
             icon.addPixmap(key_pix, QIcon.Mode.Normal, QIcon.State.On)
             icon.addPixmap(key_pix, QIcon.Mode.Active, QIcon.State.Off)
             return icon
+
+        if kind in _LOGO_SVGS:
+            logo_pix = self._draw_logo_icon(_LOGO_SVGS[kind])
+            if logo_pix is not None:
+                icon.addPixmap(logo_pix, QIcon.Mode.Normal, QIcon.State.Off)
+                icon.addPixmap(logo_pix, QIcon.Mode.Normal, QIcon.State.On)
+                icon.addPixmap(logo_pix, QIcon.Mode.Active, QIcon.State.Off)
+                return icon
 
         icon.addPixmap(
             self._draw_icon(kind, "#E9F4ED"), QIcon.Mode.Normal, QIcon.State.Off
@@ -622,6 +787,37 @@ class Sidebar(QFrame):
         font.setPixelSize(15)
         painter.setFont(font)
         painter.drawText(pix.rect(), Qt.AlignmentFlag.AlignCenter, "\U0001f511")
+        painter.end()
+        return pix
+
+    def _draw_logo_icon(self, filename: str):
+        """Render an assets/ brand SVG to a 20px transparent icon pixmap.
+
+        The source SVGs are trimmed to their artwork, so render into a square
+        tile keeping aspect ratio and centre the result.
+
+        Returns ``None`` if the asset is missing/invalid so ``_make_icon`` can
+        fall back to the drawn line icon rather than showing a blank tile."""
+        plugin_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        path = os.path.join(plugin_dir, "assets", filename)
+        renderer = QSvgRenderer(path)
+        if not renderer.isValid():
+            return None
+
+        pix = QPixmap(20, 20)
+        pix.fill(Qt.GlobalColor.transparent)
+        # Fit the trimmed (non-square) artwork inside the 20px tile, centred.
+        size = renderer.defaultSize()
+        size.scale(20, 20, Qt.AspectRatioMode.KeepAspectRatio)
+        target = QRectF(
+            (20 - size.width()) / 2,
+            (20 - size.height()) / 2,
+            size.width(),
+            size.height(),
+        )
+        painter = QPainter(pix)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+        renderer.render(painter, target)
         painter.end()
         return pix
 
@@ -729,6 +925,17 @@ class Sidebar(QFrame):
             edge.cubicTo(12, 7.5, 11, 9.5, 14, 10)
             painter.drawPath(edge)
             painter.fillRect(QRectF(3.6, 10.6, 4.8, 4.8), QColor(color))
+        elif kind == "mzones":
+            # Management zones — a field outline split into zones, one filled.
+            painter.setPen(pen)
+            painter.drawRoundedRect(QRectF(3, 4, 14, 12), 2, 2)
+            split = QPainterPath()
+            split.moveTo(3, 9)
+            split.cubicTo(7, 7.5, 9, 11, 12, 9.5)
+            split.cubicTo(14, 8.5, 15.5, 9, 17, 8.5)
+            painter.drawPath(split)
+            painter.drawLine(QPointF(10.5, 10.2), QPointF(10.5, 16))
+            painter.fillRect(QRectF(11.4, 10.8, 4.8, 4.4), QColor(color))
         elif kind == "car":
             # Registered land parcel — an irregular closed boundary with a corner
             # marker, evoking a cadastral property polygon.

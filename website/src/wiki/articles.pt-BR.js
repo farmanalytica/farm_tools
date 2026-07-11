@@ -6,7 +6,7 @@ export default [
     title: 'Primeiros Passos',
     summary: 'Instale o plugin, configure o Google Earth Engine e autentique-se.',
     sections: [
-      { p: 'O FARM tools é um plugin QGIS integrado ao Google Earth Engine (GEE). Antes de usar qualquer módulo você precisa do QGIS 3.28 ou mais recente, uma conta GEE gratuita e um projeto Google Cloud com a Earth Engine API habilitada.' },
+      { p: 'O FARM tools é um plugin QGIS; a maioria dos módulos é integrada ao Google Earth Engine (GEE). Todo módulo precisa do QGIS 3.28 ou mais recente. Os módulos baseados no GEE também precisam de uma conta GEE e um projeto Google Cloud com a Earth Engine API habilitada. O ClimaPlots e o Guia de Campo funcionam sem nenhuma conta GEE.' },
       { h2: 'Instalação' },
       { steps: [
         'Abra o QGIS e vá em Complementos → Gerenciar e Instalar Complementos.',
@@ -16,7 +16,7 @@ export default [
       { note: 'As dependências são instaladas na pasta extlibs do próprio plugin e nunca substituem os pacotes que acompanham o QGIS (numpy, pandas etc.). Uma atualização do QGIS/Python reprovisiona tudo automaticamente.' },
       { h2: 'Configuração do Google Earth Engine' },
       { steps: [
-        'Crie uma conta GEE gratuita em earthengine.google.com/signup.',
+        'Crie uma conta GEE em earthengine.google.com/signup.',
         'Crie um projeto Google Cloud em console.cloud.google.com e vincule-o à sua conta GEE.',
         'No Console Cloud, procure por "Earth Engine API" e habilite-a.',
         'Abra o Editor de Código do Earth Engine (code.earthengine.google.com) para encontrar seu ID de projeto.',
@@ -36,12 +36,13 @@ export default [
   {
     slug: 'optical',
     icon: '🌿',
-    title: 'Óptico (Sentinel-2)',
+    title: 'RAVI (Sentinel-2)',
     summary: 'Séries temporais de índices de vegetação, filtragem de nuvens, composições e download multiespectral.',
     sections: [
-      { p: 'O módulo Óptico trabalha com o acervo harmonizado de refletância de superfície Sentinel-2 (COPERNICUS/S2_SR_HARMONIZED): resolução de 10 m, revisita de ~5 dias, 12 bandas espectrais úteis mais a banda de qualidade SCL. É o carro-chefe para monitoramento de culturas e vegetação. Todo o processamento roda no Google Earth Engine, sem necessidade de baixar o acervo.' },
+      { p: 'O módulo RAVI trabalha com o acervo harmonizado de refletância de superfície Sentinel-2 (COPERNICUS/S2_SR_HARMONIZED): resolução de 10 m, revisita de ~5 dias, 12 bandas espectrais úteis mais a banda de qualidade SCL. É o carro-chefe para monitoramento de culturas e vegetação. Todo o processamento roda no Google Earth Engine, sem necessidade de baixar o acervo.' },
+      { p: 'O RAVI (Remote Analysis of Vegetation Indices) teve início como trabalho de conclusão de curso (TCC) de Caio Arantes, sob orientação do Prof. Dr. Lucas dos Rios Amaral, e hoje é um projeto de código aberto mantido com o apoio da FARM Analytica, cofundada por Caio.' },
       { h2: 'Séries temporais de índices de vegetação' },
-      { p: 'Monte uma série temporal de um índice espectral sobre sua AOI para qualquer intervalo de datas. Como uma AOI próxima à borda de um tile pode retornar mais de uma imagem por data, o módulo mantém exatamente uma cena por data (pontuada pela cobertura da AOI, com a nebulosidade do tile como desempate) e então faz a média do índice na AOI a 10 m para cada data.' },
+      { p: 'Monte uma série temporal de um índice espectral sobre sua AOI para qualquer intervalo de datas. Como uma AOI próxima à borda de um tile pode retornar mais de uma imagem por data, o módulo mantém exatamente uma cena por data (pontuada pela cobertura da AOI, com a nebulosidade do tile como desempate) e então reduz o índice na AOI a 10 m para cada data. Escolha o redutor espacial em Entradas — média (padrão) ou mediana (mais robusta a outliers residuais).' },
       { p: 'São 19 índices embutidos, agrupados pelo que medem:' },
       { list: [
         'Vigor / verdor — NDVI, GNDVI, EVI, EVI2, SAVI, MSAVI, ARVI, VARI, TVI, SFDVI.',
@@ -69,21 +70,30 @@ export default [
   {
     slug: 'landsat',
     icon: '🛰️',
-    title: 'Landsat',
-    summary: 'Séries temporais de décadas e imagens para monitoramento histórico.',
+    title: 'Multi-Satélite',
+    summary: 'Imagens e séries de índice multimissão — Landsat 7/8/9, Sentinel-2, HLS, MODIS.',
     sections: [
-      { p: 'O módulo Landsat alcança 1999 — Landsat 7, 8 e 9 (USGS Coleção 2, Tier 1) — sendo a escolha certa para análise histórica de uso da terra, desempenho de culturas no longo prazo e detecção de mudanças anteriores à era Sentinel (2015+). O Landsat 5 é deliberadamente excluído: seu sensor TM não tem banda pancromática, então o produto pan-sharpened de 15 m não pode ser construído a partir dele.' },
+      { p: 'O módulo Multi-Satélite (antes Landsat) reúne várias missões ópticas em um só fluxo para imagens e séries temporais de índices de vegetação. Um registro de satélites despacha cada requisição por sensor, então os mesmos índices, modos RGB, máscara de nuvens e filtro de cobertura valem para toda fonte selecionada.' },
+      { h2: 'Fontes disponíveis' },
+      { p: 'Marque os sensores desejados no painel de Entradas — a seleção limita tanto a descoberta de datas quanto a série temporal, então menos fontes significam menos consultas ao Earth Engine:' },
+      { list: [
+        'Landsat 8 / 9 / 7 (USGS Coleção 2, Tier 1) — óptico de 30 m + pancromática de 15 m, desde 1999. Únicas fontes com banda pan, então o produto de super-resolução de 15 m vem delas.',
+        'Sentinel-2 — refletância de superfície de 10 m, detalhe nativo que já supera os 15 m pan-sharpened do Landsat (sem banda pan, sem super-res).',
+        'HLS Sentinel-2 — 30 m, harmonizado à grade Landsat com máscara de qualidade Fmask.',
+        'MODIS (8 dias) — composições Terra+Aqua de 250 m, desligado por padrão. Carrega só as bandas vermelho e NIR, então sem composição RGB e apenas os índices vermelho/NIR são oferecidos; os seletores de índice filtram conforme.',
+      ] },
+      { p: 'O Landsat 5 é deliberadamente excluído: seu sensor TM não tem banda pancromática, então o produto pan-sharpened de 15 m não pode ser construído a partir dele.' },
       { h2: 'Olhe no TOA, meça no SR' },
-      { p: 'Dois produtos fisicamente distintos são usados, cada um para a tarefa que melhor lhe cabe. A imagem nítida de 15 m em cor verdadeira vem da refletância no Topo da Atmosfera (TOA), onde o detalhe espacial importa mais que a calibração absoluta; todos os índices e composições quantitativos são calculados sobre a Refletância de Superfície (SR) corrigida, a 30 m.' },
+      { p: 'Para o Landsat, dois produtos fisicamente distintos são usados, cada um para a tarefa que melhor lhe cabe. A imagem nítida de 15 m em cor verdadeira vem da refletância no Topo da Atmosfera (TOA), onde o detalhe espacial importa mais que a calibração absoluta; todos os índices e composições quantitativos são calculados sobre a Refletância de Superfície (SR) corrigida.' },
       { h2: 'Cor verdadeira pan-sharpened de 15 m' },
-      { p: 'O pan-sharpening HSV dobra o detalhe aparente da imagem em cor verdadeira: o RGB de 30 m é convertido para Matiz–Saturação–Valor, a banda pancromática de 15 m substitui o canal de brilho (valor) e o resultado volta para RGB — tomando a cor das bandas de 30 m e o detalhe da banda pan de 15 m. Ideal para delinear limites de talhões, estradas e pequenas feições.' },
+      { p: 'Nos sensores Landsat com banda pan, o pan-sharpening HSV dobra o detalhe aparente da imagem em cor verdadeira: o RGB de 30 m é convertido para Matiz–Saturação–Valor, a banda pancromática de 15 m substitui o canal de brilho (valor) e o resultado volta para RGB — tomando a cor das bandas de 30 m e o detalhe da banda pan de 15 m. Ideal para delinear limites de talhões, estradas e pequenas feições. A ação de super-resolução fica oculta para fontes sem banda pan (Sentinel-2, HLS, MODIS).' },
       { h2: 'Índices espectrais & composições' },
-      { p: 'São oferecidos 14 índices em Refletância de Superfície (nenhum exige red-edge, que o Landsat não tem): vigor — NDVI, GNDVI, EVI, EVI2; ajustados ao solo — SAVI, OSAVI, MSAVI; atmosfera/clorofila — ARVI, CIgreen, CIred, MCARI; água e solo exposto — NDWI (NIR–SWIR1), MNDWI, BSI. Para interpretação qualitativa há quatro combinações de bandas: cor real, falsa-cor (NIR·Vermelho·Verde), SWIR1·NIR·Vermelho e SWIR2·NIR·Verde.' },
-      { h2: 'Séries temporais longas (SITS)' },
-      { p: 'Uma Série Temporal de Imagens de Satélite do índice escolhido é construída em todo o acervo, reduzida sobre a AOI pela mediana espacial (padrão; média disponível). Cada missão é consultada dentro de sua própria vida útil e as séries Landsat 7/8/9 são mescladas em um registro cronológico, colorido por missão, dando um histórico contínuo de índice de 1999 até hoje.' },
+      { p: 'São oferecidos 14 índices em Refletância de Superfície (nenhum exige red-edge, que o Landsat não tem): vigor — NDVI, GNDVI, EVI, EVI2; ajustados ao solo — SAVI, OSAVI, MSAVI; atmosfera/clorofila — ARVI, CIgreen, CIred, MCARI; água e solo exposto — NDWI (NIR–SWIR1), MNDWI, BSI. O MODIS, com só vermelho e NIR, fica restrito aos índices que essas duas bandas suportam. Para interpretação qualitativa há quatro combinações de bandas nos sensores multibanda: cor real, falsa-cor (NIR·Vermelho·Verde), SWIR1·NIR·Vermelho e SWIR2·NIR·Verde.' },
+      { h2: 'Série temporal multimissão (SITS)' },
+      { p: 'Uma Série Temporal de Imagens de Satélite do índice escolhido é construída sobre as fontes selecionadas, reduzida sobre a AOI pela mediana espacial (padrão; média disponível). Cada missão é consultada dentro de sua própria vida útil e as séries por sensor são mescladas em um registro cronológico, colorido por fonte — um histórico contínuo que pode ir de 1999 (Landsat 7) até hoje. Exporte como CSV ou abra o gráfico interativo no navegador.' },
       { h2: 'Descoberta & download de cenas' },
-      { p: 'As cenas são mascaradas para nuvens (bitmask QA_PIXEL em tudo, mais uma passagem de Simple Cloud Score no TOA) e mantidas apenas se passarem no filtro de cobertura mínima válida (padrão 80% de pixels claros dentro da AOI) — então você nunca vê uma data majoritariamente nublada ou fora do quadro. Pré-visualize as datas no mapa e baixe como GeoTIFF; com a biblioteca agrigee-lite, o módulo também suporta download em lote e em super-resolução.' },
-      { note: 'A revisita do Landsat (16 dias por satélite, ~8 dias para L8+L9 combinados) e a resolução de 30 m são mais grosseiras que o Sentinel-2 — prefira o módulo Óptico para a safra atual e o Landsat para o histórico. O corretor de linha de varredura do Landsat 7 falhou em 2003, deixando lacunas listradas; prefira Landsat 8/9 para trabalho sem falhas pós-2013.' },
+      { p: 'O seletor de datas e os produtos de download ficam em um painel compacto único. As cenas são mascaradas para nuvens (bitmask QA_PIXEL mais uma passagem de Simple Cloud Score no TOA do Landsat; Cloud Score+ para Sentinel-2; Fmask para HLS) e mantidas apenas se passarem no filtro de cobertura mínima válida (padrão 80% de pixels claros dentro da AOI) — então você nunca vê uma data majoritariamente nublada ou fora do quadro. Os rótulos de resultados ficam dinâmicos por sensor (resolução nativa, super-res limitada aos sensores com pan, RGB limitado aos multibanda). Escolha o índice gravado no download, pré-visualize as datas no mapa e baixe como GeoTIFF; com a biblioteca agrigee-lite, o módulo também suporta download em lote e em super-resolução.' },
+      { note: 'A revisita do Landsat (16 dias por satélite, ~8 dias para L8+L9 combinados) e a resolução de 30 m são mais grosseiras que o Sentinel-2 — adicione o Sentinel-2 para detalhe da safra atual e o Landsat para o histórico. O corretor de linha de varredura do Landsat 7 falhou em 2003, deixando lacunas listradas; prefira Landsat 8/9 para trabalho sem falhas pós-2013. O MODIS a 250 m serve para trabalho regional, não em escala de talhão.' },
     ],
   },
   {
@@ -136,10 +146,10 @@ export default [
   {
     slug: 'sysi',
     icon: '🟤',
-    title: 'SYSI Solo Exposto',
+    title: 'Solo Exposto',
     summary: 'Composições sintéticas de solo exposto para mapeamento de solos.',
     sections: [
-      { p: 'O SYSI (Synthetic Soil Image) constrói uma composição em que cada pixel mostra a superfície do solo livre de vegetação — mesmo que nenhuma data isolada mostre toda a área exposta. Construído a partir do acervo harmonizado de refletância de superfície Sentinel-2 (de 2017 em diante) a 10 m, é um insumo-chave para mapeamento digital de solos, delineamento de classes de solo e zonas de manejo. A regra de solo exposto segue o método GEOS3 de Demattê et al. (2018).' },
+      { p: 'O módulo Solo Exposto constrói uma Imagem Sintética de Solo (SYSI): uma composição em que cada pixel mostra a superfície do solo livre de vegetação — mesmo que nenhuma data isolada mostre toda a área exposta. Construído a partir do acervo harmonizado de refletância de superfície Sentinel-2 (de 2017 em diante) a 10 m, é um insumo-chave para mapeamento digital de solos, delineamento de classes de solo e zonas de manejo. A regra de solo exposto segue o método GEOS3 de Demattê et al. (2018).' },
       { h2: 'Como funciona' },
       { steps: [
         'Você define a AOI, um intervalo de datas, os meses do calendário a incluir, uma cobertura máxima de nuvens e as faixas de limiar de NDVI/NBR2.',
@@ -149,7 +159,7 @@ export default [
         'O resultado é uma imagem de 9 bandas a 10 m (Azul, Verde, Vermelho, Red-edge 2, NIR, SWIR1, SWIR2, NDVI, NBR2), renderizada no QGIS e exportável como GeoTIFF.',
       ] },
       { note: 'Restrinja os meses à estação local de pousio/preparo, quando o solo tende a estar mais exposto. Faixas de NDVI/NBR2 permissivas admitem vegetação esparsa ou resíduo; faixas estritas descartam solo válido e reduzem a cobertura.' },
-      { h2: 'O que fazer com um SYSI' },
+      { h2: 'O que fazer com uma imagem de solo exposto' },
       { list: [
         'Delinear classes de solo e transições visualmente — diferenças de cor acompanham textura e matéria orgânica.',
         'Apoiar o plano de amostragem: posicione amostras de solo onde a composição mostra zonas distintas.',
@@ -185,7 +195,7 @@ export default [
       { list: [
         'Explicar anomalias em séries de NDVI — quedas após geada, platôs durante seca.',
         'Avaliar a mudança climática recente em uma fazenda, área experimental ou bacia.',
-        'Documentar o contexto meteorológico em relatórios de campo; no módulo Óptico a série de chuva pode ser sobreposta ao gráfico de vegetação.',
+        'Documentar o contexto meteorológico em relatórios de campo; no módulo RAVI a série de chuva pode ser sobreposta ao gráfico de vegetação.',
       ] },
       { note: 'Os valores são em grade, não de estação — microclimas topográficos/costeiros abruptos são suavizados. POWER e ERA5 diferem em método, resolução e ano inicial, então o mesmo ponto pode dar valores ou tendências um pouco diferentes; compará-los via ponto B é informativo. Os resultados de tendência dependem da janela escolhida — prefira o período defensável mais longo.' },
     ],
@@ -247,10 +257,10 @@ export default [
     title: 'MapBiomas',
     summary: 'Uso e cobertura da terra do Brasil por ano e análise configurável de transições.',
     sections: [
-      { p: 'O MapBiomas traz o acervo anual de uso e cobertura da terra da Coleção 9 do MapBiomas Brasil para o QGIS. Explore qualquer ano dentro do módulo, baixe um ano para o QGIS como raster de classificação estilizado, ou analise como a terra mudou ao longo do tempo. A cobertura é apenas do Brasil e usa o Google Earth Engine.' },
+      { p: 'O MapBiomas traz o acervo anual de uso e cobertura da terra da Coleção 10 do MapBiomas Brasil para o QGIS: 40 mapas, um por ano de 1985 a 2024, a 30 m. Explore qualquer ano dentro do módulo, baixe um ano para o QGIS como raster de classificação estilizado, ou analise como a terra mudou ao longo do tempo. A cobertura é apenas do Brasil e usa o Google Earth Engine.' },
       { h2: 'Cobertura' },
       { list: [
-        'Explore todos os anos (1985–2023) no módulo com um controle deslizante de ano, ao lado da legenda oficial de 63 classes.',
+        'Explore todos os anos de 1985 a 2024 no módulo com um controle deslizante de ano, ao lado da legenda oficial da Coleção 10 (a Coleção 10 adiciona a classe 75, usinas fotovoltaicas).',
         'Baixe qualquer ano para o QGIS como um raster de classificação de banda única estilizado com a paleta oficial do MapBiomas — IDs de classe reais, mantendo os pixels consultáveis e analisáveis.',
       ] },
       { h2: 'Análise de transição' },
@@ -260,7 +270,7 @@ export default [
         'Personalizado: escolha qualquer combinação de classes de origem e destino.',
         'Um controle de intervalo de anos filtra o gráfico em tempo real e limita a camada de transição exportada, que carrega no QGIS classificada por ano de transição.',
       ] },
-      { note: 'A Coleção 9 do MapBiomas cobre apenas o Brasil — áreas fora do Brasil retornam resultados vazios. Requer autenticação no Google Earth Engine, como os demais módulos GEE.' },
+      { note: 'A Coleção 10 do MapBiomas cobre apenas o Brasil — áreas fora do Brasil retornam resultados vazios. Requer autenticação no Google Earth Engine, como os demais módulos GEE.' },
     ],
   },
   {
@@ -273,11 +283,11 @@ export default [
       { table: {
         headers: ['Módulo', 'Saídas'],
         rows: [
-          ['Óptico', 'Séries de índices (gráfico + CSV), imagens e composições GeoTIFF, download multiespectral em lote'],
+          ['RAVI', 'Séries de índices (gráfico + CSV), imagens e composições GeoTIFF, download multiespectral em lote'],
           ['Landsat', 'Séries temporais, cenas GeoTIFF, downloads em lote e super-resolução'],
           ['SAR', 'Séries e gráficos de retroespalhamento, camadas raster estilizadas, download GeoTIFF'],
           ['DEM', 'Elevação GeoTIFF recortada, renderização hillshade/terreno'],
-          ['SYSI', 'Composição sintética de solo exposto como camada renderizada / GeoTIFF'],
+          ['Solo Exposto', 'Composição sintética de solo exposto como camada renderizada / GeoTIFF'],
           ['ClimaPlots', 'Gráficos e dados de séries climáticas'],
           ['Guia de Campo', 'CSV, GPX, camada temporária QGIS, relatório PDF, rotas Google Maps'],
           ['MapBiomas', 'GeoTIFF de classificação por ano e GeoTIFF de transição (classificado por ano de transição), camadas estilizadas por paleta'],
