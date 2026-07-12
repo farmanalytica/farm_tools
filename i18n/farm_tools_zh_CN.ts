@@ -2737,5 +2737,53 @@ See the QGIS log for details.</source>
         <source>🛰️ RAVI - Remote Analysis of Vegetation Index</source>
         <translation>🛰️ RAVI - Remote Analysis of Vegetation Index</translation>
     </message>
+    <message>
+        <source>Análise CAR</source>
+        <translation>CAR 分析</translation>
+    </message>
+    <message>
+        <source>Fetch a registered rural property boundary by its Brazilian CAR code</source>
+        <translation>通过巴西 CAR 代码获取已登记农村地产的边界</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Análise CAR&lt;/b&gt; fetches the registered property boundary for a Brazilian CAR code straight from the public rural-environmental registry. Paste the code, fetch it, and the boundary is saved as a KML in your download folder and loaded onto the map.</source>
+        <translation>&lt;b&gt;CAR 分析&lt;/b&gt; 直接从公共农村环境登记系统获取巴西 CAR 代码对应的已登记地产边界。粘贴代码并获取，边界将以 KML 格式保存到您的下载文件夹并加载到地图上。</translation>
+    </message>
+    <message>
+        <source>CAR code</source>
+        <translation>CAR 代码</translation>
+    </message>
+    <message>
+        <source>Type or paste the property&apos;s CAR registration code.</source>
+        <translation>输入或粘贴该地产的 CAR 登记代码。</translation>
+    </message>
+    <message>
+        <source>CAR CODE</source>
+        <translation>CAR 代码</translation>
+    </message>
+    <message>
+        <source>Fetch CAR</source>
+        <translation>获取 CAR</translation>
+    </message>
+    <message>
+        <source>The KML is saved to the download folder set on the Auth page; if none is set, it goes to a temporary folder.</source>
+        <translation>KML 保存到在认证页面设置的下载文件夹；若未设置，则保存到临时文件夹。</translation>
+    </message>
+    <message>
+        <source>Please type a CAR code.</source>
+        <translation>请输入 CAR 代码。</translation>
+    </message>
+    <message>
+        <source>Invalid CAR code. Expected a format like GO-5219258-CAE9B45810F4458584BAB4E860CF288E.</source>
+        <translation>CAR 代码无效。应为类似 GO-5219258-CAE9B45810F4458584BAB4E860CF288E 的格式。</translation>
+    </message>
+    <message>
+        <source>Fetching…</source>
+        <translation>正在获取…</translation>
+    </message>
+    <message>
+        <source>CAR &apos;%s&apos; loaded successfully.</source>
+        <translation>CAR &apos;%s&apos; 加载成功。</translation>
+    </message>
 </context>
 </TS>

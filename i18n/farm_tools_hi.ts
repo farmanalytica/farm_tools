@@ -2737,5 +2737,53 @@ See the QGIS log for details.</source>
         <source>🛰️ RAVI - Remote Analysis of Vegetation Index</source>
         <translation>🛰️ RAVI - Remote Analysis of Vegetation Index</translation>
     </message>
+    <message>
+        <source>Análise CAR</source>
+        <translation>CAR विश्लेषण</translation>
+    </message>
+    <message>
+        <source>Fetch a registered rural property boundary by its Brazilian CAR code</source>
+        <translation>ब्राज़ीलियाई CAR कोड द्वारा पंजीकृत ग्रामीण संपत्ति की सीमा प्राप्त करें</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Análise CAR&lt;/b&gt; fetches the registered property boundary for a Brazilian CAR code straight from the public rural-environmental registry. Paste the code, fetch it, and the boundary is saved as a KML in your download folder and loaded onto the map.</source>
+        <translation>&lt;b&gt;CAR विश्लेषण&lt;/b&gt; सार्वजनिक ग्रामीण-पर्यावरण रजिस्ट्री से सीधे ब्राज़ीलियाई CAR कोड के लिए पंजीकृत संपत्ति की सीमा प्राप्त करता है। कोड चिपकाएँ, प्राप्त करें, और सीमा आपके डाउनलोड फ़ोल्डर में KML के रूप में सहेजी जाती है और मानचित्र पर लोड होती है।</translation>
+    </message>
+    <message>
+        <source>CAR code</source>
+        <translation>CAR कोड</translation>
+    </message>
+    <message>
+        <source>Type or paste the property&apos;s CAR registration code.</source>
+        <translation>संपत्ति का CAR पंजीकरण कोड टाइप करें या चिपकाएँ।</translation>
+    </message>
+    <message>
+        <source>CAR CODE</source>
+        <translation>CAR कोड</translation>
+    </message>
+    <message>
+        <source>Fetch CAR</source>
+        <translation>CAR प्राप्त करें</translation>
+    </message>
+    <message>
+        <source>The KML is saved to the download folder set on the Auth page; if none is set, it goes to a temporary folder.</source>
+        <translation>KML प्रमाणीकरण पृष्ठ पर सेट किए गए डाउनलोड फ़ोल्डर में सहेजा जाता है; यदि कोई सेट नहीं है, तो यह एक अस्थायी फ़ोल्डर में जाता है।</translation>
+    </message>
+    <message>
+        <source>Please type a CAR code.</source>
+        <translation>कृपया एक CAR कोड टाइप करें।</translation>
+    </message>
+    <message>
+        <source>Invalid CAR code. Expected a format like GO-5219258-CAE9B45810F4458584BAB4E860CF288E.</source>
+        <translation>अमान्य CAR कोड। GO-5219258-CAE9B45810F4458584BAB4E860CF288E जैसे प्रारूप की अपेक्षा थी।</translation>
+    </message>
+    <message>
+        <source>Fetching…</source>
+        <translation>प्राप्त किया जा रहा है…</translation>
+    </message>
+    <message>
+        <source>CAR &apos;%s&apos; loaded successfully.</source>
+        <translation>CAR &apos;%s&apos; सफलतापूर्वक लोड हुआ।</translation>
+    </message>
 </context>
 </TS>
