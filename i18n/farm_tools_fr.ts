@@ -2737,5 +2737,53 @@ Consultez le journal QGIS pour plus de détails.</translation>
         <source>🛰️ RAVI - Remote Analysis of Vegetation Index</source>
         <translation>🛰️ RAVI - Remote Analysis of Vegetation Index</translation>
     </message>
+    <message>
+        <source>Análise CAR</source>
+        <translation>Analyse CAR</translation>
+    </message>
+    <message>
+        <source>Fetch a registered rural property boundary by its Brazilian CAR code</source>
+        <translation>Récupère la limite d&apos;une propriété rurale enregistrée à partir de son code CAR brésilien</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Análise CAR&lt;/b&gt; fetches the registered property boundary for a Brazilian CAR code straight from the public rural-environmental registry. Paste the code, fetch it, and the boundary is saved as a KML in your download folder and loaded onto the map.</source>
+        <translation>&lt;b&gt;Analyse CAR&lt;/b&gt; récupère la limite de la propriété enregistrée pour un code CAR brésilien directement depuis le registre public environnemental rural. Collez le code, lancez la recherche, et la limite est enregistrée en KML dans votre dossier de téléchargements et chargée sur la carte.</translation>
+    </message>
+    <message>
+        <source>CAR code</source>
+        <translation>Code CAR</translation>
+    </message>
+    <message>
+        <source>Type or paste the property&apos;s CAR registration code.</source>
+        <translation>Saisissez ou collez le code d&apos;enregistrement CAR de la propriété.</translation>
+    </message>
+    <message>
+        <source>CAR CODE</source>
+        <translation>CODE CAR</translation>
+    </message>
+    <message>
+        <source>Fetch CAR</source>
+        <translation>Récupérer le CAR</translation>
+    </message>
+    <message>
+        <source>The KML is saved to the download folder set on the Auth page; if none is set, it goes to a temporary folder.</source>
+        <translation>Le KML est enregistré dans le dossier de téléchargements défini sur la page d&apos;Authentification ; si aucun n&apos;est défini, il est placé dans un dossier temporaire.</translation>
+    </message>
+    <message>
+        <source>Please type a CAR code.</source>
+        <translation>Saisissez un code CAR.</translation>
+    </message>
+    <message>
+        <source>Invalid CAR code. Expected a format like GO-5219258-CAE9B45810F4458584BAB4E860CF288E.</source>
+        <translation>Code CAR invalide. Format attendu : GO-5219258-CAE9B45810F4458584BAB4E860CF288E.</translation>
+    </message>
+    <message>
+        <source>Fetching…</source>
+        <translation>Récupération…</translation>
+    </message>
+    <message>
+        <source>CAR &apos;%s&apos; loaded successfully.</source>
+        <translation>CAR &apos;%s&apos; chargé avec succès.</translation>
+    </message>
 </context>
 </TS>

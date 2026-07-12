@@ -2737,5 +2737,53 @@ Consulta il log di QGIS per i dettagli.</translation>
         <source>🛰️ RAVI - Remote Analysis of Vegetation Index</source>
         <translation>🛰️ RAVI - Remote Analysis of Vegetation Index</translation>
     </message>
+    <message>
+        <source>Análise CAR</source>
+        <translation>Analisi CAR</translation>
+    </message>
+    <message>
+        <source>Fetch a registered rural property boundary by its Brazilian CAR code</source>
+        <translation>Recupera il confine di una proprietà rurale registrata dal suo codice CAR brasiliano</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Análise CAR&lt;/b&gt; fetches the registered property boundary for a Brazilian CAR code straight from the public rural-environmental registry. Paste the code, fetch it, and the boundary is saved as a KML in your download folder and loaded onto the map.</source>
+        <translation>&lt;b&gt;Analisi CAR&lt;/b&gt; recupera il confine della proprietà registrata per un codice CAR brasiliano direttamente dal registro pubblico ambientale rurale. Incolla il codice, avvia la ricerca, e il confine viene salvato come KML nella tua cartella dei download e caricato sulla mappa.</translation>
+    </message>
+    <message>
+        <source>CAR code</source>
+        <translation>Codice CAR</translation>
+    </message>
+    <message>
+        <source>Type or paste the property&apos;s CAR registration code.</source>
+        <translation>Digita o incolla il codice di registrazione CAR della proprietà.</translation>
+    </message>
+    <message>
+        <source>CAR CODE</source>
+        <translation>CODICE CAR</translation>
+    </message>
+    <message>
+        <source>Fetch CAR</source>
+        <translation>Recupera CAR</translation>
+    </message>
+    <message>
+        <source>The KML is saved to the download folder set on the Auth page; if none is set, it goes to a temporary folder.</source>
+        <translation>Il KML viene salvato nella cartella dei download impostata nella pagina di Autenticazione; se non ne è impostata alcuna, va in una cartella temporanea.</translation>
+    </message>
+    <message>
+        <source>Please type a CAR code.</source>
+        <translation>Digita un codice CAR.</translation>
+    </message>
+    <message>
+        <source>Invalid CAR code. Expected a format like GO-5219258-CAE9B45810F4458584BAB4E860CF288E.</source>
+        <translation>Codice CAR non valido. Previsto un formato come GO-5219258-CAE9B45810F4458584BAB4E860CF288E.</translation>
+    </message>
+    <message>
+        <source>Fetching…</source>
+        <translation>Recupero…</translation>
+    </message>
+    <message>
+        <source>CAR &apos;%s&apos; loaded successfully.</source>
+        <translation>CAR &apos;%s&apos; caricato correttamente.</translation>
+    </message>
 </context>
 </TS>
