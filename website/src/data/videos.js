@@ -21,7 +21,7 @@ export default [
   {
     id: 'install-auth',
     category: 'start',
-    youtubeId: null,
+    youtubeId: 'jYnrN8gA0ig',
     wiki: 'getting-started',
     title: {
       'en-US': 'Installation & GEE authentication',
