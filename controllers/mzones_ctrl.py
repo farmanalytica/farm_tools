@@ -10,6 +10,7 @@ Light steps run synchronously on the UI thread wrapped in a wait cursor;
 the resampling/extraction and elbow + silhouette steps run on worker
 threads (``workers/mzones_worker.py``) with progress on their buttons.
 """
+import logging
 import os
 import shutil
 from contextlib import contextmanager
@@ -44,6 +45,8 @@ from ..services.mzones.raster_io import read_ref_metadata_from_layer
 from ..services.mzones.session import PZSession
 from ..services.mzones.variance_service import NoZonesData
 from ..workers.mzones_worker import ElbowWorker, ResampleWorker
+
+logger = logging.getLogger(__name__)
 
 
 @contextmanager
@@ -184,7 +187,7 @@ class ResampleController:
             worker.dep_missing.disconnect()
             worker.failed.disconnect()
         except Exception:
-            pass
+            logger.debug("Failed to disconnect resample worker signals", exc_info=True)
         if worker.isRunning():
             worker.cancel()
             worker.wait()
@@ -299,7 +302,7 @@ class PCAController:
             hdr.setSectionResizeMode(2, QHeaderView.ResizeToContents)
             hdr.setStretchLastSection(True)
         except Exception:
-            pass
+            logger.debug("Failed to resize PCA table header columns", exc_info=True)
 
         dlg.mz_populate_pc_combos(len(result.variance_pct))
 
@@ -528,7 +531,7 @@ class ZonesController:
             worker.dep_missing.disconnect()
             worker.failed.disconnect()
         except Exception:
-            pass
+            logger.debug("Failed to disconnect elbow worker signals", exc_info=True)
         if worker.isRunning():
             worker.cancel()
             worker.wait()
@@ -586,7 +589,7 @@ class ZonesController:
                 hdr.setSectionResizeMode(1, QHeaderView.ResizeToContents)
                 hdr.setSectionResizeMode(2, QHeaderView.ResizeToContents)
             except Exception:
-                pass
+                logger.debug("Failed to resize elbow/indices table header columns", exc_info=True)
 
             ses.tabela_elbow = pd.DataFrame({
                 "Clusters": ks,
@@ -601,7 +604,7 @@ class ZonesController:
                 try:
                     old_twin.remove()
                 except Exception:
-                    pass
+                    logger.debug("Failed to remove previous elbow twin axis", exc_info=True)
                 dlg._mz_elbow_twin_ax = None
 
             l1, = ax.plot(ks, inercia, marker='o', label=tr("Inertia"))
@@ -796,7 +799,7 @@ class FilterController:
                     out_layer.dataProvider().setNoDataValue(1, float(result.nodata))
                 out_layer.triggerRepaint()
             except Exception:
-                pass
+                logger.debug("Failed to set nodata/repaint output raster layer", exc_info=True)
 
             dlg.mz_refresh_rasters()
 
@@ -1028,22 +1031,22 @@ class MZonesCtrl:
         try:
             self.dialog.mz_refresh_rasters()
         except Exception:
-            pass
+            logger.debug("Failed to refresh raster combo boxes on layer change", exc_info=True)
 
     def cleanup(self):
         for ctrl in (self.zones, self.resample):
             try:
                 ctrl.stop_worker()
             except Exception:
-                pass
+                logger.debug("Failed to stop sub-controller worker during cleanup", exc_info=True)
         try:
             self._project.layersAdded.disconnect(self._on_layers_added)
             self._project.layersRemoved.disconnect(self._on_layers_changed)
         except Exception:
-            pass
+            logger.debug("Failed to disconnect project layer signals during cleanup", exc_info=True)
         for layer in self._watched_layers:
             try:
                 layer.nameChanged.disconnect(self._on_layers_changed)
             except Exception:
-                pass
+                logger.debug("Failed to disconnect layer nameChanged signal during cleanup", exc_info=True)
         self._watched_layers = []

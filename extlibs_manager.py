@@ -19,6 +19,7 @@ QGIS Python upgrade (different tag) re-provisions automatically.
 """
 import hashlib
 import importlib
+import logging
 import os
 import shutil
 import subprocess
@@ -28,6 +29,8 @@ import urllib.request
 import zipfile
 
 from qgis.PyQt.QtCore import QThread, pyqtSignal
+
+logger = logging.getLogger(__name__)
 
 # Prebuilt bundles are published as GitHub Release assets (not committed to the
 # repo) so the plugin checkout stays small and the heavy zips never bloat git.
@@ -218,7 +221,7 @@ def _strip_qgis_provided(target):
                 path = os.path.join(target, entry)
                 shutil.rmtree(path, ignore_errors=True) if os.path.isdir(path) else os.remove(path)
     except Exception:
-        pass
+        logger.debug("Failed to remove QGIS-provided package from extlibs", exc_info=True)
 
 
 def _patch_climdex():
@@ -238,7 +241,7 @@ def _patch_climdex():
                 with open(f, "w", encoding="utf-8") as fh:
                     fh.write(c.replace("'1M'", "'ME'"))
         except Exception:
-            pass
+            logger.debug("Failed to patch climdex '1M' offset in %s", f, exc_info=True)
 
 
 class ExtlibsDownloader(QThread):
@@ -322,7 +325,7 @@ class ExtlibsDownloader(QThread):
         specs = _missing_pip_specs()
         install_args = specs if specs else ["-r", _REQUIREMENTS]
         try:
-            subprocess.run(
+            subprocess.run(  # nosec B603
                 [py, "-m", "pip", "install", "--target", EXTLIBS_PATH,
                  *install_args, "--no-warn-script-location"],
                 check=True,

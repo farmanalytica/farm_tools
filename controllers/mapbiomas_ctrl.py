@@ -15,6 +15,7 @@ The AOI is extracted on the main thread and the slow Earth Engine work runs in a
 ``QThread`` worker (``finished``/``failed``/``progress``).
 """
 
+import logging
 import os
 import shutil
 import tempfile
@@ -46,6 +47,8 @@ from ..services.mapbiomas_service import (
 from ..tools.aoi_draw_tool import start_draw_aoi
 from ..view import plotly_render
 from ..workers.mapbiomas_worker import MapBiomasWorker
+
+logger = logging.getLogger(__name__)
 
 
 def _tr(text):
@@ -878,7 +881,7 @@ class MapBiomasCtrl:
             try:
                 self.interface.mapCanvas().unsetMapTool(self._draw_tool)
             except Exception:
-                pass
+                logger.debug("unset draw tool on canvas failed", exc_info=True)
             self._draw_tool = None
         if self._tx_tmp_path and os.path.exists(self._tx_tmp_path):
             try:
@@ -895,7 +898,7 @@ class MapBiomasCtrl:
                 self._worker.failed.disconnect()
                 self._worker.progress.disconnect()
             except Exception:
-                pass
+                logger.debug("disconnect MapBiomas worker signals failed", exc_info=True)
             self._worker.cancel()
             if self._worker.isRunning():
                 self._worker.wait(100)
@@ -906,7 +909,7 @@ class MapBiomasCtrl:
                 self._tx_map_worker.finished.disconnect()
                 self._tx_map_worker.failed.disconnect()
             except Exception:
-                pass
+                logger.debug("disconnect transition map worker signals failed", exc_info=True)
             if self._tx_map_worker.isRunning():
                 self._tx_map_worker.wait(100)
             self._tx_map_worker.deleteLater()

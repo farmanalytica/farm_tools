@@ -12,10 +12,13 @@ need: opening clicked links in the system browser (WebKit uses link
 delegation, WebEngine needs a custom page that intercepts navigation).
 """
 
+import logging
 import os
 import sys
 
 from qgis.PyQt.QtGui import QDesktopServices
+
+logger = logging.getLogger(__name__)
 
 try:
     from qgis.PyQt.QtWebKitWidgets import QWebPage, QWebView
@@ -43,7 +46,7 @@ except ImportError:  # Qt6 / QGIS 4: WebKit is gone, use WebEngine
                         _flags + " --single-process"
                     ).strip()
         except Exception:
-            pass
+            logger.debug("Failed to set QTWEBENGINE_CHROMIUM_FLAGS single-process ANGLE workaround", exc_info=True)
 
     from qgis.PyQt.QtWebEngineCore import QWebEnginePage
     from qgis.PyQt.QtWebEngineWidgets import QWebEngineView as QWebView

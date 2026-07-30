@@ -9,6 +9,7 @@ pymannkendall, pyhomogeneity) stay lazy so the plugin loads before the extlibs
 bundle is provisioned.
 """
 
+import logging
 import os
 import traceback
 
@@ -30,6 +31,8 @@ from ..view.climaplots import (
 )
 from ..view.styles import STYLE_BTN_DRAW_ACTIVE, STYLE_BTN_SECONDARY
 from ..workers.climaplots_worker import ClimaPlotsAnalysisWorker
+
+logger = logging.getLogger(__name__)
 
 
 def _tr(text):
@@ -194,7 +197,7 @@ class ClimaPlotsCtrl:
                 self._worker.failed.disconnect()
                 self._worker.progress.disconnect()
             except Exception:
-                pass
+                logger.debug("disconnect analysis worker signals failed", exc_info=True)
             if self._worker.isRunning():
                 self._worker.wait(100)
             self._worker.deleteLater()
@@ -293,7 +296,7 @@ class ClimaPlotsCtrl:
             try:
                 view.setHtml(_loading_html(location))
             except Exception:
-                pass
+                logger.debug("failed to set loading HTML on plot view", exc_info=True)
         # Jump to the first plot page right away so the user sees the loading
         # state (and the coordinates being fetched) instead of a frozen form.
         self.dialog.cp_set_tab(2)
@@ -340,7 +343,7 @@ class ClimaPlotsCtrl:
             try:
                 view.setHtml("")
             except Exception:
-                pass
+                logger.debug("failed to clear loading HTML on plot view", exc_info=True)
         self.dialog.pop_message(
             _tr("Failed to fetch or process climate data.\nSee the QGIS log for details."),
             "warning",

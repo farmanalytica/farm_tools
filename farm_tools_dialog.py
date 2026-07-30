@@ -20,6 +20,7 @@ This module owns the dialog shell only. Keep this module free of business logic
 and the ``ee`` SDK.
 """
 
+import logging
 import os
 
 from qgis.PyQt.QtCore import Qt, QUrl, QCoreApplication, QEvent
@@ -58,9 +59,45 @@ from .view.welcome import setup_welcome_page
 from .view.sidebar import Sidebar
 from .view.styles import STYLE_DIALOG, STYLE_BTN_HELP
 
+logger = logging.getLogger(__name__)
+
 
 def _tr(text):
     return QCoreApplication.translate("RAVI", text)
+
+
+class _SinglePageStack(QStackedWidget):
+    """QStackedWidget that sizes to the current page only.
+
+    The default implementation reports the max size hint across every page
+    it holds, even hidden ones, so the widest module (e.g. mzones) silently
+    floors the whole dialog's minimum width and blocks manual narrowing on
+    every other page. Overriding both hints to the current widget's, plus
+    invalidating geometry on page switch, lets the window shrink to fit
+    whichever page is actually shown.
+    """
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.currentChanged.connect(self._on_current_changed)
+
+    def sizeHint(self):
+        current = self.currentWidget()
+        return current.sizeHint() if current is not None else super().sizeHint()
+
+    def minimumSizeHint(self):
+        current = self.currentWidget()
+        return (
+            current.minimumSizeHint()
+            if current is not None
+            else super().minimumSizeHint()
+        )
+
+    def _on_current_changed(self, _index):
+        self.updateGeometry()
+        top = self.window()
+        if top is not None:
+            top.layout().activate()
 
 
 # Per-module help: the "?" button opens the matching wiki section on the site.
@@ -151,7 +188,7 @@ class FarmToolsDialog(QDialog):
                 self.hide()
                 self.show()
         except Exception:
-            pass
+            logger.debug("Failed to force taskbar button via WS_EX_APPWINDOW", exc_info=True)
 
     def _setup_ui(self):
         """Build the main_layout layout: fixed header, central stack, fixed footer."""
@@ -203,7 +240,7 @@ class FarmToolsDialog(QDialog):
         content_layout.setContentsMargins(0, 0, 0, 0)
         content_layout.setSpacing(0)
 
-        self.stack = QStackedWidget()
+        self.stack = _SinglePageStack()
         self.stack.setFrameShape(QFrame.Shape.NoFrame)
         self.stack.setLineWidth(0)
         self.stack.setStyleSheet("background-color: #f5f5f5;")

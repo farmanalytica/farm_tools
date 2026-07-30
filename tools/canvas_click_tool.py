@@ -9,6 +9,8 @@ supported ("A" and "B") so a primary point and a comparison point can each
 keep their own colored marker; a click moves the marker for the active slot
 and the mode stays on until toggled off.
 """
+import logging
+
 from qgis.PyQt.QtCore import QCoreApplication, QObject, Qt, pyqtSignal
 from qgis.PyQt.QtGui import QColor
 from qgis.core import (
@@ -18,6 +20,8 @@ from qgis.core import (
     QgsProject,
 )
 from qgis.gui import QgsMapToolEmitPoint, QgsVertexMarker
+
+logger = logging.getLogger(__name__)
 
 
 def _tr(text):
@@ -68,7 +72,7 @@ class CanvasClickTool(QObject):
                 level=Qgis.Info, duration=3,
             )
         except Exception:
-            pass
+            logger.debug("Failed to show 'click a point' message bar hint", exc_info=True)
 
     def disable(self):
         """Deactivate capture mode and restore the previous map tool."""
@@ -113,4 +117,4 @@ class CanvasClickTool(QObject):
                 try:
                     self.canvas.scene().removeItem(marker)
                 except Exception:
-                    pass
+                    logger.debug("Failed to remove vertex marker for slot %s from canvas scene", s, exc_info=True)

@@ -8,6 +8,7 @@ DataFrame, including filter metadata, to the QGIS/Python console.
 """
 
 import json
+import logging
 import os
 import tempfile
 from datetime import datetime, timedelta
@@ -53,6 +54,8 @@ from ..workers.optical_analysis_worker import OpticalAnalysisWorker
 from ..workers.optical_composite_worker import OpticalCompositeWorker
 from ..workers.optical_preview_worker import OpticalPreviewWorker
 from ..workers.optical_worker import OpticalWorker
+
+logger = logging.getLogger(__name__)
 
 
 def _tr(text):
@@ -700,6 +703,7 @@ class OpticalCtrl:
                 name = os.path.splitext(os.path.basename(path))[0]
                 self._add_rgb_raster(path, name)
             except Exception:
+                logger.debug("Failed to load downloaded image as RGB raster: %s", path, exc_info=True)
                 continue
 
     def _add_rgb_raster(self, path: str, name: str, bands=(4, 3, 2)):

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """Resampling + extraction service: warp/clip rasters to a snapped grid, sample
 pixel centroids into a points DataFrame. Pure backend (no QMessageBox)."""
+import logging
 import os
 import tempfile
 import uuid
@@ -24,6 +25,8 @@ from .deps import import_pandas
 from .i18n import tr
 from .raster_io import compute_grid, estimate_utm_crs
 from .data_cleaning import limpar_dataframe
+
+logger = logging.getLogger(__name__)
 
 
 class OperationCancelled(Exception):
@@ -131,7 +134,10 @@ def resample_and_extract(contorno_layer, rasters, resolucao: float,
                      level=1)
                 continue
         except Exception:
-            pass
+            logger.debug(
+                "Failed to check intersection of %s with the boundary; proceeding without the check",
+                raster.name(), exc_info=True,
+            )
 
         width_px = max(1, int(np.ceil((x_max - x_min) / resolucao)))
         height_px = max(1, int(np.ceil((y_max - y_min) / resolucao)))
@@ -162,7 +168,9 @@ def resample_and_extract(contorno_layer, rasters, resolucao: float,
                     import shutil
                     shutil.copyfile(cand, warp_tmp)
                 except Exception:
-                    pass
+                    logger.debug(
+                        "Failed to copy warped output %s to %s", cand, warp_tmp, exc_info=True,
+                    )
         except Exception:
             produced = False
 
@@ -288,7 +296,10 @@ def resample_and_extract(contorno_layer, rasters, resolucao: float,
             ref_crs_wkt = ds_chk.GetProjection()
             grid_shape = (ds_chk.RasterYSize, ds_chk.RasterXSize)
     except Exception:
-        pass
+        logger.debug(
+            "Failed to read grid metadata (geotransform/CRS/shape) from the "
+            "reference output raster; keeping previous defaults", exc_info=True,
+        )
 
     return ResampleResult(
         df=df, ref_gt=ref_gt, ref_crs_wkt=ref_crs_wkt, grid_shape=grid_shape,

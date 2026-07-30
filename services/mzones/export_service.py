@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 """Export helpers: CSV, PCA report, boxplots PNG, PC rasters. Pure backend."""
+import logging
 import os
 
 import numpy as np
@@ -8,6 +9,8 @@ from osgeo import gdal, osr
 from .deps import import_pandas
 from .i18n import tr
 from .raster_io import write_geotiff, xy_to_rowcol
+
+logger = logging.getLogger(__name__)
 
 
 class NoPointsInZones(Exception):
@@ -76,6 +79,10 @@ def build_boxplots(df_points, col_x: str, col_y: str, col_attr: str,
                 continue
             registros.append((int(z), float(valor)))
         except Exception:
+            logger.debug(
+                "Failed to map point (x=%s, y=%s) to a zone for the boxplot; skipping",
+                x, y, exc_info=True,
+            )
             continue
 
     if not registros:

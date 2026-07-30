@@ -6,10 +6,13 @@ year-range. Historical data is immutable, so the cache never needs invalidating;
 delete the folder to clear it. All operations are best-effort and never raise.
 """
 import hashlib
+import logging
 import os
 import tempfile
 
 import pandas as pd
+
+logger = logging.getLogger(__name__)
 
 CACHE_DIR = os.path.join(tempfile.gettempdir(), "farm_tools_climaplots_cache")
 
@@ -39,4 +42,4 @@ def save(path, df):
         os.makedirs(CACHE_DIR, exist_ok=True)
         df.to_csv(path, index=False)
     except Exception:
-        pass
+        logger.debug("Failed to write climate series cache to %s", path, exc_info=True)

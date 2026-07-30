@@ -22,6 +22,7 @@
  ***************************************************************************/
 """
 
+import logging
 import os.path
 
 from qgis.PyQt.QtGui import QIcon
@@ -31,6 +32,8 @@ from qgis.core import QgsSettings
 
 from .farm_tools_dialog import FarmToolsDialog
 from .managers.settings_manager import SettingsManager
+
+logger = logging.getLogger(__name__)
 
 
 class FarmTools:
@@ -146,25 +149,25 @@ class FarmTools:
             try:
                 self.fieldguide_ctrl.cleanup()
             except Exception:
-                pass
+                logger.debug("Field guide controller cleanup failed", exc_info=True)
         if getattr(self, "climaplots_ctrl", None) is not None:
             # Release the pick tool, markers, temp charts, and any worker.
             try:
                 self.climaplots_ctrl.cleanup()
             except Exception:
-                pass
+                logger.debug("ClimaPlots controller cleanup failed", exc_info=True)
         if getattr(self, "mapbiomas_ctrl", None) is not None:
             # Release the draw tool, temp chart, and any worker.
             try:
                 self.mapbiomas_ctrl.cleanup()
             except Exception:
-                pass
+                logger.debug("MapBiomas controller cleanup failed", exc_info=True)
         if getattr(self, "mzones_ctrl", None) is not None:
             # Disconnect QgsProject layer signals.
             try:
                 self.mzones_ctrl.cleanup()
             except Exception:
-                pass
+                logger.debug("Management zones controller cleanup failed", exc_info=True)
         QCoreApplication.removeTranslator(self._translator)
         for action in self.actions:
             self.interface.removePluginMenu(self.menu, action)

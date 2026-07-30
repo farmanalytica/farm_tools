@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """Zones raster generation: rasterize per-point cluster ids onto the reference
 grid. Pure backend (no QMessageBox)."""
+import logging
 import os
 import tempfile
 
@@ -17,6 +18,8 @@ from qgis.PyQt.QtCore import QVariant
 from qgis import processing
 
 from .i18n import tr
+
+logger = logging.getLogger(__name__)
 
 
 def rasterize_zones(df_xyz, crs_authid: str, ref_gt: tuple, grid_shape: tuple,
@@ -42,7 +45,7 @@ def rasterize_zones(df_xyz, crs_authid: str, ref_gt: tuple, grid_shape: tuple,
         try:
             os.remove(tmp_gpkg)
         except Exception:
-            pass
+            logger.debug("Failed to remove stale temp GeoPackage %s", tmp_gpkg, exc_info=True)
 
     save_opts = QgsVectorFileWriter.SaveVectorOptions()
     save_opts.driverName = "GPKG"

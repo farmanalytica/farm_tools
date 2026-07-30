@@ -4,7 +4,11 @@
 Replaces the ~30 inline `try/except: iface.messageBar().pushMessage(...)` blocks
 and the scattered QMessageBox calls. `status()` never raises.
 """
+import logging
+
 from qgis.PyQt.QtWidgets import QMessageBox
+
+logger = logging.getLogger(__name__)
 
 
 class Notifier:
@@ -21,7 +25,7 @@ class Notifier:
         try:
             self.iface.messageBar().pushMessage(title, msg, level=level)
         except Exception:
-            pass
+            logger.debug("Failed to push message bar notice (title=%s)", title, exc_info=True)
 
     def info(self, parent, title: str, msg: str):
         QMessageBox.information(parent, title, msg)
