@@ -4,7 +4,7 @@ qgisMinimumVersion=3.28
 qgisMaximumVersion=4.99
 description=Toolbox of geo-analytics modules for research, education, agriculture, and land monitoring: vegetation index time series, multispectral/SAR/DEM downloads, bare-soil composites, climate plots, and field sampling
 description_pt=Conjunto de módulos de geoanálise para pesquisa, ensino, agricultura e monitoramento da terra: séries temporais de índices de vegetação, downloads multiespectrais/SAR/DEM, composições de solo exposto, gráficos climáticos e amostragem de campo
-version=9.2
+version=9.3
 author=FARM Analytica
 email=contato@farmanalytica.com.br
 
@@ -19,6 +19,16 @@ repository=https://github.com/farmanalytica/farm_tools
 hasProcessingProvider=no
 # Uncomment the following line and add your changelog:
 changelog=
+    9.3 - New CAR module: look up a Brazilian CAR code (Cadastro Ambiental
+          Rural) to fetch the property boundary from the public registry,
+          save it as KML, and load it as a layer, with progress feedback via
+          a background worker. Registered in the sidebar and welcome hub
+          module lists, with translated strings for all 6 supported
+          languages. CAR/AOI overlay now draws with a red outline (matching
+          the AOI draw tool) instead of green. Sidebar: fixed the brand logo
+          button so it centers correctly when the rail is collapsed. Sidebar
+          "What's new" area now links to an install & authentication
+          walkthrough video.
     9.0 - RAVI plot date-range filtering: two-handle slider below the plot lets
           you narrow the cached time series by date span. Dragging updates the
           label live and re-renders the plot after settling (200 ms debounce).
