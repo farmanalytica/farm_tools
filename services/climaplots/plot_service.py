@@ -11,6 +11,8 @@ available, so the dialog can show a friendly warning.
 lazily inside the builders so this module stays importable before the extlibs
 bundle is provisioned.
 """
+import logging
+
 import numpy as np
 import pandas as pd
 import plotly.express as px
@@ -18,6 +20,8 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
 from .types import PlotResult
+
+logger = logging.getLogger(__name__)
 
 
 class PlotDataError(Exception):
@@ -166,7 +170,7 @@ def thermopluviometric(df, longitude, latitude):
         if not dt.isna().all():
             df["Year"] = dt.dt.year
     except Exception:
-        pass
+        logger.debug("Failed to derive Year column from Month for export", exc_info=True)
     return PlotResult(figure=fig, data=df)
 
 
@@ -226,4 +230,4 @@ def _add_year_column(df_plot):
             if vals.size and vals.min() >= 1800 and vals.max() <= 2100:
                 df_plot["Year"] = vals
     except Exception:
-        pass
+        logger.debug("Failed to derive Year column from index for export", exc_info=True)

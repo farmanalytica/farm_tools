@@ -19,6 +19,7 @@ chart is identical in both.
 """
 import base64
 import json
+import logging
 import os
 import tempfile
 
@@ -27,6 +28,8 @@ import numpy as np
 from qgis.PyQt.QtCore import QUrl
 
 from .webcompat import USING_WEBENGINE
+
+logger = logging.getLogger(__name__)
 
 _PLOTLY_JS_PATH = os.path.join(
     os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
@@ -124,7 +127,7 @@ def run_js(web_view, js):
         else:
             web_view.page().mainFrame().evaluateJavaScript(js)
     except Exception:
-        pass
+        logger.debug("Failed to execute JavaScript in web view (page not ready or backend rejected it)", exc_info=True)
 
 
 def restyle_bar_colors(web_view, colors):
@@ -168,7 +171,7 @@ def clear_webview(web_view, previous_path=None):
     try:
         web_view.setHtml("")
     except Exception:
-        pass
+        logger.debug("Failed to clear web view HTML", exc_info=True)
     return None
 
 

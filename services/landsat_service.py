@@ -23,6 +23,7 @@ single multiband GeoTIFF, so no zip extraction or band merging is required (see
 
 from __future__ import annotations
 
+import logging
 import os
 import tempfile
 from dataclasses import dataclass, field
@@ -35,6 +36,8 @@ try:
     from osgeo import gdal
 except ImportError:
     gdal = None
+
+logger = logging.getLogger(__name__)
 
 
 # Satellite sources are declared in the ``SATELLITES`` registry (defined after
@@ -448,6 +451,11 @@ class LandsatService:
                 )
             except Exception:
                 # One mission failing (range, quota…) must not drop the others.
+                logger.debug(
+                    "Mission %s index computation failed (range, quota, etc.); skipping",
+                    mission,
+                    exc_info=True,
+                )
                 continue
             if df.empty or index_key not in df.columns:
                 continue
@@ -732,4 +740,8 @@ class LandsatService:
                     band.SetDescription(band_names[i - 1])
             dataset = None
         except Exception:
-            pass
+            logger.debug(
+                "Failed to release GDAL dataset after writing band descriptions for %s",
+                file_path,
+                exc_info=True,
+            )

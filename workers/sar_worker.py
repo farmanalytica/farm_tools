@@ -8,9 +8,13 @@ The AOI is extracted from the QGIS layer on the main thread (layers are not
 thread-safe) and passed in.
 """
 
+import logging
+
 from qgis.PyQt.QtCore import QThread, pyqtSignal, QMutex
 
 from ..services.sar_service import SARService
+
+logger = logging.getLogger(__name__)
 
 
 class SARWorker(QThread):
@@ -205,6 +209,6 @@ class SARBatchDownloadWorker(QThread):
                 downloaded_paths.append(output_path)
                 successful += 1
             except Exception:
-                pass
+                logger.debug("Failed to fetch/download SAR image for date %s", date, exc_info=True)
 
         self.finished.emit(successful, total, downloaded_paths)

@@ -15,6 +15,7 @@ GEOS3 bare-soil rule — a pixel is bare soil when ALL hold:
   • REGR > 0  (Red   > Green)                 (continues the rising slope)
 """
 
+import logging
 import os
 import tempfile
 
@@ -25,6 +26,8 @@ try:
     from osgeo import gdal
 except ImportError:
     gdal = None
+
+logger = logging.getLogger(__name__)
 
 
 # --- Constants ---------------------------------------------------------------
@@ -290,7 +293,10 @@ class SYSIService:
                         band.SetDescription(name)
             dataset = None
         except Exception:
-            pass
+            logger.debug(
+                "Failed to release GDAL dataset after writing band descriptions for %s",
+                file_path, exc_info=True,
+            )
 
     @staticmethod
     def _get_unique_path(folder, filename):

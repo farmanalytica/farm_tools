@@ -11,6 +11,8 @@ Signal connections are wired externally by ``farm_tools.py``. All interactive
 widgets are exposed on ``dialog`` as ``mz_*`` attributes.
 """
 
+import logging
+
 from qgis.core import QgsMapLayerProxyModel, QgsProject, QgsRasterLayer
 from qgis.gui import QgsMapLayerComboBox
 from qgis.PyQt.QtCore import Qt, QCoreApplication
@@ -55,6 +57,8 @@ from .radar import (
     _section_panel,
 )
 from .styles import STYLE_BTN_PRIMARY, STYLE_BTN_SECONDARY
+
+logger = logging.getLogger(__name__)
 
 
 def _tr(text):
@@ -640,7 +644,7 @@ def _build_zones_tab(dialog, parent):
             if dialog.mz_pc_selector.count() > 0:
                 dialog.mz_pc_selector.setCurrentIndex(0)
         except Exception:
-            pass
+            logger.debug("Failed to populate PCA component selector combos", exc_info=True)
 
     dialog.mz_populate_pc_combos = _populate_pc_combos
 

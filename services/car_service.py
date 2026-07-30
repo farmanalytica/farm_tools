@@ -18,10 +18,13 @@ stay on the main thread in the controller/renderer.
 """
 
 import json
+import logging
 import os
 import re
 
 import requests
+
+logger = logging.getLogger(__name__)
 
 # Public bucket published by the conformidade rural project (see
 # C:\repos\conformidaderural — areaOverlayLayer.js / gen_featured_ndvi.py).
@@ -131,7 +134,7 @@ class CarService:
                     url, verify=True, timeout=_REQUEST_TIMEOUT, proxies=proxies
                 )
             except Exception:
-                pass
+                logger.debug("CAR proxy request to %s failed, retrying direct", url, exc_info=True)
         return requests.get(url, verify=True, timeout=_REQUEST_TIMEOUT)
 
     @staticmethod

@@ -10,6 +10,15 @@ import math
 import random
 import xml.etree.ElementTree as ET
 
+import defusedxml
+
+# GPX export here only builds/writes XML, never parses external input, but
+# defuse_stdlib() patches xml.etree.ElementTree's parsing entry points
+# in place (fromstring/parse/iterparse/XMLParser) so the module stays safe
+# if that ever changes, without touching the Element/SubElement/indent API
+# used below.
+defusedxml.defuse_stdlib()
+
 from qgis.PyQt.QtCore import QCoreApplication, QVariant
 from qgis.core import (
     Qgis,
@@ -296,7 +305,7 @@ class FieldGuideService:
             y_offset_ratio=0.75,
         )
 
-        rng = random.Random(seed_token)
+        rng = random.Random(seed_token)  # nosec B311 - non-cryptographic sampling, reproducibility only
         target_candidate_count = max(sample_count * 18, 80)
         max_attempts = max(target_candidate_count * 10, 400)
         attempts = 0

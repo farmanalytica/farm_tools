@@ -11,6 +11,7 @@ Wires the UI inputs in ``view/sysi.py`` to the GEOS3 pipeline implemented in
     concurrent submissions.
 """
 
+import logging
 import os
 import tempfile
 
@@ -29,6 +30,8 @@ from ..services.aoi_service import AOIService
 from ..workers.sysi_worker import SYSIWorker
 from ..managers.settings_manager import SettingsManager
 from ..tools.aoi_draw_tool import start_draw_aoi
+
+logger = logging.getLogger(__name__)
 
 try:
     WAIT_CURSOR = Qt.CursorShape.WaitCursor
@@ -283,7 +286,7 @@ class SYSICtrl:
                 ce.setMaximumValue(min_max[1])
                 set_fn(ce)
         except Exception:
-            pass
+            logger.debug("Failed to apply contrast enhancement to RGB bands", exc_info=True)
 
         layer.setRenderer(renderer)
         QgsProject.instance().addMapLayer(layer, False)

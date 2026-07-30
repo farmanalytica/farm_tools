@@ -1,3 +1,4 @@
+import logging
 import os
 import tempfile
 import pandas as pd
@@ -20,6 +21,8 @@ from ..workers.sar_worker import (
 from ..managers.settings_manager import SettingsManager
 from ..tools.aoi_draw_tool import start_draw_aoi
 from ..view.sar_plot import render_chart_html
+
+logger = logging.getLogger(__name__)
 
 try:
     WAIT_CURSOR = Qt.CursorShape.WaitCursor
@@ -486,6 +489,7 @@ class SARCtrl:
                     color_ramp_name=color_ramp_name,
                 )
             except Exception:
+                logger.debug("Failed to load SAR raster into QGIS: %s", path, exc_info=True)
                 continue
 
     def handle_filter_dates(self):

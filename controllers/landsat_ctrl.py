@@ -9,6 +9,7 @@ date, a pan-sharpened super-resolution RGB (15 m, TOA), a vegetation index
 super-res image of every available date.
 """
 
+import logging
 import os
 import tempfile
 
@@ -38,6 +39,8 @@ from ..workers.landsat_batch_worker import LandsatBatchWorker
 from ..workers.landsat_preview_worker import LandsatPreviewWorker
 from ..workers.landsat_timeseries_worker import LandsatTimeseriesWorker
 from ..workers.landsat_worker import LandsatWorker
+
+logger = logging.getLogger(__name__)
 
 
 def _tr(text):
@@ -584,6 +587,7 @@ class LandsatCtrl:
                 name = os.path.splitext(os.path.basename(path))[0]
                 self._add_rgb_raster(path, name, (1, 2, 3))
             except Exception:
+                logger.debug("failed to add RGB raster for downloaded scene %s", path, exc_info=True)
                 continue
 
     # -- index time series (agrigee_lite SITS) ----------------------------

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 """Variance-reduction (VR) per-zone statistics. Pure backend (no QMessageBox)."""
+import logging
 import math
 from dataclasses import dataclass
 from typing import Any
@@ -9,6 +10,8 @@ from osgeo import gdal
 
 from .deps import import_pandas
 from .i18n import tr
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -115,6 +118,10 @@ def variance_reduction(df_points, col_x: str, col_y: str, col_attr: str,
                 continue
             zona_valores.setdefault(int(z), []).append(valor)
         except Exception:
+            logger.debug(
+                "Failed to map point (x=%s, y=%s) to a zone for variance stats; skipping",
+                x, y, exc_info=True,
+            )
             continue
 
     if not zona_valores:

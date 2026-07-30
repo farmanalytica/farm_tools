@@ -7,11 +7,14 @@ of SDK-specific details.
 """
 
 import json
+import logging
 import os
 import time
 
 import ee
 from qgis.PyQt.QtCore import QCoreApplication, QSettings
+
+logger = logging.getLogger(__name__)
 
 
 # Earth Engine's high-volume endpoint, built for many concurrent requests
@@ -237,7 +240,7 @@ class GEEService:
             try:
                 local_server.server_close()
             except Exception:
-                pass
+                logger.debug("Failed to close local OAuth callback server", exc_info=True)
 
         oauth._obtain_and_write_token(
             auth_code, flow.code_verifier, flow.scopes, flow.server.url
@@ -267,7 +270,7 @@ class GEEService:
             importlib.reload(ee.oauth)
             ee.Reset()
         except Exception:
-            pass
+            logger.debug("Failed to reset Earth Engine client state after reload", exc_info=True)
 
         self.is_authenticated = False
         return _tr("Earth Engine configuration cleared successfully.")

@@ -1,3 +1,4 @@
+import logging
 import os
 import re
 import tempfile
@@ -11,6 +12,8 @@ try:
     from osgeo import gdal
 except ImportError:
     gdal = None
+
+logger = logging.getLogger(__name__)
 
 
 class SARService:
@@ -373,7 +376,10 @@ class SARService:
                 band.SetDescription(name)
             dataset = None
         except Exception:
-            pass
+            logger.debug(
+                "Failed to release GDAL dataset after setting band name for %s",
+                file_path, exc_info=True,
+            )
 
     @staticmethod
     def get_dataset_image_for_date(collection, aoi, date):
@@ -448,7 +454,10 @@ class SARService:
 
             dataset = None
         except Exception:
-            pass
+            logger.debug(
+                "Failed to release GDAL dataset after writing band descriptions for %s",
+                file_path, exc_info=True,
+            )
 
     @staticmethod
     def _get_unique_path(folder, filename):

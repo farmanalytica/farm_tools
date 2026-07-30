@@ -9,7 +9,11 @@ QProgressDialog can track it. The per-date work is injected as a
 this thread and must not touch Qt widgets.
 """
 
+import logging
+
 from qgis.PyQt.QtCore import QThread, pyqtSignal, QMutex
+
+logger = logging.getLogger(__name__)
 
 
 class BatchDownloadWorker(QThread):
@@ -51,6 +55,6 @@ class BatchDownloadWorker(QThread):
                 paths.append(self._download_one(date))
                 successful += 1
             except Exception:
-                pass
+                logger.debug("Failed to download item for date %s", date, exc_info=True)
 
         self.finished.emit(successful, total, paths)

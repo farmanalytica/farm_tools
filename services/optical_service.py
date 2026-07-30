@@ -1,3 +1,4 @@
+import logging
 import os
 import tempfile
 from datetime import datetime, timedelta
@@ -12,6 +13,8 @@ except ImportError:
     gdal = None
 
 from ..tools.indexes import INDEX_REGISTRY, apply_custom
+
+logger = logging.getLogger(__name__)
 
 
 # Raw Sentinel-2 SR multispectral bands written by the batch download (no
@@ -686,4 +689,7 @@ class OpticalService:
                     band.SetDescription(_MULTISPECTRAL_BANDS[i - 1])
             dataset = None
         except Exception:
-            pass
+            logger.debug(
+                "Failed to release GDAL dataset after writing band descriptions for %s",
+                file_path, exc_info=True,
+            )
