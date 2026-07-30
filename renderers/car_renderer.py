@@ -72,15 +72,15 @@ class CarRenderer:
 
     @staticmethod
     def _style(layer):
-        """Translucent green fill with a solid FARM-green outline.
+        """Translucent green fill with a solid red outline, matching the AOI draw tool.
 
         KML layers load with a ``QgsEmbeddedSymbolRenderer`` (no ``symbol()``),
         so replace the renderer outright with our own single-symbol fill.
         """
         symbol = QgsFillSymbol.createSimple(
             {
-                "color": "31,107,58,50",
-                "outline_color": "31,107,58,255",
+                "color": "27,107,57,40",
+                "outline_color": "255,0,0,255",
                 "outline_width": "0.6",
             }
         )

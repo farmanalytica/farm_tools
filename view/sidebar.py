@@ -657,7 +657,6 @@ class Sidebar(QFrame):
 
     def _stylesheet(self, expanded: bool) -> str:
         button_padding = "0 8px 0 8px" if expanded else "0"
-        brand_padding = "0 18px 0 0" if expanded else "0"
         button_radius = "8px"
         button_text_align = "left" if expanded else "center"
         button_width = (
@@ -690,7 +689,8 @@ class Sidebar(QFrame):
         QPushButton#sidebarNavButton[brand="true"] {{
             min-height: {BRAND_ICON_EXPANDED + 6}px;
             max-height: {BRAND_ICON_EXPANDED + 6}px;
-            padding: {brand_padding};
+            padding: 0;
+            text-align: center;
         }}
         QPushButton#sidebarNavButton:hover {{
             background-color: rgba(255, 255, 255, 22);
