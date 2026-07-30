@@ -8,16 +8,8 @@ interplay and delegates the pure work to this service.
 import csv
 import math
 import random
-import xml.etree.ElementTree as ET
-
-import defusedxml
-
-# GPX export here only builds/writes XML, never parses external input, but
-# defuse_stdlib() patches xml.etree.ElementTree's parsing entry points
-# in place (fromstring/parse/iterparse/XMLParser) so the module stays safe
-# if that ever changes, without touching the Element/SubElement/indent API
-# used below.
-defusedxml.defuse_stdlib()
+# This service only constructs GPX output; it never parses XML input.
+import xml.etree.ElementTree as ET  # nosec B405
 
 from qgis.PyQt.QtCore import QCoreApplication, QVariant
 from qgis.core import (

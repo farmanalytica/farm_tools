@@ -4,7 +4,7 @@ qgisMinimumVersion=3.28
 qgisMaximumVersion=4.99
 description=Toolbox of geo-analytics modules for research, education, agriculture, and land monitoring: vegetation index time series, multispectral/SAR/DEM downloads, bare-soil composites, climate plots, and field sampling
 description_pt=Conjunto de módulos de geoanálise para pesquisa, ensino, agricultura e monitoramento da terra: séries temporais de índices de vegetação, downloads multiespectrais/SAR/DEM, composições de solo exposto, gráficos climáticos e amostragem de campo
-version=9.3
+version=9.4
 author=FARM Analytica
 email=contato@farmanalytica.com.br
 
@@ -19,6 +19,10 @@ repository=https://github.com/farmanalytica/farm_tools
 hasProcessingProvider=no
 # Uncomment the following line and add your changelog:
 changelog=
+    9.4 - Fixed the QGIS Plugin Repository security check for Field Guide GPX
+          export. The XML library is used only to construct and write GPX
+          output; the corrected Bandit rule annotation documents and suppresses
+          the parser-related false positive without adding a runtime dependency.
     9.3 - New CAR module: look up a Brazilian CAR code (Cadastro Ambiental
           Rural) to fetch the property boundary from the public registry,
           save it as KML, and load it as a layer, with progress feedback via
