@@ -2785,5 +2785,29 @@ Consultez le journal QGIS pour plus de détails.</translation>
         <source>CAR &apos;%s&apos; loaded successfully.</source>
         <translation>CAR &apos;%s&apos; chargé avec succès.</translation>
     </message>
+    <message>
+        <source>DELETE CUSTOM INDEX</source>
+        <translation>SUPPRIMER L'INDICE PERSONNALISÉ</translation>
+    </message>
+    <message>
+        <source>Delete custom index</source>
+        <translation>Supprimer l'indice personnalisé</translation>
+    </message>
+    <message>
+        <source>Delete selected</source>
+        <translation>Supprimer la sélection</translation>
+    </message>
+    <message>
+        <source>Delete the custom index '%s'? This cannot be undone.</source>
+        <translation>Supprimer l'indice personnalisé '%s' ? Cette action est irréversible.</translation>
+    </message>
+    <message>
+        <source>Index sucessfully deleted.</source>
+        <translation>Indice supprimé avec succès.</translation>
+    </message>
+    <message>
+        <source>No custom indexes saved</source>
+        <translation>Aucun indice personnalisé enregistré</translation>
+    </message>
 </context>
 </TS>
