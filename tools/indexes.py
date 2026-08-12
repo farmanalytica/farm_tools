@@ -224,6 +224,8 @@ def apply_custom(image, name, expression):
 
 def calc_custom(image, expression):
 
+    validate_expression(expression)
+
     band1 = image.select("B1").divide(10000)  # Coastal aerosol
     band2 = image.select("B2").divide(10000)  # Blue
     band3 = image.select("B3").divide(10000)  # Green
@@ -237,8 +239,15 @@ def calc_custom(image, expression):
     band11 = image.select("B11").divide(10000)  # SWIR 1
     band12 = image.select("B12").divide(10000)  # SWIR 2
 
-    return image.expression(
+    processed_expression = re.sub(
+        r"\bpow\s*\(\s*([^,]+),\s*([^)]+)\s*\)",
+        r"(\1 ** \2)",
         expression,
+        flags=re.IGNORECASE,
+    )
+
+    return image.expression(
+        processed_expression,
         {
             "B1": band1,
             "B2": band2,
@@ -256,24 +265,91 @@ def calc_custom(image, expression):
     )
 
 
+# number of arguments each supported function must be called with
+FUNCTION_ARITY = {
+    "sqrt": 1,
+    "abs": 1,
+    "exp": 1,
+    "log": 1,
+    "pow": 2,
+    "min": 2,
+    "max": 2,
+}
+
+
+def _split_top_level_args(args_str):
+    """Split a function's argument string on commas, ignoring commas nested
+    inside inner parenthesis (e.g. nested function calls)."""
+    args = []
+    depth = 0
+    current = ""
+    for char in args_str:
+        if char == "(":
+            depth += 1
+            current += char
+        elif char == ")":
+            depth -= 1
+            current += char
+        elif char == "," and depth == 0:
+            args.append(current)
+            current = ""
+        else:
+            current += char
+    args.append(current)
+    return args
+
+
+def _validate_function_arity(expression):
+    for match in re.finditer(
+        r"\b(sqrt|abs|exp|log|pow|min|max)\s*\(", expression, flags=re.IGNORECASE
+    ):
+        func_name = match.group(1).lower()
+        open_paren = match.end() - 1
+
+        depth = 0
+        close_paren = None
+        for i in range(open_paren, len(expression)):
+            if expression[i] == "(":
+                depth += 1
+            elif expression[i] == ")":
+                depth -= 1
+                if depth == 0:
+                    close_paren = i
+                    break
+
+        if close_paren is None:
+            raise ValueError(f"Unbalanced parenthesis in '{func_name}(...)'.")
+
+        args_str = expression[open_paren + 1 : close_paren]
+        args = [] if not args_str.strip() else _split_top_level_args(args_str)
+        expected = FUNCTION_ARITY[func_name]
+
+        if len(args) != expected:
+            raise ValueError(
+                f"'{func_name}' expects {expected} argument(s), got {len(args)}."
+            )
+
+
 def validate_expression(expression):
     if not expression:
-        raise ValueError("A expressão não pode estar vazia.")
+        raise ValueError("Expression can not be empty.")
+
+    _validate_function_arity(expression)
 
     clean_expr = re.sub(
-        r"\b(B1|B2|B3|B4|B5|B6|B7|B8|B8A|B9|B11|B12)\b",
+        r"\b(B1|B2|B3|B4|B5|B6|B7|B8|B8A|B9|B11|B12|sqrt|abs|exp|log|pow|min|max)\b",
         "",
         expression,
         flags=re.IGNORECASE,
     )
 
-    invalid_chars = re.sub(r"[+/*(). 0-9-]", "", clean_expr).strip()
+    invalid_chars = re.sub(r"[+/*()., 0-9-]", "", clean_expr).strip()
 
     if invalid_chars:
         raise ValueError(f"Invalid characters: {invalid_chars}")
 
     dummy_expr = re.sub(
-        r"\b(B1|B2|B3|B4|B5|B6|B7|B8|B8A|B9|B11|B12)\b",
+        r"\b(B1|B2|B3|B4|B5|B6|B7|B8|B8A|B9|B11|B12|sqrt|abs|exp|log|pow|min|max)\b",
         "1",
         expression,
         flags=re.IGNORECASE,
@@ -282,7 +358,7 @@ def validate_expression(expression):
     try:
         ast.parse(dummy_expr)
     except SyntaxError:
-        raise ValueError("Mathematic sintax invalid. Check operators and parenthesis.")
+        raise ValueError("Mathematic syntax invalid. Check operators and parenthesis.")
 
     return True
 

@@ -110,6 +110,17 @@ def _install_qgis_stub():
         if name not in sys.modules:
             sys.modules[name] = _AutoModule(name)
 
+    # QCoreApplication.translate() with no translation file loaded returns
+    # the source text unchanged (real Qt behaviour). Wire that up explicitly
+    # instead of letting _AutoModule hand out a MagicMock — code that raises
+    # ValueError(tr(...)) needs the real message to reach the exception.
+    class _QCoreApplication:
+        @staticmethod
+        def translate(context, text, *args, **kwargs):
+            return text
+
+    sys.modules["qgis.PyQt.QtCore"].QCoreApplication = _QCoreApplication
+
 
 def _install_misc_stubs():
     if not _importable("shapely"):
