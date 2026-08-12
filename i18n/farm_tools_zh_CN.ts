@@ -2785,5 +2785,29 @@ See the QGIS log for details.</source>
         <source>CAR &apos;%s&apos; loaded successfully.</source>
         <translation>CAR &apos;%s&apos; 加载成功。</translation>
     </message>
+    <message>
+        <source>DELETE CUSTOM INDEX</source>
+        <translation>删除自定义指数</translation>
+    </message>
+    <message>
+        <source>Delete custom index</source>
+        <translation>删除自定义指数</translation>
+    </message>
+    <message>
+        <source>Delete selected</source>
+        <translation>删除所选</translation>
+    </message>
+    <message>
+        <source>Delete the custom index '%s'? This cannot be undone.</source>
+        <translation>删除自定义指数 '%s'？此操作无法撤销。</translation>
+    </message>
+    <message>
+        <source>Index sucessfully deleted.</source>
+        <translation>指数删除成功。</translation>
+    </message>
+    <message>
+        <source>No custom indexes saved</source>
+        <translation>没有已保存的自定义指数</translation>
+    </message>
 </context>
 </TS>

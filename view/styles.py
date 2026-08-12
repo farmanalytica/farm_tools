@@ -38,6 +38,7 @@ def make_logo_label(filename, height=56):
     label.setPixmap(pix)
     return label
 
+
 STYLE_DIALOG = """
 QDialog {
     background-color: #f5f5f5;
@@ -152,6 +153,26 @@ QPushButton {
 }
 QPushButton:hover  { background-color: #f0954f; }
 QPushButton:pressed { background-color: #d3742e; }
+QToolTip {
+    background-color: #ffffff;
+    color: #212121;
+    border: 1px solid #c8d8ce;
+    padding: 4px 6px;
+}
+"""
+
+STYLE_BTN_DELETE_ACTIVE = """
+QPushButton {
+    background-color: #d9534f;
+    color: #ffffff;
+    border: 1px solid #c9302c;
+    border-radius: 7px;
+    font-size: 11px;
+    font-weight: bold;
+    padding: 0 12px;
+}
+QPushButton:hover  { background-color: #e4605d; }
+QPushButton:pressed { background-color: #c43c39; }
 QToolTip {
     background-color: #ffffff;
     color: #212121;

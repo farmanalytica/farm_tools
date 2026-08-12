@@ -17,7 +17,7 @@ import pandas as pd
 
 from qgis.PyQt.QtCore import QCoreApplication, QTimer, QUrl
 from qgis.PyQt.QtGui import QDesktopServices
-from qgis.PyQt.QtWidgets import QFileDialog, QProgressDialog
+from qgis.PyQt.QtWidgets import QFileDialog, QMessageBox, QProgressDialog
 from qgis.core import (
     QgsContrastEnhancement,
     QgsCoordinateTransform,
@@ -38,7 +38,12 @@ from ..services.aoi_service import AOIService, _remove_z_dimension
 from ..services.optical_service import OpticalService
 from ..tools.aoi_draw_tool import start_draw_aoi
 from ..tools.point_capture_tool import PointCaptureTool
-from ..tools.indexes import validate_custom, save_custom_indexes, load_custom_indexes
+from ..tools.indexes import (
+    delete_custom_index,
+    validate_custom,
+    save_custom_indexes,
+    load_custom_indexes,
+)
 from ..view.optical_filter_dialog import DEFAULT_FILTER_SETTINGS
 from ..view.optical_index_info import CUSTOM_INDEX_LABEL, INDEX_ORDER
 from ..renderers.raster_renderer_utils import RasterRendererUtils
@@ -211,9 +216,10 @@ class OpticalCtrl:
             self.dialog.s2_aoi_area_lbl.setText("")
             return
         try:
-            area_ha = AOIService.get_area_m2_from_layer(
-                layer, use_selected_features=False
-            ) / 10_000.0
+            area_ha = (
+                AOIService.get_area_m2_from_layer(layer, use_selected_features=False)
+                / 10_000.0
+            )
         except Exception:
             self.dialog.s2_aoi_area_lbl.setText("")
             return
@@ -703,7 +709,11 @@ class OpticalCtrl:
                 name = os.path.splitext(os.path.basename(path))[0]
                 self._add_rgb_raster(path, name)
             except Exception:
-                logger.debug("Failed to load downloaded image as RGB raster: %s", path, exc_info=True)
+                logger.debug(
+                    "Failed to load downloaded image as RGB raster: %s",
+                    path,
+                    exc_info=True,
+                )
                 continue
 
     def _add_rgb_raster(self, path: str, name: str, bands=(4, 3, 2)):
@@ -1521,7 +1531,32 @@ class OpticalCtrl:
             validate_custom(name, expression)
             save_custom_indexes(name, expression)
             self.update_index_combobox()
+            self.dialog.s2_refresh_custom_delete_combo()
             self.dialog.pop_message(_tr("Index sucessfully saved."), "info")
+        except Exception as e:
+            self.dialog.pop_message(_tr(str(e)), "warning")
+
+    def handle_delete_custom(self):
+        selected_name = self.dialog.s2_custom_delete_combo.currentData()
+        if not selected_name:
+            return
+
+        confirmation = QMessageBox.question(
+            self.dialog,
+            _tr("Delete custom index"),
+            _tr("Delete the custom index '%s'? This cannot be undone.")
+            % selected_name,
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            QMessageBox.StandardButton.No,
+        )
+        if confirmation != QMessageBox.StandardButton.Yes:
+            return
+
+        try:
+            delete_custom_index(selected_name)
+            self.update_index_combobox()
+            self.dialog.s2_refresh_custom_delete_combo()
+            self.dialog.pop_message(_tr("Index sucessfully deleted."), "info")
         except Exception as e:
             self.dialog.pop_message(_tr(str(e)), "warning")
 
@@ -1543,7 +1578,7 @@ class OpticalCtrl:
         for name in INDEX_ORDER:
             combo.addItem(name, name)
         for name in customs.keys():
-            combo.addItem(name + " - CUSTOM", name)
+            combo.addItem(name)
         if with_builder:
             combo.addItem(_tr(CUSTOM_INDEX_LABEL), CUSTOM_INDEX_LABEL)
         if previous is not None:
