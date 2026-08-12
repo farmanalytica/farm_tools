@@ -51,6 +51,7 @@ class FarmTools:
         # Flavor-specific menu so each single-module plugin (RAVI, EasyDEM, …)
         # gets its own QGIS Plugins submenu instead of all sharing "FARM tools".
         from .view.module_prefs import flavor_label
+
         self.menu = "&" + flavor_label()
 
         self.first_start = None
@@ -167,7 +168,9 @@ class FarmTools:
             try:
                 self.mzones_ctrl.cleanup()
             except Exception:
-                logger.debug("Management zones controller cleanup failed", exc_info=True)
+                logger.debug(
+                    "Management zones controller cleanup failed", exc_info=True
+                )
         QCoreApplication.removeTranslator(self._translator)
         for action in self.actions:
             self.interface.removePluginMenu(self.menu, action)
@@ -240,9 +243,7 @@ class FarmTools:
         self.dialog.auth_status_badge.clicked.connect(
             self.auth_ctrl.refresh_auth_status
         )
-        self.dialog.welcome_auth_badge.clicked.connect(
-            self.dialog.show_auth_page
-        )
+        self.dialog.welcome_auth_badge.clicked.connect(self.dialog.show_auth_page)
         self.dialog.btn_browse_folder.clicked.connect(
             self.auth_ctrl.handle_folder_selection
         )
@@ -346,6 +347,9 @@ class FarmTools:
         self.dialog.s2_plot_view_features.clicked.connect(
             lambda _checked=False: self.optical_ctrl.handle_plot_view("features")
         )
+        self.dialog.s2_btn_custom_delete.clicked.connect(
+            self.optical_ctrl.handle_delete_custom
+        )
         self.dialog.sar_btn_hybrid_layer.clicked.connect(
             self.dem_ctrl.handle_hybrid_layer
         )
@@ -414,9 +418,7 @@ class FarmTools:
         self.dialog.ls_btn_ts_browser.clicked.connect(
             self.landsat_ctrl.handle_open_browser
         )
-        self.dialog.ls_btn_ts_csv.clicked.connect(
-            self.landsat_ctrl.handle_export_csv
-        )
+        self.dialog.ls_btn_ts_csv.clicked.connect(self.landsat_ctrl.handle_export_csv)
 
         self.dialog.sysi_btn_draw_aoi.clicked.connect(self.sysi_ctrl.handle_draw_aoi)
         self.dialog.sysi_btn_hybrid_layer.clicked.connect(
@@ -478,9 +480,7 @@ class FarmTools:
         self.dialog.fg_btn_temp_layer.clicked.connect(
             self.fieldguide_ctrl.handle_temp_layer
         )
-        self.dialog.fg_btn_pdf.clicked.connect(
-            self.fieldguide_ctrl.handle_generate_pdf
-        )
+        self.dialog.fg_btn_pdf.clicked.connect(self.fieldguide_ctrl.handle_generate_pdf)
         self.dialog.fg_points_list.itemSelectionChanged.connect(
             self.fieldguide_ctrl.handle_selection_changed
         )
@@ -507,9 +507,7 @@ class FarmTools:
         self.dialog.cp_source_combo_b.currentIndexChanged.connect(
             self.climaplots_ctrl.handle_sync_year_range
         )
-        self.dialog.cp_var_combo.currentTextChanged.connect(
-            self.climaplots_ctrl.plots1
-        )
+        self.dialog.cp_var_combo.currentTextChanged.connect(self.climaplots_ctrl.plots1)
         self.dialog.cp_var_combo.currentTextChanged.connect(
             self.climaplots_ctrl.handle_update_var_desc
         )
@@ -553,9 +551,7 @@ class FarmTools:
             self.climaplots_ctrl.handle_export_all
         )
 
-        self.dialog.mb_btn_draw_aoi.clicked.connect(
-            self.mapbiomas_ctrl.handle_draw_aoi
-        )
+        self.dialog.mb_btn_draw_aoi.clicked.connect(self.mapbiomas_ctrl.handle_draw_aoi)
         self.dialog.mb_btn_hybrid_layer.clicked.connect(
             self.dem_ctrl.handle_hybrid_layer
         )

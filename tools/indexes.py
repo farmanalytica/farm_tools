@@ -309,3 +309,28 @@ def save_custom_indexes(name: str, expression: str):
 
         with open(JSON_PATH, "w") as file:
             json.dump(saved_custom_indexes, file)
+
+
+def delete_custom_index(name: str):
+
+    try:
+        with open(JSON_PATH, "r") as file:
+            saved_custom_indexes = json.load(file)
+    except FileNotFoundError:
+        saved_custom_indexes = {}
+
+    found_key = None
+    for key in saved_custom_indexes:
+        if key.lower() == name.lower():
+            found_key = key
+            break
+
+    if not found_key:
+        raise ValueError(f"Custom index '{name}' not found.")
+
+    del saved_custom_indexes[found_key]
+
+    with open(JSON_PATH, "w") as file:
+        json.dump(saved_custom_indexes, file, indent=4)
+
+    return True
