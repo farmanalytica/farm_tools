@@ -17,7 +17,7 @@ from farm_tools.tools import indexes
 # normalizedDifference family — assert the exact band pair + rename("index")
 # --------------------------------------------------------------------------- #
 NORMALIZED_DIFF = {
-    "nvdi": ["B8", "B4"],   # NDVI
+    "nvdi": ["B8", "B4"],  # NDVI
     "gndvi": ["B8", "B3"],
     "ndre": ["B8", "B5"],
     "ndmi": ["B8", "B11"],
@@ -80,7 +80,8 @@ def test_registry_functions_return_renamed_index(ee_image):
         fn(ee_image)
         # every index renames its output band to "index"
         renamed = [
-            c for m in (ee_image.normalizedDifference, ee_image.expression)
+            c
+            for m in (ee_image.normalizedDifference, ee_image.expression)
             for c in [m.return_value.rename]
             if m.called
         ]
@@ -105,6 +106,79 @@ def test_calc_custom_passes_expression_through(ee_image):
     assert expr == "B8 / B4"
     # all 12 reflectance bands are exposed to the custom formula
     assert set(bands) == {
-        "B1", "B2", "B3", "B4", "B5", "B6",
-        "B7", "B8", "B8A", "B9", "B11", "B12",
+        "B1",
+        "B2",
+        "B3",
+        "B4",
+        "B5",
+        "B6",
+        "B7",
+        "B8",
+        "B8A",
+        "B9",
+        "B11",
+        "B12",
     }
+
+
+@pytest.mark.ee
+@pytest.mark.parametrize(
+    "valid_expr",
+    [
+        "sqrt(B4)",
+        "pow(B8, 2)",
+        "abs(B3 - B4)",
+        "exp(B2)",
+        "log(B5)",
+        "min(B4, B8)",
+        "max(B8, B11)",
+        "sqrt(pow(B8, 2) + abs(B4))",
+    ],
+)
+def test_validate_expression_new_functions_pass(valid_expr):
+    # assure that the validator accepts the mathematic functions and comma
+    assert indexes.validate_expression(valid_expr) is True
+
+
+@pytest.mark.parametrize(
+    "invalid_expr",
+    [
+        "invalid_func(B4)",  # invalid funcion
+        "sqrt(B4, )",  # uncorrect comma
+        "pow(B8)",  # pow missing argument
+    ],
+)
+def test_validate_expression_invalid_syntax_raises(invalid_expr):
+    with pytest.raises(ValueError):
+        indexes.validate_expression(invalid_expr)
+
+
+@pytest.mark.ee
+def test_calc_custom_translates_pow(ee_image):
+    # Tests if pow(x, y) is correctly converted to EE syntax (x ** y)
+    indexes.calc_custom(ee_image, "pow(B8, 2)")
+    expr, bands = ee_image.expression.call_args.args
+    assert expr == "(B8 ** 2)"
+    assert set(bands) == {
+        "B1",
+        "B2",
+        "B3",
+        "B4",
+        "B5",
+        "B6",
+        "B7",
+        "B8",
+        "B8A",
+        "B9",
+        "B11",
+        "B12",
+    }
+
+
+@pytest.mark.ee
+def test_calc_custom_passes_other_functions_through(ee_image):
+    # Test if math funcions goes intact to EE
+    complex_expr = "sqrt(B4) + abs(min(B8, B11))"
+    indexes.calc_custom(ee_image, complex_expr)
+    expr, _ = ee_image.expression.call_args.args
+    assert expr == complex_expr
