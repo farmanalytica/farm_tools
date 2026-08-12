@@ -2785,5 +2785,29 @@ See the QGIS log for details.</source>
         <source>CAR &apos;%s&apos; loaded successfully.</source>
         <translation>CAR &apos;%s&apos; सफलतापूर्वक लोड हुआ।</translation>
     </message>
+    <message>
+        <source>DELETE CUSTOM INDEX</source>
+        <translation>कस्टम सूचकांक हटाएँ</translation>
+    </message>
+    <message>
+        <source>Delete custom index</source>
+        <translation>कस्टम सूचकांक हटाएँ</translation>
+    </message>
+    <message>
+        <source>Delete selected</source>
+        <translation>चयनित हटाएँ</translation>
+    </message>
+    <message>
+        <source>Delete the custom index '%s'? This cannot be undone.</source>
+        <translation>क्या कस्टम सूचकांक '%s' हटाएँ? इसे पूर्ववत नहीं किया जा सकता।</translation>
+    </message>
+    <message>
+        <source>Index sucessfully deleted.</source>
+        <translation>सूचकांक सफलतापूर्वक हटाया गया।</translation>
+    </message>
+    <message>
+        <source>No custom indexes saved</source>
+        <translation>कोई कस्टम सूचकांक सहेजा नहीं गया है</translation>
+    </message>
 </context>
 </TS>

@@ -56,6 +56,7 @@ from .styles import (
     STYLE_BTN_PRIMARY,
     STYLE_BTN_SECONDARY,
     STYLE_CHECKBOX,
+    STYLE_BTN_DELETE_ACTIVE,
     make_logo_label,
 )
 from .optical_filter_dialog import OpticalFilterDialog
@@ -427,20 +428,26 @@ def _build_inputs_tab(dialog, parent):
     index_lay.addWidget(_field_label(_tr("TIME-SERIES SPATIAL REDUCER")))
     dialog.s2_ts_reducer_combo = QComboBox()
     _prepare_field(dialog.s2_ts_reducer_combo)
-    dialog.s2_ts_reducer_combo.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToContents)
+    dialog.s2_ts_reducer_combo.setSizeAdjustPolicy(
+        QComboBox.SizeAdjustPolicy.AdjustToContents
+    )
     # Label, stable reducer key (matches OpticalService.get_time_series).
     for _label, _key in ((_tr("Mean"), "mean"), (_tr("Median"), "median")):
         dialog.s2_ts_reducer_combo.addItem(_label, _key)
     dialog.s2_ts_reducer_combo.view().setStyleSheet(_POPUP_VIEW_STYLE)
     index_lay.addWidget(dialog.s2_ts_reducer_combo)
 
-    reducer_hint = QLabel(_tr(
-        "How pixels inside the AOI are aggregated to one value per date in the "
-        "time-series plot. Median resists cloud/shadow outliers; mean is the "
-        "classic average."
-    ))
+    reducer_hint = QLabel(
+        _tr(
+            "How pixels inside the AOI are aggregated to one value per date in the "
+            "time-series plot. Median resists cloud/shadow outliers; mean is the "
+            "classic average."
+        )
+    )
     reducer_hint.setWordWrap(True)
-    reducer_hint.setStyleSheet("color: #757575; font-size: 11px; background: transparent; border: none;")
+    reducer_hint.setStyleSheet(
+        "color: #757575; font-size: 11px; background: transparent; border: none;"
+    )
     index_lay.addWidget(reducer_hint)
 
     # --- Inline custom-index builder (hidden unless Custom… selected) ----
@@ -517,6 +524,46 @@ def _build_inputs_tab(dialog, parent):
     )
     custom_lay.addWidget(dialog.s2_btn_custom_save, 0, Qt.AlignmentFlag.AlignLeft)
 
+    # --- Delete a saved custom index ------------------------------------
+    custom_lay.addWidget(_make_divider())
+
+    delete_label = _field_label(_tr("DELETE CUSTOM INDEX"))
+    custom_lay.addWidget(delete_label)
+
+    delete_row = QHBoxLayout()
+    delete_row.setContentsMargins(0, 0, 0, 0)
+    delete_row.setSpacing(8)
+
+    dialog.s2_custom_delete_combo = QComboBox()
+    _prepare_field(dialog.s2_custom_delete_combo, 28)
+    dialog.s2_custom_delete_combo.view().setStyleSheet(_POPUP_VIEW_STYLE)
+    delete_row.addWidget(dialog.s2_custom_delete_combo, 1)
+
+    dialog.s2_btn_custom_delete = QPushButton(_tr("Delete selected"))
+    dialog.s2_btn_custom_delete.setFixedHeight(28)
+    dialog.s2_btn_custom_delete.setStyleSheet(STYLE_BTN_DELETE_ACTIVE)
+    dialog.s2_btn_custom_delete.setSizePolicy(
+        QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed
+    )
+    delete_row.addWidget(dialog.s2_btn_custom_delete)
+
+    def _refresh_delete_combo():
+        dialog.s2_custom_delete_combo.clear()
+        custom_saved = load_custom_indexes()
+        if not custom_saved:
+            dialog.s2_custom_delete_combo.addItem(_tr("No custom indexes saved"), "")
+            dialog.s2_custom_delete_combo.setEnabled(False)
+            dialog.s2_btn_custom_delete.setEnabled(False)
+        else:
+            dialog.s2_custom_delete_combo.setEnabled(True)
+            dialog.s2_btn_custom_delete.setEnabled(True)
+            for key in custom_saved:
+                dialog.s2_custom_delete_combo.addItem(key, key)
+
+    dialog.s2_refresh_custom_delete_combo = _refresh_delete_combo
+
+    custom_lay.addLayout(delete_row)
+
     index_lay.addWidget(dialog.s2_custom_container)
     lay.addWidget(index_panel)
 
@@ -543,6 +590,7 @@ def _build_inputs_tab(dialog, parent):
 
     dialog.s2_index_combo.currentIndexChanged.connect(_update_index_info)
     _update_index_info()
+    _refresh_delete_combo()
 
     # --- SCL cloud mask (applied at run time) ----------------------------
     # Masking SCL classes changes the pixels feeding the indices and the
