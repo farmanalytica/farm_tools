@@ -211,9 +211,10 @@ class OpticalCtrl:
             self.dialog.s2_aoi_area_lbl.setText("")
             return
         try:
-            area_ha = AOIService.get_area_m2_from_layer(
-                layer, use_selected_features=False
-            ) / 10_000.0
+            area_ha = (
+                AOIService.get_area_m2_from_layer(layer, use_selected_features=False)
+                / 10_000.0
+            )
         except Exception:
             self.dialog.s2_aoi_area_lbl.setText("")
             return
@@ -703,7 +704,11 @@ class OpticalCtrl:
                 name = os.path.splitext(os.path.basename(path))[0]
                 self._add_rgb_raster(path, name)
             except Exception:
-                logger.debug("Failed to load downloaded image as RGB raster: %s", path, exc_info=True)
+                logger.debug(
+                    "Failed to load downloaded image as RGB raster: %s",
+                    path,
+                    exc_info=True,
+                )
                 continue
 
     def _add_rgb_raster(self, path: str, name: str, bands=(4, 3, 2)):
@@ -1543,7 +1548,7 @@ class OpticalCtrl:
         for name in INDEX_ORDER:
             combo.addItem(name, name)
         for name in customs.keys():
-            combo.addItem(name + " - CUSTOM", name)
+            combo.addItem(name)
         if with_builder:
             combo.addItem(_tr(CUSTOM_INDEX_LABEL), CUSTOM_INDEX_LABEL)
         if previous is not None:
