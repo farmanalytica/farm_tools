@@ -35,7 +35,7 @@ export default [
   },
   {
     slug: 'optical',
-    icon: '🌿',
+    icon: '/modules/optical.png',
     title: 'RAVI (Sentinel-2)',
     summary: 'Vegetation index time series, cloud filtering, composites, and multispectral download.',
     sections: [
@@ -69,7 +69,7 @@ export default [
   },
   {
     slug: 'landsat',
-    icon: '🛰️',
+    icon: '/modules/landsat.png',
     title: 'Multi-Satellite',
     summary: 'Multi-mission imagery and index time series — Landsat 7/8/9, Sentinel-2, HLS, MODIS.',
     sections: [
@@ -98,7 +98,7 @@ export default [
   },
   {
     slug: 'sar',
-    icon: '📡',
+    icon: '/modules/sar.png',
     title: 'SAR (Sentinel-1)',
     summary: 'Cloud-independent radar backscatter analysis for all-weather monitoring.',
     sections: [
@@ -126,7 +126,7 @@ export default [
   },
   {
     slug: 'dem',
-    icon: '⛰️',
+    icon: '/modules/dem.png',
     title: 'DEM & Terrain',
     summary: 'Elevation catalog browsing, AOI-aware downloads, and Magma rendering.',
     sections: [
@@ -145,7 +145,7 @@ export default [
   },
   {
     slug: 'sysi',
-    icon: '🟤',
+    icon: '/modules/sysi.png',
     title: 'Bare Soil',
     summary: 'Synthetic bare-soil image composites for soil mapping.',
     sections: [
@@ -170,7 +170,7 @@ export default [
   },
   {
     slug: 'climaplots',
-    icon: '🌦️',
+    icon: '/modules/climaplots.png',
     title: 'ClimaPlots',
     summary: 'Climate diagnosis for any point: trends, climate diagram, extreme indices, and drought (SPI).',
     sections: [
@@ -202,7 +202,7 @@ export default [
   },
   {
     slug: 'fieldguide',
-    icon: '📍',
+    icon: '/modules/fieldguide.png',
     title: 'Field Guide',
     summary: 'Field point capture, polygon sampling, raster-optimal points, routes, and exports.',
     sections: [
@@ -253,7 +253,7 @@ export default [
   },
   {
     slug: 'mapbiomas',
-    icon: '🗺️',
+    icon: '/modules/mapbiomas.png',
     title: 'MapBiomas',
     summary: 'Brazilian land-use/land-cover by year and configurable transition analysis.',
     sections: [
