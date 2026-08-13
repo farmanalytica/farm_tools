@@ -17,6 +17,7 @@ import tempfile
 
 from qgis.PyQt.QtCore import Qt, QCoreApplication
 from qgis.core import (
+    Qgis,
     QgsContrastEnhancement,
     QgsCoordinateReferenceSystem,
     QgsCoordinateTransform,
@@ -190,7 +191,7 @@ class SYSICtrl:
                 layer, use_selected_features=False
             )
         except Exception as exc:
-            self.dialog.pop_message(str(exc), "warning")
+            self.dialog.pop_message(str(exc), "critical")
             return
 
         self.aoi = aoi
@@ -226,12 +227,13 @@ class SYSICtrl:
             self.interface.messageBar().pushMessage(
                 "FARM tools",
                 _tr("Bare Soil image '%s' generated and loaded into QGIS.") % filename,
+                level=Qgis.Success,
             )
 
     def _on_sysi_failed(self, message: str):
         self._set_generate_busy(False)
         self._release_worker()
-        self.dialog.pop_message(message, "warning")
+        self.dialog.pop_message(message, "critical")
 
     # ------------------------------------------------------------------
     # QGIS layer loading

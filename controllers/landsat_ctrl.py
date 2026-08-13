@@ -17,6 +17,7 @@ from qgis.PyQt.QtCore import QCoreApplication, QUrl
 from qgis.PyQt.QtGui import QDesktopServices
 from qgis.PyQt.QtWidgets import QFileDialog, QProgressDialog
 from qgis.core import (
+    Qgis,
     QgsContrastEnhancement,
     QgsCoordinateTransform,
     QgsMultiBandColorRenderer,
@@ -149,7 +150,7 @@ class LandsatCtrl:
                 layer, use_selected_features=False
             )
         except Exception as e:
-            self.dialog.pop_message(str(e), "warning")
+            self.dialog.pop_message(str(e), "critical")
             return
 
         missions = self._selected_missions()
@@ -235,7 +236,7 @@ class LandsatCtrl:
         self.dialog.ls_date_combo.clear()
         self.dialog.ls_date_combo.setEnabled(True)
         self.dialog.ls_set_tab(1)
-        self.dialog.pop_message(message, "warning")
+        self.dialog.pop_message(message, "critical")
 
     # -- shared helpers ----------------------------------------------------
     def _has_dates(self) -> bool:
@@ -477,7 +478,8 @@ class LandsatCtrl:
         if self.interface is not None:
             action = _tr("downloaded and loaded") if to_folder else _tr("loaded")
             self.interface.messageBar().pushMessage(
-                "FARM tools", _tr("Landsat image %s into QGIS.") % action
+                "FARM tools", _tr("Landsat image %s into QGIS.") % action,
+                level=Qgis.Success,
             )
 
     def _on_single_failed(self, message: str):
@@ -486,7 +488,7 @@ class LandsatCtrl:
             worker.deleteLater()
         for kind in ("superres", "index", "multispectral"):
             self._set_single_busy(kind, False)
-        self.dialog.pop_message(message, "warning")
+        self.dialog.pop_message(message, "critical")
 
     # -- batch (super-res, all dates) -------------------------------------
     def handle_batch_download(self):
@@ -573,7 +575,7 @@ class LandsatCtrl:
 
     def _on_batch_failed(self, message: str):
         self._close_batch_dialog()
-        self.dialog.pop_message(_tr("Batch download failed: %s") % message, "warning")
+        self.dialog.pop_message(_tr("Batch download failed: %s") % message, "critical")
         self._batch_worker = None
 
     def _close_batch_dialog(self):
@@ -738,7 +740,7 @@ class LandsatCtrl:
                 _tr("CSV exported successfully to %s") % file_path, "info"
             )
         except Exception as e:
-            self.dialog.pop_message(_tr("Failed to export CSV: %s") % str(e), "warning")
+            self.dialog.pop_message(_tr("Failed to export CSV: %s") % str(e), "critical")
 
     # -- rendering ---------------------------------------------------------
     def _add_rgb_raster(self, path: str, name: str, bands=(1, 2, 3)):

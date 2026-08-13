@@ -632,7 +632,7 @@ class FarmTools:
         else:
             self.dialog.pop_message(
                 self.tr("Failed to download dependencies: %s") % error_msg,
-                "warning",
+                "critical",
             )
 
     def run(self):
