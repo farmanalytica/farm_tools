@@ -6,7 +6,7 @@ Orchestrates DEM operations, AOI management, and coordinates between
 services for dataset loading and layer rendering.
 """
 
-from qgis.core import QgsProject, QgsCoordinateTransform
+from qgis.core import Qgis, QgsProject, QgsCoordinateTransform
 from qgis.PyQt.QtCore import QTimer, QCoreApplication
 
 from ..renderers.base_maps import add_google_hybrid_layer
@@ -123,17 +123,18 @@ class DEMCtrl:
         try:
             DEMRenderer.load_dem_to_qgis(dem_path, dataset_name)
             self.interface.messageBar().pushMessage(
-                "FARM tools", _tr("DEM '%s' loaded successfully.") % dataset_name
+                "FARM tools", _tr("DEM '%s' loaded successfully.") % dataset_name,
+                level=Qgis.Success,
             )
         except Exception as e:
-            self.dialog.pop_message(str(e), "warning")
+            self.dialog.pop_message(str(e), "critical")
 
     def _on_dem_failed(self, message):
         self._set_dem_busy(False)
         worker, self._dem_worker = self._dem_worker, None
         if worker:
             worker.deleteLater()
-        self.dialog.pop_message(message, "warning")
+        self.dialog.pop_message(message, "critical")
 
     def handle_layer_changed(self, layer):
 
@@ -175,7 +176,7 @@ class DEMCtrl:
             self.load_available_datasets()
         except Exception as e:
             if not self._is_passive_ee_init_error(e):
-                self.dialog.pop_message(str(e), "warning")
+                self.dialog.pop_message(str(e), "critical")
 
     def load_available_datasets(self):
 
@@ -229,7 +230,7 @@ class DEMCtrl:
         combobox.setEnabled(True)
         combobox.blockSignals(False)
         if not self._is_passive_ee_init_error(message):
-            self.dialog.pop_message(message, "warning")
+            self.dialog.pop_message(message, "critical")
 
     def on_dataset_changed(self):
         """Update the dataset info panel when the selected dataset changes."""
@@ -239,7 +240,8 @@ class DEMCtrl:
 
         add_google_hybrid_layer()
         self.interface.messageBar().pushMessage(
-            "FARM tools", _tr("Google Hybrid Layer loaded successfully")
+            "FARM tools", _tr("Google Hybrid Layer loaded successfully"),
+            level=Qgis.Success,
         )
 
     def handle_draw_aoi(self):

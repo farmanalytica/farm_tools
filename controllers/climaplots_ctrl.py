@@ -407,7 +407,7 @@ class ClimaPlotsCtrl:
             return
         except Exception as e:  # noqa: BLE001
             QgsMessageLog.logMessage(
-                f"ClimaPlots plot {tab} failed: {e}", "FARM tools", Qgis.Warning
+                f"ClimaPlots plot {tab} failed: {e}", "FARM tools", Qgis.Critical
             )
             return
         self._figs[tab] = result.figure
@@ -511,7 +511,7 @@ class ClimaPlotsCtrl:
             QgsMessageLog.logMessage(
                 traceback.format_exc(), "FARM tools", Qgis.Critical
             )
-            self.dialog.pop_message(_tr("Export failed.") + "\n" + str(e), "warning")
+            self.dialog.pop_message(_tr("Export failed.") + "\n" + str(e), "critical")
 
     # ------------------------------------------------------------------
     # Helpers
