@@ -264,7 +264,7 @@ def _build_inputs_tab(dialog, parent):
 
     dialog.sysi_btn_draw_aoi = QPushButton(_tr("Draw AOI"))
     dialog.sysi_btn_draw_aoi.setToolTip(
-        _tr("Drag on the map to draw a box (Shift = square, Esc = cancel)")
+        _tr("Click points on the map to draw an AOI polygon")
     )
     dialog.sysi_btn_draw_aoi.setFixedHeight(28)
     dialog.sysi_btn_draw_aoi.setSizePolicy(
