@@ -94,6 +94,7 @@ class OpticalCtrl:
         self._optical_worker: OpticalWorker | None = None
         self._run_btn_text: str | None = None
         self._draw_tool = None
+        self._skip_zoom_once = False
         self._plot_path: str | None = None
         self._filter_settings = dict(DEFAULT_FILTER_SETTINGS)
         self._active_dates: list | None = None
@@ -182,7 +183,10 @@ class OpticalCtrl:
             return
 
         self._draw_tool = start_draw_aoi(
-            self.interface, self.dialog.s2_layer_combo, self.dialog.s2_btn_draw_aoi
+            self.interface,
+            self.dialog.s2_layer_combo,
+            self.dialog.s2_btn_draw_aoi,
+            before_select=lambda: setattr(self, "_skip_zoom_once", True),
         )
 
     def handle_layer_changed(self, layer=None):
@@ -197,6 +201,10 @@ class OpticalCtrl:
         self._update_aoi_area_label(layer)
 
         if not layer or not layer.isValid() or self.interface is None:
+            return
+
+        if self._skip_zoom_once:
+            self._skip_zoom_once = False
             return
 
         canvas = self.interface.mapCanvas()

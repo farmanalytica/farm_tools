@@ -60,6 +60,7 @@ class SARCtrl:
         self._preview_worker: SARPreviewWorker | None = None
         self._batch_worker: SARBatchDownloadWorker | None = None
         self._composite_worker: SARCompositeWorker | None = None
+        self._skip_zoom_once = False
 
         self._active_dates = None
         self._filter_dialog = None
@@ -134,7 +135,10 @@ class SARCtrl:
             self._draw_tool = None
             return
         self._draw_tool = start_draw_aoi(
-            self.interface, self.dialog.sar_layer_combo, self.dialog.sar_btn_draw_aoi
+            self.interface,
+            self.dialog.sar_layer_combo,
+            self.dialog.sar_btn_draw_aoi,
+            before_select=lambda: setattr(self, "_skip_zoom_once", True),
         )
 
     def handle_layer_changed(self, layer=None):
@@ -144,6 +148,10 @@ class SARCtrl:
             layer = self.dialog.sar_layer_combo.currentLayer()
 
         if not layer or not layer.isValid() or not self.interface:
+            return
+
+        if self._skip_zoom_once:
+            self._skip_zoom_once = False
             return
 
         canvas = self.interface.mapCanvas()

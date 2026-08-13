@@ -64,6 +64,7 @@ class SYSICtrl:
         self.aoi = None
         self._worker: SYSIWorker | None = None
         self._draw_tool = None
+        self._skip_zoom_once = False
         self._generate_btn_text: str | None = None
 
     # ------------------------------------------------------------------
@@ -90,6 +91,7 @@ class SYSICtrl:
             self.interface,
             self.dialog.sysi_layer_combo,
             self.dialog.sysi_btn_draw_aoi,
+            before_select=lambda: setattr(self, "_skip_zoom_once", True),
         )
 
     def handle_layer_changed(self, layer=None):
@@ -97,6 +99,9 @@ class SYSICtrl:
         if layer is None:
             layer = self.dialog.sysi_layer_combo.currentLayer()
         if not layer or not layer.isValid() or not self.interface:
+            return
+        if self._skip_zoom_once:
+            self._skip_zoom_once = False
             return
         canvas = self.interface.mapCanvas()
         transform = QgsCoordinateTransform(
