@@ -9,6 +9,7 @@ Usage (from OSGeo4W Shell):
 from __future__ import annotations
 
 import os
+import re
 import shutil
 import stat
 import subprocess
@@ -92,6 +93,63 @@ INCLUDE_ASSETS = [
 ]
 
 SKIP = {"__pycache__", ".git", ".github", "dist", ".mypy_cache", ".pytest_cache"}
+
+
+# -- version/changelog sync (root metadata.txt -> packaging/*/metadata.txt) --
+#
+# Each single-module flavor ships its own metadata.txt with module-specific
+# name/description/tags, but version= must always match the root plugin and
+# the changelog should never silently fall behind it. Rather than relying on
+# packaging/*/metadata.txt being hand-edited on every version bump (easy to
+# forget — see README's Build & CI note), the build backfills them here:
+#   - version= is always overwritten to match root.
+#   - the root's current (topmost) changelog entry is inserted at the top of
+#     the flavor's changelog ONLY if that version tag isn't already present.
+# Older entries and any module-specific wording already in the file are never
+# touched, so hand-curated history can't be clobbered by this.
+_VERSION_RE = re.compile(r"^version=(.*)$", re.MULTILINE)
+# changelog= 's value is multi-line and indented; the block is assumed to run
+# until the first blank line (there's always one before the next metadata.txt
+# section), which is also why the group below can't match an empty line.
+_CHANGELOG_RE = re.compile(r"^changelog=.*(?:\n(?:[ \t].*)?)*", re.MULTILINE)
+_ENTRY_TAG_RE = re.compile(r"^ {4}(\S+) - ", re.MULTILINE)
+
+
+def _root_version_and_top_entry(root_text: str) -> tuple[str, str, str]:
+    """Return (version, top entry's version tag, top entry's full raw text)."""
+    version_match = _VERSION_RE.search(root_text)
+    if not version_match:
+        raise SystemExit("root metadata.txt is missing version=")
+    version = version_match.group(1).strip()
+
+    changelog_match = _CHANGELOG_RE.search(root_text)
+    if not changelog_match:
+        raise SystemExit("root metadata.txt is missing changelog=")
+    # Drop the "changelog=" line itself, keep only the indented entries below.
+    body = changelog_match.group(0).split("\n", 1)[1]
+
+    tags = list(_ENTRY_TAG_RE.finditer(body))
+    if not tags:
+        raise SystemExit("root metadata.txt changelog= has no entries")
+    top_end = tags[1].start() if len(tags) > 1 else len(body)
+    return version, tags[0].group(1), body[: top_end].rstrip("\n")
+
+
+def _sync_flavor_metadata(dest_text: str, version: str, top_tag: str, top_entry: str) -> str:
+    """Patch a packaging/*/metadata.txt to mirror root's version + latest entry."""
+    patched = _VERSION_RE.sub(f"version={version}", dest_text, count=1)
+
+    if top_tag in {m.group(1) for m in _ENTRY_TAG_RE.finditer(patched)}:
+        return patched  # already has this release's entry — leave the rest alone
+
+    def _prepend_entry(match: re.Match) -> str:
+        rest = match.group(0).split("\n", 1)[1]  # everything after "changelog="
+        return f"changelog=\n{top_entry}\n{rest}"
+
+    patched, count = _CHANGELOG_RE.subn(_prepend_entry, patched, count=1)
+    if count == 0:
+        raise SystemExit("packaging metadata.txt is missing changelog=")
+    return patched
 
 
 def step(msg: str) -> None:
@@ -234,6 +292,31 @@ def build_full() -> None:
     )
 
 
+def sync_flavor_metadata() -> None:
+    """Backfill packaging/*/metadata.txt version + changelog from the root.
+
+    Runs before packaging so the files on disk (not just the zip contents)
+    stay in sync — see the README's Build & CI note. Never rewrites existing
+    changelog entries, so hand-curated per-module wording survives.
+    """
+    step("Sync packaging/*/metadata.txt with root")
+    version, top_tag, top_entry = _root_version_and_top_entry(
+        (ROOT / "metadata.txt").read_text(encoding="utf-8")
+    )
+    for key in FLAVORS:
+        meta = PACKAGING_DIR / key / "metadata.txt"
+        if not meta.exists():
+            print(f"  ! SKIP {key}: missing packaging/{key}/metadata.txt")
+            continue
+        original = meta.read_text(encoding="utf-8")
+        patched = _sync_flavor_metadata(original, version, top_tag, top_entry)
+        if patched != original:
+            meta.write_text(patched, encoding="utf-8", newline="\n")
+            print(f"  Synced packaging/{key}/metadata.txt -> version {version}")
+        else:
+            print(f"  packaging/{key}/metadata.txt already in sync")
+
+
 def build_flavors() -> None:
     step("Build single-module plugins")
     DIST_DIR.mkdir(exist_ok=True)
@@ -254,6 +337,7 @@ def main() -> None:
     #clean_extlibs()
     #build_extlibs()
     compile_translations()
+    sync_flavor_metadata()
     build_full()
     build_flavors()
 
