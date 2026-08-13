@@ -79,14 +79,14 @@ class CarCtrl:
             self.interface.messageBar().pushMessage(
                 "FARM tools",
                 _tr("CAR '%s' loaded successfully.") % car_code,
-                level=Qgis.Critical,
+                level=Qgis.Success,
             )
         except Exception as e:
-            self.dialog.pop_message(str(e), "warning")
+            self.dialog.pop_message(str(e), "critical")
 
     def _on_failed(self, message: str):
         self._set_busy(False)
         worker, self._worker = self._worker, None
         if worker:
             worker.deleteLater()
-        self.dialog.pop_message(message, "warning")
+        self.dialog.pop_message(message, "critical")

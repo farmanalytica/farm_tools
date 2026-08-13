@@ -187,7 +187,7 @@ class AuthCtrl:
                 self.dialog.sa_key_input.clear()
                 self.dialog.pop_message(msg, "info")
         except (FileNotFoundError, RuntimeError, OSError) as e:
-            self.dialog.pop_message(str(e), "warning")
+            self.dialog.pop_message(str(e), "critical")
         finally:
             self.refresh_auth_status()
 
@@ -223,7 +223,7 @@ class AuthCtrl:
         try:
             self.gee_service.read_service_account_key(path)
         except ValueError as e:
-            self.dialog.pop_message(str(e), "warning")
+            self.dialog.pop_message(str(e), "critical")
             return
 
         # Persist only the path; auto-authenticates on later sessions.

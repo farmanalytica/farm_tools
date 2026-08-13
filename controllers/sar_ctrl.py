@@ -7,7 +7,7 @@ from datetime import datetime
 from qgis.PyQt.QtCore import Qt, QCoreApplication, QUrl
 from qgis.PyQt.QtGui import QDesktopServices
 from qgis.PyQt.QtWidgets import QFileDialog, QProgressDialog
-from qgis.core import QgsProject, QgsCoordinateTransform
+from qgis.core import Qgis, QgsProject, QgsCoordinateTransform
 
 from ..services.aoi_service import AOIService
 from ..services.sar_service import SARService
@@ -181,7 +181,7 @@ class SARCtrl:
                 layer, use_selected_features=False
             )
         except Exception as e:
-            self.dialog.pop_message(str(e), "warning")
+            self.dialog.pop_message(str(e), "critical")
             return
 
         self.aoi = aoi
@@ -241,7 +241,7 @@ class SARCtrl:
         self._release_worker("_sar_worker")
         self.dialog.sar_web_view.setHtml("")
         self.dialog.sar_set_tab(1)
-        self.dialog.pop_message(message, "warning")
+        self.dialog.pop_message(message, "critical")
 
     def handle_preview_image(self):
         self._run_preview(to_folder=False)
@@ -309,13 +309,14 @@ class SARCtrl:
             filename = os.path.basename(output_path)
             action_msg = _tr("downloaded and loaded") if to_folder else _tr("loaded")
             self.interface.messageBar().pushMessage(
-                "FARM tools", _tr("SAR image '%s' %s into QGIS.") % (filename, action_msg)
+                "FARM tools", _tr("SAR image '%s' %s into QGIS.") % (filename, action_msg),
+                level=Qgis.Success,
             )
 
     def _on_preview_failed(self, message: str):
         self._set_preview_busy(False)
         self._release_worker("_preview_worker")
-        self.dialog.pop_message(message, "warning")
+        self.dialog.pop_message(message, "critical")
 
 
     def handle_composite_preview(self):
@@ -390,12 +391,13 @@ class SARCtrl:
             self.interface.messageBar().pushMessage(
                 "FARM tools",
                 _tr("Composite '%s' %s into QGIS.") % (filename, action_msg),
+                level=Qgis.Success,
             )
 
     def _on_composite_failed(self, message):
         self._set_composite_busy(False)
         self._release_worker("_composite_worker")
-        self.dialog.pop_message(message, "warning")
+        self.dialog.pop_message(message, "critical")
 
     def handle_batch_download(self):
         if self._requires_results():
@@ -453,7 +455,7 @@ class SARCtrl:
     def _on_batch_failed(self, message):
         if self._batch_dialog:
             self._batch_dialog.close()
-        self.dialog.pop_message(_tr("Batch download failed: %s") % message, "warning")
+        self.dialog.pop_message(_tr("Batch download failed: %s") % message, "critical")
 
     def _on_batch_cancelled(self, successful: int, total: int, downloaded_paths: list):
         self._batch_dialog.close()
@@ -565,7 +567,7 @@ class SARCtrl:
                 _tr("CSV exported successfully to %s") % file_path, "info"
             )
         except Exception as e:
-            self.dialog.pop_message(_tr("Failed to export CSV: %s") % str(e), "warning")
+            self.dialog.pop_message(_tr("Failed to export CSV: %s") % str(e), "critical")
 
     def _render_timeseries(self):
         meta = self._index_meta()

@@ -190,7 +190,7 @@ class MapBiomasCtrl:
                 layer, use_selected_features=False
             )
         except Exception as exc:
-            self.dialog.pop_message(str(exc), "warning")
+            self.dialog.pop_message(str(exc), "critical")
             return None
         return aoi
 
@@ -416,7 +416,7 @@ class MapBiomasCtrl:
     def _on_failed(self, message):
         self._set_busy(False)
         self._release_worker()
-        self.dialog.pop_message(message, "warning")
+        self.dialog.pop_message(message, "critical")
 
     # ------------------------------------------------------------------
     # Coverage display
@@ -504,6 +504,7 @@ class MapBiomasCtrl:
             self.interface.messageBar().pushMessage(
                 "FARM tools",
                 _tr("MapBiomas coverage {0} loaded into QGIS.").format(year),
+                level=Qgis.Success,
             )
 
     def _load_transition_qgis_raster(self, path):
@@ -547,6 +548,7 @@ class MapBiomasCtrl:
             self.interface.messageBar().pushMessage(
                 "FARM tools",
                 _tr("Transition layer loaded into QGIS: {0}").format(name),
+                level=Qgis.Success,
             )
 
     # ------------------------------------------------------------------
