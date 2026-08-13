@@ -4,7 +4,7 @@ qgisMinimumVersion=3.28
 qgisMaximumVersion=4.99
 description=Toolbox of geo-analytics modules for research, education, agriculture, and land monitoring: vegetation index time series, multispectral/SAR/DEM downloads, bare-soil composites, climate plots, and field sampling
 description_pt=Conjunto de módulos de geoanálise para pesquisa, ensino, agricultura e monitoramento da terra: séries temporais de índices de vegetação, downloads multiespectrais/SAR/DEM, composições de solo exposto, gráficos climáticos e amostragem de campo
-version=9.4
+version=9.5
 author=FARM Analytica
 email=contato@farmanalytica.com.br
 
@@ -19,6 +19,21 @@ repository=https://github.com/farmanalytica/farm_tools
 hasProcessingProvider=no
 # Uncomment the following line and add your changelog:
 changelog=
+    9.5 - AOI drawing: the "Draw AOI" tool (DEM, RAVI, SAR, Multi-Satellite,
+          Bare Soil, MapBiomas) now lets you click a sequence of points to
+          draw an arbitrary polygon instead of only a rectangle.
+          Double-click, right-click, or clicking back on the first point
+          closes the shape; Backspace undoes the last point and Esc
+          cancels; message-bar hints track progress toward the 3-point
+          minimum. The canvas no longer zooms to the freshly drawn AOI, so
+          it doesn't disrupt your view. AOI layers with multiple/invalid
+          features now validate and repair each one individually before
+          dissolving, and the error message names the offending feature
+          id(s) instead of a generic "Empty geometry." Message bar and
+          dialog colors: a few exception/failure messages that showed
+          yellow now correctly show red, a few "loaded/generated
+          successfully" messages that showed blue now correctly show
+          green, and a CAR-loaded confirmation no longer shows red.
     9.4 - Fixed the QGIS Plugin Repository security check for Field Guide GPX
           export. The XML library is used only to construct and write GPX
           output; the corrected Bandit rule annotation documents and suppresses

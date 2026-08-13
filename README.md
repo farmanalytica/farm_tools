@@ -253,6 +253,17 @@ from `extlibs/`.
 > so bundle bytes are reproducible — a rebuild only changes a zip when its resolved
 > dependency set changes.
 
+`build_plugin.py` also packages each single-module plugin (RAVI, EasyDEM, ClimaPlots,
+Field Guide, Multi-Satellite, SYSI, MapBiomas, SAR) from `packaging/<key>/metadata.txt`
++ `icon.png`. Before zipping, `sync_flavor_metadata()` backfills each of those files
+from the root `metadata.txt` — `version=` is always overwritten to match root, and
+root's current changelog entry is inserted at the top if that version tag isn't there
+yet. Older entries and any module-specific wording already in a flavor's file are never
+rewritten, so hand-curated history can't be clobbered; a version bump to root is enough,
+no manual `packaging/*/metadata.txt` edits required (running `build_plugin.py`, or just
+`sync_flavor_metadata()` on its own, writes the sync back to disk). All FARM plugins
+share a single, synced version number (see the `8.0` changelog entry).
+
 ---
 
 ## Contributing
