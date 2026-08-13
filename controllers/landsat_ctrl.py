@@ -69,6 +69,7 @@ class LandsatCtrl:
         self._date_start = None
         self._date_end = None
         self._draw_tool = None
+        self._skip_zoom_once = False
         self._run_worker: LandsatWorker | None = None
         self._run_btn_text: str | None = None
         self._preview_worker: LandsatPreviewWorker | None = None
@@ -100,7 +101,10 @@ class LandsatCtrl:
             self._draw_tool = None
             return
         self._draw_tool = start_draw_aoi(
-            self.interface, self.dialog.ls_layer_combo, self.dialog.ls_btn_draw_aoi
+            self.interface,
+            self.dialog.ls_layer_combo,
+            self.dialog.ls_btn_draw_aoi,
+            before_select=lambda: setattr(self, "_skip_zoom_once", True),
         )
 
     def handle_layer_changed(self, layer=None):
@@ -108,6 +112,9 @@ class LandsatCtrl:
         if layer is None:
             layer = self.dialog.ls_layer_combo.currentLayer()
         if not layer or not layer.isValid() or self.interface is None:
+            return
+        if self._skip_zoom_once:
+            self._skip_zoom_once = False
             return
         canvas = self.interface.mapCanvas()
         transform = QgsCoordinateTransform(

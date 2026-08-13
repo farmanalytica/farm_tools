@@ -79,6 +79,7 @@ class MapBiomasCtrl:
         self.aoi = None
         self._worker = None
         self._draw_tool = None
+        self._skip_zoom_once = False
         self._tmp_dir = None
         self._active_progress = None  # the feature bar driven by _on_progress
 
@@ -142,6 +143,7 @@ class MapBiomasCtrl:
             self.interface,
             self.dialog.mb_layer_combo,
             self.dialog.mb_btn_draw_aoi,
+            before_select=lambda: setattr(self, "_skip_zoom_once", True),
         )
 
     def handle_layer_changed(self, layer=None):
@@ -149,6 +151,9 @@ class MapBiomasCtrl:
         if layer is None:
             layer = self.dialog.mb_layer_combo.currentLayer()
         if not layer or not layer.isValid() or not self.interface:
+            return
+        if self._skip_zoom_once:
+            self._skip_zoom_once = False
             return
         canvas = self.interface.mapCanvas()
         transform = QgsCoordinateTransform(
