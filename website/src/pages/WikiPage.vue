@@ -14,6 +14,8 @@ const articles = computed(() => getArticles(locale.value))
 const article = computed(() => getArticle(locale.value, route.params.slug))
 const articleVideos = computed(() => videos.filter((v) => v.wiki === route.params.slug))
 
+const isImageIcon = (icon) => typeof icon === 'string' && icon.startsWith('/')
+
 const currentIndex = computed(() => articles.value.findIndex((a) => a.slug === route.params.slug))
 const prevArticle = computed(() => (currentIndex.value > 0 ? articles.value[currentIndex.value - 1] : null))
 const nextArticle = computed(() =>
@@ -47,13 +49,22 @@ watchEffect(() => {
           class="wiki-nav-item"
           :class="{ active: a.slug === route.params.slug }"
         >
-          <span class="wiki-nav-icon">{{ a.icon }}</span>
+          <span class="wiki-nav-icon">
+            <img v-if="isImageIcon(a.icon)" :src="a.icon" alt="" />
+            <template v-else>{{ a.icon }}</template>
+          </span>
           <span>{{ a.title }}</span>
         </router-link>
       </nav>
 
       <article v-if="article" class="wiki-article">
-        <h2 class="wiki-title">{{ article.icon }} {{ article.title }}</h2>
+        <h2 class="wiki-title">
+          <span class="wiki-title-icon">
+            <img v-if="isImageIcon(article.icon)" :src="article.icon" alt="" />
+            <template v-else>{{ article.icon }}</template>
+          </span>
+          {{ article.title }}
+        </h2>
         <p class="wiki-summary">{{ article.summary }}</p>
 
         <template v-for="(section, i) in article.sections" :key="i">
@@ -191,7 +202,19 @@ watchEffect(() => {
 }
 
 .wiki-nav-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
   font-size: 0.95rem;
+  flex-shrink: 0;
+}
+
+.wiki-nav-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
 /* Article */
@@ -205,11 +228,29 @@ watchEffect(() => {
 }
 
 .wiki-title {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
   font-family: 'Fraunces', serif;
   font-size: clamp(1.5rem, 2.4vw, 1.9rem);
   font-weight: 700;
   color: var(--text);
   margin-bottom: 0.5rem;
+}
+
+.wiki-title-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5em;
+  height: 1.5em;
+  flex-shrink: 0;
+}
+
+.wiki-title-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
 .wiki-summary {

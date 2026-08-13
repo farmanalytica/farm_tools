@@ -35,7 +35,7 @@ export default [
   },
   {
     slug: 'optical',
-    icon: '🌿',
+    icon: '/modules/optical.png',
     title: 'RAVI (Sentinel-2)',
     summary: 'Séries temporais de índices de vegetação, filtragem de nuvens, composições e download multiespectral.',
     sections: [
@@ -69,7 +69,7 @@ export default [
   },
   {
     slug: 'landsat',
-    icon: '🛰️',
+    icon: '/modules/landsat.png',
     title: 'Multi-Satélite',
     summary: 'Imagens e séries de índice multimissão — Landsat 7/8/9, Sentinel-2, HLS, MODIS.',
     sections: [
@@ -98,7 +98,7 @@ export default [
   },
   {
     slug: 'sar',
-    icon: '📡',
+    icon: '/modules/sar.png',
     title: 'SAR (Sentinel-1)',
     summary: 'Análise de retroespalhamento de radar independente de nuvens.',
     sections: [
@@ -126,7 +126,7 @@ export default [
   },
   {
     slug: 'dem',
-    icon: '⛰️',
+    icon: '/modules/dem.png',
     title: 'DEM & Terreno',
     summary: 'Navegação no catálogo de elevação, downloads cientes da AOI e renderização Magma.',
     sections: [
@@ -145,7 +145,7 @@ export default [
   },
   {
     slug: 'sysi',
-    icon: '🟤',
+    icon: '/modules/sysi.png',
     title: 'Solo Exposto',
     summary: 'Composições sintéticas de solo exposto para mapeamento de solos.',
     sections: [
@@ -170,7 +170,7 @@ export default [
   },
   {
     slug: 'climaplots',
-    icon: '🌦️',
+    icon: '/modules/climaplots.png',
     title: 'ClimaPlots',
     summary: 'Diagnóstico climático de qualquer ponto: tendências, diagrama climático, índices de extremos e seca (SPI).',
     sections: [
@@ -202,7 +202,7 @@ export default [
   },
   {
     slug: 'fieldguide',
-    icon: '📍',
+    icon: '/modules/fieldguide.png',
     title: 'Guia de Campo',
     summary: 'Captura de pontos, amostragem de polígonos, pontos ótimos por raster, rotas e exportações.',
     sections: [
@@ -253,7 +253,7 @@ export default [
   },
   {
     slug: 'mapbiomas',
-    icon: '🗺️',
+    icon: '/modules/mapbiomas.png',
     title: 'MapBiomas',
     summary: 'Uso e cobertura da terra do Brasil por ano e análise configurável de transições.',
     sections: [

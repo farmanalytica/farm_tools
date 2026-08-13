@@ -4,14 +4,14 @@ import { useI18n } from '../i18n'
 const { t } = useI18n()
 
 const MODULES = [
-  { key: 'optical', icon: '🌿', wiki: 'optical' },
-  { key: 'landsat', icon: '🛰️', wiki: 'landsat' },
-  { key: 'sar', icon: '📡', wiki: 'sar' },
-  { key: 'dem', icon: '⛰️', wiki: 'dem' },
-  { key: 'sysi', icon: '🟤', wiki: 'sysi' },
-  { key: 'climaplots', icon: '🌦️', wiki: 'climaplots' },
-  { key: 'fieldguide', icon: '📍', wiki: 'fieldguide' },
-  { key: 'mapbiomas', icon: '🗺️', wiki: 'mapbiomas' },
+  { key: 'optical', wiki: 'optical' },
+  { key: 'landsat', wiki: 'landsat' },
+  { key: 'sar', wiki: 'sar' },
+  { key: 'dem', wiki: 'dem' },
+  { key: 'sysi', wiki: 'sysi' },
+  { key: 'climaplots', wiki: 'climaplots' },
+  { key: 'fieldguide', wiki: 'fieldguide' },
+  { key: 'mapbiomas', wiki: 'mapbiomas' },
 ]
 </script>
 
@@ -70,7 +70,9 @@ const MODULES = [
       <p class="sec-lead">{{ t('modules.lead') }}</p>
       <div class="grid3">
         <article v-for="m in MODULES" :key="m.key" class="card">
-          <div class="card-icon">{{ m.icon }}</div>
+          <div class="card-icon module-icon">
+            <img :src="`/modules/${m.key}.png`" :alt="t(`modules.items.${m.key}.title`)" loading="lazy" />
+          </div>
           <h3>{{ t(`modules.items.${m.key}.title`) }}</h3>
           <p>{{ t(`modules.items.${m.key}.desc`) }}</p>
           <router-link class="card-link" :to="`/wiki/${m.wiki}`">→ {{ t('modules.wikiLink') }}</router-link>
@@ -192,6 +194,19 @@ const MODULES = [
 </template>
 
 <style scoped>
+.module-icon {
+  width: 56px;
+  height: 56px;
+  padding: 6px;
+  background: none;
+}
+
+.module-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
 .hero-section {
   background: var(--primary);
   padding: 5.5rem 0 5rem;
