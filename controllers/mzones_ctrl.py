@@ -380,11 +380,11 @@ class PCAController:
                     except Exception:
                         pc_idx = None
             if pc_idx is None or pc_idx < 0:
-                self.notifier.warning(dlg, tr("Warning"),
+                self.notifier.warning(dlg, tr("Error"),
                                       tr("No PC selected."))
                 return
             if pc_idx >= ncomp:
-                self.notifier.warning(dlg, tr("Warning"),
+                self.notifier.warning(dlg, tr("Error"),
                                       tr("Invalid PC index."))
                 return
 

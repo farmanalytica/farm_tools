@@ -830,6 +830,7 @@ class FarmToolsDialog(QDialog):
         config = {
             "info": (_tr("Information"), QMessageBox.Icon.Information),
             "warning": (_tr("Warning"), QMessageBox.Icon.Warning),
+            "critical": (_tr("Error"), QMessageBox.Icon.Critical),
         }
         title, icon = config.get(kind, config["info"])
 

@@ -19,6 +19,7 @@ from qgis.PyQt.QtCore import QCoreApplication, QTimer, QUrl
 from qgis.PyQt.QtGui import QDesktopServices
 from qgis.PyQt.QtWidgets import QFileDialog, QMessageBox, QProgressDialog
 from qgis.core import (
+    Qgis,
     QgsContrastEnhancement,
     QgsCoordinateTransform,
     QgsMultiBandColorRenderer,
@@ -262,7 +263,7 @@ class OpticalCtrl:
                 layer, use_selected_features=False
             )
         except Exception as e:
-            self.dialog.pop_message(str(e), "warning")
+            self.dialog.pop_message(str(e), "critical")
             return
 
         self.aoi = aoi
@@ -578,7 +579,7 @@ class OpticalCtrl:
                 _tr("CSV exported successfully to %s") % file_path, "info"
             )
         except Exception as e:
-            self.dialog.pop_message(_tr("Failed to export CSV: %s") % str(e), "warning")
+            self.dialog.pop_message(_tr("Failed to export CSV: %s") % str(e), "critical")
 
     def _merge_series_columns(self, export_df):
         """Append captured point and per-feature series as extra columns (one
@@ -685,7 +686,7 @@ class OpticalCtrl:
 
     def _on_batch_failed(self, message: str):
         self._close_batch_dialog()
-        self.dialog.pop_message(_tr("Batch download failed: %s") % message, "warning")
+        self.dialog.pop_message(_tr("Batch download failed: %s") % message, "critical")
         self._batch_worker = None
 
     def _close_batch_dialog(self):
@@ -835,7 +836,8 @@ class OpticalCtrl:
         if self.interface is not None:
             action = _tr("downloaded and loaded") if to_folder else _tr("loaded")
             self.interface.messageBar().pushMessage(
-                "FARM tools", _tr("RAVI image %s into QGIS.") % action
+                "FARM tools", _tr("RAVI image %s into QGIS.") % action,
+                level=Qgis.Success,
             )
 
     def _on_single_failed(self, message: str):
@@ -845,7 +847,7 @@ class OpticalCtrl:
         # Both pairs may show "Loading..."; restore whichever is disabled.
         for kind in ("rgb", "index"):
             self._set_single_busy(kind, False)
-        self.dialog.pop_message(message, "warning")
+        self.dialog.pop_message(message, "critical")
 
     def handle_smoothing_changed(self, *args):
         """Re-render when smoothing is toggled or its window/poly changes.
@@ -944,7 +946,8 @@ class OpticalCtrl:
         if self.interface is not None:
             action = _tr("downloaded and loaded") if to_folder else _tr("loaded")
             self.interface.messageBar().pushMessage(
-                "FARM tools", _tr("Composite %s into QGIS.") % action
+                "FARM tools", _tr("Composite %s into QGIS.") % action,
+                level=Qgis.Success,
             )
 
     def _on_composite_failed(self, message: str):
@@ -952,7 +955,7 @@ class OpticalCtrl:
         worker, self._composite_worker = self._composite_worker, None
         if worker is not None:
             worker.deleteLater()
-        self.dialog.pop_message(message, "warning")
+        self.dialog.pop_message(message, "critical")
 
     # -- climate overlay (NASA POWER) -------------------------------------
     def _precip_bars(self):
@@ -1026,7 +1029,7 @@ class OpticalCtrl:
         worker, self._climate_worker = self._climate_worker, None
         if worker is not None:
             worker.deleteLater()
-        self.dialog.pop_message(_tr("Climate fetch failed: %s") % message, "warning")
+        self.dialog.pop_message(_tr("Climate fetch failed: %s") % message, "critical")
 
     def handle_climate_clear(self):
         """Drop the climate overlay and re-render the plain time series."""
@@ -1058,7 +1061,7 @@ class OpticalCtrl:
                 _tr("CSV exported successfully to %s") % file_path, "info"
             )
         except Exception as e:
-            self.dialog.pop_message(_tr("Failed to export CSV: %s") % str(e), "warning")
+            self.dialog.pop_message(_tr("Failed to export CSV: %s") % str(e), "critical")
 
     def _smoothed_series(self, y):
         """Savitzky-Golay smoothing of the AOI-average series, or None.
@@ -1390,7 +1393,7 @@ class OpticalCtrl:
             worker.deleteLater()
         self._job_queue = []
         self._set_feature_busy(False)
-        self.dialog.pop_message(message, "warning")
+        self.dialog.pop_message(message, "critical")
 
     # -- plot view switching ----------------------------------------------
     def handle_plot_view(self, view):
@@ -1520,7 +1523,7 @@ class OpticalCtrl:
         self._release_worker()
         self.dialog.s2_web_view.setHtml("")
         self.dialog.s2_set_tab(1)
-        self.dialog.pop_message(message, "warning")
+        self.dialog.pop_message(message, "critical")
 
     def handle_custom_index_save(self):
 
@@ -1534,7 +1537,7 @@ class OpticalCtrl:
             self.dialog.s2_refresh_custom_delete_combo()
             self.dialog.pop_message(_tr("Index sucessfully saved."), "info")
         except Exception as e:
-            self.dialog.pop_message(_tr(str(e)), "warning")
+            self.dialog.pop_message(_tr(str(e)), "critical")
 
     def handle_delete_custom(self):
         selected_name = self.dialog.s2_custom_delete_combo.currentData()
@@ -1558,7 +1561,7 @@ class OpticalCtrl:
             self.dialog.s2_refresh_custom_delete_combo()
             self.dialog.pop_message(_tr("Index sucessfully deleted."), "info")
         except Exception as e:
-            self.dialog.pop_message(_tr(str(e)), "warning")
+            self.dialog.pop_message(_tr(str(e)), "critical")
 
     def update_index_combobox(self):
         """Rebuild every index dropdown (inputs time-series, single-date VI and
