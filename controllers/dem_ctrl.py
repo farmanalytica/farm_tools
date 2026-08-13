@@ -46,6 +46,7 @@ class DEMCtrl:
         self._dataset_worker: DatasetAvailabilityWorker | None = None
         self._dem_btn_text: str | None = None
         self._draw_tool = None
+        self._skip_zoom_once = False
 
         self._debounce_timer = QTimer()
         self._debounce_timer.setSingleShot(True)
@@ -151,6 +152,9 @@ class DEMCtrl:
         self._debounce_timer.start()
 
     def _zoom_to_layer(self, layer):
+        if self._skip_zoom_once:
+            self._skip_zoom_once = False
+            return
 
         canvas = self.interface.mapCanvas()
         transform = QgsCoordinateTransform(
@@ -254,5 +258,8 @@ class DEMCtrl:
             self._draw_tool = None
             return
         self._draw_tool = start_draw_aoi(
-            self.interface, self.dialog.layer_combo, self.dialog.btn_draw_aoi
+            self.interface,
+            self.dialog.layer_combo,
+            self.dialog.btn_draw_aoi,
+            before_select=lambda: setattr(self, "_skip_zoom_once", True),
         )

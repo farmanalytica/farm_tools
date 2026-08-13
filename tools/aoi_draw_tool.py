@@ -15,7 +15,7 @@ the project.
 
 UX over a plain emit-point tool:
   * live translucent preview, with the next edge following the cursor,
-  * double-click or right-click closes the polygon,
+  * double-click, right-click, or clicking the first point closes the polygon,
   * Backspace/Delete undoes the last point,
   * Esc cancels the in-progress polygon,
   * the tool deactivates itself once finished and restores the previous tool,
@@ -25,14 +25,9 @@ UX over a plain emit-point tool:
 import os
 import tempfile
 
-from qgis.PyQt.QtCore import Qt, QTimer, QCoreApplication, QPointF, QSizeF, QVariant
-from qgis.PyQt.QtGui import QColor, QTextDocument
-from qgis.gui import (
-    QgsMapCanvasAnnotationItem,
-    QgsMapTool,
-    QgsRubberBand,
-    QgsVertexMarker,
-)
+from qgis.PyQt.QtCore import Qt, QTimer, QCoreApplication, QVariant
+from qgis.PyQt.QtGui import QColor
+from qgis.gui import QgsMapTool, QgsRubberBand, QgsVertexMarker
 from qgis.core import (
     Qgis,
     QgsProject,
@@ -40,7 +35,6 @@ from qgis.core import (
     QgsFeature,
     QgsField,
     QgsFields,
-    QgsTextAnnotation,
     QgsVectorLayer,
     QgsVectorFileWriter,
     QgsFillSymbol,
@@ -61,6 +55,7 @@ _WGS84 = "EPSG:4326"
 _FILL = QColor(27, 107, 57, 60)
 _STROKE = QColor(255, 0, 0, 220)
 _MIN_VERTICES = 3
+_CLOSE_TOLERANCE_PX = 10
 
 
 def _target_folder():
@@ -154,7 +149,6 @@ class PolygonAoiTool(QgsMapTool):
         self.on_too_few_points = on_too_few_points
         self._points = []
         self._markers = []
-        self._labels = []
         self._band = QgsRubberBand(canvas, QgsWkbTypes.PolygonGeometry)
         self._band.setFillColor(_FILL)
         self._band.setStrokeColor(_STROKE)
@@ -163,6 +157,9 @@ class PolygonAoiTool(QgsMapTool):
 
     def canvasPressEvent(self, event):
         if event.button() == Qt.MouseButton.LeftButton:
+            if len(self._points) >= _MIN_VERTICES and self._near_first_point(event.pos()):
+                self._finish()
+                return
             point = self.toMapCoordinates(event.pos())
             self._points.append(point)
             self._add_vertex_marker(point)
@@ -175,8 +172,18 @@ class PolygonAoiTool(QgsMapTool):
     def canvasMoveEvent(self, event):
         if not self._points:
             return
-        preview = self._points + [self.toMapCoordinates(event.pos())]
+        if len(self._points) >= _MIN_VERTICES and self._near_first_point(event.pos()):
+            preview = self._points + [self._points[0]]
+        else:
+            preview = self._points + [self.toMapCoordinates(event.pos())]
         self._draw_band(preview)
+
+    def _near_first_point(self, pos):
+        """True when ``pos`` (canvas pixels) is close enough to the first vertex to close the polygon there."""
+        first_screen = self.toCanvasCoordinates(self._points[0])
+        dx = pos.x() - first_screen.x()
+        dy = pos.y() - first_screen.y()
+        return (dx * dx + dy * dy) <= _CLOSE_TOLERANCE_PX ** 2
 
     def canvasDoubleClickEvent(self, event):
         if event.button() != Qt.MouseButton.LeftButton:
@@ -209,7 +216,7 @@ class PolygonAoiTool(QgsMapTool):
         self._band.show()
 
     def _add_vertex_marker(self, point):
-        """Drop a small circle + an incrementing number badge at ``point``."""
+        """Drop a small circle marker at ``point``."""
         marker = QgsVertexMarker(self.canvas)
         marker.setCenter(point)
         marker.setColor(_STROKE)
@@ -218,34 +225,14 @@ class PolygonAoiTool(QgsMapTool):
         marker.setPenWidth(2)
         self._markers.append(marker)
 
-        label_text = str(len(self._points))
-        annotation = QgsTextAnnotation()
-        annotation.setMapPosition(point)
-        annotation.setFrameOffsetFromReferencePointMm(QPointF(3, -4))
-        doc = QTextDocument()
-        doc.setHtml(
-            '<div style="font-weight:700; font-size:9pt; color:#111; '
-            'text-align:center; background:#FFFFFF; border:1px solid #222; '
-            'border-radius:4px; padding:0px 3px;">{}</div>'.format(label_text)
-        )
-        annotation.setDocument(doc)
-        frame_width_mm = 6 + max(0, len(label_text) - 1) * 2
-        annotation.setFrameSizeMm(QSizeF(frame_width_mm, 6))
-        self._labels.append(QgsMapCanvasAnnotationItem(annotation, self.canvas))
-
     def _remove_last_vertex_marker(self):
         if self._markers:
             self.canvas.scene().removeItem(self._markers.pop())
-        if self._labels:
-            self.canvas.scene().removeItem(self._labels.pop())
 
     def _clear_vertex_markers(self):
         for marker in self._markers:
             self.canvas.scene().removeItem(marker)
-        for label in self._labels:
-            self.canvas.scene().removeItem(label)
         self._markers = []
-        self._labels = []
 
     def _finish(self):
         if len(self._points) < _MIN_VERTICES:
@@ -286,16 +273,26 @@ class PolygonAoiTool(QgsMapTool):
             self.on_finished()
 
 
-def start_draw_aoi(interface, target_combo, button=None):
-    """Begin interactive polygon-AOI drawing"""
+def start_draw_aoi(interface, target_combo, button=None, before_select=None):
+    """Begin interactive polygon-AOI drawing.
+
+    ``before_select``, if given, is called right before the finished AOI
+    layer is set on ``target_combo`` — callers use it to suppress the
+    zoom-to-layer their page normally does on ``layerChanged``, since the
+    user just drew the AOI and is already looking at it; jumping the canvas
+    to its exact extent right after would disrupt the flow into the next
+    step. It fires synchronously within the same ``setLayer`` call, so
+    there's nothing to reset if the draw is cancelled instead of finished.
+    """
     canvas = interface.mapCanvas()
     message_bar = interface.messageBar()
 
     banner = message_bar.createMessage(
         _tr("Draw AOI mode"),
         _tr(
-            "Click to add points, double-click or right-click to finish, "
-            "Backspace to undo the last point, Esc to cancel."
+            "Click to add points, double-click, right-click, or click the "
+            "first point to finish. Backspace to undo the last point, Esc "
+            "to cancel."
         ),
     )
     message_bar.pushWidget(banner, Qgis.Info)
@@ -312,6 +309,8 @@ def start_draw_aoi(interface, target_combo, button=None):
             )
             return
         if target_combo is not None:
+            if before_select is not None:
+                before_select()
             target_combo.setLayer(layer)
         message_bar.pushMessage(
             "FARM tools",
@@ -321,7 +320,7 @@ def start_draw_aoi(interface, target_combo, button=None):
 
     def on_point_added(count):
         if count >= _MIN_VERTICES:
-            hint = _tr("Right-click or double-click to finish.")
+            hint = _tr("Right-click, double-click, or click the first point to finish.")
         else:
             hint = _tr("Add at least {0} more point(s).").format(_MIN_VERTICES - count)
         message_bar.pushMessage(
