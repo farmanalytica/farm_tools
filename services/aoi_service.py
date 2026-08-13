@@ -47,12 +47,47 @@ class AOIService:
             if use_selected_features and layer.selectedFeatureCount() > 0
             else list(layer.getFeatures())
         )
-        geometries = [f.geometry() for f in features]
+
+        if not features:
+            raise ValueError("Layer has no geometries.")
+
+        # GEOS' unaryUnion silently returns a null/empty geometry when any
+        # input feature is invalid (e.g. self-intersecting rings), so each
+        # feature is fixed individually first — this both avoids the failure
+        # and lets us name the offending feature(s) if it happens anyway.
+        geometries = []
+        invalid_fids = []
+        for f in features:
+            geom = f.geometry()
+            if not geom or geom.isNull() or geom.isEmpty():
+                invalid_fids.append(f.id())
+                continue
+            if not geom.isGeosValid():
+                geom = geom.makeValid()
+                if not geom or geom.isNull() or geom.isEmpty():
+                    invalid_fids.append(f.id())
+                    continue
+            geometries.append(geom)
 
         if not geometries:
             raise ValueError("Layer has no geometries.")
 
-        return QgsGeometry.unaryUnion(geometries)
+        dissolved = QgsGeometry.unaryUnion(geometries)
+
+        if dissolved.isEmpty():
+            fids = ", ".join(str(fid) for fid in invalid_fids[:10])
+            more = "..." if len(invalid_fids) > 10 else ""
+            detail = (
+                f" Invalid feature id(s): {fids}{more}." if invalid_fids else ""
+            )
+            raise ValueError(
+                "Could not dissolve AOI geometry — one or more features have "
+                "invalid geometry that QGIS could not repair automatically."
+                f"{detail} Fix them with Vector → Geometry Tools → "
+                "Fix Geometries and try again."
+            )
+
+        return dissolved
 
     @staticmethod
     def _layer_to_geojson_4326(layer, use_selected_features=True):
@@ -64,12 +99,6 @@ class AOIService:
         converters so both stay in sync.
         """
         geometry = AOIService._get_dissolved_geometry(layer, use_selected_features)
-
-        if geometry.isEmpty():
-            raise ValueError("Empty geometry.")
-
-        if not geometry.isGeosValid():
-            geometry = geometry.makeValid()
 
         if layer.crs().authid() != "EPSG:4326":
             transform = QgsCoordinateTransform(
@@ -142,10 +171,6 @@ class AOIService:
         """
         AOIService._validate_vector_polygon_layer(layer)
         geometry = AOIService._get_dissolved_geometry(layer, use_selected_features)
-        if geometry.isEmpty():
-            raise ValueError("Empty geometry.")
-        if not geometry.isGeosValid():
-            geometry = geometry.makeValid()
 
         calc = QgsDistanceArea()
         calc.setSourceCrs(layer.crs(), QgsProject.instance().transformContext())
