@@ -3,7 +3,7 @@ name=EasyDEM
 qgisMinimumVersion=3.28
 qgisMaximumVersion=4.99
 description=Download and visualise Digital Elevation Models (SRTM, Copernicus…) via Google Earth Engine, clipped to your area / Baixe e visualize Modelos Digitais de Elevação (SRTM, Copernicus…) via Google Earth Engine, recortados para sua área
-version=9.2
+version=9.5
 author=FARM Analytica
 email=contato@farmanalytica.com.br
 
@@ -17,6 +17,21 @@ repository=https://github.com/farmanalytica/farm_tools
 
 hasProcessingProvider=no
 changelog=
+    9.5 - AOI drawing: the "Draw AOI" tool (DEM, RAVI, SAR, Multi-Satellite,
+          Bare Soil, MapBiomas) now lets you click a sequence of points to
+          draw an arbitrary polygon instead of only a rectangle.
+          Double-click, right-click, or clicking back on the first point
+          closes the shape; Backspace undoes the last point and Esc
+          cancels; message-bar hints track progress toward the 3-point
+          minimum. The canvas no longer zooms to the freshly drawn AOI, so
+          it doesn't disrupt your view. AOI layers with multiple/invalid
+          features now validate and repair each one individually before
+          dissolving, and the error message names the offending feature
+          id(s) instead of a generic "Empty geometry." Message bar and
+          dialog colors: a few exception/failure messages that showed
+          yellow now correctly show red, a few "loaded/generated
+          successfully" messages that showed blue now correctly show
+          green, and a CAR-loaded confirmation no longer shows red.
     9.0 - RAVI plot date-range filtering: two-handle slider below the plot lets
           you narrow the cached time series by date span. Dragging updates the
           label live and re-renders the plot after settling (200 ms debounce).

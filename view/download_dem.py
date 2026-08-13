@@ -187,7 +187,7 @@ def setup_download_dem_page(dialog, page):
 
     dialog.btn_draw_aoi = QPushButton(_tr("Draw AOI"))
     dialog.btn_draw_aoi.setToolTip(
-        _tr("Drag on the map to draw a box (Shift = square, Esc = cancel)")
+        _tr("Click points on the map to draw an AOI polygon")
     )
     dialog.btn_draw_aoi.setFixedHeight(28)
     dialog.btn_draw_aoi.setSizePolicy(
