@@ -24,6 +24,8 @@ UX over a plain emit-point tool:
 
 import os
 import tempfile
+from dataclasses import dataclass
+from typing import Callable, Optional
 
 from qgis.PyQt.QtCore import Qt, QTimer, QCoreApplication, QVariant
 from qgis.PyQt.QtGui import QColor
@@ -37,13 +39,13 @@ from qgis.core import (
     QgsFields,
     QgsVectorLayer,
     QgsVectorFileWriter,
-    QgsFillSymbol,
     QgsWkbTypes,
     QgsCoordinateTransform,
     QgsCoordinateReferenceSystem,
 )
 
 from ..managers.settings_manager import SettingsManager
+from ..renderers.aoi_style import build_aoi_fill_symbol
 from ..view.styles import STYLE_BTN_SECONDARY, STYLE_BTN_DRAW_ACTIVE
 
 
@@ -56,6 +58,9 @@ _FILL = QColor(27, 107, 57, 60)
 _STROKE = QColor(255, 0, 0, 220)
 _MIN_VERTICES = 3
 _CLOSE_TOLERANCE_PX = 10
+_BAND_WIDTH_PX = 2
+_VERTEX_MARKER_SIZE_PX = 8
+_VERTEX_MARKER_PEN_PX = 2
 
 
 def _target_folder():
@@ -72,25 +77,18 @@ def _unique_shp_path(folder, base="drawn_aoi"):
     """
     name = base
     subdir = os.path.join(folder, name)
-    n = 2
+    suffix = 2
     while os.path.exists(subdir):
-        name = "{}_{}".format(base, n)
+        name = "{}_{}".format(base, suffix)
         subdir = os.path.join(folder, name)
-        n += 1
+        suffix += 1
     os.makedirs(subdir, exist_ok=True)
     path = os.path.join(subdir, base + ".shp")
     return path, name
 
 
 def _style_aoi(layer):
-    symbol = QgsFillSymbol.createSimple(
-        {
-            "color": "27,107,57,40",
-            "outline_color": "255,0,0,255",
-            "outline_width": "0.6",
-        }
-    )
-    layer.renderer().setSymbol(symbol)
+    layer.renderer().setSymbol(build_aoi_fill_symbol())
 
 
 def create_aoi_shapefile(geom_wgs84):
@@ -136,23 +134,34 @@ def create_aoi_shapefile(geom_wgs84):
     return layer
 
 
+@dataclass
+class AoiDrawCallbacks:
+    """Hooks ``PolygonAoiTool`` fires as the polygon is drawn.
+
+    ``on_created`` receives the saved AOI layer (or ``None`` when saving
+    failed), ``on_point_added`` the running vertex count, and
+    ``on_too_few_points`` the current count and the required minimum.
+    """
+
+    on_created: Optional[Callable] = None
+    on_finished: Optional[Callable] = None
+    on_point_added: Optional[Callable] = None
+    on_too_few_points: Optional[Callable] = None
+
+
 class PolygonAoiTool(QgsMapTool):
     """Click to add vertices, double-click/right-click to close the AOI polygon."""
 
-    def __init__(self, canvas, on_created=None, on_finished=None,
-                 on_point_added=None, on_too_few_points=None):
+    def __init__(self, canvas, callbacks=None):
         super().__init__(canvas)
         self.canvas = canvas
-        self.on_created = on_created
-        self.on_finished = on_finished
-        self.on_point_added = on_point_added
-        self.on_too_few_points = on_too_few_points
+        self.callbacks = callbacks or AoiDrawCallbacks()
         self._points = []
         self._markers = []
         self._band = QgsRubberBand(canvas, QgsWkbTypes.PolygonGeometry)
         self._band.setFillColor(_FILL)
         self._band.setStrokeColor(_STROKE)
-        self._band.setWidth(2)
+        self._band.setWidth(_BAND_WIDTH_PX)
         self.setCursor(Qt.CursorShape.CrossCursor)
 
     def canvasPressEvent(self, event):
@@ -164,8 +173,8 @@ class PolygonAoiTool(QgsMapTool):
             self._points.append(point)
             self._add_vertex_marker(point)
             self._draw_band(self._points)
-            if self.on_point_added:
-                self.on_point_added(len(self._points))
+            if self.callbacks.on_point_added:
+                self.callbacks.on_point_added(len(self._points))
         elif event.button() == Qt.MouseButton.RightButton:
             self._finish()
 
@@ -205,8 +214,8 @@ class PolygonAoiTool(QgsMapTool):
                 self._points.pop()
                 self._remove_last_vertex_marker()
                 self._draw_band(self._points)
-                if self.on_point_added:
-                    self.on_point_added(len(self._points))
+                if self.callbacks.on_point_added:
+                    self.callbacks.on_point_added(len(self._points))
 
     def _draw_band(self, points):
         if len(points) < 2:
@@ -221,8 +230,8 @@ class PolygonAoiTool(QgsMapTool):
         marker.setCenter(point)
         marker.setColor(_STROKE)
         marker.setIconType(QgsVertexMarker.ICON_CIRCLE)
-        marker.setIconSize(8)
-        marker.setPenWidth(2)
+        marker.setIconSize(_VERTEX_MARKER_SIZE_PX)
+        marker.setPenWidth(_VERTEX_MARKER_PEN_PX)
         self._markers.append(marker)
 
     def _remove_last_vertex_marker(self):
@@ -236,8 +245,8 @@ class PolygonAoiTool(QgsMapTool):
 
     def _finish(self):
         if len(self._points) < _MIN_VERTICES:
-            if self.on_too_few_points:
-                self.on_too_few_points(len(self._points), _MIN_VERTICES)
+            if self.callbacks.on_too_few_points:
+                self.callbacks.on_too_few_points(len(self._points), _MIN_VERTICES)
             return
         points = self._points
         self._clear()
@@ -249,8 +258,8 @@ class PolygonAoiTool(QgsMapTool):
         if not geom.isGeosValid():
             geom = geom.makeValid()
         if geom is None or geom.isEmpty():
-            if self.on_created:
-                self.on_created(None)
+            if self.callbacks.on_created:
+                self.callbacks.on_created(None)
             return
         project_crs = self.canvas.mapSettings().destinationCrs()
         wgs84 = QgsCoordinateReferenceSystem(_WGS84)
@@ -258,8 +267,8 @@ class PolygonAoiTool(QgsMapTool):
             xform = QgsCoordinateTransform(project_crs, wgs84, QgsProject.instance())
             geom.transform(xform)
         layer = create_aoi_shapefile(geom)
-        if self.on_created:
-            self.on_created(layer)
+        if self.callbacks.on_created:
+            self.callbacks.on_created(layer)
 
     def _clear(self):
         self._points = []
@@ -269,8 +278,8 @@ class PolygonAoiTool(QgsMapTool):
     def deactivate(self):
         self._clear()
         super().deactivate()
-        if self.on_finished:
-            self.on_finished()
+        if self.callbacks.on_finished:
+            self.callbacks.on_finished()
 
 
 def start_draw_aoi(interface, target_combo, button=None, before_select=None):
@@ -351,10 +360,12 @@ def start_draw_aoi(interface, target_combo, button=None, before_select=None):
 
     tool = PolygonAoiTool(
         canvas,
-        on_created=on_created,
-        on_finished=on_finished,
-        on_point_added=on_point_added,
-        on_too_few_points=on_too_few_points,
+        AoiDrawCallbacks(
+            on_created=on_created,
+            on_finished=on_finished,
+            on_point_added=on_point_added,
+            on_too_few_points=on_too_few_points,
+        ),
     )
     canvas.setMapTool(tool)
     return tool

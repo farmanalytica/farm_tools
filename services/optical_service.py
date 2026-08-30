@@ -1,11 +1,10 @@
 import logging
-import os
-import tempfile
 from datetime import datetime, timedelta
 from typing import List, Dict, Any
 
 import ee
-import requests
+
+from .downloads import GeoTiffRequest, download_geotiff
 
 try:
     from osgeo import gdal
@@ -379,31 +378,15 @@ class OpticalService:
         image, region = OpticalService.get_multispectral_image_for_date(
             aoi, date, buffer_m
         )
-        url = image.getDownloadURL(
-            {
-                "scale": 10,
-                "region": region.bounds().getInfo(),
-                "format": "GeoTIFF",
-                "crs": "EPSG:4326",
-            }
+        output_path = download_geotiff(
+            image,
+            GeoTiffRequest(
+                region=region,
+                filename=f"Sentinel2_{date}.tiff",
+                output_folder=output_folder,
+                product="Optical",
+            ),
         )
-
-        response = requests.get(url, timeout=300)
-        if not response.ok:
-            raise RuntimeError(
-                f"Optical download failed (HTTP {response.status_code}): "
-                f"{response.reason}"
-            )
-
-        base_dir = (
-            output_folder
-            if (output_folder and os.path.isdir(output_folder))
-            else tempfile.gettempdir()
-        )
-        output_path = OpticalService._unique_path(base_dir, f"Sentinel2_{date}.tiff")
-        with open(output_path, "wb") as f:
-            f.write(response.content)
-
         OpticalService._set_band_names(output_path)
         return output_path
 
@@ -446,33 +429,15 @@ class OpticalService:
         image, region = OpticalService.get_index_image_for_date(
             aoi, date, index_name, buffer_m, custom_expression
         )
-        url = image.getDownloadURL(
-            {
-                "scale": 10,
-                "region": region.bounds().getInfo(),
-                "format": "GeoTIFF",
-                "crs": "EPSG:4326",
-            }
+        return download_geotiff(
+            image,
+            GeoTiffRequest(
+                region=region,
+                filename=f"S2_{index_name}_{date}.tiff",
+                output_folder=output_folder,
+                product="Optical",
+            ),
         )
-
-        response = requests.get(url, timeout=300)
-        if not response.ok:
-            raise RuntimeError(
-                f"Optical download failed (HTTP {response.status_code}): "
-                f"{response.reason}"
-            )
-
-        base_dir = (
-            output_folder
-            if (output_folder and os.path.isdir(output_folder))
-            else tempfile.gettempdir()
-        )
-        output_path = OpticalService._unique_path(
-            base_dir, f"S2_{index_name}_{date}.tiff"
-        )
-        with open(output_path, "wb") as f:
-            f.write(response.content)
-        return output_path
 
     # -- synthetic index composite (selected dates) -----------------------
     @staticmethod
@@ -631,47 +596,18 @@ class OpticalService:
             buffer_m=buffer_m,
             custom_expression=custom_expression,
         )
-        url = image.getDownloadURL(
-            {
-                "scale": 10,
-                "region": region.bounds().getInfo(),
-                "format": "GeoTIFF",
-                "crs": "EPSG:4326",
-            }
-        )
-
-        response = requests.get(url, timeout=300)
-        if not response.ok:
-            raise RuntimeError(
-                f"Composite download failed (HTTP {response.status_code}): "
-                f"{response.reason}"
-            )
-
-        base_dir = (
-            output_folder
-            if (output_folder and os.path.isdir(output_folder))
-            else tempfile.gettempdir()
-        )
         safe_metric = (
             metric.replace(" ", "_").replace("(", "").replace(")", "")
         )
-        output_path = OpticalService._unique_path(
-            base_dir, f"S2_{index_name}_{safe_metric}.tiff"
+        return download_geotiff(
+            image,
+            GeoTiffRequest(
+                region=region,
+                filename=f"S2_{index_name}_{safe_metric}.tiff",
+                output_folder=output_folder,
+                product="Composite",
+            ),
         )
-        with open(output_path, "wb") as f:
-            f.write(response.content)
-        return output_path
-
-    @staticmethod
-    def _unique_path(folder: str, filename: str) -> str:
-        path = os.path.join(folder, filename)
-        if not os.path.exists(path):
-            return path
-        stem, ext = os.path.splitext(filename)
-        i = 1
-        while os.path.exists(os.path.join(folder, f"{stem}_{i}{ext}")):
-            i += 1
-        return os.path.join(folder, f"{stem}_{i}{ext}")
 
     @staticmethod
     def _set_band_names(file_path: str):

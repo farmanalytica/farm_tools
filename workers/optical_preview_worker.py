@@ -7,52 +7,54 @@ multispectral stack (``kind="rgb"``) or a single-band vegetation index
 (``kind="index"``). The AOI is extracted on the main thread and passed in.
 """
 
-from qgis.PyQt.QtCore import QThread, pyqtSignal
+from dataclasses import dataclass
+from typing import Optional
+
+from qgis.PyQt.QtCore import pyqtSignal
 
 from ..services.optical_service import OpticalService
+from .background_worker import BackgroundWorker
+
+KIND_INDEX = "index"
+KIND_RGB = "rgb"
 
 
-class OpticalPreviewWorker(QThread):
+@dataclass
+class OpticalPreviewRequest:
+    """One scene to fetch: which date, rendered how, written where."""
+
+    kind: str
+    aoi: object
+    date: str
+    index_name: str
+    buffer_m: float
+    output_folder: Optional[str]
+    custom_expression: Optional[str] = None
+
+
+class OpticalPreviewWorker(BackgroundWorker):
     finished = pyqtSignal(str, str)   # output_path, kind
-    failed = pyqtSignal(str)
 
-    def __init__(
-        self,
-        kind,
-        aoi,
-        date,
-        index_name,
-        buffer_m,
-        output_folder,
-        custom_expression=None,
-    ):
+    def __init__(self, request):
         super().__init__()
-        self._kind = kind
-        self._aoi = aoi
-        self._date = date
-        self._index_name = index_name
-        self._buffer_m = buffer_m
-        self._output_folder = output_folder
-        self._custom_expression = custom_expression
+        self._request = request
 
-    def run(self):
-        try:
-            if self._kind == "index":
-                path = OpticalService.download_index_for_date(
-                    self._aoi,
-                    self._date,
-                    self._index_name,
-                    buffer_m=self._buffer_m,
-                    output_folder=self._output_folder,
-                    custom_expression=self._custom_expression,
-                )
-            else:
-                path = OpticalService.download_multispectral_for_date(
-                    self._aoi,
-                    self._date,
-                    buffer_m=self._buffer_m,
-                    output_folder=self._output_folder,
-                )
-            self.finished.emit(path, self._kind)
-        except Exception as e:
-            self.failed.emit(str(e))
+    def work(self):
+        request = self._request
+        if request.kind == KIND_INDEX:
+            path = OpticalService.download_index_for_date(
+                request.aoi,
+                request.date,
+                request.index_name,
+                buffer_m=request.buffer_m,
+                output_folder=request.output_folder,
+                custom_expression=request.custom_expression,
+            )
+        else:
+            path = OpticalService.download_multispectral_for_date(
+                request.aoi,
+                request.date,
+                buffer_m=request.buffer_m,
+                output_folder=request.output_folder,
+            )
+        self.finished.emit(path, request.kind)

@@ -13,6 +13,16 @@ from ..services.gee_service import AuthCancelled, AuthTimeout
 
 CANCELLED = "__cancelled__"
 
+# The sign-in states the auth page's status pill understands.
+STATE_AUTHENTICATED = "authenticated"
+STATE_STORED = "stored"
+STATE_NONE = "none"
+STATE_AUTHENTICATED_SA = "authenticated_sa"
+STATE_CHECKING = "checking"
+
+# A browser sign-in the user never finishes should not hold the thread forever.
+_AUTH_TIMEOUT_S = 180
+
 
 def _tr(text):
     return QCoreApplication.translate("RAVI", text)
@@ -24,11 +34,10 @@ class AuthWorker(QThread):
     browser_opened = pyqtSignal(str)
     finished_auth = pyqtSignal(bool, str)
 
-    def __init__(self, gee_service, project_id, timeout=180, sa_key_path=None):
+    def __init__(self, gee_service, project_id, sa_key_path=None):
         super().__init__()
         self._gee = gee_service
         self._project_id = project_id
-        self._timeout = timeout
         self._sa_key_path = sa_key_path
         self._is_cancelled = False
 
@@ -45,7 +54,7 @@ class AuthWorker(QThread):
             else:
                 self._gee.authenticate(
                     self._project_id,
-                    timeout=self._timeout,
+                    timeout=_AUTH_TIMEOUT_S,
                     should_cancel=lambda: self._is_cancelled,
                     on_browser_open=self.browser_opened.emit,
                 )
@@ -71,23 +80,30 @@ class AuthStatusWorker(QThread):
 
     def run(self):
         try:
-            if self._sa_key_path:
-                # Service-account mode: a saved key path is the stored state.
-                if not self._project_id:
-                    self.status_ready.emit("stored")
-                elif self._gee.check_silent_sa_auth(self._sa_key_path, self._project_id):
-                    self.status_ready.emit("authenticated")
-                else:
-                    self.status_ready.emit("stored")
-                return
-
-            if not self._gee.has_stored_credentials():
-                self.status_ready.emit("none")
-            elif not self._project_id:
-                self.status_ready.emit("stored")
-            elif self._gee.check_silent_auth(self._project_id):
-                self.status_ready.emit("authenticated")
-            else:
-                self.status_ready.emit("stored")
+            self.status_ready.emit(self._resolve_state())
         except Exception:
-            self.status_ready.emit("stored")
+            # A status check that itself fails tells us nothing new; report the
+            # credentials as merely stored rather than claiming a signed-in state.
+            self.status_ready.emit(STATE_STORED)
+
+    def _resolve_state(self):
+        if self._sa_key_path:
+            return self._service_account_state()
+        return self._user_account_state()
+
+    def _service_account_state(self):
+        """A saved key path is itself the stored state; only a project can confirm it."""
+        if not self._project_id:
+            return STATE_STORED
+        if self._gee.check_silent_sa_auth(self._sa_key_path, self._project_id):
+            return STATE_AUTHENTICATED
+        return STATE_STORED
+
+    def _user_account_state(self):
+        if not self._gee.has_stored_credentials():
+            return STATE_NONE
+        if not self._project_id:
+            return STATE_STORED
+        if self._gee.check_silent_auth(self._project_id):
+            return STATE_AUTHENTICATED
+        return STATE_STORED

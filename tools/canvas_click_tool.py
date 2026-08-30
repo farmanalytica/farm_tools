@@ -5,9 +5,9 @@ Sibling of ``tools/canvas_marker_tool.py`` (Field Guide): instead of
 permanently hijacking the QGIS map tool, this is an explicit, toggleable
 capture mode. ``enable(slot)`` remembers the user's current map tool and
 switches to a point-emitter; ``disable()`` restores it. Two slots are
-supported ("A" and "B") so a primary point and a comparison point can each
-keep their own colored marker; a click moves the marker for the active slot
-and the mode stays on until toggled off.
+supported (primary and comparison) so each point keeps its own colored
+marker; a click moves the marker for the active slot and the mode stays on
+until toggled off.
 """
 import logging
 
@@ -28,7 +28,18 @@ def _tr(text):
     return QCoreApplication.translate("RAVI", text)
 
 
-_SLOT_COLOR = {"A": QColor(255, 0, 0), "B": QColor(0, 90, 255)}
+SLOT_PRIMARY = "A"
+SLOT_COMPARISON = "B"
+
+_PRIMARY_COLOR = QColor(255, 0, 0)
+_SLOT_COLOR = {SLOT_PRIMARY: _PRIMARY_COLOR, SLOT_COMPARISON: QColor(0, 90, 255)}
+
+_MARKER_SIZE_PX = 12
+_MARKER_PEN_PX = 4
+_HINT_DURATION_S = 3
+# Four decimals of a degree is roughly 11 m — finer than any pixel the
+# ClimaPlots datasets resolve, and short enough to read in the coordinate box.
+_COORD_DECIMALS = 4
 
 
 class CanvasClickTool(QObject):
@@ -42,7 +53,7 @@ class CanvasClickTool(QObject):
         self.canvas = iface.mapCanvas()
         self._tool = None
         self._previous_tool = None
-        self._slot = "A"
+        self._slot = SLOT_PRIMARY
         self._markers = {}  # slot -> QgsVertexMarker
         self._wgs84 = QgsCoordinateReferenceSystem("EPSG:4326")
         # Optional callback invoked when another tool displaces the capture
@@ -55,10 +66,7 @@ class CanvasClickTool(QObject):
             self._tool.canvasClicked.connect(self._on_clicked)
             self._tool.deactivated.connect(self._on_tool_deactivated)
 
-    def is_active(self):
-        return self._tool is not None and self.canvas.mapTool() is self._tool
-
-    def enable(self, slot="A"):
+    def enable(self, slot=SLOT_PRIMARY):
         """Activate capture mode for ``slot``, remembering the current map tool."""
         self._slot = slot
         self._ensure_tool()
@@ -69,10 +77,12 @@ class CanvasClickTool(QObject):
             self.iface.messageBar().pushMessage(
                 _tr("FARM tools"),
                 _tr("Click a point on the map to set the coordinate."),
-                level=Qgis.Info, duration=3,
+                level=Qgis.Info, duration=_HINT_DURATION_S,
             )
         except Exception:
-            logger.debug("Failed to show 'click a point' message bar hint", exc_info=True)
+            logger.debug(
+                "Failed to show 'click a point' message bar hint", exc_info=True
+            )
 
     def disable(self):
         """Deactivate capture mode and restore the previous map tool."""
@@ -92,29 +102,40 @@ class CanvasClickTool(QObject):
         if button != Qt.MouseButton.LeftButton:
             return
         source_crs = self.canvas.mapSettings().destinationCrs()
-        transform = QgsCoordinateTransform(source_crs, self._wgs84, QgsProject.instance())
-        wgs = transform.transform(point)
+        transform = QgsCoordinateTransform(
+            source_crs, self._wgs84, QgsProject.instance()
+        )
+        wgs84_point = transform.transform(point)
         self._draw_marker(point, self._slot)
-        self.point_picked.emit(round(wgs.x(), 4), round(wgs.y(), 4), self._slot)
+        self.point_picked.emit(
+            round(wgs84_point.x(), _COORD_DECIMALS),
+            round(wgs84_point.y(), _COORD_DECIMALS),
+            self._slot,
+        )
         # Capture mode stays active until the user toggles it off.
 
     def _draw_marker(self, map_point, slot):
         self.clear_marker(slot)
         marker = QgsVertexMarker(self.canvas)
         marker.setCenter(map_point)
-        marker.setColor(_SLOT_COLOR.get(slot, QColor(255, 0, 0)))
+        marker.setColor(_SLOT_COLOR.get(slot, _PRIMARY_COLOR))
         marker.setIconType(QgsVertexMarker.ICON_X)
-        marker.setIconSize(12)
-        marker.setPenWidth(4)
+        marker.setIconSize(_MARKER_SIZE_PX)
+        marker.setPenWidth(_MARKER_PEN_PX)
         self._markers[slot] = marker
 
     def clear_marker(self, slot=None):
         """Remove the marker for ``slot`` (or all markers when slot is None)."""
         slots = [slot] if slot is not None else list(self._markers)
-        for s in slots:
-            marker = self._markers.pop(s, None)
-            if marker is not None:
-                try:
-                    self.canvas.scene().removeItem(marker)
-                except Exception:
-                    logger.debug("Failed to remove vertex marker for slot %s from canvas scene", s, exc_info=True)
+        for slot_name in slots:
+            marker = self._markers.pop(slot_name, None)
+            if marker is None:
+                continue
+            try:
+                self.canvas.scene().removeItem(marker)
+            except Exception:
+                logger.debug(
+                    "Failed to remove vertex marker for slot %s from canvas scene",
+                    slot_name,
+                    exc_info=True,
+                )

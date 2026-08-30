@@ -24,6 +24,8 @@ import re
 
 import requests
 
+from .downloads import unique_path
+
 logger = logging.getLogger(__name__)
 
 # Public bucket published by the conformidade rural project (see
@@ -146,20 +148,8 @@ class CarService:
             if (output_folder and os.path.isdir(output_folder))
             else tempfile.gettempdir()
         )
-        path = CarService._unique_path(target_dir, f"CAR_{code}.geojson")
+        path = unique_path(target_dir, f"CAR_{code}.geojson")
         with open(path, "w", encoding="utf-8") as handle:
             json.dump(collection, handle, ensure_ascii=False)
         return path
 
-    @staticmethod
-    def _unique_path(folder: str, filename: str) -> str:
-        candidate = os.path.join(folder, filename)
-        if not os.path.exists(candidate):
-            return candidate
-        base, ext = os.path.splitext(filename)
-        counter = 1
-        while True:
-            candidate = os.path.join(folder, f"{base}_{counter}{ext}")
-            if not os.path.exists(candidate):
-                return candidate
-            counter += 1

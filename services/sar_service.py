@@ -1,12 +1,12 @@
 import logging
-import os
 import re
-import tempfile
+
+from datetime import datetime, timedelta
 
 import ee
-import requests
 from ee_s1_ard import S1ARDImageCollection
-from datetime import datetime, timedelta
+
+from .downloads import GeoTiffRequest, download_geotiff
 
 try:
     from osgeo import gdal
@@ -14,6 +14,11 @@ except ImportError:
     gdal = None
 
 logger = logging.getLogger(__name__)
+
+
+def _sanitize(text):
+    """``text`` reduced to characters that are safe in a filename."""
+    return re.sub(r"[^A-Za-z0-9_-]+", "_", text).strip("_")
 
 
 class SARService:
@@ -327,37 +332,18 @@ class SARService:
 
     @staticmethod
     def download_band_composite(image, aoi, metric, index_label, output_folder=None):
-
-        download_url = image.getDownloadURL(
-            {
-                "scale": 10,
-                "region": aoi.geometry().bounds().getInfo(),
-                "format": "GeoTIFF",
-                "crs": "EPSG:4326",
-            }
+        filename = "SAR_{}_{}.tiff".format(
+            _sanitize(index_label), _sanitize(metric)
         )
-        response = requests.get(download_url, timeout=300)
-        if not response.ok:
-            raise RuntimeError(
-                "SAR composite download failed (HTTP {}): {}".format(
-                    response.status_code, response.reason
-                )
-            )
-
-        def _sanitize(text):
-            return re.sub(r"[^A-Za-z0-9_-]+", "_", text).strip("_")
-
-        filename = "SAR_{}_{}.tiff".format(_sanitize(index_label), _sanitize(metric))
-        target_dir = (
-            output_folder
-            if (output_folder and os.path.isdir(output_folder))
-            else tempfile.gettempdir()
+        output_path = download_geotiff(
+            image,
+            GeoTiffRequest(
+                region=aoi.geometry(),
+                filename=filename,
+                output_folder=output_folder,
+                product="SAR composite",
+            ),
         )
-        output_path = SARService._get_unique_path(target_dir, filename)
-
-        with open(output_path, "wb") as f:
-            f.write(response.content)
-
         SARService._set_single_band_name(
             output_path, "{} {}".format(index_label, metric)
         )
@@ -398,38 +384,16 @@ class SARService:
         )
 
     @staticmethod
-    def download_image(
-        image,
-        aoi,
-        date,
-        output_folder=None,
-    ):
-        url = image.getDownloadURL(
-            {
-                "scale": 10,
-                "region": aoi.geometry().bounds().getInfo(),
-                "format": "GeoTIFF",
-                "crs": "EPSG:4326",
-            }
+    def download_image(image, aoi, date, output_folder=None):
+        output_path = download_geotiff(
+            image,
+            GeoTiffRequest(
+                region=aoi.geometry(),
+                filename=f"Sentinel1_{date}.tiff",
+                output_folder=output_folder,
+                product="SAR",
+            ),
         )
-
-        response = requests.get(url, timeout=300)
-        if not response.ok:
-            raise RuntimeError(
-                f"SAR download failed (HTTP {response.status_code}): {response.reason}"
-            )
-
-        filename = f"Sentinel1_{date}.tiff"
-        base_dir = (
-            output_folder
-            if (output_folder and os.path.isdir(output_folder))
-            else tempfile.gettempdir()
-        )
-        output_path = SARService._get_unique_path(base_dir, filename)
-
-        with open(output_path, "wb") as f:
-            f.write(response.content)
-
         SARService._set_band_names(output_path)
         return output_path
 
@@ -459,17 +423,3 @@ class SARService:
                 file_path, exc_info=True,
             )
 
-    @staticmethod
-    def _get_unique_path(folder, filename):
-        candidate_path = os.path.join(folder, filename)
-        if not os.path.exists(candidate_path):
-            return candidate_path
-
-        basename, extension = os.path.splitext(filename)
-        counter = 1
-
-        while True:
-            candidate_path = os.path.join(folder, f"{basename}_{counter}{extension}")
-            if not os.path.exists(candidate_path):
-                return candidate_path
-            counter += 1

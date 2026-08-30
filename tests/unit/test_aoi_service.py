@@ -7,7 +7,7 @@ geometry-cleaning helper that needs neither QGIS nor EE.
 
 from farm_tools.services import aoi_service
 
-_remove_z = aoi_service._remove_z_dimension
+_remove_z = aoi_service.remove_z_dimension
 
 
 class TestRemoveZDimension:

@@ -161,6 +161,9 @@ def run(cmd: list[str]) -> None:
     subprocess.run(cmd, check=True, cwd=ROOT)
 
 
+REBUILD_EXTLIBS_FLAG = "--rebuild-extlibs"
+
+
 def _force_remove(func, path, exc_info):
     os.chmod(path, stat.S_IWRITE)
     func(path)
@@ -334,8 +337,13 @@ def build_flavors() -> None:
 
 def main() -> None:
     print(f"Building {PLUGIN_NAME} + {len(FLAVORS)} single-module plugins ...")
-    #clean_extlibs()
-    #build_extlibs()
+
+    # Reinstalling extlibs takes minutes, and fails outright while QGIS holds
+    # the .pyd files open, so it is off unless requirements.txt changed.
+    if REBUILD_EXTLIBS_FLAG in sys.argv:
+        clean_extlibs()
+        build_extlibs()
+
     compile_translations()
     sync_flavor_metadata()
     build_full()

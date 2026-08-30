@@ -19,7 +19,11 @@ from qgis.PyQt.QtWidgets import QApplication, QFileDialog, QMessageBox
 
 from ..managers.settings_manager import SettingsManager
 from ..services.climaplots import nasa_power_service, openmeteo_service
-from ..tools.canvas_click_tool import CanvasClickTool
+from ..tools.canvas_click_tool import (
+    SLOT_COMPARISON,
+    SLOT_PRIMARY,
+    CanvasClickTool,
+)
 from ..view import plotly_render
 from ..view.climaplots import (
     PICK_B_OFF,
@@ -30,7 +34,11 @@ from ..view.climaplots import (
     variable_description,
 )
 from ..view.styles import STYLE_BTN_DRAW_ACTIVE, STYLE_BTN_SECONDARY
-from ..workers.climaplots_worker import ClimaPlotsAnalysisWorker
+from ..workers.climaplots_worker import (
+    DEFAULT_SOURCE,
+    ClimaPlotsAnalysisWorker,
+    ClimaPlotsRequest,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -118,7 +126,7 @@ class ClimaPlotsCtrl:
             if self.dialog.cp_btn_pick_b.isChecked():
                 self.dialog.cp_btn_pick_b.setChecked(False)
             self._switching_pick = False
-            self.click_tool.enable("A")
+            self.click_tool.enable(SLOT_PRIMARY)
         elif not self._switching_pick:
             self.click_tool.disable()
 
@@ -132,13 +140,13 @@ class ClimaPlotsCtrl:
             if self.dialog.cp_btn_pick_a.isChecked():
                 self.dialog.cp_btn_pick_a.setChecked(False)
             self._switching_pick = False
-            self.click_tool.enable("B")
+            self.click_tool.enable(SLOT_COMPARISON)
         elif not self._switching_pick:
             self.click_tool.disable()
 
-    def _on_point_picked(self, longitude, latitude, slot="A"):
+    def _on_point_picked(self, longitude, latitude, slot=SLOT_PRIMARY):
         """A point was clicked: fill the matching fields; capture mode stays on."""
-        if slot == "B":
+        if slot == SLOT_COMPARISON:
             self.dialog.cp_lon_b.setText(str(longitude))
             self.dialog.cp_lat_b.setText(str(latitude))
         else:
@@ -302,15 +310,19 @@ class ClimaPlotsCtrl:
         self.dialog.cp_set_tab(2)
 
         self._worker = ClimaPlotsAnalysisWorker(
-            self.dialog.cp_lon_a.text(),
-            self.dialog.cp_lat_a.text(),
-            SettingsManager.get_proxy(),
-            start_year=self.dialog.cp_start_year.value(),
-            end_year=self.dialog.cp_end_year.value(),
-            longitude_b=self.dialog.cp_lon_b.text().strip() or None,
-            latitude_b=self.dialog.cp_lat_b.text().strip() or None,
-            source=self.dialog.cp_source_combo_a.currentData() or "power",
-            source_b=self.dialog.cp_source_combo_b.currentData(),
+            ClimaPlotsRequest(
+                longitude=self.dialog.cp_lon_a.text(),
+                latitude=self.dialog.cp_lat_a.text(),
+                proxy=SettingsManager.get_proxy(),
+                start_year=self.dialog.cp_start_year.value(),
+                end_year=self.dialog.cp_end_year.value(),
+                longitude_b=self.dialog.cp_lon_b.text().strip() or None,
+                latitude_b=self.dialog.cp_lat_b.text().strip() or None,
+                source=(
+                    self.dialog.cp_source_combo_a.currentData() or DEFAULT_SOURCE
+                ),
+                source_b=self.dialog.cp_source_combo_b.currentData(),
+            ),
             parent=self.dialog,
         )
         self._worker.finished_ok.connect(self._on_analysis_done)

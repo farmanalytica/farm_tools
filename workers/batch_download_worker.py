@@ -11,16 +11,17 @@ this thread and must not touch Qt widgets.
 
 import logging
 
-from qgis.PyQt.QtCore import QThread, pyqtSignal, QMutex
+from qgis.PyQt.QtCore import pyqtSignal, QMutex
+
+from .background_worker import BackgroundWorker
 
 logger = logging.getLogger(__name__)
 
 
-class BatchDownloadWorker(QThread):
+class BatchDownloadWorker(BackgroundWorker):
     progress = pyqtSignal(int, int, str)        # current, total, date
     finished = pyqtSignal(int, int, list)        # successful, total, paths
     cancelled = pyqtSignal(int, int, list)       # successful, total, paths
-    failed = pyqtSignal(str)
 
     def __init__(self, dates, download_one):
         super().__init__()
@@ -40,7 +41,7 @@ class BatchDownloadWorker(QThread):
         self._mutex.unlock()
         return flag
 
-    def run(self):
+    def work(self):
         successful = 0
         total = len(self._dates)
         paths = []

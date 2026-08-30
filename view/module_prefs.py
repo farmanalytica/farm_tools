@@ -11,6 +11,8 @@ rail, pinned last on the hub) — so it is NOT part of the manageable set here.
 
 from qgis.core import QgsSettings
 
+from .module_catalog import AUTH_KEY, BY_KEY, FLAVOR_LABELS, MANAGEABLE_KEYS
+
 # Build flavor: a single-module plugin build (e.g. the standalone RAVI / EasyDEM
 # / ClimaPlots packages) ships a generated ``_build_flavor.py`` naming the one
 # module it defaults to. The full FARM tools build ships no such file, so FLAVOR
@@ -20,26 +22,13 @@ try:
 except Exception:
     _FLAVOR = None
 
-# Display label per flavor — used for the QGIS Plugins-menu entry so each
-# single-module plugin gets its own submenu instead of all piling under one
-# "FARM tools" group. The full build (no flavor) keeps "FARM tools".
-_FLAVOR_LABELS = {
-    "optical": "RAVI",
-    "landsat": "Multi-Satellite",
-    "sysi": "Bare Soil",
-    "radar": "AGLgis",
-    "download": "EasyDEM",
-    "climaplots": "ClimaPlots",
-    "fieldguide": "Field Guide",
-    "mapbiomas": "MapBiomas",
-    "mzones": "Management Zones",
-    "car": "Análise CAR",
-}
-
-
 def flavor_label(default="FARM tools"):
-    """Human label for this build's flavor (the plugin's menu/title name)."""
-    return _FLAVOR_LABELS.get(_FLAVOR, default)
+    """Human label for this build's flavor (the plugin's menu/title name).
+
+    Used for the QGIS Plugins-menu entry, so each single-module plugin gets
+    its own submenu instead of all piling under one "FARM tools" group.
+    """
+    return FLAVOR_LABELS.get(_FLAVOR, default)
 
 # Namespace settings per flavor so two FARM-derived plugins installed side by
 # side do not fight over the same order/hidden keys.
@@ -47,22 +36,11 @@ _PREFIX = "qgis-RAVI/" + (_FLAVOR + "/" if _FLAVOR else "") + "modules/"
 _KEY_ORDER = _PREFIX + "order"
 _KEY_HIDDEN = _PREFIX + "hidden"
 
-# Canonical default order of the reorderable / hideable modules (auth excluded —
-# it is pinned). Forward-compatible: a module added in a future version that is
-# absent from stored prefs is appended here and shown by default, while stored
-# keys no longer in this list are dropped.
-DEFAULT_ORDER = [
-    "optical",
-    "landsat",
-    "sysi",
-    "radar",
-    "download",
-    "climaplots",
-    "fieldguide",
-    "mapbiomas",
-    "mzones",
-    "car",
-]
+# Canonical default order of the reorderable / hideable modules, taken from the
+# catalog. Forward-compatible: a module added in a future version that is absent
+# from stored prefs is appended and shown by default, while stored keys no longer
+# in the catalog are dropped.
+DEFAULT_ORDER = list(MANAGEABLE_KEYS)
 
 
 def _read_list(key):
@@ -112,10 +90,6 @@ def get_hidden():
     return {k for k in _read_list(_KEY_HIDDEN) if k in DEFAULT_ORDER}
 
 
-def is_hidden(key):
-    return key in get_hidden()
-
-
 def set_prefs(order, hidden):
     """Persist module ``order`` (list) and ``hidden`` keys (iterable)."""
     settings = QgsSettings()
@@ -141,3 +115,37 @@ def reset():
     settings = QgsSettings()
     settings.remove(_KEY_ORDER)
     settings.remove(_KEY_HIDDEN)
+
+
+def _in_user_order(wanted_hidden):
+    """Manageable modules in user order, keeping the hidden or the shown ones."""
+    hidden = get_hidden()
+    return [
+        BY_KEY[key]
+        for key in get_order()
+        if key in BY_KEY and (key in hidden) == wanted_hidden
+    ]
+
+
+def visible_modules():
+    """Shown modules in user order, with the pinned auth entry last when needed."""
+    modules = _in_user_order(wanted_hidden=False)
+    if AUTH_KEY in BY_KEY and needs_auth_entry():
+        modules.append(BY_KEY[AUTH_KEY])
+    return modules
+
+
+def hidden_modules():
+    """Modules the user has hidden — the hub's \"More FARM tools\" strip."""
+    return _in_user_order(wanted_hidden=True)
+
+
+def needs_auth_entry():
+    """True when any visible module requires a Google Earth Engine sign-in.
+
+    A no-login-only build (ClimaPlots, Field Guide…) then drops the GEE
+    Configuration entry entirely: there is nothing to sign in for.
+    """
+    return any(
+        module.needs_gee for module in _in_user_order(wanted_hidden=False)
+    )

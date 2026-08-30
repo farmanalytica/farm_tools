@@ -35,9 +35,9 @@ from qgis.core import (
 )
 
 from ..managers.settings_manager import SettingsManager
-from ..services.aoi_service import AOIService, _remove_z_dimension
+from ..services.aoi_service import AOIService, remove_z_dimension
 from ..services.optical_service import OpticalService
-from ..tools.aoi_draw_tool import start_draw_aoi
+from .aoi_draw_mixin import AoiDrawMixin
 from ..tools.point_capture_tool import PointCaptureTool
 from ..tools.indexes import (
     delete_custom_index,
@@ -47,9 +47,12 @@ from ..tools.indexes import (
 )
 from ..view.optical_filter_dialog import DEFAULT_FILTER_SETTINGS
 from ..view.optical_index_info import CUSTOM_INDEX_LABEL, INDEX_ORDER
-from ..renderers.raster_renderer_utils import RasterRendererUtils
+from ..renderers.raster_renderer_utils import (
+    PseudocolorStyle,
+    RasterRendererUtils,
+)
 from ..view.sar_plot import (
-    _MULTISERIES_PALETTE,
+    MULTISERIES_PALETTE,
     render_chart_html,
     render_multiseries_chart_html,
 )
@@ -57,8 +60,14 @@ from ..services.nasa_power_service import NasaPowerService
 from ..workers.batch_download_worker import BatchDownloadWorker
 from ..workers.climate_worker import ClimateWorker
 from ..workers.optical_analysis_worker import OpticalAnalysisWorker
-from ..workers.optical_composite_worker import OpticalCompositeWorker
-from ..workers.optical_preview_worker import OpticalPreviewWorker
+from ..workers.optical_composite_worker import (
+    OpticalCompositeRequest,
+    OpticalCompositeWorker,
+)
+from ..workers.optical_preview_worker import (
+    OpticalPreviewRequest,
+    OpticalPreviewWorker,
+)
 from ..workers.optical_worker import OpticalWorker
 
 logger = logging.getLogger(__name__)
@@ -78,10 +87,9 @@ animation:spin .9s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
 <div>Fetching Sentinel-2 time series...</div></div></body></html>"""
 
 
-class OpticalCtrl:
+class OpticalCtrl(AoiDrawMixin):
     """Coordinate the Optical Inputs tab run action."""
 
-    _CANVAS_SCALE_FACTOR = 1.5
 
     def __init__(self, dialog, interface=None, gee_service=None):
         self.dialog = dialog
@@ -93,8 +101,6 @@ class OpticalCtrl:
         self._current_index = "NDVI"
         self._optical_worker: OpticalWorker | None = None
         self._run_btn_text: str | None = None
-        self._draw_tool = None
-        self._skip_zoom_once = False
         self._plot_path: str | None = None
         self._filter_settings = dict(DEFAULT_FILTER_SETTINGS)
         self._active_dates: list | None = None
@@ -171,22 +177,9 @@ class OpticalCtrl:
         )
 
     def handle_draw_aoi(self):
-        """Toggle rectangular AOI drawing on the canvas."""
-
-        if self.interface is None:
-            return
-
-        canvas = self.interface.mapCanvas()
-        if self._draw_tool is not None and canvas.mapTool() is self._draw_tool:
-            canvas.unsetMapTool(self._draw_tool)
-            self._draw_tool = None
-            return
-
-        self._draw_tool = start_draw_aoi(
-            self.interface,
-            self.dialog.s2_layer_combo,
-            self.dialog.s2_btn_draw_aoi,
-            before_select=lambda: setattr(self, "_skip_zoom_once", True),
+        """Toggle polygon-AOI drawing on the canvas."""
+        self.toggle_draw_aoi(
+            self.dialog.s2_layer_combo, self.dialog.s2_btn_draw_aoi
         )
 
     def handle_layer_changed(self, layer=None):
@@ -200,23 +193,7 @@ class OpticalCtrl:
         self._populate_feature_id_combo(layer)
         self._update_aoi_area_label(layer)
 
-        if not layer or not layer.isValid() or self.interface is None:
-            return
-
-        if self._skip_zoom_once:
-            self._skip_zoom_once = False
-            return
-
-        canvas = self.interface.mapCanvas()
-        transform = QgsCoordinateTransform(
-            layer.crs(),
-            canvas.mapSettings().destinationCrs(),
-            QgsProject.instance(),
-        )
-        extent = transform.transformBoundingBox(layer.extent())
-        extent.scale(self._CANVAS_SCALE_FACTOR)
-        canvas.setExtent(extent)
-        canvas.refresh()
+        self.zoom_to_aoi_layer(layer)
 
     def _update_aoi_area_label(self, layer):
         """Show the dissolved AOI's total area (hectares) below the layer picker."""
@@ -267,7 +244,7 @@ class OpticalCtrl:
             custom_expression = all_customs[index_name]
 
         try:
-            aoi, _bbox = AOIService.get_ee_feature_colection_from_layer(
+            aoi, _bbox = AOIService.get_ee_feature_collection_from_layer(
                 layer, use_selected_features=False
             )
         except Exception as e:
@@ -752,7 +729,7 @@ class OpticalCtrl:
             set_enhancement(ce)
 
         layer.setRenderer(renderer)
-        RasterRendererUtils.add_layer_to_project(layer, at_top=True)
+        RasterRendererUtils.add_layer_to_project(layer)
         layer.triggerRepaint()
 
     # -- single-date image (preview / download) ---------------------------
@@ -792,13 +769,15 @@ class OpticalCtrl:
 
         self._set_single_busy(kind, True)
         self._preview_worker = OpticalPreviewWorker(
-            kind,
-            self.aoi,
-            date,
-            index_name,
-            self._buffer_meters(),
-            folder,
-            custom_expression=custom_expression,
+            OpticalPreviewRequest(
+                kind=kind,
+                aoi=self.aoi,
+                date=date,
+                index_name=index_name,
+                buffer_m=self._buffer_meters(),
+                output_folder=folder,
+                custom_expression=custom_expression,
+            )
         )
         self._preview_worker.finished.connect(
             lambda path, k: self._on_single_done(path, k, to_folder)
@@ -834,7 +813,7 @@ class OpticalCtrl:
             index_name = self.dialog.s2_vi_index_combo.currentData() or "NDVI"
             ramp = self.dialog.s2_vi_ramp_combo.currentText()
             RasterRendererUtils.load_pseudocolor_raster(
-                path, f"S2 {index_name} {date}", 1, ramp
+                path, f"S2 {index_name} {date}", PseudocolorStyle(ramp)
             )
         else:
             mode = self.dialog.s2_rgb_render_combo.currentData()
@@ -904,15 +883,17 @@ class OpticalCtrl:
 
         self._set_composite_busy(True)
         self._composite_worker = OpticalCompositeWorker(
-            self.aoi,
-            dates,
-            index_name,
-            metric,
-            self._run_apply_scl,
-            self._run_invalid_scl,
-            self._buffer_meters(),
-            folder,
-            custom_expression=custom_expression,
+            OpticalCompositeRequest(
+                aoi=self.aoi,
+                dates=dates,
+                index_name=index_name,
+                metric=metric,
+                buffer_m=self._buffer_meters(),
+                output_folder=folder,
+                apply_scl=self._run_apply_scl,
+                invalid_scl_values=self._run_invalid_scl,
+                custom_expression=custom_expression,
+            )
         )
         self._composite_worker.finished.connect(
             lambda path: self._on_composite_done(path, to_folder)
@@ -948,7 +929,7 @@ class OpticalCtrl:
         ramp = self.dialog.s2_composite_ramp_combo.currentText()
         index_name = getattr(self, "_composite_index", None) or self._current_index
         RasterRendererUtils.load_pseudocolor_raster(
-            path, f"S2 {index_name} {metric}", 1, ramp
+            path, f"S2 {index_name} {metric}", PseudocolorStyle(ramp)
         )
 
         if self.interface is not None:
@@ -1202,7 +1183,7 @@ class OpticalCtrl:
         # toggle off/on; only build a fresh one the first time.
         if self._point_tool is None:
             self._point_tool = PointCaptureTool(
-                canvas, self._on_point_captured, _MULTISERIES_PALETTE
+                canvas, self._on_point_captured, MULTISERIES_PALETTE
             )
             self._point_tool.on_deactivated = self._on_point_tool_deactivated
         canvas.setMapTool(self._point_tool)
@@ -1297,7 +1278,7 @@ class OpticalCtrl:
                 label = f"{base} ({n})"
                 n += 1
             taken.add(label)
-            color = _MULTISERIES_PALETTE[i % len(_MULTISERIES_PALETTE)]
+            color = MULTISERIES_PALETTE[i % len(MULTISERIES_PALETTE)]
             self._feature_colors[label] = color
             jobs.append(
                 {
@@ -1327,7 +1308,7 @@ class OpticalCtrl:
         if not geojson_str:
             return None
         geojson = json.loads(geojson_str)
-        geojson["coordinates"] = _remove_z_dimension(geojson["coordinates"])
+        geojson["coordinates"] = remove_z_dimension(geojson["coordinates"])
         return geojson
 
     def _set_feature_busy(self, busy: bool):

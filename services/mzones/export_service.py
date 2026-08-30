@@ -17,10 +17,6 @@ class NoPointsInZones(Exception):
     """Raised when points cannot be mapped to zones for a plot."""
 
 
-def save_dataframe_csv(df, path, **kwargs):
-    df.to_csv(path, **kwargs)
-
-
 def save_pca_report(relatorio_pca, variancia_explicada, folder):
     """Write pca_componentes.csv + pca_variancia.csv. Returns the folder."""
     f1 = os.path.join(folder, "pca_componentes.csv")

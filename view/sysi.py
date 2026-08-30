@@ -32,19 +32,26 @@ from qgis.PyQt.QtWidgets import (
     QWidget,
 )
 
-from .radar import (
-    _CALENDAR_STYLE,
-    _POPUP_VIEW_STYLE,
-    _SLIDER_STYLE,
-    _TAB_ACTIVE,
-    _TAB_INACTIVE,
-    _caption,
-    _field_label,
-    _prepare_field,
-    _section_panel,
-)
 from .range_slider import RangeSlider
-from .styles import STYLE_BTN_PRIMARY, STYLE_BTN_SECONDARY, STYLE_CHECKBOX
+from .page_widgets import (
+    STYLE_CALENDAR,
+    STYLE_POPUP_VIEW,
+    STYLE_SLIDER,
+    STYLE_TAB_ACTIVE,
+    STYLE_TAB_INACTIVE,
+    caption,
+    field_label,
+    prepare_field,
+    section_panel,
+)
+from .styles import (
+    STYLE_BTN_PRIMARY,
+    STYLE_BTN_SECONDARY,
+    STYLE_CHECKBOX,
+    STYLE_COMBO_FIELDS,
+    build_scroll_area,
+    build_tab_bar,
+)
 
 
 def _tr(text):
@@ -73,10 +80,7 @@ def _build_intro_tab(_dialog, parent):
     outer.setContentsMargins(0, 0, 0, 0)
     outer.setSpacing(0)
 
-    scroll = QScrollArea()
-    scroll.setWidgetResizable(True)
-    scroll.setFrameShape(QFrame.Shape.NoFrame)
-    scroll.setStyleSheet("QScrollArea { background: #ffffff; border: none; }")
+    scroll = build_scroll_area()
 
     w = QWidget()
     w.setStyleSheet("background: #ffffff;")
@@ -243,12 +247,12 @@ def _build_inputs_tab(dialog, parent):
     lay.setSpacing(12)
 
     # --- AOI + dates -----------------------------------------------------
-    inputs_panel = _section_panel()
+    inputs_panel = section_panel()
     inputs_lay = QVBoxLayout(inputs_panel)
     inputs_lay.setContentsMargins(16, 14, 16, 14)
     inputs_lay.setSpacing(10)
 
-    inputs_lay.addWidget(_field_label(_tr("AOI LAYER")))
+    inputs_lay.addWidget(field_label(_tr("AOI LAYER")))
 
     aoi_row = QWidget()
     aoi_row_lay = QHBoxLayout(aoi_row)
@@ -257,9 +261,9 @@ def _build_inputs_tab(dialog, parent):
 
     dialog.sysi_layer_combo = QgsMapLayerComboBox()
     dialog.sysi_layer_combo.setFilters(QgsMapLayerProxyModel.VectorLayer)
-    _prepare_field(dialog.sysi_layer_combo)
+    prepare_field(dialog.sysi_layer_combo)
     dialog.sysi_layer_combo.setAllowEmptyLayer(True)
-    dialog.sysi_layer_combo.view().setStyleSheet(_POPUP_VIEW_STYLE)
+    dialog.sysi_layer_combo.view().setStyleSheet(STYLE_POPUP_VIEW)
     aoi_row_lay.addWidget(dialog.sysi_layer_combo, 1)
 
     dialog.sysi_btn_draw_aoi = QPushButton(_tr("Draw AOI"))
@@ -297,21 +301,21 @@ def _build_inputs_tab(dialog, parent):
     dialog.sysi_date_start.setDisplayFormat("yyyy-MM-dd")
     dialog.sysi_date_start.setCalendarPopup(True)
     dialog.sysi_date_start.setDate(QDate.fromString("2017-03-28", "yyyy-MM-dd"))
-    _prepare_field(dialog.sysi_date_start)
+    prepare_field(dialog.sysi_date_start)
     dialog.sysi_date_end = QDateEdit()
     dialog.sysi_date_end.setDisplayFormat("yyyy-MM-dd")
     dialog.sysi_date_end.setCalendarPopup(True)
     dialog.sysi_date_end.setDate(QDate.currentDate())
-    _prepare_field(dialog.sysi_date_end)
+    prepare_field(dialog.sysi_date_end)
     for _cal in (
         dialog.sysi_date_start.calendarWidget(),
         dialog.sysi_date_end.calendarWidget(),
     ):
         if _cal is not None:
-            _cal.setStyleSheet(_CALENDAR_STYLE)
+            _cal.setStyleSheet(STYLE_CALENDAR)
 
-    fields_grid.addWidget(_field_label(_tr("START DATE")), 0, 0)
-    fields_grid.addWidget(_field_label(_tr("END DATE")), 0, 1)
+    fields_grid.addWidget(field_label(_tr("START DATE")), 0, 0)
+    fields_grid.addWidget(field_label(_tr("END DATE")), 0, 1)
     fields_grid.addWidget(dialog.sysi_date_start, 1, 0)
     fields_grid.addWidget(dialog.sysi_date_end, 1, 1)
     inputs_lay.addLayout(fields_grid)
@@ -319,11 +323,11 @@ def _build_inputs_tab(dialog, parent):
     lay.addWidget(inputs_panel)
 
     # --- Included months -------------------------------------------------
-    months_panel = _section_panel()
+    months_panel = section_panel()
     months_lay = QVBoxLayout(months_panel)
     months_lay.setContentsMargins(16, 14, 16, 14)
     months_lay.setSpacing(10)
-    months_lay.addWidget(_field_label(_tr("INCLUDED MONTHS")))
+    months_lay.addWidget(field_label(_tr("INCLUDED MONTHS")))
 
     months_grid = QGridLayout()
     months_grid.setContentsMargins(0, 0, 0, 0)
@@ -340,11 +344,11 @@ def _build_inputs_tab(dialog, parent):
     lay.addWidget(months_panel)
 
     # --- Thresholds ------------------------------------------------------
-    thr_panel = _section_panel()
+    thr_panel = section_panel()
     thr_lay = QVBoxLayout(thr_panel)
     thr_lay.setContentsMargins(16, 14, 16, 14)
     thr_lay.setSpacing(10)
-    thr_lay.addWidget(_field_label(_tr("BARE-SOIL THRESHOLDS")))
+    thr_lay.addWidget(field_label(_tr("BARE-SOIL THRESHOLDS")))
 
     dialog.sysi_ndvi_range_slider = RangeSlider(-1.0, 1.0, -0.25, 0.25)
     thr_lay.addWidget(_threshold_row(_tr("NDVI"), dialog.sysi_ndvi_range_slider))
@@ -362,11 +366,11 @@ def _build_inputs_tab(dialog, parent):
     lay.addWidget(thr_panel)
 
     # --- Cloud cover -----------------------------------------------------
-    cloud_panel = _section_panel()
+    cloud_panel = section_panel()
     cloud_lay = QVBoxLayout(cloud_panel)
     cloud_lay.setContentsMargins(16, 14, 16, 14)
     cloud_lay.setSpacing(8)
-    cloud_lay.addWidget(_caption(_tr("CLOUD PIXEL PERCENTAGE (TILE)")))
+    cloud_lay.addWidget(caption(_tr("CLOUD PIXEL PERCENTAGE (TILE)")))
 
     cloud_row = QHBoxLayout()
     cloud_row.setContentsMargins(0, 0, 0, 0)
@@ -380,7 +384,7 @@ def _build_inputs_tab(dialog, parent):
     dialog.sysi_cloud_slider.setMinimum(0)
     dialog.sysi_cloud_slider.setMaximum(100)
     dialog.sysi_cloud_slider.setValue(10)
-    dialog.sysi_cloud_slider.setStyleSheet(_SLIDER_STYLE)
+    dialog.sysi_cloud_slider.setStyleSheet(STYLE_SLIDER)
     cloud_row.addWidget(dialog.sysi_cloud_slider, 1)
     cloud_max = QLabel("100%")
     cloud_max.setStyleSheet(
@@ -399,11 +403,11 @@ def _build_inputs_tab(dialog, parent):
     lay.addWidget(cloud_panel)
 
     # --- Download buffer -------------------------------------------------
-    buffer_panel = _section_panel()
+    buffer_panel = section_panel()
     buffer_lay = QVBoxLayout(buffer_panel)
     buffer_lay.setContentsMargins(16, 14, 16, 14)
     buffer_lay.setSpacing(10)
-    buffer_lay.addWidget(_caption(_tr("DOWNLOAD BUFFER")))
+    buffer_lay.addWidget(caption(_tr("DOWNLOAD BUFFER")))
     buffer_hint = QLabel(
         _tr("Use a positive buffer to include terrain just outside your area, "
             "or a negative buffer to crop the edges. Applied on the clipped "
@@ -429,7 +433,7 @@ def _build_inputs_tab(dialog, parent):
     dialog.sysi_buffer_slider.setSingleStep(1)
     dialog.sysi_buffer_slider.setPageStep(10)
     dialog.sysi_buffer_slider.setValue(0)
-    dialog.sysi_buffer_slider.setStyleSheet(_SLIDER_STYLE)
+    dialog.sysi_buffer_slider.setStyleSheet(STYLE_SLIDER)
     buffer_row.addWidget(dialog.sysi_buffer_slider, 1)
     plus_lbl = QLabel("+300 m")
     plus_lbl.setStyleSheet(
@@ -477,24 +481,7 @@ def setup_sysi_page(dialog, page):
     page.setObjectName("sysiPage")
     page.setStyleSheet("""
         QWidget#sysiPage { background-color: #ffffff; }
-        QComboBox, QgsMapLayerComboBox {
-            combobox-popup: 0;
-            background-color: #ffffff;
-            color: #212121;
-            border: 1px solid #d0d0d0;
-            border-radius: 6px;
-            padding: 4px 9px;
-            font-size: 12px;
-        }
-        QComboBox:focus, QgsMapLayerComboBox:focus { border: 1.5px solid #1b6b39; }
-        QComboBox QAbstractItemView, QgsMapLayerComboBox QAbstractItemView {
-            background-color: #ffffff;
-            color: #212121;
-            border: 1px solid #bdbdbd;
-            selection-background-color: #e8f5e9;
-            selection-color: #1a1a1a;
-            outline: 0;
-        }
+""" + STYLE_COMBO_FIELDS + """
         QDateEdit {
             background-color: #ffffff;
             color: #212121;
@@ -545,18 +532,7 @@ def setup_sysi_page(dialog, page):
     outer.setContentsMargins(0, 0, 0, 0)
     outer.setSpacing(0)
 
-    tab_bar = QFrame()
-    tab_bar.setObjectName("sysiTabBar")
-    tab_bar.setFixedHeight(40)
-    tab_bar.setStyleSheet("""
-        QFrame#sysiTabBar {
-            background-color: #f8f9fa;
-            border-bottom: 1px solid #e0e0e0;
-        }
-    """)
-    tab_bar_lay = QHBoxLayout(tab_bar)
-    tab_bar_lay.setContentsMargins(6, 0, 6, 0)
-    tab_bar_lay.setSpacing(8)
+    tab_bar, tab_bar_lay = build_tab_bar("sysiTabBar")
 
     btn_tab_intro = QPushButton(_tr("Intro"))
     btn_tab_intro.setFixedHeight(40)
@@ -634,8 +610,8 @@ def setup_sysi_page(dialog, page):
         step_lbl.setText(_tr("Step %d of 2") % (index + 1))
         btn_intro_next.setVisible(index == 0)
         btn_generate.setVisible(index == 1)
-        btn_tab_intro.setStyleSheet(_TAB_ACTIVE if index == 0 else _TAB_INACTIVE)
-        btn_tab_inputs.setStyleSheet(_TAB_ACTIVE if index == 1 else _TAB_INACTIVE)
+        btn_tab_intro.setStyleSheet(STYLE_TAB_ACTIVE if index == 0 else STYLE_TAB_INACTIVE)
+        btn_tab_inputs.setStyleSheet(STYLE_TAB_ACTIVE if index == 1 else STYLE_TAB_INACTIVE)
 
     dialog.sysi_set_tab = _set_tab
 

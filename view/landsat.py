@@ -34,22 +34,29 @@ from qgis.PyQt.QtWidgets import (
     QWidget,
 )
 
-from .radar import (
-    _CALENDAR_STYLE,
-    _POPUP_VIEW_STYLE,
-    _SLIDER_STYLE,
-    _TAB_ACTIVE,
-    _TAB_INACTIVE,
-    _add_ramp_items,
-    _caption,
-    _field_label,
-    _flow,
-    _labeled,
-    _make_divider,
-    _prepare_field,
-    _section_panel,
+from .page_widgets import (
+    STYLE_CALENDAR,
+    STYLE_POPUP_VIEW,
+    STYLE_SLIDER,
+    STYLE_TAB_ACTIVE,
+    STYLE_TAB_INACTIVE,
+    add_ramp_items,
+    caption,
+    field_label,
+    flow,
+    labeled,
+    make_divider,
+    prepare_field,
+    section_panel,
 )
-from .styles import STYLE_BTN_PRIMARY, STYLE_BTN_SECONDARY, STYLE_CHECKBOX
+from .styles import (
+    STYLE_BTN_PRIMARY,
+    STYLE_BTN_SECONDARY,
+    STYLE_CHECKBOX,
+    STYLE_COMBO_FIELDS,
+    build_scroll_area,
+    build_tab_bar,
+)
 from .webcompat import QWebView
 from ..services.landsat_service import (
     LANDSAT_INDEX_ORDER,
@@ -96,10 +103,7 @@ def _build_intro_tab(_dialog, parent):
     outer.setContentsMargins(0, 0, 0, 0)
     outer.setSpacing(0)
 
-    scroll = QScrollArea()
-    scroll.setWidgetResizable(True)
-    scroll.setFrameShape(QFrame.Shape.NoFrame)
-    scroll.setStyleSheet("QScrollArea { background: #ffffff; border: none; }")
+    scroll = build_scroll_area()
 
     w = QWidget()
     w.setStyleSheet("background: #ffffff;")
@@ -218,12 +222,12 @@ def _build_inputs_tab(dialog, parent):
     lay.setSpacing(12)
 
     # --- AOI + dates -----------------------------------------------------
-    inputs_panel = _section_panel()
+    inputs_panel = section_panel()
     inputs_lay = QVBoxLayout(inputs_panel)
     inputs_lay.setContentsMargins(16, 14, 16, 14)
     inputs_lay.setSpacing(10)
 
-    inputs_lay.addWidget(_field_label(_tr("AOI LAYER")))
+    inputs_lay.addWidget(field_label(_tr("AOI LAYER")))
 
     aoi_row = QWidget()
     aoi_row_lay = QHBoxLayout(aoi_row)
@@ -232,9 +236,9 @@ def _build_inputs_tab(dialog, parent):
 
     dialog.ls_layer_combo = QgsMapLayerComboBox()
     dialog.ls_layer_combo.setFilters(QgsMapLayerProxyModel.VectorLayer)
-    _prepare_field(dialog.ls_layer_combo)
+    prepare_field(dialog.ls_layer_combo)
     dialog.ls_layer_combo.setAllowEmptyLayer(True)
-    dialog.ls_layer_combo.view().setStyleSheet(_POPUP_VIEW_STYLE)
+    dialog.ls_layer_combo.view().setStyleSheet(STYLE_POPUP_VIEW)
     aoi_row_lay.addWidget(dialog.ls_layer_combo, 1)
 
     dialog.ls_btn_draw_aoi = QPushButton(_tr("Draw AOI"))
@@ -268,21 +272,21 @@ def _build_inputs_tab(dialog, parent):
     dialog.ls_date_start.setDisplayFormat("yyyy-MM-dd")
     dialog.ls_date_start.setCalendarPopup(True)
     dialog.ls_date_start.setDate(QDate.currentDate().addYears(-5))
-    _prepare_field(dialog.ls_date_start)
+    prepare_field(dialog.ls_date_start)
     dialog.ls_date_end = QDateEdit()
     dialog.ls_date_end.setDisplayFormat("yyyy-MM-dd")
     dialog.ls_date_end.setCalendarPopup(True)
     dialog.ls_date_end.setDate(QDate.currentDate())
-    _prepare_field(dialog.ls_date_end)
+    prepare_field(dialog.ls_date_end)
     for _cal in (
         dialog.ls_date_start.calendarWidget(),
         dialog.ls_date_end.calendarWidget(),
     ):
         if _cal is not None:
-            _cal.setStyleSheet(_CALENDAR_STYLE)
+            _cal.setStyleSheet(STYLE_CALENDAR)
 
-    fields_grid.addWidget(_field_label(_tr("START DATE")), 0, 0)
-    fields_grid.addWidget(_field_label(_tr("END DATE")), 0, 1)
+    fields_grid.addWidget(field_label(_tr("START DATE")), 0, 0)
+    fields_grid.addWidget(field_label(_tr("END DATE")), 0, 1)
     fields_grid.addWidget(dialog.ls_date_start, 1, 0)
     fields_grid.addWidget(dialog.ls_date_end, 1, 1)
     inputs_lay.addLayout(fields_grid)
@@ -305,7 +309,7 @@ def _build_inputs_tab(dialog, parent):
     # Each unchecked sensor is one fewer Earth-Engine query on Run, so the date
     # list and the time-series chart build faster.
     inputs_lay.addSpacing(4)
-    inputs_lay.addWidget(_field_label(_tr("SATELLITES")))
+    inputs_lay.addWidget(field_label(_tr("SATELLITES")))
     sensors_hint = QLabel(_tr(
         "Uncheck sensors you don't need — fewer satellites means less to load."
     ))
@@ -323,23 +327,23 @@ def _build_inputs_tab(dialog, parent):
         _chk.setStyleSheet(STYLE_CHECKBOX)
         dialog.ls_sensor_checks[_mission] = _chk
         _sensor_boxes.append(_chk)
-    inputs_lay.addWidget(_flow(_sensor_boxes, spacing=12))
+    inputs_lay.addWidget(flow(_sensor_boxes, spacing=12))
 
     lay.addWidget(inputs_panel)
 
     # --- Vegetation index (drives the plot + single-date index image) ----
-    index_panel = _section_panel()
+    index_panel = section_panel()
     index_lay = QVBoxLayout(index_panel)
     index_lay.setContentsMargins(16, 14, 16, 14)
     index_lay.setSpacing(10)
-    index_lay.addWidget(_field_label(_tr("VEGETATION INDEX")))
+    index_lay.addWidget(field_label(_tr("VEGETATION INDEX")))
 
     dialog.ls_index_combo = QComboBox()
     for name in LANDSAT_INDEX_ORDER:
         dialog.ls_index_combo.addItem(name, name)
     dialog.ls_index_combo.setCurrentText("NDVI")
-    _prepare_field(dialog.ls_index_combo)
-    dialog.ls_index_combo.view().setStyleSheet(_POPUP_VIEW_STYLE)
+    prepare_field(dialog.ls_index_combo)
+    dialog.ls_index_combo.view().setStyleSheet(STYLE_POPUP_VIEW)
     index_lay.addWidget(dialog.ls_index_combo)
 
     index_hint = QLabel(_tr(
@@ -350,15 +354,15 @@ def _build_inputs_tab(dialog, parent):
     index_hint.setStyleSheet("color: #757575; font-size: 11px; background: transparent; border: none;")
     index_lay.addWidget(index_hint)
 
-    index_lay.addWidget(_make_divider())
-    index_lay.addWidget(_field_label(_tr("TIME-SERIES SPATIAL REDUCER")))
+    index_lay.addWidget(make_divider())
+    index_lay.addWidget(field_label(_tr("TIME-SERIES SPATIAL REDUCER")))
     dialog.ls_ts_reducer_combo = QComboBox()
-    _prepare_field(dialog.ls_ts_reducer_combo)
+    prepare_field(dialog.ls_ts_reducer_combo)
     dialog.ls_ts_reducer_combo.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToContents)
     # Label, stable agrigee_lite reducer key.
     for _label, _key in ((_tr("Median"), "median"), (_tr("Mean"), "mean")):
         dialog.ls_ts_reducer_combo.addItem(_label, _key)
-    dialog.ls_ts_reducer_combo.view().setStyleSheet(_POPUP_VIEW_STYLE)
+    dialog.ls_ts_reducer_combo.view().setStyleSheet(STYLE_POPUP_VIEW)
     index_lay.addWidget(dialog.ls_ts_reducer_combo)
 
     reducer_hint = QLabel(_tr(
@@ -372,11 +376,11 @@ def _build_inputs_tab(dialog, parent):
     lay.addWidget(index_panel)
 
     # --- Processing (all missions; cloud mask) --------------------------
-    proc_panel = _section_panel()
+    proc_panel = section_panel()
     proc_lay = QVBoxLayout(proc_panel)
     proc_lay.setContentsMargins(16, 14, 16, 14)
     proc_lay.setSpacing(10)
-    proc_lay.addWidget(_field_label(_tr("PROCESSING")))
+    proc_lay.addWidget(field_label(_tr("PROCESSING")))
 
     missions_hint = QLabel(_tr(
         "Every run searches <b>Landsat 7, 8 and 9</b> together. Each available "
@@ -386,7 +390,7 @@ def _build_inputs_tab(dialog, parent):
     missions_hint.setStyleSheet("color: #757575; font-size: 11px; background: transparent; border: none;")
     proc_lay.addWidget(missions_hint)
 
-    proc_lay.addWidget(_make_divider())
+    proc_lay.addWidget(make_divider())
 
     dialog.ls_chk_cloud_mask = QCheckBox(_tr("Apply cloud mask (QA_PIXEL)"))
     dialog.ls_chk_cloud_mask.setChecked(True)
@@ -401,8 +405,8 @@ def _build_inputs_tab(dialog, parent):
     cloud_hint.setStyleSheet("color: #757575; font-size: 11px; background: transparent; border: none;")
     proc_lay.addWidget(cloud_hint)
 
-    proc_lay.addWidget(_make_divider())
-    proc_lay.addWidget(_field_label(_tr("MIN VALID COVERAGE")))
+    proc_lay.addWidget(make_divider())
+    proc_lay.addWidget(field_label(_tr("MIN VALID COVERAGE")))
 
     coverage_row = QHBoxLayout()
     coverage_row.setContentsMargins(0, 0, 0, 0)
@@ -413,7 +417,7 @@ def _build_inputs_tab(dialog, parent):
     dialog.ls_min_valid_slider.setSingleStep(1)
     dialog.ls_min_valid_slider.setPageStep(10)
     dialog.ls_min_valid_slider.setValue(80)
-    dialog.ls_min_valid_slider.setStyleSheet(_SLIDER_STYLE)
+    dialog.ls_min_valid_slider.setStyleSheet(STYLE_SLIDER)
     coverage_row.addWidget(dialog.ls_min_valid_slider, 1)
     dialog.ls_min_valid_value = QLabel("80%")
     dialog.ls_min_valid_value.setMinimumWidth(42)
@@ -487,11 +491,11 @@ def _build_results_tab(dialog, parent):
     lay.setSpacing(12)
 
     # --- Index time series (agrigee_lite SITS) --------------------------
-    ts_panel = _section_panel()
+    ts_panel = section_panel()
     ts_lay = QVBoxLayout(ts_panel)
     ts_lay.setContentsMargins(16, 14, 16, 14)
     ts_lay.setSpacing(8)
-    ts_lay.addWidget(_caption(_tr("INDEX TIME SERIES")))
+    ts_lay.addWidget(caption(_tr("INDEX TIME SERIES")))
     ts_hint = QLabel(_tr(
         "The chart above plots the index and reducer chosen on the Inputs tab "
         "across every available satellite — built automatically when you Run."
@@ -506,7 +510,7 @@ def _build_results_tab(dialog, parent):
     dialog.ls_btn_ts_csv = QPushButton(_tr("Export as CSV"))
     dialog.ls_btn_ts_csv.setFixedHeight(30)
     dialog.ls_btn_ts_csv.setStyleSheet(STYLE_BTN_SECONDARY)
-    ts_lay.addWidget(_flow([
+    ts_lay.addWidget(flow([
         dialog.ls_btn_ts_browser,
         dialog.ls_btn_ts_csv,
     ], spacing=12))
@@ -516,7 +520,7 @@ def _build_results_tab(dialog, parent):
     # The acquisition-date selector sits directly above the per-product
     # actions, so choosing a date and downloading from it stay together —
     # no inter-panel gap, fewer section frames to scan.
-    dl_panel = _section_panel()
+    dl_panel = section_panel()
     dl_lay = QVBoxLayout(dl_panel)
     dl_lay.setContentsMargins(16, 14, 16, 14)
     dl_lay.setSpacing(8)
@@ -530,16 +534,16 @@ def _build_results_tab(dialog, parent):
 
     # Acquisition date
     dialog.ls_date_combo = QComboBox()
-    _prepare_field(dialog.ls_date_combo, 30)
+    prepare_field(dialog.ls_date_combo, 30)
     dialog.ls_date_combo.setMinimumWidth(160)
     dialog.ls_date_combo.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToContents)
-    dialog.ls_date_combo.view().setStyleSheet(_POPUP_VIEW_STYLE)
-    dl_lay.addWidget(_labeled(_tr("ACQUISITION DATE"), dialog.ls_date_combo, 120))
+    dialog.ls_date_combo.view().setStyleSheet(STYLE_POPUP_VIEW)
+    dl_lay.addWidget(labeled(_tr("ACQUISITION DATE"), dialog.ls_date_combo, 120))
 
     dl_lay.addWidget(_dl_divider())
 
     # Super-resolution RGB (headline)
-    dialog.ls_cap_sr = _caption(_tr("SUPER-RESOLUTION RGB (15 m)"))
+    dialog.ls_cap_sr = caption(_tr("SUPER-RESOLUTION RGB (15 m)"))
     dl_lay.addWidget(dialog.ls_cap_sr)
     sr_note = QLabel(_tr(
         "Pan-sharpened real-colour image. Previews are top-of-atmosphere (TOA)."
@@ -558,7 +562,7 @@ def _build_results_tab(dialog, parent):
     dialog.ls_btn_sr_batch = QPushButton(_tr("Batch Download (All Dates)"))
     dialog.ls_btn_sr_batch.setFixedHeight(30)
     dialog.ls_btn_sr_batch.setStyleSheet(STYLE_BTN_SECONDARY)
-    dl_lay.addWidget(_flow([
+    dl_lay.addWidget(flow([
         dialog.ls_btn_sr_preview,
         dialog.ls_btn_sr_download,
         dialog.ls_btn_sr_batch,
@@ -567,7 +571,7 @@ def _build_results_tab(dialog, parent):
     dl_lay.addWidget(_dl_divider())
 
     # Vegetation index
-    dialog.ls_cap_vi = _caption(_tr("VEGETATION INDEX (30 m)"))
+    dialog.ls_cap_vi = caption(_tr("VEGETATION INDEX (30 m)"))
     dl_lay.addWidget(dialog.ls_cap_vi)
     vi_hint = QLabel(_tr(
         "Defaults to the Inputs-tab index; pick a different one here."
@@ -577,21 +581,21 @@ def _build_results_tab(dialog, parent):
     dl_lay.addWidget(vi_hint)
 
     dialog.ls_vi_index_combo = QComboBox()
-    _prepare_field(dialog.ls_vi_index_combo, 30)
+    prepare_field(dialog.ls_vi_index_combo, 30)
     dialog.ls_vi_index_combo.setMinimumWidth(76)
     dialog.ls_vi_index_combo.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToContents)
     for name in LANDSAT_INDEX_ORDER:
         dialog.ls_vi_index_combo.addItem(name, name)
     dialog.ls_vi_index_combo.setCurrentText("NDVI")
-    dialog.ls_vi_index_combo.view().setStyleSheet(_POPUP_VIEW_STYLE)
+    dialog.ls_vi_index_combo.view().setStyleSheet(STYLE_POPUP_VIEW)
 
     dialog.ls_index_ramp_combo = QComboBox()
-    _prepare_field(dialog.ls_index_ramp_combo, 30)
+    prepare_field(dialog.ls_index_ramp_combo, 30)
     dialog.ls_index_ramp_combo.setMinimumWidth(90)
     dialog.ls_index_ramp_combo.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToContents)
-    _add_ramp_items(dialog.ls_index_ramp_combo, _COLOR_RAMPS)
+    add_ramp_items(dialog.ls_index_ramp_combo, _COLOR_RAMPS)
     dialog.ls_index_ramp_combo.setCurrentText("RdYlGn")
-    dialog.ls_index_ramp_combo.view().setStyleSheet(_POPUP_VIEW_STYLE)
+    dialog.ls_index_ramp_combo.view().setStyleSheet(STYLE_POPUP_VIEW)
 
     dialog.ls_btn_index_preview = QPushButton(_tr("Preview"))
     dialog.ls_btn_index_preview.setFixedHeight(30)
@@ -599,9 +603,9 @@ def _build_results_tab(dialog, parent):
     dialog.ls_btn_index_download = QPushButton(_tr("Download & Preview").replace("&", "&&"))
     dialog.ls_btn_index_download.setFixedHeight(30)
     dialog.ls_btn_index_download.setStyleSheet(STYLE_BTN_SECONDARY)
-    dl_lay.addWidget(_flow([
-        _labeled(_tr("Index"), dialog.ls_vi_index_combo, 44),
-        _labeled(_tr("Color Ramp"), dialog.ls_index_ramp_combo, 80),
+    dl_lay.addWidget(flow([
+        labeled(_tr("Index"), dialog.ls_vi_index_combo, 44),
+        labeled(_tr("Color Ramp"), dialog.ls_index_ramp_combo, 80),
         dialog.ls_btn_index_preview,
         dialog.ls_btn_index_download,
     ], spacing=12))
@@ -609,16 +613,16 @@ def _build_results_tab(dialog, parent):
     dl_lay.addWidget(_dl_divider())
 
     # Multispectral RGB
-    dialog.ls_cap_ms = _caption(_tr("MULTISPECTRAL RGB (30 m)"))
+    dialog.ls_cap_ms = caption(_tr("MULTISPECTRAL RGB (30 m)"))
     dl_lay.addWidget(dialog.ls_cap_ms)
 
     dialog.ls_ms_mode_combo = QComboBox()
-    _prepare_field(dialog.ls_ms_mode_combo, 30)
+    prepare_field(dialog.ls_ms_mode_combo, 30)
     dialog.ls_ms_mode_combo.setMinimumWidth(200)
     dialog.ls_ms_mode_combo.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToContents)
     for key in MULTISPECTRAL_MODES:
         dialog.ls_ms_mode_combo.addItem(_MS_MODE_LABELS.get(key, key), key)
-    dialog.ls_ms_mode_combo.view().setStyleSheet(_POPUP_VIEW_STYLE)
+    dialog.ls_ms_mode_combo.view().setStyleSheet(STYLE_POPUP_VIEW)
 
     dialog.ls_btn_ms_preview = QPushButton(_tr("Preview"))
     dialog.ls_btn_ms_preview.setFixedHeight(30)
@@ -626,8 +630,8 @@ def _build_results_tab(dialog, parent):
     dialog.ls_btn_ms_download = QPushButton(_tr("Download & Preview").replace("&", "&&"))
     dialog.ls_btn_ms_download.setFixedHeight(30)
     dialog.ls_btn_ms_download.setStyleSheet(STYLE_BTN_SECONDARY)
-    dl_lay.addWidget(_flow([
-        _labeled(_tr("Rendering"), dialog.ls_ms_mode_combo, 70),
+    dl_lay.addWidget(flow([
+        labeled(_tr("Rendering"), dialog.ls_ms_mode_combo, 70),
         dialog.ls_btn_ms_preview,
         dialog.ls_btn_ms_download,
     ], spacing=12))
@@ -635,11 +639,11 @@ def _build_results_tab(dialog, parent):
     lay.addWidget(dl_panel)
 
     # --- Download buffer -------------------------------------------------
-    buffer_panel = _section_panel()
+    buffer_panel = section_panel()
     buffer_lay = QVBoxLayout(buffer_panel)
     buffer_lay.setContentsMargins(16, 14, 16, 14)
     buffer_lay.setSpacing(10)
-    buffer_lay.addWidget(_caption(_tr("DOWNLOAD BUFFER")))
+    buffer_lay.addWidget(caption(_tr("DOWNLOAD BUFFER")))
     buffer_hint = QLabel(
         _tr("Use a positive buffer to include terrain just outside your area, or a "
             "negative buffer to crop the edges. Applies to every previewed and "
@@ -661,7 +665,7 @@ def _build_results_tab(dialog, parent):
     dialog.ls_buffer_slider.setSingleStep(1)
     dialog.ls_buffer_slider.setPageStep(10)
     dialog.ls_buffer_slider.setValue(0)
-    dialog.ls_buffer_slider.setStyleSheet(_SLIDER_STYLE)
+    dialog.ls_buffer_slider.setStyleSheet(STYLE_SLIDER)
     buffer_row.addWidget(dialog.ls_buffer_slider, 1)
     plus_lbl = QLabel("+300 m")
     plus_lbl.setStyleSheet("color: #9e9e9e; font-size: 9px; background: transparent; border: none;")
@@ -717,24 +721,7 @@ def setup_landsat_page(dialog, page):
     page.setObjectName("landsatPage")
     page.setStyleSheet("""
         QWidget#landsatPage { background-color: #ffffff; }
-        QComboBox, QgsMapLayerComboBox {
-            combobox-popup: 0;
-            background-color: #ffffff;
-            color: #212121;
-            border: 1px solid #d0d0d0;
-            border-radius: 6px;
-            padding: 4px 9px;
-            font-size: 12px;
-        }
-        QComboBox:focus, QgsMapLayerComboBox:focus { border: 1.5px solid #1b6b39; }
-        QComboBox QAbstractItemView, QgsMapLayerComboBox QAbstractItemView {
-            background-color: #ffffff;
-            color: #212121;
-            border: 1px solid #bdbdbd;
-            selection-background-color: #e8f5e9;
-            selection-color: #1a1a1a;
-            outline: 0;
-        }
+""" + STYLE_COMBO_FIELDS + """
         QDateEdit {
             background-color: #ffffff;
             color: #212121;
@@ -785,18 +772,7 @@ def setup_landsat_page(dialog, page):
     outer.setContentsMargins(0, 0, 0, 0)
     outer.setSpacing(0)
 
-    tab_bar = QFrame()
-    tab_bar.setObjectName("landsatTabBar")
-    tab_bar.setFixedHeight(40)
-    tab_bar.setStyleSheet("""
-        QFrame#landsatTabBar {
-            background-color: #f8f9fa;
-            border-bottom: 1px solid #e0e0e0;
-        }
-    """)
-    tab_bar_lay = QHBoxLayout(tab_bar)
-    tab_bar_lay.setContentsMargins(6, 0, 6, 0)
-    tab_bar_lay.setSpacing(8)
+    tab_bar, tab_bar_lay = build_tab_bar("landsatTabBar")
 
     btn_tab_intro = QPushButton(_tr("Intro"))
     btn_tab_intro.setFixedHeight(40)
@@ -880,9 +856,9 @@ def setup_landsat_page(dialog, page):
         step_lbl.setText(_tr("Step %d of 3") % (index + 1))
         btn_intro_next.setVisible(index == 0)
         btn_run.setVisible(index == 1)
-        btn_tab_intro.setStyleSheet(_TAB_ACTIVE if index == 0 else _TAB_INACTIVE)
-        btn_tab_inputs.setStyleSheet(_TAB_ACTIVE if index == 1 else _TAB_INACTIVE)
-        btn_tab_results.setStyleSheet(_TAB_ACTIVE if index == 2 else _TAB_INACTIVE)
+        btn_tab_intro.setStyleSheet(STYLE_TAB_ACTIVE if index == 0 else STYLE_TAB_INACTIVE)
+        btn_tab_inputs.setStyleSheet(STYLE_TAB_ACTIVE if index == 1 else STYLE_TAB_INACTIVE)
+        btn_tab_results.setStyleSheet(STYLE_TAB_ACTIVE if index == 2 else STYLE_TAB_INACTIVE)
 
     dialog.ls_set_tab = _set_tab
 
