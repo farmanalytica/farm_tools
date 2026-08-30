@@ -33,17 +33,22 @@ from qgis.PyQt.QtWidgets import (
     QWidget,
 )
 
-from .radar import (
-    _POPUP_VIEW_STYLE,
-    _SLIDER_STYLE,
-    _TAB_ACTIVE,
-    _TAB_INACTIVE,
-    _field_label,
-    _prepare_field,
-    _section_panel,
-)
 from .range_slider import RangeSlider
-from .styles import STYLE_BTN_PRIMARY, STYLE_BTN_SECONDARY, STYLE_COMBO_YEAR
+from .page_widgets import (
+    STYLE_POPUP_VIEW,
+    STYLE_SLIDER,
+    STYLE_TAB_ACTIVE,
+    STYLE_TAB_INACTIVE,
+    field_label,
+    prepare_field,
+    section_panel,
+)
+from .styles import (
+    STYLE_BTN_PRIMARY,
+    STYLE_BTN_SECONDARY,
+    STYLE_COMBO_YEAR,
+    build_tab_bar,
+)
 from .webcompat import QWebView
 
 from ..services.mapbiomas_service import (
@@ -160,11 +165,11 @@ def _build_inputs_tab(dialog, parent):
     lay.addWidget(intro)
 
     # --- AOI -------------------------------------------------------------
-    aoi_panel = _section_panel()
+    aoi_panel = section_panel()
     aoi_lay = QVBoxLayout(aoi_panel)
     aoi_lay.setContentsMargins(16, 14, 16, 14)
     aoi_lay.setSpacing(10)
-    aoi_lay.addWidget(_field_label(_tr("AOI LAYER")))
+    aoi_lay.addWidget(field_label(_tr("AOI LAYER")))
 
     aoi_row = QWidget()
     aoi_row_lay = QHBoxLayout(aoi_row)
@@ -173,9 +178,9 @@ def _build_inputs_tab(dialog, parent):
 
     dialog.mb_layer_combo = QgsMapLayerComboBox()
     dialog.mb_layer_combo.setFilters(QgsMapLayerProxyModel.VectorLayer)
-    _prepare_field(dialog.mb_layer_combo)
+    prepare_field(dialog.mb_layer_combo)
     dialog.mb_layer_combo.setAllowEmptyLayer(True)
-    dialog.mb_layer_combo.view().setStyleSheet(_POPUP_VIEW_STYLE)
+    dialog.mb_layer_combo.view().setStyleSheet(STYLE_POPUP_VIEW)
     aoi_row_lay.addWidget(dialog.mb_layer_combo, 1)
 
     dialog.mb_btn_draw_aoi = QPushButton(_tr("Draw AOI"))
@@ -203,11 +208,11 @@ def _build_inputs_tab(dialog, parent):
     lay.addWidget(aoi_panel)
 
     # --- Coverage --------------------------------------------------------
-    cov_panel = _section_panel()
+    cov_panel = section_panel()
     cov_lay = QVBoxLayout(cov_panel)
     cov_lay.setContentsMargins(16, 14, 16, 14)
     cov_lay.setSpacing(10)
-    cov_lay.addWidget(_field_label(_tr("COVERAGE")))
+    cov_lay.addWidget(field_label(_tr("COVERAGE")))
 
     cov_note = QLabel(_tr(
         "Renders all years (1985–2024) so you can browse them with the slider — "
@@ -230,11 +235,11 @@ def _build_inputs_tab(dialog, parent):
     lay.addWidget(cov_panel)
 
     # --- Quick single-year download -------------------------------------
-    dl_panel = _section_panel()
+    dl_panel = section_panel()
     dl_lay = QVBoxLayout(dl_panel)
     dl_lay.setContentsMargins(16, 14, 16, 14)
     dl_lay.setSpacing(10)
-    dl_lay.addWidget(_field_label(_tr("DOWNLOAD A SINGLE YEAR TO QGIS")))
+    dl_lay.addWidget(field_label(_tr("DOWNLOAD A SINGLE YEAR TO QGIS")))
 
     dl_note = QLabel(_tr(
         "Just need one year? Download that year's classification straight into "
@@ -275,11 +280,11 @@ def _build_inputs_tab(dialog, parent):
     lay.addWidget(dl_panel)
 
     # --- Transition ------------------------------------------------------
-    tx_panel = _section_panel()
+    tx_panel = section_panel()
     tx_lay = QVBoxLayout(tx_panel)
     tx_lay.setContentsMargins(16, 14, 16, 14)
     tx_lay.setSpacing(10)
-    tx_lay.addWidget(_field_label(_tr("TRANSITION (SOURCE → TARGET)")))
+    tx_lay.addWidget(field_label(_tr("TRANSITION (SOURCE → TARGET)")))
 
     tx_note = QLabel(_tr(
         "Map the first year each pixel went from a source class to a target "
@@ -338,14 +343,14 @@ def _build_inputs_tab(dialog, parent):
 
     src_col = QVBoxLayout()
     src_col.setSpacing(3)
-    src_col.addWidget(_field_label(_tr("FROM (SOURCE)")))
+    src_col.addWidget(field_label(_tr("FROM (SOURCE)")))
     dialog.mb_tx_src_list = _class_list()
     src_col.addWidget(dialog.mb_tx_src_list)
     custom_lay.addLayout(src_col, 1)
 
     tgt_col = QVBoxLayout()
     tgt_col.setSpacing(3)
-    tgt_col.addWidget(_field_label(_tr("TO (TARGET)")))
+    tgt_col.addWidget(field_label(_tr("TO (TARGET)")))
     dialog.mb_tx_tgt_list = _class_list()
     tgt_col.addWidget(dialog.mb_tx_tgt_list)
     custom_lay.addLayout(tgt_col, 1)
@@ -429,7 +434,7 @@ def _build_coverage_tab(dialog, parent):
     dialog.mb_cov_slider.setSingleStep(1)
     dialog.mb_cov_slider.setPageStep(1)
     dialog.mb_cov_slider.setEnabled(False)
-    dialog.mb_cov_slider.setStyleSheet(_SLIDER_STYLE)
+    dialog.mb_cov_slider.setStyleSheet(STYLE_SLIDER)
     slider_row.addWidget(dialog.mb_cov_slider, 1)
 
     max_lbl = QLabel(str(MAPBIOMAS_LATEST_YEAR))
@@ -558,18 +563,7 @@ def setup_mapbiomas_page(dialog, page):
     outer.setContentsMargins(0, 0, 0, 0)
     outer.setSpacing(0)
 
-    tab_bar = QFrame()
-    tab_bar.setObjectName("mapbiomasTabBar")
-    tab_bar.setFixedHeight(40)
-    tab_bar.setStyleSheet("""
-        QFrame#mapbiomasTabBar {
-            background-color: #f8f9fa;
-            border-bottom: 1px solid #e0e0e0;
-        }
-    """)
-    tab_bar_lay = QHBoxLayout(tab_bar)
-    tab_bar_lay.setContentsMargins(6, 0, 6, 0)
-    tab_bar_lay.setSpacing(8)
+    tab_bar, tab_bar_lay = build_tab_bar("mapbiomasTabBar")
 
     tab_buttons = []
     for label in (_tr("Inputs"), _tr("Coverage"), _tr("Transition")):
@@ -640,7 +634,7 @@ def setup_mapbiomas_page(dialog, page):
     def _set_tab(index):
         stack.setCurrentIndex(index)
         for i, btn in enumerate(tab_buttons):
-            btn.setStyleSheet(_TAB_ACTIVE if i == index else _TAB_INACTIVE)
+            btn.setStyleSheet(STYLE_TAB_ACTIVE if i == index else STYLE_TAB_INACTIVE)
         btn_back.setEnabled(index > 0)
         btn_next.setVisible(index < last)
         step_lbl.setText(_tr("Step %d of %d") % (index + 1, last + 1))

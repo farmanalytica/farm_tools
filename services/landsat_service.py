@@ -28,9 +28,13 @@ import os
 import tempfile
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
-from typing import Callable, Optional
+from typing import TYPE_CHECKING, Callable, Optional
 
-import requests
+if TYPE_CHECKING:  # ee is an extlib: imported lazily at each call site below
+    import ee
+
+
+from .downloads import GeoTiffRequest, download_geotiff
 
 try:
     from osgeo import gdal
@@ -541,29 +545,16 @@ class LandsatService:
     # -- download wrappers -------------------------------------------------
     @staticmethod
     def _download(image, region, scale, filename, output_folder, band_names=None) -> str:
-        url = image.getDownloadURL(
-            {
-                "scale": scale,
-                "region": region.bounds().getInfo(),
-                "format": "GeoTIFF",
-                "crs": "EPSG:4326",
-            }
+        output_path = download_geotiff(
+            image,
+            GeoTiffRequest(
+                region=region,
+                filename=filename,
+                output_folder=output_folder,
+                scale=scale,
+                product="Landsat",
+            ),
         )
-        response = requests.get(url, timeout=300)
-        if not response.ok:
-            raise RuntimeError(
-                f"Landsat download failed (HTTP {response.status_code}): "
-                f"{response.reason}"
-            )
-
-        base_dir = (
-            output_folder
-            if (output_folder and os.path.isdir(output_folder))
-            else tempfile.gettempdir()
-        )
-        output_path = LandsatService._unique_path(base_dir, filename)
-        with open(output_path, "wb") as f:
-            f.write(response.content)
 
         if band_names:
             LandsatService._set_band_names(output_path, band_names)
@@ -715,17 +706,6 @@ class LandsatService:
         return asyncio.run(_run())
 
     # -- fs / metadata utilities ------------------------------------------
-    @staticmethod
-    def _unique_path(folder: str, filename: str) -> str:
-        path = os.path.join(folder, filename)
-        if not os.path.exists(path):
-            return path
-        stem, ext = os.path.splitext(filename)
-        i = 1
-        while os.path.exists(os.path.join(folder, f"{stem}_{i}{ext}")):
-            i += 1
-        return os.path.join(folder, f"{stem}_{i}{ext}")
-
     @staticmethod
     def _set_band_names(file_path: str, band_names: list):
         if gdal is None:

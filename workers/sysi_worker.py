@@ -9,12 +9,16 @@ from the QGIS layer on the main thread (layers are not thread-safe) and
 passed in already as an ee.FeatureCollection.
 """
 
-from qgis.PyQt.QtCore import QThread, pyqtSignal
+from qgis.PyQt.QtCore import pyqtSignal
 
 from ..services.sysi_service import SYSIService
+from .background_worker import BackgroundWorker
 
 
-class SYSIWorker(QThread):
+_DEFAULT_LABEL = "Bare Soil"
+
+
+class SYSIWorker(BackgroundWorker):
     """Run the GEOS3 bare-soil composite pipeline and download the result.
 
     Signals
@@ -26,7 +30,6 @@ class SYSIWorker(QThread):
     """
 
     finished = pyqtSignal(str, str)
-    failed = pyqtSignal(str)
 
     def __init__(self, aoi, params):
         """
@@ -48,23 +51,20 @@ class SYSIWorker(QThread):
         self._aoi = aoi
         self._params = params
 
-    def run(self):
-        try:
-            p = self._params
-            composite = SYSIService.build_composite(
-                aoi=self._aoi,
-                start_date=p["start_date"],
-                end_date=p["end_date"],
-                cloud_threshold=p["cloud_threshold"],
-                ndvi_thres=p["ndvi_thres"],
-                nbr_thres=p["nbr_thres"],
-                selected_months=p["selected_months"],
-            )
-            output_path = SYSIService.download_composite(
-                composite,
-                self._aoi,
-                output_folder=p.get("output_folder"),
-            )
-            self.finished.emit(output_path, p.get("label", "Bare Soil"))
-        except Exception as exc:
-            self.failed.emit(str(exc))
+    def work(self):
+        params = self._params
+        composite = SYSIService.build_composite(
+            aoi=self._aoi,
+            start_date=params["start_date"],
+            end_date=params["end_date"],
+            cloud_threshold=params["cloud_threshold"],
+            ndvi_thres=params["ndvi_thres"],
+            nbr_thres=params["nbr_thres"],
+            selected_months=params["selected_months"],
+        )
+        output_path = SYSIService.download_composite(
+            composite,
+            self._aoi,
+            output_folder=params.get("output_folder"),
+        )
+        self.finished.emit(output_path, params.get("label", _DEFAULT_LABEL))

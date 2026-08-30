@@ -7,51 +7,48 @@ the user-selected dates (those still shown on the time-series plot) off the UI
 thread. The AOI is extracted on the main thread and passed in.
 """
 
-from qgis.PyQt.QtCore import QThread, pyqtSignal
+from dataclasses import dataclass, field
+from typing import Optional
+
+from qgis.PyQt.QtCore import pyqtSignal
 
 from ..services.optical_service import OpticalService
+from .background_worker import BackgroundWorker
 
 
-class OpticalCompositeWorker(QThread):
+@dataclass
+class OpticalCompositeRequest:
+    """Which dates to reduce, by which metric, and how to mask and write them."""
+
+    aoi: object
+    dates: list
+    index_name: str
+    metric: str
+    buffer_m: float
+    output_folder: Optional[str]
+    apply_scl: bool = False
+    invalid_scl_values: list = field(default_factory=list)
+    custom_expression: Optional[str] = None
+
+
+class OpticalCompositeWorker(BackgroundWorker):
     finished = pyqtSignal(str)   # output_path
-    failed = pyqtSignal(str)
 
-    def __init__(
-        self,
-        aoi,
-        dates,
-        index_name,
-        metric,
-        apply_scl,
-        invalid_scl_values,
-        buffer_m,
-        output_folder,
-        custom_expression=None,
-    ):
+    def __init__(self, request):
         super().__init__()
-        self._aoi = aoi
-        self._dates = dates
-        self._index_name = index_name
-        self._metric = metric
-        self._apply_scl = apply_scl
-        self._invalid_scl_values = invalid_scl_values
-        self._buffer_m = buffer_m
-        self._output_folder = output_folder
-        self._custom_expression = custom_expression
+        self._request = request
 
-    def run(self):
-        try:
-            path = OpticalService.download_index_composite(
-                self._aoi,
-                self._dates,
-                self._index_name,
-                self._metric,
-                apply_scl=self._apply_scl,
-                invalid_scl_values=self._invalid_scl_values,
-                buffer_m=self._buffer_m,
-                output_folder=self._output_folder,
-                custom_expression=self._custom_expression,
-            )
-            self.finished.emit(path)
-        except Exception as e:
-            self.failed.emit(str(e))
+    def work(self):
+        request = self._request
+        path = OpticalService.download_index_composite(
+            request.aoi,
+            request.dates,
+            request.index_name,
+            request.metric,
+            apply_scl=request.apply_scl,
+            invalid_scl_values=request.invalid_scl_values,
+            buffer_m=request.buffer_m,
+            output_folder=request.output_folder,
+            custom_expression=request.custom_expression,
+        )
+        self.finished.emit(path)

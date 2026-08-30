@@ -16,11 +16,10 @@ GEOS3 bare-soil rule — a pixel is bare soil when ALL hold:
 """
 
 import logging
-import os
-import tempfile
 
 import ee
-import requests
+
+from .downloads import GeoTiffRequest, download_geotiff
 
 try:
     from osgeo import gdal
@@ -245,31 +244,15 @@ class SYSIService:
         str
             Absolute path to the downloaded GeoTIFF.
         """
-        download_url = composite.getDownloadURL({
-            'scale': 10,
-            'region': aoi.geometry().bounds().getInfo(),
-            'format': 'GeoTIFF',
-            'crs': 'EPSG:4326',
-        })
-
-        response = requests.get(download_url, timeout=300)
-        if not response.ok:
-            raise RuntimeError(
-                "Bare Soil download failed (HTTP {}): {}".format(
-                    response.status_code, response.reason
-                )
-            )
-
-        target_dir = (
-            output_folder
-            if (output_folder and os.path.isdir(output_folder))
-            else tempfile.gettempdir()
+        output_path = download_geotiff(
+            composite,
+            GeoTiffRequest(
+                region=aoi.geometry(),
+                filename="BareSoil_composite.tiff",
+                output_folder=output_folder,
+                product="Bare Soil",
+            ),
         )
-        output_path = SYSIService._get_unique_path(target_dir, "BareSoil_composite.tiff")
-
-        with open(output_path, "wb") as fh:
-            fh.write(response.content)
-
         SYSIService._set_band_names(output_path)
         return output_path
 
@@ -298,15 +281,3 @@ class SYSIService:
                 file_path, exc_info=True,
             )
 
-    @staticmethod
-    def _get_unique_path(folder, filename):
-        candidate = os.path.join(folder, filename)
-        if not os.path.exists(candidate):
-            return candidate
-        basename, ext = os.path.splitext(filename)
-        counter = 1
-        while True:
-            candidate = os.path.join(folder, f"{basename}_{counter}{ext}")
-            if not os.path.exists(candidate):
-                return candidate
-            counter += 1

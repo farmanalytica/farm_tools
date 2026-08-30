@@ -20,6 +20,9 @@ from qgis.PyQt.QtGui import QDesktopServices
 
 logger = logging.getLogger(__name__)
 
+# Re-exported for view code: the whole point of this module.
+__all__ = ["QWebView", "USING_WEBENGINE", "delegate_external_links"]
+
 try:
     from qgis.PyQt.QtWebKitWidgets import QWebPage, QWebView
 

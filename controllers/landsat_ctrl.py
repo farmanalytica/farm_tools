@@ -19,9 +19,7 @@ from qgis.PyQt.QtWidgets import QFileDialog, QProgressDialog
 from qgis.core import (
     Qgis,
     QgsContrastEnhancement,
-    QgsCoordinateTransform,
     QgsMultiBandColorRenderer,
-    QgsProject,
     QgsRasterLayer,
 )
 
@@ -33,12 +31,21 @@ from ..services.landsat_service import (
     MISSIONS,
     SATELLITES,
 )
-from ..tools.aoi_draw_tool import start_draw_aoi
-from ..renderers.raster_renderer_utils import RasterRendererUtils
+from .aoi_draw_mixin import AoiDrawMixin
+from ..renderers.raster_renderer_utils import (
+    PseudocolorStyle,
+    RasterRendererUtils,
+)
 from ..view.sar_plot import render_multiseries_chart_html
-from ..workers.landsat_batch_worker import LandsatBatchWorker
-from ..workers.landsat_preview_worker import LandsatPreviewWorker
-from ..workers.landsat_timeseries_worker import LandsatTimeseriesWorker
+from ..workers.landsat_batch_worker import LandsatBatchRequest, LandsatBatchWorker
+from ..workers.landsat_preview_worker import (
+    LandsatPreviewRequest,
+    LandsatPreviewWorker,
+)
+from ..workers.landsat_timeseries_worker import (
+    LandsatTimeseriesRequest,
+    LandsatTimeseriesWorker,
+)
 from ..workers.landsat_worker import LandsatWorker
 
 logger = logging.getLogger(__name__)
@@ -48,10 +55,9 @@ def _tr(text):
     return QCoreApplication.translate("RAVI", text)
 
 
-class LandsatCtrl:
+class LandsatCtrl(AoiDrawMixin):
     """Coordinate the Landsat super-resolution page."""
 
-    _CANVAS_SCALE_FACTOR = 1.5
 
     # Per-mission trace colours come from the satellite registry so a new source
     # is coloured by adding one ``SATELLITES`` entry.
@@ -68,8 +74,6 @@ class LandsatCtrl:
         self.dated_missions = []          # list of (date, mission)
         self._date_start = None
         self._date_end = None
-        self._draw_tool = None
-        self._skip_zoom_once = False
         self._run_worker: LandsatWorker | None = None
         self._run_btn_text: str | None = None
         self._preview_worker: LandsatPreviewWorker | None = None
@@ -92,40 +96,16 @@ class LandsatCtrl:
         )
 
     def handle_draw_aoi(self):
-        """Toggle rectangular AOI drawing on the canvas."""
-        if self.interface is None:
-            return
-        canvas = self.interface.mapCanvas()
-        if self._draw_tool is not None and canvas.mapTool() is self._draw_tool:
-            canvas.unsetMapTool(self._draw_tool)
-            self._draw_tool = None
-            return
-        self._draw_tool = start_draw_aoi(
-            self.interface,
-            self.dialog.ls_layer_combo,
-            self.dialog.ls_btn_draw_aoi,
-            before_select=lambda: setattr(self, "_skip_zoom_once", True),
+        """Toggle polygon-AOI drawing on the canvas."""
+        self.toggle_draw_aoi(
+            self.dialog.ls_layer_combo, self.dialog.ls_btn_draw_aoi
         )
 
     def handle_layer_changed(self, layer=None):
         """Zoom to the selected AOI layer."""
         if layer is None:
             layer = self.dialog.ls_layer_combo.currentLayer()
-        if not layer or not layer.isValid() or self.interface is None:
-            return
-        if self._skip_zoom_once:
-            self._skip_zoom_once = False
-            return
-        canvas = self.interface.mapCanvas()
-        transform = QgsCoordinateTransform(
-            layer.crs(),
-            canvas.mapSettings().destinationCrs(),
-            QgsProject.instance(),
-        )
-        extent = transform.transformBoundingBox(layer.extent())
-        extent.scale(self._CANVAS_SCALE_FACTOR)
-        canvas.setExtent(extent)
-        canvas.refresh()
+        self.zoom_to_aoi_layer(layer)
 
     # -- Run (date discovery) ---------------------------------------------
     def handle_landsat_run(self):
@@ -147,7 +127,7 @@ class LandsatCtrl:
             return
 
         try:
-            aoi, _bbox = AOIService.get_ee_feature_colection_from_layer(
+            aoi, _bbox = AOIService.get_ee_feature_collection_from_layer(
                 layer, use_selected_features=False
             )
             self.shapely_geom = AOIService.get_shapely_geometry_from_layer(
@@ -424,18 +404,19 @@ class LandsatCtrl:
 
         self._set_single_busy(kind, True)
         self._preview_worker = LandsatPreviewWorker(
-            kind,
-            self.aoi,
-            date,
-            mission,
-            index_name,
-            mode,
-            self._cloud_mask(),
-            1,
-            self._buffer_meters(),
-            folder,
-            self._min_valid_pct(),
-            self._aoi_area_m2,
+            LandsatPreviewRequest(
+                kind=kind,
+                aoi=self.aoi,
+                date=date,
+                mission=mission,
+                output_folder=folder,
+                buffer_m=self._buffer_meters(),
+                index_name=index_name,
+                mode=mode,
+                use_cloud_mask=self._cloud_mask(),
+                min_valid_pct=self._min_valid_pct(),
+                aoi_area_m2=self._aoi_area_m2,
+            )
         )
         self._preview_worker.finished.connect(
             lambda path, k: self._on_single_done(path, k, to_folder)
@@ -475,7 +456,7 @@ class LandsatCtrl:
             index_name = self.dialog.ls_vi_index_combo.currentData() or "NDVI"
             ramp = self.dialog.ls_index_ramp_combo.currentText()
             RasterRendererUtils.load_pseudocolor_raster(
-                path, f"{mission} {index_name} {date}", 1, ramp
+                path, f"{mission} {index_name} {date}", PseudocolorStyle(ramp)
             )
         elif kind == "superres":
             self._add_rgb_raster(path, f"{mission} Super-Res {date}", (1, 2, 3))
@@ -542,8 +523,15 @@ class LandsatCtrl:
         self._batch_dialog.show()
 
         self._batch_worker = LandsatBatchWorker(
-            aoi, pairs, use_cloud_mask, 1, buffer_m, folder,
-            self._min_valid_pct(), self._aoi_area_m2,
+            LandsatBatchRequest(
+                aoi=aoi,
+                dated_missions=pairs,
+                output_folder=folder,
+                buffer_m=buffer_m,
+                use_cloud_mask=use_cloud_mask,
+                min_valid_pct=self._min_valid_pct(),
+                aoi_area_m2=self._aoi_area_m2,
+            )
         )
         self._batch_worker.progress.connect(self._on_batch_progress)
         self._batch_worker.finished.connect(self._on_batch_done)
@@ -614,16 +602,17 @@ class LandsatCtrl:
 
         self.dialog.ls_web_view.setHtml(self._loading_html(index_name))
         self._ts_worker = LandsatTimeseriesWorker(
-            self.shapely_geom,
-            self._date_start,
-            self._date_end,
-            index_name,
-            self._cloud_mask(),
-            1,
-            reducer,
-            self._min_valid_pct(),
-            self._aoi_area_m2,
-            self._selected_missions(),
+            LandsatTimeseriesRequest(
+                shapely_geom=self.shapely_geom,
+                date_start=self._date_start,
+                date_end=self._date_end,
+                index_name=index_name,
+                use_cloud_mask=self._cloud_mask(),
+                reducer=reducer,
+                min_valid_pct=self._min_valid_pct(),
+                aoi_area_m2=self._aoi_area_m2,
+                missions=self._selected_missions(),
+            )
         )
         self._ts_worker.finished.connect(self._on_ts_done)
         self._ts_worker.failed.connect(self._on_ts_failed)
@@ -777,5 +766,5 @@ class LandsatCtrl:
             set_enhancement(ce)
 
         layer.setRenderer(renderer)
-        RasterRendererUtils.add_layer_to_project(layer, at_top=True)
+        RasterRendererUtils.add_layer_to_project(layer)
         layer.triggerRepaint()

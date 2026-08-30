@@ -26,6 +26,7 @@ from qgis.PyQt.QtWidgets import (
 from qgis.core import QgsMapLayerProxyModel
 from qgis.gui import QgsMapLayerComboBox
 
+from .page_widgets import STYLE_SLIDER
 from .styles import (
     STYLE_AOI_PAGE,
     STYLE_BTN_PRIMARY,
@@ -36,18 +37,6 @@ from .styles import (
 
 def _tr(text):
     return QCoreApplication.translate("RAVI", text)
-
-
-_SLIDER_STYLE = """
-QSlider::groove:horizontal { height: 4px; background: #d6d6d6; border-radius: 2px; }
-QSlider::sub-page:horizontal { background: #d6d6d6; border-radius: 2px; }
-QSlider::add-page:horizontal { background: #d6d6d6; border-radius: 2px; }
-QSlider::handle:horizontal {
-    background: #1b6b39; width: 14px; height: 14px;
-    margin: -6px 0; border-radius: 7px;
-}
-QSlider::handle:horizontal:hover { background: #15532d; }
-"""
 
 
 class LimitedPopupComboBox(QComboBox):
@@ -279,7 +268,7 @@ def setup_download_dem_page(dialog, page):
     dialog.buffer_slider.setValue(0)
     dialog.buffer_slider.setTickInterval(100)
     dialog.buffer_slider.setTickPosition(QSlider.TickPosition.NoTicks)
-    dialog.buffer_slider.setStyleSheet(_SLIDER_STYLE)
+    dialog.buffer_slider.setStyleSheet(STYLE_SLIDER)
     buffer_row.addWidget(dialog.buffer_slider, 1)
 
     plus_lbl = QLabel("+300 m")

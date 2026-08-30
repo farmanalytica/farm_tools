@@ -15,12 +15,11 @@ import logging
 import os
 import tempfile
 
-from qgis.PyQt.QtCore import Qt, QCoreApplication
+from qgis.PyQt.QtCore import QCoreApplication
 from qgis.core import (
     Qgis,
     QgsContrastEnhancement,
     QgsCoordinateReferenceSystem,
-    QgsCoordinateTransform,
     QgsLayerTreeLayer,
     QgsMultiBandColorRenderer,
     QgsProject,
@@ -30,16 +29,10 @@ from qgis.core import (
 from ..services.aoi_service import AOIService
 from ..workers.sysi_worker import SYSIWorker
 from ..managers.settings_manager import SettingsManager
-from ..tools.aoi_draw_tool import start_draw_aoi
+from .aoi_draw_mixin import AoiDrawMixin
 
 logger = logging.getLogger(__name__)
 
-try:
-    WAIT_CURSOR = Qt.CursorShape.WaitCursor
-except AttributeError:
-    WAIT_CURSOR = Qt.WaitCursor
-
-_CANVAS_SCALE_FACTOR = 1.5
 
 
 def _tr(text):
@@ -53,7 +46,7 @@ _RGB_GREEN_BAND = 2
 _RGB_BLUE_BAND = 1
 
 
-class SYSICtrl:
+class SYSICtrl(AoiDrawMixin):
     """Handles user interactions on the SYSI page."""
 
     def __init__(self, dialog, interface=None, gee_service=None):
@@ -63,8 +56,6 @@ class SYSICtrl:
 
         self.aoi = None
         self._worker: SYSIWorker | None = None
-        self._draw_tool = None
-        self._skip_zoom_once = False
         self._generate_btn_text: str | None = None
 
     # ------------------------------------------------------------------
@@ -81,38 +72,16 @@ class SYSICtrl:
     # ------------------------------------------------------------------
 
     def handle_draw_aoi(self):
-        """Toggle rectangular AOI drawing on the canvas."""
-        canvas = self.interface.mapCanvas()
-        if self._draw_tool is not None and canvas.mapTool() is self._draw_tool:
-            canvas.unsetMapTool(self._draw_tool)
-            self._draw_tool = None
-            return
-        self._draw_tool = start_draw_aoi(
-            self.interface,
-            self.dialog.sysi_layer_combo,
-            self.dialog.sysi_btn_draw_aoi,
-            before_select=lambda: setattr(self, "_skip_zoom_once", True),
+        """Toggle polygon-AOI drawing on the canvas."""
+        self.toggle_draw_aoi(
+            self.dialog.sysi_layer_combo, self.dialog.sysi_btn_draw_aoi
         )
 
     def handle_layer_changed(self, layer=None):
         """Zoom the map canvas to the newly selected AOI layer."""
         if layer is None:
             layer = self.dialog.sysi_layer_combo.currentLayer()
-        if not layer or not layer.isValid() or not self.interface:
-            return
-        if self._skip_zoom_once:
-            self._skip_zoom_once = False
-            return
-        canvas = self.interface.mapCanvas()
-        transform = QgsCoordinateTransform(
-            layer.crs(),
-            canvas.mapSettings().destinationCrs(),
-            QgsProject.instance(),
-        )
-        extent = transform.transformBoundingBox(layer.extent())
-        extent.scale(_CANVAS_SCALE_FACTOR)
-        canvas.setExtent(extent)
-        canvas.refresh()
+        self.zoom_to_aoi_layer(layer)
 
     def _download_aoi(self):
         """Return the AOI expanded (or cropped) by the buffer slider value.
@@ -192,7 +161,7 @@ class SYSICtrl:
             return
 
         try:
-            aoi, _bbox = AOIService.get_ee_feature_colection_from_layer(
+            aoi, _bbox = AOIService.get_ee_feature_collection_from_layer(
                 layer, use_selected_features=False
             )
         except Exception as exc:

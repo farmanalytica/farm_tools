@@ -32,7 +32,6 @@ from qgis.PyQt.QtWidgets import (
     QPlainTextEdit,
     QPushButton,
     QRadioButton,
-    QScrollArea,
     QSpinBox,
     QStackedWidget,
     QTableWidget,
@@ -47,16 +46,22 @@ except Exception:
     from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 
-from .radar import (
-    _TAB_ACTIVE,
-    _TAB_INACTIVE,
-    _add_ramp_items,
-    _field_label,
-    _make_divider,
-    _prepare_field,
-    _section_panel,
+from .page_widgets import (
+    STYLE_TAB_ACTIVE,
+    STYLE_TAB_INACTIVE,
+    add_ramp_items,
+    field_label,
+    make_divider,
+    prepare_field,
+    section_panel,
 )
-from .styles import STYLE_BTN_PRIMARY, STYLE_BTN_SECONDARY
+from .styles import (
+    STYLE_BTN_PRIMARY,
+    STYLE_BTN_SECONDARY,
+    STYLE_COMBO_FIELDS,
+    build_scroll_area,
+    build_tab_bar,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -75,10 +80,10 @@ _COLOR_RAMPS = ["Viridis", "Magma", "Plasma", "Inferno", "RdYlGn", "Greys"]
 
 def _ramp_combo():
     combo = QComboBox()
-    _prepare_field(combo, 30)
+    prepare_field(combo, 30)
     combo.setMinimumWidth(90)
     combo.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToContents)
-    _add_ramp_items(combo, _COLOR_RAMPS)
+    add_ramp_items(combo, _COLOR_RAMPS)
     combo.setCurrentText("RdYlGn")
     combo.setToolTip(_tr("Color ramp used to render the zones raster."))
     return combo
@@ -120,10 +125,7 @@ def _scroll_tab(parent):
     outer = QVBoxLayout(parent)
     outer.setContentsMargins(0, 0, 0, 0)
     outer.setSpacing(0)
-    scroll = QScrollArea()
-    scroll.setWidgetResizable(True)
-    scroll.setFrameShape(QFrame.Shape.NoFrame)
-    scroll.setStyleSheet("QScrollArea { background: #ffffff; border: none; }")
+    scroll = build_scroll_area()
     w = QWidget()
     w.setStyleSheet("background: #ffffff;")
     lay = QVBoxLayout(w)
@@ -136,7 +138,7 @@ def _scroll_tab(parent):
 
 def _panel(lay):
     """Add a section panel to ``lay``; return its inner layout."""
-    panel = _section_panel()
+    panel = section_panel()
     inner = QVBoxLayout(panel)
     inner.setContentsMargins(14, 12, 14, 12)
     inner.setSpacing(8)
@@ -179,7 +181,7 @@ def _build_intro_tab(dialog, parent):
     )
 
     lay.addWidget(_h2(_tr("📋 Workflow")))
-    lay.addWidget(_make_divider())
+    lay.addWidget(make_divider())
     wf_frame = QFrame()
     wf_frame.setStyleSheet("QFrame{background:#f0f8ff;border-radius:4px;padding:4px;}")
     wf_lay = QVBoxLayout(wf_frame)
@@ -199,7 +201,7 @@ def _build_intro_tab(dialog, parent):
     lay.addWidget(wf_frame)
 
     lay.addWidget(_h2(_tr("✨ Main Features")))
-    lay.addWidget(_make_divider())
+    lay.addWidget(make_divider())
     for text in [
         _tr("<b>Any raster inputs:</b> combine yield, NDVI composites, soil and terrain layers in any CRS"),
         _tr("<b>Common grid:</b> automatic UTM reprojection, resampling and clipping to the field boundary"),
@@ -211,7 +213,7 @@ def _build_intro_tab(dialog, parent):
         lay.addWidget(_para(f"✓  {text}"))
 
     lay.addWidget(_h2(_tr("🌱 Credits")))
-    lay.addWidget(_make_divider())
+    lay.addWidget(make_divider())
     lay.addWidget(
         _para(
             _tr(
@@ -226,7 +228,7 @@ def _build_intro_tab(dialog, parent):
     )
 
     lay.addWidget(_h2(_tr("📖 Citation")))
-    lay.addWidget(_make_divider())
+    lay.addWidget(make_divider())
     lay.addWidget(
         _para(_tr("Any published work using this module <b>must cite</b> the original paper:"))
     )
@@ -249,7 +251,7 @@ def _build_intro_tab(dialog, parent):
 
     # --- dependency status panel -------------------------------------
     lay.addWidget(_h2(_tr("🔧 Dependencies")))
-    lay.addWidget(_make_divider())
+    lay.addWidget(make_divider())
 
     chips_row = QHBoxLayout()
     chips_row.setSpacing(8)
@@ -354,8 +356,8 @@ def _build_data_tab(dialog, parent):
     lay = _scroll_tab(parent)
 
     p = _panel(lay)
-    p.addWidget(_field_label(_tr("FIELD BOUNDARY")))
-    dialog.mz_vector_combo = _prepare_field(QgsMapLayerComboBox())
+    p.addWidget(field_label(_tr("FIELD BOUNDARY")))
+    dialog.mz_vector_combo = prepare_field(QgsMapLayerComboBox())
     dialog.mz_vector_combo.setFilters(QgsMapLayerProxyModel.PolygonLayer)
     dialog.mz_vector_combo.setToolTip(
         _tr(
@@ -367,7 +369,7 @@ def _build_data_tab(dialog, parent):
     p.addWidget(_hint(_tr("Polygon outline of the field (any CRS).")))
 
     p = _panel(lay)
-    p.addWidget(_field_label(_tr("INPUT RASTERS")))
+    p.addWidget(field_label(_tr("INPUT RASTERS")))
     dialog.mz_raster_list = QListWidget()
     dialog.mz_raster_list.setSelectionMode(
         QAbstractItemView.SelectionMode.NoSelection
@@ -385,8 +387,8 @@ def _build_data_tab(dialog, parent):
     p.addWidget(_hint(_tr("Check the rasters to process.")))
 
     p = _panel(lay)
-    p.addWidget(_field_label(_tr("RESOLUTION (M)")))
-    dialog.mz_resolution_input = _prepare_field(QLineEdit())
+    p.addWidget(field_label(_tr("RESOLUTION (M)")))
+    dialog.mz_resolution_input = prepare_field(QLineEdit())
     dialog.mz_resolution_input.setText("10")
     dialog.mz_resolution_input.setPlaceholderText(_tr("e.g. 10"))
     dialog.mz_resolution_input.setToolTip(
@@ -443,7 +445,7 @@ def _build_pca_tab(dialog, parent):
     lay = _scroll_tab(parent)
 
     p = _panel(lay)
-    p.addWidget(_field_label(_tr("PRINCIPAL COMPONENT ANALYSIS")))
+    p.addWidget(field_label(_tr("PRINCIPAL COMPONENT ANALYSIS")))
     dialog.mz_btn_run_pca = _primary(QPushButton(_tr("Run PCA")))
     p.addWidget(dialog.mz_btn_run_pca)
 
@@ -456,11 +458,11 @@ def _build_pca_tab(dialog, parent):
     p.addWidget(dialog.mz_pca_table)
 
     p = _panel(lay)
-    p.addWidget(_field_label(_tr("EXPORT")))
+    p.addWidget(field_label(_tr("EXPORT")))
     dialog.mz_btn_export_report = _secondary(QPushButton(_tr("Export full report (CSV)")))
     p.addWidget(dialog.mz_btn_export_report)
 
-    p.addWidget(_make_divider())
+    p.addWidget(make_divider())
     grp = QGroupBox(_tr("Export PCs as raster"))
     grp.setStyleSheet(
         "QGroupBox { font-size: 12px; color: #616161; border: 1px solid #e0e0e0;"
@@ -468,7 +470,7 @@ def _build_pca_tab(dialog, parent):
         "QGroupBox::title { subcontrol-origin: margin; left: 8px; padding: 0 4px; }"
     )
     gl = QHBoxLayout(grp)
-    gl.addWidget(_field_label(_tr("CHOOSE PC:")))
+    gl.addWidget(field_label(_tr("CHOOSE PC:")))
     dialog.mz_pc_export_combo = QComboBox()
     dialog.mz_pc_export_combo.setEnabled(False)
     dialog.mz_pc_export_combo.setToolTip(
@@ -488,7 +490,7 @@ def _build_zones_tab(dialog, parent):
     lay = _scroll_tab(parent)
 
     p = _panel(lay)
-    p.addWidget(_field_label(_tr("DATA SOURCE FOR CLUSTERING")))
+    p.addWidget(field_label(_tr("DATA SOURCE FOR CLUSTERING")))
     dialog.mz_rad_pca = QRadioButton(_tr("PCA (selected components)"))
     dialog.mz_rad_orig = QRadioButton(_tr("Original variables (z-score)"))
     dialog.mz_rad_pca.setChecked(True)
@@ -517,7 +519,7 @@ def _build_zones_tab(dialog, parent):
     _toggle_pc_selector(True)
 
     p = _panel(lay)
-    p.addWidget(_field_label(_tr("CLUSTER EVALUATION (ELBOW + SILHOUETTE)")))
+    p.addWidget(field_label(_tr("CLUSTER EVALUATION (ELBOW + SILHOUETTE)")))
     range_row = QHBoxLayout()
     range_row.setSpacing(8)
     range_row.addWidget(QLabel(_tr("Min clusters:")))
@@ -567,7 +569,7 @@ def _build_zones_tab(dialog, parent):
     p.addLayout(export_row)
 
     p = _panel(lay)
-    p.addWidget(_field_label(_tr("GENERATE ZONES")))
+    p.addWidget(field_label(_tr("GENERATE ZONES")))
     final_row = QHBoxLayout()
     final_row.addWidget(QLabel(_tr("Number of zones to generate (KMeans):")))
     dialog.mz_final_k_spin = QSpinBox()
@@ -654,15 +656,15 @@ def _build_filter_tab(dialog, parent):
     lay = _scroll_tab(parent)
 
     p = _panel(lay)
-    p.addWidget(_field_label(_tr("ZONES RASTER TO SMOOTH")))
-    dialog.mz_filter_raster_combo = _prepare_field(QgsMapLayerComboBox())
+    p.addWidget(field_label(_tr("ZONES RASTER TO SMOOTH")))
+    dialog.mz_filter_raster_combo = prepare_field(QgsMapLayerComboBox())
     dialog.mz_filter_raster_combo.setFilters(QgsMapLayerProxyModel.RasterLayer)
     dialog.mz_filter_raster_combo.setToolTip(
         _tr("The management-zones raster to smooth (e.g. one just generated).")
     )
     p.addWidget(dialog.mz_filter_raster_combo)
 
-    p.addWidget(_field_label(_tr("WINDOW SIZE")))
+    p.addWidget(field_label(_tr("WINDOW SIZE")))
     dialog.mz_window_spin = QSpinBox()
     dialog.mz_window_spin.setRange(3, 99)
     dialog.mz_window_spin.setSingleStep(2)
@@ -673,7 +675,7 @@ def _build_filter_tab(dialog, parent):
     p.addWidget(dialog.mz_window_spin)
     p.addWidget(_hint(_tr("Window size: 3 = 7x7 pixels, 5 = 11x11 pixels, etc.")))
 
-    p.addWidget(_field_label(_tr("COLOR RAMP")))
+    p.addWidget(field_label(_tr("COLOR RAMP")))
     dialog.mz_filter_ramp_combo = _ramp_combo()
     p.addWidget(dialog.mz_filter_ramp_combo)
 
@@ -687,8 +689,8 @@ def _build_analysis_tab(dialog, parent):
     lay = _scroll_tab(parent)
 
     p = _panel(lay)
-    p.addWidget(_field_label(_tr("ZONES RASTER (ALREADY IN QGIS)")))
-    dialog.mz_analysis_raster_combo = _prepare_field(QgsMapLayerComboBox())
+    p.addWidget(field_label(_tr("ZONES RASTER (ALREADY IN QGIS)")))
+    dialog.mz_analysis_raster_combo = prepare_field(QgsMapLayerComboBox())
     dialog.mz_analysis_raster_combo.setFilters(QgsMapLayerProxyModel.RasterLayer)
     dialog.mz_analysis_raster_combo.setToolTip(
         _tr("Zones raster to summarize per zone.")
@@ -710,7 +712,7 @@ def _build_analysis_tab(dialog, parent):
     p.addWidget(dialog.mz_result_table)
 
     p = _panel(lay)
-    p.addWidget(_field_label(_tr("EXTERNAL DATA (OPTIONAL)")))
+    p.addWidget(field_label(_tr("EXTERNAL DATA (OPTIONAL)")))
     dialog.mz_btn_load_csv = _secondary(QPushButton(_tr("Load points CSV")))
     dialog.mz_btn_load_csv.setToolTip(
         _tr("CSV with coordinate columns and the attribute to analyze.")
@@ -718,19 +720,19 @@ def _build_analysis_tab(dialog, parent):
     p.addWidget(dialog.mz_btn_load_csv)
     p.addWidget(_hint(_tr("Map the CSV columns below after loading.")))
 
-    p.addWidget(_field_label(_tr("X COLUMN (LONGITUDE)")))
+    p.addWidget(field_label(_tr("X COLUMN (LONGITUDE)")))
     dialog.mz_col_x_combo = QComboBox()
     dialog.mz_col_x_combo.setToolTip(
         _tr("CSV column holding the X / longitude coordinate.")
     )
     p.addWidget(dialog.mz_col_x_combo)
-    p.addWidget(_field_label(_tr("Y COLUMN (LATITUDE)")))
+    p.addWidget(field_label(_tr("Y COLUMN (LATITUDE)")))
     dialog.mz_col_y_combo = QComboBox()
     dialog.mz_col_y_combo.setToolTip(
         _tr("CSV column holding the Y / latitude coordinate.")
     )
     p.addWidget(dialog.mz_col_y_combo)
-    p.addWidget(_field_label(_tr("ATTRIBUTE COLUMN")))
+    p.addWidget(field_label(_tr("ATTRIBUTE COLUMN")))
     dialog.mz_col_attr_combo = QComboBox()
     dialog.mz_col_attr_combo.setToolTip(
         _tr("CSV column with the numeric value to summarize per zone.")
@@ -772,24 +774,7 @@ def setup_mzones_page(dialog, page):
     page.setObjectName("mzonesPage")
     page.setStyleSheet("""
         QWidget#mzonesPage { background-color: #ffffff; }
-        QComboBox, QgsMapLayerComboBox {
-            combobox-popup: 0;
-            background-color: #ffffff;
-            color: #212121;
-            border: 1px solid #d0d0d0;
-            border-radius: 6px;
-            padding: 4px 9px;
-            font-size: 12px;
-        }
-        QComboBox:focus, QgsMapLayerComboBox:focus { border: 1.5px solid #1b6b39; }
-        QComboBox QAbstractItemView, QgsMapLayerComboBox QAbstractItemView {
-            background-color: #ffffff;
-            color: #212121;
-            border: 1px solid #bdbdbd;
-            selection-background-color: #e8f5e9;
-            selection-color: #1a1a1a;
-            outline: 0;
-        }
+""" + STYLE_COMBO_FIELDS + """
         QLineEdit {
             background-color: #ffffff;
             color: #212121;
@@ -833,18 +818,7 @@ def setup_mzones_page(dialog, page):
     outer.setContentsMargins(0, 0, 0, 0)
     outer.setSpacing(0)
 
-    tab_bar = QFrame()
-    tab_bar.setObjectName("mzonesTabBar")
-    tab_bar.setFixedHeight(40)
-    tab_bar.setStyleSheet("""
-        QFrame#mzonesTabBar {
-            background-color: #f8f9fa;
-            border-bottom: 1px solid #e0e0e0;
-        }
-    """)
-    tab_bar_lay = QHBoxLayout(tab_bar)
-    tab_bar_lay.setContentsMargins(6, 0, 6, 0)
-    tab_bar_lay.setSpacing(8)
+    tab_bar, tab_bar_lay = build_tab_bar("mzonesTabBar")
 
     tab_labels = [
         _tr("Intro"),
@@ -927,7 +901,7 @@ def setup_mzones_page(dialog, page):
         btn_next.setEnabled(index < n_tabs - 1)
         step_lbl.setText(_tr("Step %d of %d") % (index + 1, n_tabs))
         for i, btn in enumerate(tab_buttons):
-            btn.setStyleSheet(_TAB_ACTIVE if i == index else _TAB_INACTIVE)
+            btn.setStyleSheet(STYLE_TAB_ACTIVE if i == index else STYLE_TAB_INACTIVE)
         if index == 1:  # Data tab: sync the checkable raster list with the project
             dialog.mz_refresh_rasters()
 

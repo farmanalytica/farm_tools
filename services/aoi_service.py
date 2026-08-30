@@ -19,12 +19,13 @@ from qgis.core import (
     QgsUnitTypes,
 )
 
+_MAX_REPORTED_INVALID_FIDS = 10
 
-def _remove_z_dimension(coords):
 
+def remove_z_dimension(coords):
     if isinstance(coords[0], (int, float)):
         return coords[:2]
-    return [_remove_z_dimension(c) for c in coords]
+    return [remove_z_dimension(c) for c in coords]
 
 
 class AOIService:
@@ -32,7 +33,6 @@ class AOIService:
 
     @staticmethod
     def _validate_vector_polygon_layer(layer):
-
         if not layer or layer.type() != QgsMapLayer.VectorLayer:
             raise ValueError("Layer must be a valid vector layer.")
 
@@ -41,7 +41,6 @@ class AOIService:
 
     @staticmethod
     def _get_dissolved_geometry(layer, use_selected_features=True):
-
         features = (
             layer.selectedFeatures()
             if use_selected_features and layer.selectedFeatureCount() > 0
@@ -75,8 +74,9 @@ class AOIService:
         dissolved = QgsGeometry.unaryUnion(geometries)
 
         if dissolved.isEmpty():
-            fids = ", ".join(str(fid) for fid in invalid_fids[:10])
-            more = "..." if len(invalid_fids) > 10 else ""
+            reported = invalid_fids[:_MAX_REPORTED_INVALID_FIDS]
+            fids = ", ".join(str(fid) for fid in reported)
+            more = "..." if len(invalid_fids) > len(reported) else ""
             detail = (
                 f" Invalid feature id(s): {fids}{more}." if invalid_fids else ""
             )
@@ -124,7 +124,7 @@ class AOIService:
             )
 
         geojson = json.loads(geojson_str)
-        geojson["coordinates"] = _remove_z_dimension(geojson["coordinates"])
+        geojson["coordinates"] = remove_z_dimension(geojson["coordinates"])
         return geojson, bbox
 
     @staticmethod
@@ -140,8 +140,8 @@ class AOIService:
         return ee.FeatureCollection([ee.Feature(ee_geometry)]), bbox
 
     @staticmethod
-    def get_ee_feature_colection_from_layer(layer, use_selected_features=True):
-
+    def get_ee_feature_collection_from_layer(layer, use_selected_features=True):
+        """Dissolved AOI as an ``ee.FeatureCollection`` plus its bounding box."""
         AOIService._validate_vector_polygon_layer(layer)
         return AOIService._layer_to_ee_feature_collection(layer, use_selected_features)
 

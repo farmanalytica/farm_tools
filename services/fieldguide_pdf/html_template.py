@@ -10,11 +10,6 @@ def _tr(text):
     return QCoreApplication.translate("RAVI", text)
 
 
-def build_points_html(mark_items):
-    """Build styled HTML for clickable point list pages (starts on page 2)."""
-    return build_points_html_with_routes(mark_items, route_items=[])
-
-
 def build_points_html_with_routes(mark_items, route_items, footer_note=None):
     """Build styled HTML with optional all-stops route link cards.
 

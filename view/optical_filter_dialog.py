@@ -25,6 +25,7 @@ from qgis.PyQt.QtWidgets import (
     QWidget,
 )
 
+from .page_widgets import STYLE_SLIDER_FILLED
 from .styles import STYLE_BTN_PRIMARY, STYLE_BTN_SECONDARY, STYLE_CHECKBOX
 
 
@@ -49,16 +50,6 @@ _DIALOG_STYLE = (
     + STYLE_CHECKBOX
 )
 
-_SLIDER_STYLE = """
-QSlider::groove:horizontal { height: 4px; background: #d6d6d6; border-radius: 2px; }
-QSlider::sub-page:horizontal { background: #1b6b39; border-radius: 2px; }
-QSlider::add-page:horizontal { background: #d6d6d6; border-radius: 2px; }
-QSlider::handle:horizontal {
-    background: #1b6b39; width: 14px; height: 14px;
-    margin: -6px 0; border-radius: 7px;
-}
-QSlider::handle:horizontal:hover { background: #15532d; }
-"""
 
 class OpticalFilterDialog(QDialog):
     """Popup that adjusts the optical time-series filter client-side.
@@ -178,7 +169,7 @@ class OpticalFilterDialog(QDialog):
         slider.setMinimum(0)
         slider.setMaximum(100)
         slider.setValue(value)
-        slider.setStyleSheet(_SLIDER_STYLE)
+        slider.setStyleSheet(STYLE_SLIDER_FILLED)
         return slider
 
     def _slider_row(self, slider, value_lbl):

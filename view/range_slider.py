@@ -54,6 +54,9 @@ def _event_x(event) -> float:
         return float(event.x())
 
 
+HANDLE_LOW = "low"
+HANDLE_HIGH = "high"
+
 # ---- Colour constants --------------------------------------------------------
 _C_TRACK         = QColor("#e0e0e0")
 _C_RANGE         = QColor("#1b6b39")
@@ -91,6 +94,9 @@ class RangeSlider(QWidget):
     _TH = 4         # track height
     _PAD = 10       # horizontal padding so handles don't clip at edges
     _BOT = 4        # bottom padding
+    _GRAB_SLACK = 4  # extra px around a handle that still counts as a grab
+    _LABEL_MIN_W = 44
+    _LABEL_SIDE_PAD = 6
 
     def __init__(
         self,
@@ -112,8 +118,8 @@ class RangeSlider(QWidget):
         # (e.g. map a day offset to an ISO date). None keeps the numeric
         # format.
         self.label_fn = label_fn
-        self._pressed: str | None = None   # 'low' | 'high' | None
-        self._hovered: str | None = None   # 'low' | 'high' | None
+        self._pressed: str | None = None   # HANDLE_LOW / HANDLE_HIGH / None
+        self._hovered: str | None = None   # HANDLE_LOW / HANDLE_HIGH / None
 
         fixed_h = self._LABEL_H + 2 * self._HR_HOV + self._BOT
         self.setMinimumHeight(fixed_h)
@@ -189,18 +195,19 @@ class RangeSlider(QWidget):
 
     # --------------------------------------------------------------- hover
 
+    def _handle_at(self, x: float):
+        """Which handle ``x`` grabs — high wins a tie, since it paints on top."""
+        to_low = abs(x - self._val_to_x(self._low))
+        to_high = abs(x - self._val_to_x(self._high))
+        reach = self._HR_HOV + self._GRAB_SLACK
+        if to_high <= reach and to_high <= to_low:
+            return HANDLE_HIGH
+        if to_low <= reach:
+            return HANDLE_LOW
+        return None
+
     def _update_hover(self, x: float):
-        lx = self._val_to_x(self._low)
-        hx = self._val_to_x(self._high)
-        dl = abs(x - lx)
-        dh = abs(x - hx)
-        hit = self._HR_HOV + 4
-        if dh <= hit and dh <= dl:
-            new = 'high'
-        elif dl <= hit:
-            new = 'low'
-        else:
-            new = None
+        new = self._handle_at(x)
         if new != self._hovered:
             self._hovered = new
             self.setCursor(_SIZEHOR if new is not None else _POINTING)
@@ -230,7 +237,7 @@ class RangeSlider(QWidget):
         painter.drawRoundedRect(QRectF(lx, cy - th / 2, hx - lx, th), 2, 2)
 
         # --- handles: low first so high renders on top when overlapping ---
-        for px, side in [(lx, 'low'), (hx, 'high')]:
+        for px, side in [(lx, HANDLE_LOW), (hx, HANDLE_HIGH)]:
             active = self._hovered == side or self._pressed == side
             r      = self._HR_HOV if active else self._HR
             color  = _C_RANGE_HOVER if active else _C_RANGE
@@ -252,9 +259,9 @@ class RangeSlider(QWidget):
             hi_txt = f"{self.high():+.{self._decimals}f}"
         fm = painter.fontMetrics()
         lbl_w = max(
-            44,
-            fm.horizontalAdvance(lo_txt) + 6,
-            fm.horizontalAdvance(hi_txt) + 6,
+            self._LABEL_MIN_W,
+            fm.horizontalAdvance(lo_txt) + self._LABEL_SIDE_PAD,
+            fm.horizontalAdvance(hi_txt) + self._LABEL_SIDE_PAD,
         )
 
         painter.drawText(self._label_rect(lx, lbl_w), _ALIGN_LABEL, lo_txt)
@@ -267,17 +274,8 @@ class RangeSlider(QWidget):
     def mousePressEvent(self, event):
         if event.button() != _LEFT_BTN:
             return
-        x  = _event_x(event)
-        lx = self._val_to_x(self._low)
-        hx = self._val_to_x(self._high)
-        dl = abs(x - lx)
-        dh = abs(x - hx)
-        hit = self._HR_HOV + 4
-        if dh <= hit and dh <= dl:
-            self._pressed = 'high'
-        elif dl <= hit:
-            self._pressed = 'low'
-        # else: click outside any handle — ignore
+        # None when the click missed both handles, which ignores it.
+        self._pressed = self._handle_at(_event_x(event))
 
     def mouseMoveEvent(self, event):
         if self._pressed is not None:
@@ -297,7 +295,7 @@ class RangeSlider(QWidget):
 
     def _move_to(self, x: float):
         val = self._clamped(self._x_to_val(x))
-        if self._pressed == 'low':
+        if self._pressed == HANDLE_LOW:
             new = min(val, self._high)
             if new != self._low:
                 self._low = new
