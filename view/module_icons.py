@@ -8,16 +8,11 @@ icon, so neither has to know how the other draws it — and neither has to impor
 the other.
 """
 
-import os
-
 from qgis.PyQt.QtCore import QPoint, QRect, Qt
 from qgis.PyQt.QtGui import QColor, QPainter, QPainterPath, QPen, QPixmap
 
 from .module_catalog import MODULES
 from .styles import render_svg_pixmap, scaled_pixmap
-
-# Plugin assets/ dir (this module lives in view/, so go up one level).
-_ASSETS_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "assets")
 
 
 LOGO_SVGS = {
