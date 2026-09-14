@@ -1,16 +1,14 @@
 # -*- coding: utf-8 -*-
 """Raster / geotransform helpers shared by services and the export controller.
 
-Consolidates logic that was duplicated between precision_zones.py and the
-dialog (geotransform math, xy->rowcol, GeoTIFF writing, layer lookups).
+Geotransform math, xy->rowcol conversion, GeoTIFF writing and CRS estimation.
 """
 import math
 
-import numpy as np
 from osgeo import gdal, osr
 
 from qgis.core import (
-    QgsProject, QgsRasterLayer, QgsCoordinateReferenceSystem,
+    QgsProject, QgsCoordinateReferenceSystem,
     QgsCoordinateTransform, QgsPointXY,
 )
 
@@ -45,21 +43,6 @@ def _validate_extent(extent):
             tr("Boundary extent has zero area. Check that the boundary layer has valid geometry.")
         )
     return x_min, x_max, y_min, y_max
-
-
-def obter_raster_por_nome(nome):
-    for camada in QgsProject.instance().mapLayers().values():
-        if isinstance(camada, QgsRasterLayer) and camada.name() == nome:
-            return camada
-    return None
-
-
-def find_layer_by_name(nome):
-    """Any layer (raster or vector) matching the given name, else None."""
-    for layer in QgsProject.instance().mapLayers().values():
-        if layer.name() == nome:
-            return layer
-    return None
 
 
 def estimate_utm_crs(layer):

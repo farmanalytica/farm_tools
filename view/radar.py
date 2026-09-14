@@ -7,16 +7,9 @@ Signal connections will be wired externally by ``farm_tools.py`` once the
 service layer is in place.
 """
 
-from qgis.core import QgsMapLayerProxyModel, QgsSettings, QgsStyle
+from qgis.core import QgsMapLayerProxyModel, QgsSettings
 from qgis.gui import QgsMapLayerComboBox
-from qgis.PyQt.QtCore import (
-    Qt,
-    QCoreApplication,
-    QDate,
-    QPoint,
-    QRect,
-    QSize,
-)
+from qgis.PyQt.QtCore import QCoreApplication, QDate, Qt
 from qgis.PyQt.QtWidgets import (
     QCheckBox,
     QComboBox,
@@ -25,7 +18,6 @@ from qgis.PyQt.QtWidgets import (
     QGridLayout,
     QHBoxLayout,
     QLabel,
-    QLayout,
     QPushButton,
     QScrollArea,
     QSizePolicy,
@@ -36,12 +28,29 @@ from qgis.PyQt.QtWidgets import (
     QWidget,
 )
 
-from qgis.PyQt.QtGui import QIcon, QLinearGradient, QPainter, QPixmap
 
+from .page_widgets import (
+    STYLE_CALENDAR,
+    STYLE_POPUP_VIEW,
+    STYLE_SLIDER,
+    STYLE_TAB_ACTIVE,
+    STYLE_TAB_INACTIVE,
+    add_ramp_items,
+    caption,
+    field_label,
+    flow,
+    labeled,
+    make_divider,
+    prepare_field,
+    section_panel,
+)
 from .styles import (
     STYLE_BTN_PRIMARY,
     STYLE_BTN_SECONDARY,
     STYLE_CHECKBOX,
+    STYLE_COMBO_FIELDS,
+    build_scroll_area,
+    build_tab_bar,
     make_logo_label,
 )
 from .webcompat import QWebView
@@ -51,231 +60,23 @@ def _tr(text):
     return QCoreApplication.translate("RAVI", text)
 
 
-def _ramp_icon(name: str, w: int = 48, h: int = 13) -> QIcon:
-    ramp = QgsStyle.defaultStyle().colorRamp(name)
-    pix = QPixmap(w, h)
-    if ramp is None:
-        pix.fill(Qt.GlobalColor.transparent)
-        return QIcon(pix)
-    gradient = QLinearGradient(0, 0, w, 0)
-    for i in range(33):
-        t = i / 32
-        gradient.setColorAt(t, ramp.color(t))
-    painter = QPainter(pix)
-    painter.fillRect(0, 0, w, h, gradient)
-    painter.end()
-    return QIcon(pix)
 
 
-def _add_ramp_items(combo: QComboBox, names) -> None:
-    combo.setIconSize(QSize(48, 13))
-    for name in names:
-        combo.addItem(_ramp_icon(name), name)
 
 
-_TAB_ACTIVE = """
-QPushButton {
-    background-color: transparent;
-    color: #1b6b39;
-    border: none;
-    border-bottom: 2px solid #1b6b39;
-    font-size: 13px;
-    font-weight: bold;
-    padding: 0 4px 2px 4px;
-    border-radius: 0;
-}
-"""
-
-_TAB_INACTIVE = """
-QPushButton {
-    background-color: transparent;
-    color: #9e9e9e;
-    border: none;
-    border-bottom: 2px solid transparent;
-    font-size: 13px;
-    font-weight: normal;
-    padding: 0 4px 2px 4px;
-    border-radius: 0;
-}
-QPushButton:hover {
-    color: #616161;
-    border-bottom-color: #d0d0d0;
-}
-"""
 
 
-_POPUP_VIEW_STYLE = (
-    "background-color: #ffffff; color: #212121;"
-    " selection-background-color: #e8f5e9; selection-color: #1a1a1a;"
-)
-
-_SLIDER_STYLE = """
-QSlider::groove:horizontal { height: 4px; background: #d6d6d6; border-radius: 2px; }
-QSlider::sub-page:horizontal { background: #d6d6d6; border-radius: 2px; }
-QSlider::add-page:horizontal { background: #d6d6d6; border-radius: 2px; }
-QSlider::handle:horizontal {
-    background: #1b6b39; width: 14px; height: 14px;
-    margin: -6px 0; border-radius: 7px;
-}
-QSlider::handle:horizontal:hover { background: #15532d; }
-"""
-
-_CALENDAR_STYLE = """
-QCalendarWidget QWidget {
-    background-color: #ffffff;
-    color: #212121;
-    alternate-background-color: #f5f5f5;
-}
-QCalendarWidget QAbstractItemView:enabled {
-    background-color: #ffffff;
-    color: #212121;
-    selection-background-color: #1b6b39;
-    selection-color: #ffffff;
-}
-QCalendarWidget QAbstractItemView:disabled {
-    color: #bdbdbd;
-}
-QCalendarWidget QWidget#qt_calendar_navigationbar {
-    background-color: #f8f9fa;
-    border-bottom: 1px solid #e0e0e0;
-    padding: 2px;
-}
-QCalendarWidget QToolButton {
-    background-color: transparent;
-    color: #212121;
-    border: none;
-    padding: 2px 6px;
-    font-size: 12px;
-    font-weight: bold;
-}
-QCalendarWidget QToolButton:hover {
-    background-color: #e8f5e9;
-    border-radius: 4px;
-}
-QCalendarWidget QSpinBox {
-    background-color: #ffffff;
-    color: #212121;
-    border: 1px solid #d0d0d0;
-    border-radius: 4px;
-    padding: 2px 4px;
-    font-size: 11px;
-}
-QCalendarWidget QMenu {
-    background-color: #ffffff;
-    color: #212121;
-    border: 1px solid #e0e0e0;
-}
-"""
 
 
-def _field_label(text):
-    lbl = QLabel(text)
-    lbl.setStyleSheet(
-        "color: #8f9691; font-size: 10px; font-weight: bold; letter-spacing: 1px;"
-        " background: transparent; border: none;"
-    )
-    return lbl
 
 
-def _prepare_field(widget, height=30):
-    widget.setFixedHeight(height)
-    widget.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
-    return widget
 
 
-class FlowLayout(QLayout):
-    """Left-to-right layout that wraps items onto new lines when the available
-    width runs out. Widening the window packs more controls per line, so fewer
-    lines are needed and more options stay visible without scrolling."""
-
-    def __init__(self, parent=None, margin=0, spacing=8):
-        super().__init__(parent)
-        if parent is not None:
-            self.setContentsMargins(margin, margin, margin, margin)
-        self.setSpacing(spacing)
-        self._items = []
-
-    def __del__(self):
-        while self.count():
-            self.takeAt(0)
-
-    def addItem(self, item):
-        self._items.append(item)
-
-    def count(self):
-        return len(self._items)
-
-    def itemAt(self, index):
-        if 0 <= index < len(self._items):
-            return self._items[index]
-        return None
-
-    def takeAt(self, index):
-        if 0 <= index < len(self._items):
-            return self._items.pop(index)
-        return None
-
-    def expandingDirections(self):
-        return Qt.Orientation(0)
-
-    def hasHeightForWidth(self):
-        return True
-
-    def heightForWidth(self, width):
-        return self._do_layout(QRect(0, 0, width, 0), True)
-
-    def setGeometry(self, rect):
-        super().setGeometry(rect)
-        self._do_layout(rect, False)
-
-    def sizeHint(self):
-        return self.minimumSize()
-
-    def minimumSize(self):
-        size = QSize()
-        for item in self._items:
-            size = size.expandedTo(item.minimumSize())
-        margins = self.contentsMargins()
-        size += QSize(
-            margins.left() + margins.right(), margins.top() + margins.bottom()
-        )
-        return size
-
-    def _do_layout(self, rect, test_only):
-        margins = self.contentsMargins()
-        effective = rect.adjusted(
-            margins.left(), margins.top(), -margins.right(), -margins.bottom()
-        )
-        x = effective.x()
-        y = effective.y()
-        line_height = 0
-        spacing = self.spacing()
-        for item in self._items:
-            hint = item.sizeHint()
-            next_x = x + hint.width() + spacing
-            if next_x - spacing > effective.right() and line_height > 0:
-                x = effective.x()
-                y = y + line_height + spacing
-                next_x = x + hint.width() + spacing
-                line_height = 0
-            if not test_only:
-                item.setGeometry(QRect(QPoint(x, y), hint))
-            x = next_x
-            line_height = max(line_height, hint.height())
-        return y + line_height - rect.y() + margins.bottom()
 
 
-def _flow(widgets, spacing=8):
-    """Wrap ``widgets`` in a container driven by a FlowLayout."""
-    container = QWidget()
-    container.setStyleSheet("background: transparent;")
-    flow = FlowLayout(container, margin=0, spacing=spacing)
-    for w in widgets:
-        flow.addWidget(w)
-    policy = container.sizePolicy()
-    policy.setHeightForWidth(True)
-    container.setSizePolicy(policy)
-    return container
+
+
+
 
 
 def _group(widgets, spacing=6):
@@ -292,54 +93,12 @@ def _group(widgets, spacing=6):
     return box
 
 
-def _labeled(text, widget, lbl_width=None):
-    """Group a caption label with its control as a single flow item, so they
-    never wrap apart from each other."""
-    group = QWidget()
-    group.setStyleSheet("background: transparent;")
-    row = QHBoxLayout(group)
-    row.setContentsMargins(0, 0, 0, 0)
-    row.setSpacing(8)
-    lbl = QLabel(text)
-    lbl.setStyleSheet(
-        "color: #616161; font-size: 12px; background: transparent; border: none;"
-    )
-    if lbl_width:
-        lbl.setMinimumWidth(lbl_width)
-    row.addWidget(lbl)
-    row.addWidget(widget)
-    return group
 
 
-def _caption(text):
-    """Small uppercase group caption — a cheap, scannable visual anchor that
-    keeps related controls readable as one cluster after the row wraps."""
-    lbl = QLabel(text)
-    lbl.setStyleSheet(
-        "color: #9e9e9e; font-size: 11px; font-weight: bold; letter-spacing: 1px;"
-        " background: transparent; border: none;"
-    )
-    return lbl
 
 
-def _make_divider():
-    divider = QFrame()
-    divider.setFrameShape(QFrame.Shape.HLine)
-    divider.setStyleSheet("color: #edf0ee; background: transparent;")
-    return divider
 
 
-def _section_panel():
-    panel = QFrame()
-    panel.setObjectName("sarSectionPanel")
-    panel.setStyleSheet("""
-        QFrame#sarSectionPanel {
-            background-color: #fbfcfb;
-            border: 1px solid #e4ebe6;
-            border-radius: 8px;
-        }
-    """)
-    return panel
 
 
 _INTRO_I18N = {
@@ -454,10 +213,7 @@ def _build_intro_tab(_dialog, parent):
     outer.setContentsMargins(0, 0, 0, 0)
     outer.setSpacing(0)
 
-    scroll = QScrollArea()
-    scroll.setWidgetResizable(True)
-    scroll.setFrameShape(QFrame.Shape.NoFrame)
-    scroll.setStyleSheet("QScrollArea { background: #ffffff; border: none; }")
+    scroll = build_scroll_area()
 
     w = QWidget()
     w.setStyleSheet("background: #ffffff;")
@@ -569,12 +325,12 @@ def _build_inputs_tab(dialog, parent):
     lay.setContentsMargins(6, 16, 6, 14)
     lay.setSpacing(12)
 
-    inputs_panel = _section_panel()
+    inputs_panel = section_panel()
     inputs_lay = QVBoxLayout(inputs_panel)
     inputs_lay.setContentsMargins(16, 14, 16, 14)
     inputs_lay.setSpacing(10)
 
-    inputs_lay.addWidget(_field_label(_tr("AOI LAYER")))
+    inputs_lay.addWidget(field_label(_tr("AOI LAYER")))
 
     aoi_row = QWidget()
     aoi_row_lay = QHBoxLayout(aoi_row)
@@ -583,9 +339,9 @@ def _build_inputs_tab(dialog, parent):
 
     dialog.sar_layer_combo = QgsMapLayerComboBox()
     dialog.sar_layer_combo.setFilters(QgsMapLayerProxyModel.VectorLayer)
-    _prepare_field(dialog.sar_layer_combo)
+    prepare_field(dialog.sar_layer_combo)
     dialog.sar_layer_combo.setAllowEmptyLayer(True)
-    dialog.sar_layer_combo.view().setStyleSheet(_POPUP_VIEW_STYLE)
+    dialog.sar_layer_combo.view().setStyleSheet(STYLE_POPUP_VIEW)
     aoi_row_lay.addWidget(dialog.sar_layer_combo, 1)
 
     dialog.sar_btn_draw_aoi = QPushButton(_tr("Draw AOI"))
@@ -624,33 +380,33 @@ def _build_inputs_tab(dialog, parent):
     dialog.sar_date_start.setDisplayFormat("yyyy-MM-dd")
     dialog.sar_date_start.setCalendarPopup(True)
     dialog.sar_date_start.setDate(QDate.currentDate().addYears(-1))
-    _prepare_field(dialog.sar_date_start)
+    prepare_field(dialog.sar_date_start)
     dialog.sar_date_end = QDateEdit()
     dialog.sar_date_end.setDisplayFormat("yyyy-MM-dd")
     dialog.sar_date_end.setCalendarPopup(True)
     dialog.sar_date_end.setDate(QDate.currentDate())
-    _prepare_field(dialog.sar_date_end)
+    prepare_field(dialog.sar_date_end)
     for _cal in (
         dialog.sar_date_start.calendarWidget(),
         dialog.sar_date_end.calendarWidget(),
     ):
         if _cal is not None:
-            _cal.setStyleSheet(_CALENDAR_STYLE)
+            _cal.setStyleSheet(STYLE_CALENDAR)
 
-    fields_grid.addWidget(_field_label(_tr("START DATE")), 0, 0)
-    fields_grid.addWidget(_field_label(_tr("END DATE")), 0, 1)
+    fields_grid.addWidget(field_label(_tr("START DATE")), 0, 0)
+    fields_grid.addWidget(field_label(_tr("END DATE")), 0, 1)
     fields_grid.addWidget(dialog.sar_date_start, 1, 0)
     fields_grid.addWidget(dialog.sar_date_end, 1, 1)
 
     dialog.sar_pol_combo = QComboBox()
     dialog.sar_pol_combo.addItems(["VV", "VH", "VVVH"])
     dialog.sar_pol_combo.setCurrentText("VVVH")
-    _prepare_field(dialog.sar_pol_combo)
-    dialog.sar_pol_combo.view().setStyleSheet(_POPUP_VIEW_STYLE)
+    prepare_field(dialog.sar_pol_combo)
+    dialog.sar_pol_combo.view().setStyleSheet(STYLE_POPUP_VIEW)
     dialog.sar_format_combo = QComboBox()
     dialog.sar_format_combo.addItems(["DB", "LINEAR"])
-    _prepare_field(dialog.sar_format_combo)
-    dialog.sar_format_combo.view().setStyleSheet(_POPUP_VIEW_STYLE)
+    prepare_field(dialog.sar_format_combo)
+    dialog.sar_format_combo.view().setStyleSheet(STYLE_POPUP_VIEW)
     dialog.sar_index_combo = QComboBox()
     dialog.sar_index_combo.addItems([
         "VV/VH Ratio", "RVI", "DpRVI",
@@ -658,12 +414,12 @@ def _build_inputs_tab(dialog, parent):
         "DPSVIm", "PRVI", "mRVI",
     ])
     dialog.sar_index_combo.setCurrentText("VV/VH Ratio")
-    _prepare_field(dialog.sar_index_combo)
-    dialog.sar_index_combo.view().setStyleSheet(_POPUP_VIEW_STYLE)
+    prepare_field(dialog.sar_index_combo)
+    dialog.sar_index_combo.view().setStyleSheet(STYLE_POPUP_VIEW)
 
-    fields_grid.addWidget(_field_label(_tr("POLARIZATION")), 2, 0)
-    fields_grid.addWidget(_field_label(_tr("OUTPUT FORMAT")), 2, 1)
-    fields_grid.addWidget(_field_label(_tr("SPECTRAL INDEX TIME SERIES")), 4, 0)
+    fields_grid.addWidget(field_label(_tr("POLARIZATION")), 2, 0)
+    fields_grid.addWidget(field_label(_tr("OUTPUT FORMAT")), 2, 1)
+    fields_grid.addWidget(field_label(_tr("SPECTRAL INDEX TIME SERIES")), 4, 0)
     fields_grid.addWidget(dialog.sar_pol_combo, 3, 0)
     fields_grid.addWidget(dialog.sar_format_combo, 3, 1)
     fields_grid.addWidget(dialog.sar_index_combo, 5, 0)
@@ -758,11 +514,11 @@ def _build_inputs_tab(dialog, parent):
 
     lay.addWidget(inputs_panel)
 
-    options_panel = _section_panel()
+    options_panel = section_panel()
     options_lay = QVBoxLayout(options_panel)
     options_lay.setContentsMargins(16, 12, 16, 14)
     options_lay.setSpacing(10)
-    options_lay.addWidget(_field_label(_tr("PROCESSING OPTIONS")))
+    options_lay.addWidget(field_label(_tr("PROCESSING OPTIONS")))
 
     options_row = QHBoxLayout()
     options_row.setContentsMargins(0, 0, 0, 0)
@@ -827,12 +583,12 @@ def _build_results_tab(dialog, parent):
     lay.setContentsMargins(6, 0, 6, 14)
     lay.setSpacing(12)
 
-    controls_panel = _section_panel()
+    controls_panel = section_panel()
     controls_lay = QVBoxLayout(controls_panel)
     controls_lay.setContentsMargins(16, 14, 16, 14)
     controls_lay.setSpacing(10)
 
-    controls_lay.addWidget(_caption(_tr("TIME SERIES")))
+    controls_lay.addWidget(caption(_tr("TIME SERIES")))
     dialog.sar_btn_filter_dates = QPushButton(_tr("Filter dates"))
     dialog.sar_btn_filter_dates.setFixedHeight(30)
     dialog.sar_btn_filter_dates.setStyleSheet(STYLE_BTN_SECONDARY)
@@ -845,26 +601,26 @@ def _build_results_tab(dialog, parent):
     dialog.sar_btn_batch_download = QPushButton(_tr("Batch Download (All Dates)"))
     dialog.sar_btn_batch_download.setFixedHeight(30)
     dialog.sar_btn_batch_download.setStyleSheet(STYLE_BTN_SECONDARY)
-    controls_lay.addWidget(_flow([
+    controls_lay.addWidget(flow([
         dialog.sar_btn_filter_dates,
         dialog.sar_btn_open_browser,
         dialog.sar_btn_download_csv,
         dialog.sar_btn_batch_download,
     ]))
 
-    controls_lay.addWidget(_make_divider())
+    controls_lay.addWidget(make_divider())
 
-    controls_lay.addWidget(_caption(_tr("SINGLE-DATE IMAGE")))
+    controls_lay.addWidget(caption(_tr("SINGLE-DATE IMAGE")))
     dialog.sar_result_date_combo = QComboBox()
-    _prepare_field(dialog.sar_result_date_combo, 30)
+    prepare_field(dialog.sar_result_date_combo, 30)
     dialog.sar_result_date_combo.setMinimumWidth(136)
     dialog.sar_result_date_combo.setSizeAdjustPolicy(
         QComboBox.SizeAdjustPolicy.AdjustToContents
     )
-    dialog.sar_result_date_combo.view().setStyleSheet(_POPUP_VIEW_STYLE)
+    dialog.sar_result_date_combo.view().setStyleSheet(STYLE_POPUP_VIEW)
 
     dialog.sar_render_combo = QComboBox()
-    _prepare_field(dialog.sar_render_combo, 30)
+    prepare_field(dialog.sar_render_combo, 30)
     dialog.sar_render_combo.setMinimumWidth(240)
     dialog.sar_render_combo.setSizeAdjustPolicy(
         QComboBox.SizeAdjustPolicy.AdjustToContents
@@ -896,15 +652,15 @@ def _build_results_tab(dialog, parent):
         (_tr("Band: mRVI"), "Band: mRVI"),
     ):
         dialog.sar_render_combo.addItem(_label, _key)
-    dialog.sar_render_combo.view().setStyleSheet(_POPUP_VIEW_STYLE)
+    dialog.sar_render_combo.view().setStyleSheet(STYLE_POPUP_VIEW)
 
     dialog.sar_render_ramp_combo = QComboBox()
-    _prepare_field(dialog.sar_render_ramp_combo, 30)
+    prepare_field(dialog.sar_render_ramp_combo, 30)
     dialog.sar_render_ramp_combo.setMinimumWidth(140)
     dialog.sar_render_ramp_combo.setSizeAdjustPolicy(
         QComboBox.SizeAdjustPolicy.AdjustToContents
     )
-    _add_ramp_items(dialog.sar_render_ramp_combo, [
+    add_ramp_items(dialog.sar_render_ramp_combo, [
         "Viridis", "Magma", "Plasma", "Inferno", "RdYlGn", "Greys",
     ])
     # Explicit disabled look — the page stylesheet keeps QComboBox white, so the
@@ -913,7 +669,7 @@ def _build_results_tab(dialog, parent):
         "QComboBox:disabled { color: #bdbdbd; background: #f2f2f2;"
         " border-color: #e6e6e6; }"
     )
-    dialog.sar_render_ramp_combo.view().setStyleSheet(_POPUP_VIEW_STYLE)
+    dialog.sar_render_ramp_combo.view().setStyleSheet(STYLE_POPUP_VIEW)
 
     dialog.sar_btn_preview = QPushButton(_tr("Preview"))
     dialog.sar_btn_preview.setFixedHeight(30)
@@ -925,7 +681,7 @@ def _build_results_tab(dialog, parent):
     dialog.sar_btn_download_preview.setStyleSheet(STYLE_BTN_SECONDARY)
 
     # The color ramp only applies to single-band ("Band: …") renders. Build the
-    # caption manually (not via _labeled) so it can be dimmed in lockstep with
+    # caption manually (not via labeled) so it can be dimmed in lockstep with
     # the disabled combo for the RGB composites where the ramp has no effect.
     ramp_label = QLabel(_tr("Color Ramp"))
     ramp_label.setMinimumWidth(80)
@@ -956,16 +712,16 @@ def _build_results_tab(dialog, parent):
     # Each control is its own flow item (date+filter kept as one tight cluster)
     # so the row wraps onto new lines when the panel is narrow — the section
     # grows taller instead of clipping the buttons.
-    controls_lay.addWidget(_flow([
-        _labeled(_tr("Date"), dialog.sar_result_date_combo, 34),
-        _labeled(_tr("Render Mode"), dialog.sar_render_combo, 80),
+    controls_lay.addWidget(flow([
+        labeled(_tr("Date"), dialog.sar_result_date_combo, 34),
+        labeled(_tr("Render Mode"), dialog.sar_render_combo, 80),
         ramp_group,
         dialog.sar_btn_preview,
         dialog.sar_btn_download_preview,
     ], spacing=12))
     lay.addWidget(controls_panel)
 
-    composite_panel = _section_panel()
+    composite_panel = section_panel()
     composite_lay = QVBoxLayout(composite_panel)
     composite_lay.setContentsMargins(16, 14, 16, 14)
     composite_lay.setSpacing(10)
@@ -987,7 +743,7 @@ def _build_results_tab(dialog, parent):
     composite_lay.addWidget(composite_hint)
 
     dialog.sar_composite_metric_combo = QComboBox()
-    _prepare_field(dialog.sar_composite_metric_combo, 30)
+    prepare_field(dialog.sar_composite_metric_combo, 30)
     dialog.sar_composite_metric_combo.setMinimumWidth(240)
     dialog.sar_composite_metric_combo.setSizeAdjustPolicy(
         QComboBox.SizeAdjustPolicy.AdjustToContents
@@ -1003,15 +759,15 @@ def _build_results_tab(dialog, parent):
         "Area Under Curve (AUC)",
     ):
         dialog.sar_composite_metric_combo.addItem(_tr(_metric_key), _metric_key)
-    dialog.sar_composite_metric_combo.view().setStyleSheet(_POPUP_VIEW_STYLE)
+    dialog.sar_composite_metric_combo.view().setStyleSheet(STYLE_POPUP_VIEW)
 
     dialog.sar_composite_ramp_combo = QComboBox()
-    _prepare_field(dialog.sar_composite_ramp_combo, 30)
+    prepare_field(dialog.sar_composite_ramp_combo, 30)
     dialog.sar_composite_ramp_combo.setMinimumWidth(240)
     dialog.sar_composite_ramp_combo.setSizeAdjustPolicy(
         QComboBox.SizeAdjustPolicy.AdjustToContents
     )
-    _add_ramp_items(dialog.sar_composite_ramp_combo, [
+    add_ramp_items(dialog.sar_composite_ramp_combo, [
         "Viridis",
         "Magma",
         "Plasma",
@@ -1019,7 +775,7 @@ def _build_results_tab(dialog, parent):
         "RdYlGn",
         "Greys",
     ])
-    dialog.sar_composite_ramp_combo.view().setStyleSheet(_POPUP_VIEW_STYLE)
+    dialog.sar_composite_ramp_combo.view().setStyleSheet(STYLE_POPUP_VIEW)
 
     dialog.sar_btn_composite_preview = QPushButton(_tr("Preview Composite"))
     dialog.sar_btn_composite_preview.setFixedHeight(30)
@@ -1032,21 +788,21 @@ def _build_results_tab(dialog, parent):
 
     # Flat flow so each control wraps onto a new line when the panel is narrow,
     # growing the section vertically instead of clipping the buttons.
-    composite_lay.addWidget(_flow([
-        _labeled(_tr("Metric"), dialog.sar_composite_metric_combo, 80),
-        _labeled(_tr("Color Ramp"), dialog.sar_composite_ramp_combo, 80),
+    composite_lay.addWidget(flow([
+        labeled(_tr("Metric"), dialog.sar_composite_metric_combo, 80),
+        labeled(_tr("Color Ramp"), dialog.sar_composite_ramp_combo, 80),
         dialog.sar_btn_composite_preview,
         dialog.sar_btn_composite_download,
     ], spacing=12))
 
     lay.addWidget(composite_panel)
 
-    buffer_panel = _section_panel()
+    buffer_panel = section_panel()
     buffer_lay = QVBoxLayout(buffer_panel)
     buffer_lay.setContentsMargins(16, 14, 16, 14)
     buffer_lay.setSpacing(10)
 
-    buffer_lay.addWidget(_caption(_tr("DOWNLOAD BUFFER")))
+    buffer_lay.addWidget(caption(_tr("DOWNLOAD BUFFER")))
     buffer_hint = QLabel(
         _tr("Use a positive buffer to include terrain just outside your area, "
             "or a negative buffer to crop the edges. Applies to every "
@@ -1076,7 +832,7 @@ def _build_results_tab(dialog, parent):
     dialog.sar_buffer_slider.setValue(0)
     dialog.sar_buffer_slider.setTickInterval(100)
     dialog.sar_buffer_slider.setTickPosition(QSlider.TickPosition.NoTicks)
-    dialog.sar_buffer_slider.setStyleSheet(_SLIDER_STYLE)
+    dialog.sar_buffer_slider.setStyleSheet(STYLE_SLIDER)
     buffer_row.addWidget(dialog.sar_buffer_slider, 1)
 
     plus_lbl = QLabel("+300 m")
@@ -1138,24 +894,7 @@ def setup_radar_page(dialog, page):
     page.setObjectName("sarPage")
     page.setStyleSheet("""
         QWidget#sarPage { background-color: #ffffff; }
-        QComboBox, QgsMapLayerComboBox {
-            combobox-popup: 0;
-            background-color: #ffffff;
-            color: #212121;
-            border: 1px solid #d0d0d0;
-            border-radius: 6px;
-            padding: 4px 9px;
-            font-size: 12px;
-        }
-        QComboBox:focus, QgsMapLayerComboBox:focus { border: 1.5px solid #1b6b39; }
-        QComboBox QAbstractItemView, QgsMapLayerComboBox QAbstractItemView {
-            background-color: #ffffff;
-            color: #212121;
-            border: 1px solid #bdbdbd;
-            selection-background-color: #e8f5e9;
-            selection-color: #1a1a1a;
-            outline: 0;
-        }
+""" + STYLE_COMBO_FIELDS + """
         QLineEdit {
             background-color: #ffffff;
             color: #212121;
@@ -1215,18 +954,7 @@ def setup_radar_page(dialog, page):
     outer.setContentsMargins(0, 0, 0, 0)
     outer.setSpacing(0)
 
-    tab_bar = QFrame()
-    tab_bar.setObjectName("sarTabBar")
-    tab_bar.setFixedHeight(40)
-    tab_bar.setStyleSheet("""
-        QFrame#sarTabBar {
-            background-color: #f8f9fa;
-            border-bottom: 1px solid #e0e0e0;
-        }
-    """)
-    tab_bar_lay = QHBoxLayout(tab_bar)
-    tab_bar_lay.setContentsMargins(6, 0, 6, 0)
-    tab_bar_lay.setSpacing(8)
+    tab_bar, tab_bar_lay = build_tab_bar("sarTabBar")
 
     btn_tab_intro = QPushButton(_tr("Intro"))
     btn_tab_intro.setFixedHeight(40)
@@ -1315,9 +1043,9 @@ def setup_radar_page(dialog, page):
         step_lbl.setText(_tr("Step %d of 3") % (index + 1))
         btn_intro_next.setVisible(index == 0)
         btn_next.setVisible(index == 1)
-        btn_tab_intro.setStyleSheet(_TAB_ACTIVE if index == 0 else _TAB_INACTIVE)
-        btn_tab_inputs.setStyleSheet(_TAB_ACTIVE if index == 1 else _TAB_INACTIVE)
-        btn_tab_results.setStyleSheet(_TAB_ACTIVE if index == 2 else _TAB_INACTIVE)
+        btn_tab_intro.setStyleSheet(STYLE_TAB_ACTIVE if index == 0 else STYLE_TAB_INACTIVE)
+        btn_tab_inputs.setStyleSheet(STYLE_TAB_ACTIVE if index == 1 else STYLE_TAB_INACTIVE)
+        btn_tab_results.setStyleSheet(STYLE_TAB_ACTIVE if index == 2 else STYLE_TAB_INACTIVE)
 
     dialog.sar_set_tab = _set_tab
 

@@ -22,13 +22,8 @@ from qgis.PyQt.QtWidgets import (
 )
 
 from . import module_prefs
-from .welcome import (
-    FARM_GREEN,
-    _LOGO_SVGS,
-    _MODULES,
-    _draw_module_icon,
-    _svg_pixmap,
-)
+from .module_catalog import FARM_GREEN, label
+from .module_icons import LOGO_SVGS, draw_module_icon, svg_pixmap
 from .styles import STYLE_BTN_SECONDARY
 
 
@@ -36,17 +31,15 @@ def _tr(text):
     return QCoreApplication.translate("RAVI", text)
 
 
-# Manageable key -> display name, pulled from the hub's module list so the names
-# live in a single place.
-_LABELS = {entry[0]: entry[1] for entry in _MODULES}
+_ROW_ICON_PX = 22
 
 
 def _module_icon(kind):
     """Same icon a module shows on its hub card, sized for the list rows."""
-    if kind in _LOGO_SVGS:
-        pix = _svg_pixmap(_LOGO_SVGS[kind], 22)
+    if kind in LOGO_SVGS:
+        pix = svg_pixmap(LOGO_SVGS[kind], _ROW_ICON_PX)
     else:
-        pix = _draw_module_icon(kind, FARM_GREEN, 22)
+        pix = draw_module_icon(kind, FARM_GREEN, _ROW_ICON_PX)
     return QIcon(pix)
 
 
@@ -81,7 +74,7 @@ class ManageModulesDialog(QDialog):
         self.list.setSelectionMode(
             QAbstractItemView.SelectionMode.SingleSelection
         )
-        self.list.setIconSize(QSize(22, 22))
+        self.list.setIconSize(QSize(_ROW_ICON_PX, _ROW_ICON_PX))
         self.list.setStyleSheet("""
             QListWidget {
                 background: #ffffff;
@@ -127,8 +120,7 @@ class ManageModulesDialog(QDialog):
         self.list.clear()
         hidden = module_prefs.get_hidden()
         for key in module_prefs.get_order():
-            name = _LABELS.get(key, key)
-            item = QListWidgetItem(_module_icon(key), _tr(name))
+            item = QListWidgetItem(_module_icon(key), _tr(label(key, key)))
             item.setData(Qt.ItemDataRole.UserRole, key)
             item.setFlags(
                 Qt.ItemFlag.ItemIsEnabled

@@ -8,25 +8,10 @@ so the chart is byte-for-byte identical in both. Load it from a ``file://`` URL.
 """
 
 import json
-import os
 
 import plotly.express as px
 
-
-_PLOTLY_JS_PATH = os.path.join(
-    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-    "assets",
-    "plotly-1.58.5.min.js",
-)
-_plotly_js_cache = None
-
-
-def _plotly_js():
-    global _plotly_js_cache
-    if _plotly_js_cache is None:
-        with open(_PLOTLY_JS_PATH, "r", encoding="utf-8") as f:
-            _plotly_js_cache = f.read()
-    return _plotly_js_cache
+from .plotly_js import plotly_js
 
 
 def _build_figure(dataframe, title="VV/VH Ratio Mean Time Series", ylabel="VV/VH Ratio Mean"):
@@ -192,7 +177,7 @@ def _chart_page(fig_json, config_json):
     return f"""<!DOCTYPE html>
 <html><head><meta charset="utf-8">
 <style>html,body{{height:100%;width:100%;margin:0;padding:0}}#chart{{width:100%;height:100%}}</style>
-<script>{_plotly_js()}</script>
+<script>{plotly_js()}</script>
 </head><body>
 <div id="chart"></div>
 <script>
@@ -204,7 +189,7 @@ window.addEventListener('resize', function(){{ Plotly.Plots.resize('chart'); }})
 </body></html>"""
 
 
-_MULTISERIES_PALETTE = ["#1b6b39", "#d98f00", "#2a5d84", "#b71c1c", "#6a1b9a", "#00838f"]
+MULTISERIES_PALETTE = ["#1b6b39", "#d98f00", "#2a5d84", "#b71c1c", "#6a1b9a", "#00838f"]
 
 
 def render_multiseries_chart_html(
@@ -235,7 +220,7 @@ def render_multiseries_chart_html(
     traces = []
     for i, (name, group) in enumerate(dataframe.groupby(group_col, sort=False)):
         group = group.sort_values("dates")
-        color = colors.get(name) or _MULTISERIES_PALETTE[i % len(_MULTISERIES_PALETTE)]
+        color = colors.get(name) or MULTISERIES_PALETTE[i % len(MULTISERIES_PALETTE)]
         traces.append({
             "type": "scatter",
             "mode": "lines+markers",

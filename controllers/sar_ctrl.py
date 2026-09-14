@@ -4,30 +4,27 @@ import tempfile
 import pandas as pd
 from datetime import datetime
 
-from qgis.PyQt.QtCore import Qt, QCoreApplication, QUrl
+from qgis.PyQt.QtCore import QCoreApplication, QUrl
 from qgis.PyQt.QtGui import QDesktopServices
 from qgis.PyQt.QtWidgets import QFileDialog, QProgressDialog
-from qgis.core import Qgis, QgsProject, QgsCoordinateTransform
+from qgis.core import Qgis
 
 from ..services.aoi_service import AOIService
 from ..services.sar_service import SARService
-from ..renderers.sar_renderer import SARRenderer
+from ..renderers.sar_renderer import SARRenderer, SarRenderOptions
+from ..workers.batch_download_worker import BatchDownloadWorker
 from ..workers.sar_worker import (
     SARWorker,
     SARPreviewWorker,
-    SARBatchDownloadWorker,
+    SarCompositeRequest,
+    SarPreviewRequest,
     SARCompositeWorker,
 )
 from ..managers.settings_manager import SettingsManager
-from ..tools.aoi_draw_tool import start_draw_aoi
+from .aoi_draw_mixin import AoiDrawMixin
 from ..view.sar_plot import render_chart_html
 
 logger = logging.getLogger(__name__)
-
-try:
-    WAIT_CURSOR = Qt.CursorShape.WaitCursor
-except AttributeError:
-    WAIT_CURSOR = Qt.WaitCursor
 
 
 def _tr(text):
@@ -43,10 +40,9 @@ border-top-color:#1b6b39;border-radius:50%;animation:spin 0.9s linear infinite}
 </style></head><body><div class="box"><div class="spinner"></div>
 <div>Fetching SAR time series…</div></div></body></html>"""
 
-_CANVAS_SCALE_FACTOR = 1.5
 
 
-class SARCtrl:
+class SARCtrl(AoiDrawMixin):
     def __init__(self, dialog, interface=None, gee_service=None):
         self.dialog = dialog
         self.interface = interface
@@ -58,16 +54,14 @@ class SARCtrl:
 
         self._sar_worker: SARWorker | None = None
         self._preview_worker: SARPreviewWorker | None = None
-        self._batch_worker: SARBatchDownloadWorker | None = None
+        self._batch_worker: BatchDownloadWorker | None = None
         self._composite_worker: SARCompositeWorker | None = None
-        self._skip_zoom_once = False
 
         self._active_dates = None
         self._filter_dialog = None
         self._batch_dialog = None
         self._current_index = "VV/VH Ratio"
         self._plot_path: str | None = None
-        self._draw_tool = None
 
         self._run_btn_text: str | None = None
         self._preview_btn_texts: tuple | None = None
@@ -126,19 +120,9 @@ class SARCtrl:
         return self.aoi.map(lambda feature: feature.buffer(meters).bounds())
 
     def handle_draw_aoi(self):
-        """Toggle rectangular AOI drawing on the canvas."""
-
-        canvas = self.interface.mapCanvas()
-
-        if self._draw_tool is not None and canvas.mapTool() is self._draw_tool:
-            canvas.unsetMapTool(self._draw_tool)
-            self._draw_tool = None
-            return
-        self._draw_tool = start_draw_aoi(
-            self.interface,
-            self.dialog.sar_layer_combo,
-            self.dialog.sar_btn_draw_aoi,
-            before_select=lambda: setattr(self, "_skip_zoom_once", True),
+        """Toggle polygon-AOI drawing on the canvas."""
+        self.toggle_draw_aoi(
+            self.dialog.sar_layer_combo, self.dialog.sar_btn_draw_aoi
         )
 
     def handle_layer_changed(self, layer=None):
@@ -147,23 +131,7 @@ class SARCtrl:
         if layer is None:
             layer = self.dialog.sar_layer_combo.currentLayer()
 
-        if not layer or not layer.isValid() or not self.interface:
-            return
-
-        if self._skip_zoom_once:
-            self._skip_zoom_once = False
-            return
-
-        canvas = self.interface.mapCanvas()
-        transform = QgsCoordinateTransform(
-            layer.crs(),
-            canvas.mapSettings().destinationCrs(),
-            QgsProject.instance(),
-        )
-        extent = transform.transformBoundingBox(layer.extent())
-        extent.scale(_CANVAS_SCALE_FACTOR)
-        canvas.setExtent(extent)
-        canvas.refresh()
+        self.zoom_to_aoi_layer(layer)
 
     def handle_sar_run(self):
         if self._sar_worker is not None and self._sar_worker.isRunning():
@@ -185,7 +153,7 @@ class SARCtrl:
             return
 
         try:
-            aoi, _bbox = AOIService.get_ee_feature_colection_from_layer(
+            aoi, _bbox = AOIService.get_ee_feature_collection_from_layer(
                 layer, use_selected_features=False
             )
         except Exception as e:
@@ -266,7 +234,6 @@ class SARCtrl:
             return
 
         selected_date = self.dialog.sar_result_date_combo.currentText()
-        meta = self._index_meta()
         output_folder = (
             SettingsManager.load_download_folder()
             if to_folder
@@ -276,13 +243,13 @@ class SARCtrl:
 
         self._set_preview_busy(True)
         self._preview_worker = SARPreviewWorker(
-            self.collection,
-            self._download_aoi(),
-            selected_date,
-            output_folder,
-            label,
-            index_band=meta["band"],
-            index_label=meta["band_label"],
+            SarPreviewRequest(
+                collection=self.collection,
+                aoi=self._download_aoi(),
+                selected_date=selected_date,
+                output_folder=output_folder,
+                label=label,
+            )
         )
         self._preview_worker.finished.connect(
             lambda path, label: self._on_preview_done(path, label, to_folder)
@@ -309,8 +276,10 @@ class SARCtrl:
         SARRenderer.load_sar_to_qgis(
             output_path,
             label,
-            render_mode=self._render_mode(),
-            color_ramp_name=self.dialog.sar_render_ramp_combo.currentText(),
+            SarRenderOptions(
+                self._render_mode(),
+                self.dialog.sar_render_ramp_combo.currentText(),
+            ),
         )
 
         if self.interface:
@@ -356,15 +325,19 @@ class SARCtrl:
 
         self._set_composite_busy(True)
         self._composite_worker = SARCompositeWorker(
-            self.collection,
-            self._download_aoi(),
-            meta["band"],
-            meta["band_label"],
-            self.dialog.sar_composite_metric_combo.currentData(),
-            dates,
-            min(dates),
-            output_folder,
-            f"{meta['band_label']} {self.dialog.sar_composite_metric_combo.currentText()}",
+            SarCompositeRequest(
+                collection=self.collection,
+                aoi=self._download_aoi(),
+                band_name=meta["band"],
+                index_label=meta["band_label"],
+                metric=self.dialog.sar_composite_metric_combo.currentData(),
+                dates=dates,
+                output_folder=output_folder,
+                label=(
+                    f"{meta['band_label']} "
+                    f"{self.dialog.sar_composite_metric_combo.currentText()}"
+                ),
+            )
         )
         self._composite_worker.finished.connect(
             lambda path, label: self._on_composite_done(path, label, to_folder)
@@ -427,15 +400,17 @@ class SARCtrl:
         self._batch_dialog.setModal(True)
         self._batch_dialog.show()
 
-        meta = self._index_meta()
-        self._batch_worker = SARBatchDownloadWorker(
-            self.collection,
-            self._download_aoi(),
-            dates,
-            SettingsManager.load_download_folder(),
-            index_band=meta["band"],
-            index_label=meta["band_label"],
-        )
+        collection = self.collection
+        aoi = self._download_aoi()
+        output_folder = SettingsManager.load_download_folder()
+
+        def download_one(date):
+            image = SARService.get_dataset_image_for_date(collection, aoi, date)
+            return SARService.download_image(
+                image, aoi, date, output_folder=output_folder
+            )
+
+        self._batch_worker = BatchDownloadWorker(dates, download_one)
         self._batch_worker.progress.connect(self._on_batch_progress)
         self._batch_worker.finished.connect(self._on_batch_done)
         self._batch_worker.failed.connect(self._on_batch_failed)
@@ -493,10 +468,7 @@ class SARCtrl:
                 )
                 label = f"SAR_{date_str}"
                 SARRenderer.load_sar_to_qgis(
-                    path,
-                    label,
-                    render_mode=render_mode,
-                    color_ramp_name=color_ramp_name,
+                    path, label, SarRenderOptions(render_mode, color_ramp_name)
                 )
             except Exception:
                 logger.debug("Failed to load SAR raster into QGIS: %s", path, exc_info=True)

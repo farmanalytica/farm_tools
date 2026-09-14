@@ -9,54 +9,50 @@ pandas DataFrame. The AOI is passed as a shapely geometry (agrigee_lite's
 DataFrame with the shared plotly renderer (``view/sar_plot``).
 """
 
-from qgis.PyQt.QtCore import QThread, pyqtSignal
+from dataclasses import dataclass
+from typing import Optional
+
+from qgis.PyQt.QtCore import pyqtSignal
 
 from ..services.landsat_service import LandsatService
+from .background_worker import BackgroundWorker
 
 
-class LandsatTimeseriesWorker(QThread):
+@dataclass
+class LandsatTimeseriesRequest:
+    """Which geometry, dates, index and quality filters the series covers."""
+
+    shapely_geom: object
+    date_start: str
+    date_end: str
+    index_name: str
+    use_cloud_mask: bool = True
+    tier: int = 1
+    reducer: str = "mean"
+    min_valid_pct: float = 0
+    aoi_area_m2: Optional[float] = None
+    missions: Optional[list] = None
+
+
+class LandsatTimeseriesWorker(BackgroundWorker):
     finished = pyqtSignal(object, str)   # dataframe, index_name
-    failed = pyqtSignal(str)
 
-    def __init__(
-        self,
-        shapely_geom,
-        date_start,
-        date_end,
-        index_name,
-        use_cloud_mask,
-        tier,
-        reducer,
-        min_valid_pct=0,
-        aoi_area_m2=None,
-        missions=None,
-    ):
+    def __init__(self, request):
         super().__init__()
-        self._geom = shapely_geom
-        self._date_start = date_start
-        self._date_end = date_end
-        self._index_name = index_name
-        self._use_cloud_mask = use_cloud_mask
-        self._tier = tier
-        self._reducer = reducer
-        self._min_valid_pct = min_valid_pct
-        self._aoi_area_m2 = aoi_area_m2
-        self._missions = missions
+        self._request = request
 
-    def run(self):
-        try:
-            df = LandsatService.get_index_timeseries_df(
-                self._geom,
-                self._date_start,
-                self._date_end,
-                self._index_name,
-                use_cloud_mask=self._use_cloud_mask,
-                tier=self._tier,
-                reducer=self._reducer,
-                min_valid_pct=self._min_valid_pct,
-                aoi_area_m2=self._aoi_area_m2,
-                missions=self._missions,
-            )
-            self.finished.emit(df, self._index_name)
-        except Exception as e:
-            self.failed.emit(str(e))
+    def work(self):
+        request = self._request
+        dataframe = LandsatService.get_index_timeseries_df(
+            request.shapely_geom,
+            request.date_start,
+            request.date_end,
+            request.index_name,
+            use_cloud_mask=request.use_cloud_mask,
+            tier=request.tier,
+            reducer=request.reducer,
+            min_valid_pct=request.min_valid_pct,
+            aoi_area_m2=request.aoi_area_m2,
+            missions=request.missions,
+        )
+        self.finished.emit(dataframe, request.index_name)

@@ -10,17 +10,17 @@ lands here and immediately sees every available tool as an interactive grid
 ``_nav_to_*`` methods, so ``farm_tools_dialog.py`` need not know about this file.
 """
 
+import os
+
 from qgis.PyQt.QtCore import (
     QCoreApplication,
     QMimeData,
     QPoint,
     QRect,
-    QRectF,
     QSize,
     Qt,
 )
-from qgis.PyQt.QtGui import QColor, QDrag, QPainter, QPainterPath, QPen, QPixmap
-from qgis.PyQt.QtSvg import QSvgRenderer
+from qgis.PyQt.QtGui import QDrag
 from qgis.PyQt.QtWidgets import (
     QApplication,
     QFrame,
@@ -35,57 +35,25 @@ from qgis.PyQt.QtWidgets import (
     QWidget,
 )
 
+from . import module_prefs
+from .module_catalog import AUTH_KEY, FARM_GREEN
+from .module_icons import LOGO_SVGS, draw_module_icon, svg_pixmap
+from .module_prefs import hidden_modules, needs_auth_entry, visible_modules
+from .styles import STYLE_BTN_SECONDARY, STYLE_INPUT_READONLY, STYLE_STATUS_PILL
+
 # Drag-and-drop mime type carrying a dragged module's key between hub cards.
 _MODULE_MIME = "application/x-farm-module"
-
-import os
-
-from . import module_prefs
-from .styles import STYLE_BTN_SECONDARY
 
 
 def _tr(text):
     return QCoreApplication.translate("RAVI", text)
 
-
-FARM_GREEN = "#1b6b39"
-
 # Plugin assets/ dir (welcome.py lives in view/, so go up one level).
 _ASSETS_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "assets")
 
-# Module kinds that carry their own brand logo (SVG) instead of a drawn line
-# icon. Keyed by the same ``kind`` as ``_MODULES``.
-_LOGO_SVGS = {
-    "optical": "ravi.svg",
-    "climaplots": "climaplots.svg",
-    "radar": "sentinel1.svg",
-    "fieldguide": "fieldguide.svg",
-    "download": "easydem.svg",
-}
+# Module kinds that carry their own brand logo (SVG) instead of a drawn line icon.
 
 
-def _svg_pixmap(filename: str, size: int) -> QPixmap:
-    """Render an assets/ SVG to a transparent square QPixmap of ``size`` px.
-    Returns an empty (transparent) pixmap if the file is missing/invalid, so a
-    bad asset degrades to a blank tile rather than crashing the hub."""
-    pix = QPixmap(size, size)
-    pix.fill(Qt.GlobalColor.transparent)
-    renderer = QSvgRenderer(os.path.join(_ASSETS_DIR, filename))
-    if renderer.isValid():
-        # Keep aspect ratio: the trimmed logos are not square, so render into a
-        # centred sub-rect instead of stretching to fill the tile.
-        bounds = renderer.defaultSize()
-        bounds.scale(size, size, Qt.AspectRatioMode.KeepAspectRatio)
-        target = QRectF(
-            (size - bounds.width()) / 2,
-            (size - bounds.height()) / 2,
-            bounds.width(),
-            bounds.height(),
-        )
-        painter = QPainter(pix)
-        renderer.render(painter, target)
-        painter.end()
-    return pix
 
 # External links (mirrors ui/intro.html).
 _URL_CAIO = "https://www.linkedin.com/in/caioarantes/"
@@ -96,107 +64,7 @@ _URL_MATEUS = "https://www.linkedin.com/in/mateuspinto/"
 _URL_AGRIGEE = "https://github.com/mateuspinto/AgriGEE.lite"
 _LINK_STYLE = "color:#1b6b39; font-weight:bold; text-decoration:none;"
 
-# One entry per module card: (icon kind, name, one-line description, dialog nav
-# method, gee_free). ``kind`` reuses the sidebar's icon vocabulary; ``nav_attr``
-# is looked up on the dialog at click time so this list is the single source of
-# truth. ``gee_free`` flags modules that work without a Google Earth Engine
-# sign-in (NASA POWER / local-raster sources) so first-time users can start there.
-_MODULES = [
-    ("optical", "RAVI (Sentinel-2)",
-     "Per-date vegetation-index time series (NDVI, EVI, NDRE…) with cloud masking",
-     "show_optical_page", False),
-    ("landsat", "Multi-Satellite",
-     "Pan-sharpened 15 m Landsat 7/8/9 imagery and multi-mission index series",
-     "show_landsat_page", False),
-    ("sysi", "Bare Soil",
-     "Bare-soil reflectance composite (GEOS3) from cloud-free pixels for soil mapping",
-     "show_sysi_page", False),
-    ("radar", "Radar (SAR) data",
-     "Sentinel-1 VV/VH backscatter time series — cloud-independent monitoring",
-     "show_radar_page", False),
-    ("download", "EasyDEM",
-     "Fetch terrain elevation models (SRTM, Copernicus…) clipped to your area",
-     "_nav_to_dem", False),
-    ("climaplots", "ClimaPlots",
-     "Climate trends, indices and thermo diagrams from NASA POWER daily data",
-     "show_climaplots_page", True),
-    ("fieldguide", "Field Guide",
-     "Per-feature and per-point analysis with adjustable buffer and value extraction",
-     "show_fieldguide_page", True),
-    ("mapbiomas", "MapBiomas",
-     "Brazilian land-use/land-cover by year plus pasture-to-crop transition mapping",
-     "show_mapbiomas_page", False),
-    ("mzones", "Management Zones",
-     "Cluster yield/index/soil rasters into within-field zones (PCA + KMeans)",
-     "show_mzones_page", True),
-    ("car", "Análise CAR",
-     "Fetch a registered rural property boundary by its Brazilian CAR code",
-     "show_car_page", True),
-    ("auth", "GEE Configuration",
-     "Connect to Google Earth Engine — sign in and set your project ID",
-     "show_auth_page", False),
-]
-
-
-def _ordered_visible_modules():
-    """``_MODULES`` entries in the user's order with hidden ones removed.
-
-    Auth is not manageable (pinned), so it is always present and kept last —
-    the same position it has occupied on the hub. Mirrors the sidebar rail via
-    the shared :mod:`module_prefs`.
-    """
-    by_key = {entry[0]: entry for entry in _MODULES}
-    hidden = module_prefs.get_hidden()
-    ordered = []
-    for key in module_prefs.get_order():
-        if key in hidden:
-            continue
-        entry = by_key.get(key)
-        if entry is not None:
-            ordered.append(entry)
-    if "auth" in by_key and visible_set_needs_auth():
-        ordered.append(by_key["auth"])
-    return ordered
-
-
-def visible_set_needs_auth():
-    """True if any visible (non-auth) module requires a GEE sign-in.
-
-    Single-module no-login builds (e.g. ClimaPlots, Field Guide) then drop the
-    GEE Configuration entry entirely — there is nothing to sign in for. The
-    sidebar rail consults this too, so both surfaces agree.
-    """
-    by_key = {entry[0]: entry for entry in _MODULES}
-    hidden = module_prefs.get_hidden()
-    for key in module_prefs.get_order():
-        if key in hidden:
-            continue
-        entry = by_key.get(key)
-        if entry is not None and entry[4] is False:  # gee_free is False
-            return True
-    return False
-
-
-def _ordered_hidden_modules():
-    """``_MODULES`` entries that are currently hidden, in canonical order.
-
-    Powers the hub's "More FARM tools" teaser strip: these modules ship in the
-    same plugin and are one click from activation, so they are surfaced (greyed,
-    non-navigating) instead of vanishing. Auth is never hideable, so never here.
-    """
-    by_key = {entry[0]: entry for entry in _MODULES}
-    hidden = module_prefs.get_hidden()
-    ordered = []
-    for key in module_prefs.get_order():
-        if key not in hidden:
-            continue
-        entry = by_key.get(key)
-        if entry is not None:
-            ordered.append(entry)
-    return ordered
-
-
-class FlowLayout(QLayout):
+class CardGridLayout(QLayout):
     """Left-to-right layout that wraps items to the next row when out of width.
 
     Qt ships no flow layout; this is the canonical subclass (adapted from the Qt
@@ -312,7 +180,7 @@ class _HeightForWidthWidget(QWidget):
     """QWidget that forwards its layout's height-for-width to its container.
 
     A plain QWidget does NOT advertise a height-for-width layout to the parent
-    layout / enclosing QScrollArea, so a ``FlowLayout`` grid's true multi-row
+    layout / enclosing QScrollArea, so a ``CardGridLayout`` grid's true multi-row
     height is under-reported (as a single row). That makes the scroll area
     mis-decide whether a vertical scrollbar is needed; the scrollbar toggling
     steals ~15 px of width right at the 2-vs-3-column boundary, so the grid
@@ -337,127 +205,6 @@ class _HeightForWidthWidget(QWidget):
         return super().heightForWidth(width)
 
 
-def _draw_module_icon(kind: str, color: str, size: int = 30) -> QPixmap:
-    """Render a crisp line icon for ``kind`` at ``size`` px.
-
-    Recipes mirror ``Sidebar._draw_icon`` (drawn in a 20-unit space) so a card's
-    icon matches its sidebar button; the painter is scaled to ``size``.
-    """
-    pix = QPixmap(size, size)
-    pix.fill(Qt.GlobalColor.transparent)
-
-    painter = QPainter(pix)
-    painter.setRenderHint(QPainter.RenderHint.Antialiasing)
-    painter.scale(size / 20.0, size / 20.0)
-
-    pen = QPen(QColor(color), 1.6)
-    pen.setCapStyle(Qt.PenCapStyle.RoundCap)
-    pen.setJoinStyle(Qt.PenJoinStyle.RoundJoin)
-
-    if kind == "auth":
-        # Key — sign-in / Earth Engine configuration.
-        painter.setPen(pen)
-        painter.drawEllipse(QPoint(7, 8), 4, 4)
-        painter.drawLine(10, 11, 17, 18)
-        painter.drawLine(14, 15, 16, 13)
-    elif kind == "optical":
-        painter.setPen(pen)
-        path = QPainterPath()
-        path.moveTo(4, 16)
-        path.cubicTo(5, 7, 11, 4, 16, 4)
-        path.cubicTo(16, 11, 13, 16, 4, 16)
-        painter.drawPath(path)
-        painter.drawLine(6, 14, 15, 5)
-    elif kind == "sysi":
-        painter.setPen(pen)
-        painter.drawLine(3, 11, 17, 11)
-        painter.drawLine(3, 14, 17, 14)
-        painter.drawLine(3, 17, 17, 17)
-        painter.drawLine(10, 8, 10, 3)
-        painter.drawLine(10, 6, 7, 4)
-        painter.drawLine(10, 6, 13, 4)
-    elif kind == "radar":
-        painter.setPen(pen)
-        painter.drawArc(QRect(2, 2, 14, 14), 0 * 16, 90 * 16)
-        painter.drawArc(QRect(4, 4, 10, 10), 0 * 16, 90 * 16)
-        painter.drawArc(QRect(6, 6, 6, 6), 0 * 16, 90 * 16)
-        painter.setPen(Qt.PenStyle.NoPen)
-        painter.setBrush(QColor(color))
-        painter.drawEllipse(QPoint(9, 9), 1, 1)
-    elif kind == "landsat":
-        painter.setPen(pen)
-        painter.drawRect(QRect(3, 3, 8, 8))
-        painter.drawLine(7, 3, 7, 11)
-        painter.drawLine(3, 7, 11, 7)
-        painter.drawArc(QRect(10, 10, 6, 6), 0, 360 * 16)
-        painter.drawLine(15, 15, 18, 18)
-    elif kind == "fieldguide":
-        painter.setPen(pen)
-        painter.drawEllipse(QPoint(10, 8), 4, 4)
-        painter.drawLine(6, 11, 10, 17)
-        painter.drawLine(14, 11, 10, 17)
-        painter.setPen(Qt.PenStyle.NoPen)
-        painter.setBrush(QColor(color))
-        painter.drawEllipse(QPoint(10, 8), 1, 1)
-    elif kind == "climaplots":
-        painter.setPen(pen)
-        painter.drawEllipse(QPoint(7, 7), 3, 3)
-        painter.drawLine(7, 1, 7, 3)
-        painter.drawLine(1, 7, 3, 7)
-        painter.drawLine(3, 3, 4, 4)
-        painter.drawLine(11, 3, 10, 4)
-        painter.drawLine(3, 11, 4, 10)
-        drop = QPainterPath()
-        drop.moveTo(13.5, 9.5)
-        drop.cubicTo(11.0, 13.0, 11.0, 15.0, 13.5, 17.0)
-        drop.cubicTo(16.0, 15.0, 16.0, 13.0, 13.5, 9.5)
-        painter.drawPath(drop)
-    elif kind == "mapbiomas":
-        # Land-cover mosaic — a map tile split into patches, one filled.
-        painter.setPen(pen)
-        painter.drawRect(QRect(3, 4, 14, 12))
-        painter.drawLine(9, 4, 9, 16)
-        painter.drawLine(3, 10, 17, 10)
-        edge = QPainterPath()
-        edge.moveTo(9, 7)
-        edge.cubicTo(12, 7.5, 11, 9.5, 14, 10)
-        painter.drawPath(edge)
-        painter.fillRect(QRect(4, 11, 4, 4), QColor(color))
-    elif kind == "mzones":
-        # Management zones — a field outline split into zones, one filled.
-        painter.setPen(pen)
-        painter.drawRoundedRect(QRect(3, 4, 14, 12), 2, 2)
-        split = QPainterPath()
-        split.moveTo(3, 9)
-        split.cubicTo(7, 7.5, 9, 11, 12, 9.5)
-        split.cubicTo(14, 8.5, 15.5, 9, 17, 8.5)
-        painter.drawPath(split)
-        painter.drawLine(QPoint(10, 10), QPoint(10, 16))
-        painter.fillRect(QRect(11, 11, 5, 4), QColor(color))
-    elif kind == "car":
-        # Registered land parcel — an irregular closed boundary with a corner
-        # marker, evoking a cadastral property polygon.
-        painter.setPen(pen)
-        parcel = QPainterPath()
-        parcel.moveTo(4, 6)
-        parcel.lineTo(12, 3)
-        parcel.lineTo(17, 9)
-        parcel.lineTo(14, 17)
-        parcel.lineTo(5, 15)
-        parcel.closeSubpath()
-        painter.drawPath(parcel)
-        painter.setPen(Qt.PenStyle.NoPen)
-        painter.setBrush(QColor(color))
-        painter.drawEllipse(QRect(11, 2, 3, 3))
-    else:
-        painter.setPen(pen)
-        painter.drawLine(10, 3, 10, 12)
-        painter.drawLine(6, 9, 10, 13)
-        painter.drawLine(14, 9, 10, 13)
-        painter.drawLine(5, 16, 15, 16)
-
-    painter.end()
-    return pix
 
 
 _CARD_WIDTH = 248
@@ -481,7 +228,7 @@ class _ModuleCard(QPushButton):
 
     def __init__(self, key, draggable=True, parent=None):
         super().__init__(parent)
-        self._key = key
+        self.module_key = key
         self._draggable = draggable
         self._press_pos = None
 
@@ -500,7 +247,7 @@ class _ModuleCard(QPushButton):
             self.setDown(False)
             drag = QDrag(self)
             mime = QMimeData()
-            mime.setData(_MODULE_MIME, self._key.encode("utf-8"))
+            mime.setData(_MODULE_MIME, self.module_key.encode("utf-8"))
             drag.setMimeData(mime)
             drag.setPixmap(self.grab())
             drag.setHotSpot(event.pos())
@@ -563,9 +310,9 @@ def _reorder_from_drop(dialog, key, point):
     keys, target = [], None
     for i in range(grid.count()):
         widget = grid.itemAt(i).widget()
-        if not isinstance(widget, _ModuleCard) or widget._key == "auth":
+        if not isinstance(widget, _ModuleCard) or widget.module_key == AUTH_KEY:
             continue
-        keys.append(widget._key)
+        keys.append(widget.module_key)
         rect = widget.geometry()
         if (target is None
                 and point.y() <= rect.bottom()
@@ -588,9 +335,10 @@ def _reorder_from_drop(dialog, key, point):
         refresh()
 
 
-def _build_module_card(dialog, kind, name, desc, nav_attr, gee_free=False):
+def _build_module_card(dialog, module):
     """One clickable card. The whole card is a button that navigates on click."""
-    card = _ModuleCard(kind, draggable=(kind != "auth"))
+    kind, name, desc = module.key, module.name, module.description
+    card = _ModuleCard(kind, draggable=(kind != AUTH_KEY))
     card.setObjectName("moduleCard")
     card.setCursor(Qt.CursorShape.PointingHandCursor)
     card.setMinimumWidth(_CARD_WIDTH)
@@ -633,14 +381,14 @@ def _build_module_card(dialog, kind, name, desc, nav_attr, gee_free=False):
     icon_tile = QLabel()
     icon_tile.setFixedSize(36, 36)
     icon_tile.setAlignment(Qt.AlignmentFlag.AlignCenter)
-    if kind in _LOGO_SVGS:
+    if kind in LOGO_SVGS:
         # Brand logo: render bigger to fill the tile, on a neutral white tile so
         # the logo's own colours read cleanly.
         icon_tile.setStyleSheet("background-color: #ffffff; border-radius: 9px;")
-        icon_tile.setPixmap(_svg_pixmap(_LOGO_SVGS[kind], 30))
+        icon_tile.setPixmap(svg_pixmap(LOGO_SVGS[kind], 30))
     else:
         icon_tile.setStyleSheet("background-color: #e8f5e9; border-radius: 9px;")
-        icon_tile.setPixmap(_draw_module_icon(kind, FARM_GREEN, 20))
+        icon_tile.setPixmap(draw_module_icon(kind, FARM_GREEN, 20))
     lay.addWidget(icon_tile, 0, Qt.AlignmentFlag.AlignTop)
 
     text_col = QVBoxLayout()
@@ -651,7 +399,7 @@ def _build_module_card(dialog, kind, name, desc, nav_attr, gee_free=False):
     title.setStyleSheet("color: #1a1a1a; font-size: 13px; font-weight: bold;")
     title.setWordWrap(True)
 
-    if gee_free:
+    if not module.needs_gee:
         # Badge row: title beside a green "No login" pill so first-time users can
         # spot the tools that run without a Google Earth Engine sign-in.
         title_row = QHBoxLayout()
@@ -679,7 +427,7 @@ def _build_module_card(dialog, kind, name, desc, nav_attr, gee_free=False):
     lay.addLayout(text_col, 1)
 
     # Resolve the nav method lazily on the dialog so this stays decoupled.
-    def _navigate(_checked=False, attr=nav_attr):
+    def _navigate(_checked=False, attr=module.nav_attr):
         handler = getattr(dialog, attr, None)
         if callable(handler):
             handler()
@@ -688,13 +436,14 @@ def _build_module_card(dialog, kind, name, desc, nav_attr, gee_free=False):
     return card
 
 
-def _build_teaser_card(dialog, kind, name, desc, gee_free=False):
+def _build_teaser_card(dialog, module):
     """A demoted "More tools" card: greyed, shows a ``+ Add`` affordance.
 
     The module is included in this plugin but hidden. Clicking the card un-hides
     it via :mod:`module_prefs` and triggers ``dialog.refresh_modules()`` so the
     card promotes into the active grid (and the sidebar rail) immediately.
     """
+    kind, name, desc = module.key, module.name, module.description
     card = QPushButton()
     card.setObjectName("teaserCard")
     card.setCursor(Qt.CursorShape.PointingHandCursor)
@@ -736,10 +485,10 @@ def _build_teaser_card(dialog, kind, name, desc, gee_free=False):
     icon_tile.setAlignment(Qt.AlignmentFlag.AlignCenter)
     # Greyed icon so the card reads as inactive vs. the colourful active grid.
     icon_tile.setStyleSheet("background-color: #eeeeee; border-radius: 9px;")
-    if kind in _LOGO_SVGS:
-        icon_tile.setPixmap(_svg_pixmap(_LOGO_SVGS[kind], 30))
+    if kind in LOGO_SVGS:
+        icon_tile.setPixmap(svg_pixmap(LOGO_SVGS[kind], 30))
     else:
-        icon_tile.setPixmap(_draw_module_icon(kind, "#9aa0a6", 20))
+        icon_tile.setPixmap(draw_module_icon(kind, "#9aa0a6", 20))
     lay.addWidget(icon_tile, 0, Qt.AlignmentFlag.AlignTop)
 
     text_col = QVBoxLayout()
@@ -811,16 +560,7 @@ def _build_folder_section(dialog):
     dialog.folder_input.setReadOnly(True)
     dialog.folder_input.setPlaceholderText(_tr("System temp (default)"))
     dialog.folder_input.setFixedHeight(28)
-    dialog.folder_input.setStyleSheet("""
-        QLineEdit {
-            background-color: #f5f5f5;
-            color: #424242;
-            border: 1px solid #e0e0e0;
-            border-radius: 4px;
-            padding: 2px 8px;
-            font-size: 12px;
-        }
-    """)
+    dialog.folder_input.setStyleSheet(STYLE_INPUT_READONLY)
     folder_input_row.addWidget(dialog.folder_input, 1)
 
     dialog.btn_clear_folder = QPushButton("✕")
@@ -883,21 +623,9 @@ def _build_hub_section(dialog):
         _tr("Click to open sign-in / Earth Engine configuration")
     )
     dialog.welcome_auth_badge.setFixedHeight(22)
-    dialog.welcome_auth_badge.setStyleSheet(
-        """
-        QPushButton {
-            background-color: transparent;
-            color: #757575;
-            border: none;
-            font-size: 11px;
-            font-weight: bold;
-            padding: 0 10px;
-            text-align: center;
-        }
-        """
-    )
+    dialog.welcome_auth_badge.setStyleSheet(STYLE_STATUS_PILL)
     # No-login-only build: nothing to sign in for, so hide the status pill.
-    dialog.welcome_auth_badge.setVisible(visible_set_needs_auth())
+    dialog.welcome_auth_badge.setVisible(needs_auth_entry())
     title_row.addWidget(dialog.welcome_auth_badge)
 
     # Opens the Customize-modules dialog (reorder / show-hide). Subtle, secondary
@@ -940,14 +668,13 @@ def _build_hub_section(dialog):
         lambda key, point: _reorder_from_drop(dialog, key, point)
     )
     grid_host.setStyleSheet("background: transparent;")
-    grid = FlowLayout(grid_host, margin=0, spacing=12)
+    grid = CardGridLayout(grid_host, margin=0, spacing=12)
     # Kept on the dialog so rebuild_module_grid() can repopulate after the user
     # reorders (drag here or in the Customize dialog) or hides modules.
     dialog._module_grid = grid
     dialog._module_grid_host = grid_host
-    for kind, name, desc, nav_attr, gee_free in _ordered_visible_modules():
-        grid.addWidget(
-            _build_module_card(dialog, kind, name, desc, nav_attr, gee_free))
+    for module in visible_modules():
+        grid.addWidget(_build_module_card(dialog, module))
     outer.addWidget(grid_host)
 
     outer.addWidget(_build_teaser_section(dialog))
@@ -1000,7 +727,7 @@ def _build_teaser_section(dialog):
 
     grid_host = _HeightForWidthWidget()
     grid_host.setStyleSheet("background: transparent;")
-    grid = FlowLayout(grid_host, margin=0, spacing=12)
+    grid = CardGridLayout(grid_host, margin=0, spacing=12)
     lay.addWidget(grid_host)
 
     dialog._teaser_section = section
@@ -1022,9 +749,9 @@ def _populate_teaser_grid(dialog):
         if widget is not None:
             widget.setParent(None)
             widget.deleteLater()
-    hidden = _ordered_hidden_modules()
-    for kind, name, desc, _nav_attr, gee_free in hidden:
-        grid.addWidget(_build_teaser_card(dialog, kind, name, desc, gee_free))
+    hidden = hidden_modules()
+    for module in hidden:
+        grid.addWidget(_build_teaser_card(dialog, module))
     grid.invalidate()
     section.setVisible(bool(hidden))
     host = getattr(dialog, "_teaser_grid_host", None)
@@ -1044,9 +771,8 @@ def rebuild_module_grid(dialog):
         if widget is not None:
             widget.setParent(None)
             widget.deleteLater()
-    for kind, name, desc, nav_attr, gee_free in _ordered_visible_modules():
-        grid.addWidget(
-            _build_module_card(dialog, kind, name, desc, nav_attr, gee_free))
+    for module in visible_modules():
+        grid.addWidget(_build_module_card(dialog, module))
     grid.invalidate()
     host = getattr(dialog, "_module_grid_host", None)
     if host is not None:
@@ -1057,7 +783,7 @@ def rebuild_module_grid(dialog):
     # any visible module still needs a GEE login.
     badge = getattr(dialog, "welcome_auth_badge", None)
     if badge is not None:
-        badge.setVisible(visible_set_needs_auth())
+        badge.setVisible(needs_auth_entry())
 
 
 def setup_welcome_page(dialog, page):

@@ -32,6 +32,7 @@ from qgis.core import QgsSettings
 
 from .farm_tools_dialog import FarmToolsDialog
 from .managers.settings_manager import SettingsManager
+from .renderers.base_maps import load_google_hybrid_layer
 
 logger = logging.getLogger(__name__)
 
@@ -237,6 +238,25 @@ class FarmTools:
         self.dialog.btn_authenticate.clicked.connect(
             self.auth_ctrl.handle_authentication
         )
+
+        self._wire_core_pages()
+        self._wire_optical_page()
+        self._wire_sar_page()
+        self._wire_landsat_page()
+        self._wire_sysi_page()
+        self._wire_fieldguide_page()
+        self._wire_climaplots_page()
+        self._wire_mapbiomas_page()
+        self._wire_mzones_page()
+
+        self.auth_ctrl.refresh_auth_status()
+
+    def _load_basemap(self):
+        """Drop the Google Hybrid basemap under the project, from any page."""
+        load_google_hybrid_layer(self.interface)
+
+    def _wire_core_pages(self):
+        """Wire Auth, DEM and CAR — the pages that come before any imagery."""
         self.dialog.btn_reset_auth.clicked.connect(
             self.auth_ctrl.handle_reset_authentication
         )
@@ -260,11 +280,13 @@ class FarmTools:
         self.dialog.btn_download_dem.clicked.connect(
             lambda: self.dem_ctrl.handle_dem_service(self.interface)
         )
-        self.dialog.btn_hybrid_layer.clicked.connect(self.dem_ctrl.handle_hybrid_layer)
+        self.dialog.btn_hybrid_layer.clicked.connect(self._load_basemap)
         self.dialog.btn_draw_aoi.clicked.connect(self.dem_ctrl.handle_draw_aoi)
 
+    def _wire_optical_page(self):
+        """Wire the Sentinel-2 (RAVI) page."""
         self.dialog.s2_btn_hybrid_layer.clicked.connect(
-            self.dem_ctrl.handle_hybrid_layer
+            self._load_basemap
         )
         self.dialog.s2_btn_draw_aoi.clicked.connect(self.optical_ctrl.handle_draw_aoi)
         self.dialog.s2_btn_run.clicked.connect(self.optical_ctrl.handle_optical_run)
@@ -350,8 +372,11 @@ class FarmTools:
         self.dialog.s2_btn_custom_delete.clicked.connect(
             self.optical_ctrl.handle_delete_custom
         )
+
+    def _wire_sar_page(self):
+        """Wire the Sentinel-1 radar page."""
         self.dialog.sar_btn_hybrid_layer.clicked.connect(
-            self.dem_ctrl.handle_hybrid_layer
+            self._load_basemap
         )
         self.dialog.sar_btn_draw_aoi.clicked.connect(self.sar_ctrl.handle_draw_aoi)
         self.dialog.sar_btn_next.clicked.connect(self.sar_ctrl.handle_sar_run)
@@ -381,8 +406,10 @@ class FarmTools:
             self.sar_ctrl.handle_layer_changed
         )
 
+    def _wire_landsat_page(self):
+        """Wire the Landsat 7/8/9 page."""
         self.dialog.ls_btn_hybrid_layer.clicked.connect(
-            self.dem_ctrl.handle_hybrid_layer
+            self._load_basemap
         )
         self.dialog.ls_btn_draw_aoi.clicked.connect(self.landsat_ctrl.handle_draw_aoi)
         self.dialog.ls_layer_combo.layerChanged.connect(
@@ -420,9 +447,11 @@ class FarmTools:
         )
         self.dialog.ls_btn_ts_csv.clicked.connect(self.landsat_ctrl.handle_export_csv)
 
+    def _wire_sysi_page(self):
+        """Wire the SYSI bare-soil composite page."""
         self.dialog.sysi_btn_draw_aoi.clicked.connect(self.sysi_ctrl.handle_draw_aoi)
         self.dialog.sysi_btn_hybrid_layer.clicked.connect(
-            self.dem_ctrl.handle_hybrid_layer
+            self._load_basemap
         )
         self.dialog.sysi_btn_generate.clicked.connect(
             self.sysi_ctrl.handle_generate_sysi
@@ -431,11 +460,13 @@ class FarmTools:
             self.sysi_ctrl.handle_layer_changed
         )
 
+    def _wire_fieldguide_page(self):
+        """Wire the Field Guide sampling page."""
         self.dialog.fg_btn_capture.toggled.connect(
             self.fieldguide_ctrl.handle_capture_toggled
         )
         self.dialog.fg_btn_hybrid_layer.clicked.connect(
-            self.dem_ctrl.handle_hybrid_layer
+            self._load_basemap
         )
         self.dialog.fg_btn_mark_samples.clicked.connect(
             self.fieldguide_ctrl.handle_mark_samples
@@ -485,6 +516,8 @@ class FarmTools:
             self.fieldguide_ctrl.handle_selection_changed
         )
 
+    def _wire_climaplots_page(self):
+        """Wire the ClimaPlots climate-analysis page."""
         self.dialog.cp_btn_pick_a.toggled.connect(
             self.climaplots_ctrl.handle_pick_a_toggled
         )
@@ -498,7 +531,7 @@ class FarmTools:
             self.climaplots_ctrl.handle_clear_marker
         )
         self.dialog.cp_btn_hybrid_layer.clicked.connect(
-            self.dem_ctrl.handle_hybrid_layer
+            self._load_basemap
         )
         self.dialog.cp_btn_run.clicked.connect(self.climaplots_ctrl.handle_run)
         self.dialog.cp_source_combo_a.currentIndexChanged.connect(
@@ -551,9 +584,11 @@ class FarmTools:
             self.climaplots_ctrl.handle_export_all
         )
 
+    def _wire_mapbiomas_page(self):
+        """Wire the MapBiomas land-cover page."""
         self.dialog.mb_btn_draw_aoi.clicked.connect(self.mapbiomas_ctrl.handle_draw_aoi)
         self.dialog.mb_btn_hybrid_layer.clicked.connect(
-            self.dem_ctrl.handle_hybrid_layer
+            self._load_basemap
         )
         self.dialog.mb_layer_combo.layerChanged.connect(
             self.mapbiomas_ctrl.handle_layer_changed
@@ -587,6 +622,9 @@ class FarmTools:
         )
 
         # Management Zones (local pipeline; deps/tab wiring lives in the view)
+
+    def _wire_mzones_page(self):
+        """Wire the Management Zones page."""
         self.dialog.mz_btn_deps_install.clicked.connect(self.mzones_ctrl.deps.install)
         self.dialog.mz_btn_deps_recheck.clicked.connect(self.mzones_ctrl.deps.refresh)
         self.dialog.mz_btn_resample.clicked.connect(self.mzones_ctrl.resample.run)
@@ -618,8 +656,6 @@ class FarmTools:
         self.dialog.mz_btn_export_boxplots.clicked.connect(
             self.mzones_ctrl.analysis.export_boxplots
         )
-
-        self.auth_ctrl.refresh_auth_status()
 
     def _on_extlibs_ready(self, success, error_msg):
         self._waiting_for_extlibs = False
