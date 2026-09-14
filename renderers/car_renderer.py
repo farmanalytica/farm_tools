@@ -13,14 +13,18 @@ from qgis.core import (
     QgsCoordinateReferenceSystem,
     QgsCoordinateTransform,
     QgsCoordinateTransformContext,
-    QgsFillSymbol,
     QgsProject,
     QgsSingleSymbolRenderer,
     QgsVectorFileWriter,
     QgsVectorLayer,
 )
 
+from ..tools.map_canvas import zoom_canvas_to_layer
+from .aoi_style import build_aoi_fill_symbol
 from .raster_renderer_utils import RasterRendererUtils
+
+
+_CAR_ZOOM_PADDING = 1.2
 
 
 class CarRenderer:
@@ -62,7 +66,7 @@ class CarRenderer:
             raise RuntimeError("The CAR KML layer could not be loaded.")
 
         CarRenderer._style(layer)
-        RasterRendererUtils.add_layer_to_project(layer, at_top=True)
+        RasterRendererUtils.add_layer_to_project(layer)
         layer.triggerRepaint()
 
         if interface is not None:
@@ -72,32 +76,16 @@ class CarRenderer:
 
     @staticmethod
     def _style(layer):
-        """Translucent green fill with a solid red outline, matching the AOI draw tool.
+        """Give the CAR boundary the same look as a drawn AOI.
 
         KML layers load with a ``QgsEmbeddedSymbolRenderer`` (no ``symbol()``),
         so replace the renderer outright with our own single-symbol fill.
         """
-        symbol = QgsFillSymbol.createSimple(
-            {
-                "color": "27,107,57,40",
-                "outline_color": "255,0,0,255",
-                "outline_width": "0.6",
-            }
-        )
-        layer.setRenderer(QgsSingleSymbolRenderer(symbol))
+        layer.setRenderer(QgsSingleSymbolRenderer(build_aoi_fill_symbol()))
 
     @staticmethod
     def _zoom_to_layer(layer, interface):
-        canvas = interface.mapCanvas()
-        transform = QgsCoordinateTransform(
-            layer.crs(),
-            canvas.mapSettings().destinationCrs(),
-            QgsProject.instance(),
-        )
-        extent = transform.transformBoundingBox(layer.extent())
-        extent.scale(1.2)
-        canvas.setExtent(extent)
-        canvas.refresh()
+        zoom_canvas_to_layer(interface.mapCanvas(), layer, _CAR_ZOOM_PADDING)
 
     @staticmethod
     def _unique_path(path: str) -> str:

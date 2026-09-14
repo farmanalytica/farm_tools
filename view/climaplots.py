@@ -20,7 +20,6 @@ from qgis.PyQt.QtWidgets import (
     QLabel,
     QLineEdit,
     QPushButton,
-    QScrollArea,
     QSizePolicy,
     QSpinBox,
     QStackedWidget,
@@ -28,12 +27,15 @@ from qgis.PyQt.QtWidgets import (
     QWidget,
 )
 
-from .radar import (
-    _TAB_ACTIVE,
-    _TAB_INACTIVE,
-)
 from . import plotly_render
-from .styles import STYLE_BTN_PRIMARY, STYLE_BTN_SECONDARY, make_logo_label
+from .page_widgets import STYLE_TAB_ACTIVE, STYLE_TAB_INACTIVE
+from .styles import (
+    STYLE_BTN_PRIMARY,
+    STYLE_BTN_SECONDARY,
+    build_scroll_area,
+    build_tab_bar,
+    make_logo_label,
+)
 from .webcompat import QWebView
 
 
@@ -251,18 +253,7 @@ def setup_climaplots_page(dialog, page):
     outer.setContentsMargins(0, 0, 0, 0)
     outer.setSpacing(0)
 
-    tab_bar = QFrame()
-    tab_bar.setObjectName("climaplotsTabBar")
-    tab_bar.setFixedHeight(40)
-    tab_bar.setStyleSheet("""
-        QFrame#climaplotsTabBar {
-            background-color: #f8f9fa;
-            border-bottom: 1px solid #e0e0e0;
-        }
-    """)
-    tab_bar_lay = QHBoxLayout(tab_bar)
-    tab_bar_lay.setContentsMargins(6, 0, 6, 0)
-    tab_bar_lay.setSpacing(8)
+    tab_bar, tab_bar_lay = build_tab_bar("climaplotsTabBar")
 
     tab_buttons = []
     for label in (
@@ -309,7 +300,7 @@ def setup_climaplots_page(dialog, page):
     def _set_tab(index):
         stack.setCurrentIndex(index)
         for i, btn in enumerate(tab_buttons):
-            btn.setStyleSheet(_TAB_ACTIVE if i == index else _TAB_INACTIVE)
+            btn.setStyleSheet(STYLE_TAB_ACTIVE if i == index else STYLE_TAB_INACTIVE)
 
     dialog.cp_set_tab = _set_tab
 
@@ -340,10 +331,7 @@ def _build_about_tab(dialog, page):
     outer.setContentsMargins(0, 0, 0, 0)
     outer.setSpacing(0)
 
-    scroll = QScrollArea()
-    scroll.setWidgetResizable(True)
-    scroll.setFrameShape(QFrame.Shape.NoFrame)
-    scroll.setStyleSheet("QScrollArea { background: #ffffff; border: none; }")
+    scroll = build_scroll_area()
 
     w = QWidget()
     w.setStyleSheet("background: #ffffff;")

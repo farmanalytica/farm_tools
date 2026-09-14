@@ -9,11 +9,64 @@ the same visual language without duplicating long Qt stylesheet strings.
 import os
 
 from qgis.PyQt.QtCore import Qt, QRectF
-from qgis.PyQt.QtGui import QPainter, QPixmap
+from qgis.PyQt.QtGui import QGuiApplication, QPainter, QPixmap
 from qgis.PyQt.QtSvg import QSvgRenderer
 from qgis.PyQt.QtWidgets import QLabel
 
 _ASSETS_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "assets")
+
+
+def screen_scale():
+    """The display's scale factor, or 1.0 before there is a screen to ask.
+
+    Icons are drawn into pixmaps of a fixed logical size. On a scaled
+    display Qt would stretch those bitmaps, so they are rasterised at
+    ``size * scale`` and tagged, letting Qt paint them at native resolution.
+    """
+    app = QGuiApplication.instance()
+    screen = app.primaryScreen() if app else None
+    return screen.devicePixelRatio() if screen else 1.0
+
+
+def scaled_pixmap(width, height):
+    """A transparent pixmap of ``width`` x ``height`` logical pixels.
+
+    Backed by however many device pixels the screen actually needs, so a
+    painter using logical coordinates still produces a crisp result.
+    """
+    scale = screen_scale()
+    pixmap = QPixmap(round(width * scale), round(height * scale))
+    pixmap.setDevicePixelRatio(scale)
+    pixmap.fill(Qt.GlobalColor.transparent)
+    return pixmap
+
+
+def render_svg_pixmap(filename, size):
+    """An assets/ SVG rendered into a transparent ``size``x``size`` pixmap.
+
+    The trimmed brand SVGs are not square, so the artwork is scaled to fit
+    and centred rather than stretched. Returns ``None`` when the asset is
+    missing or invalid, so callers can fall back instead of showing a blank.
+    """
+    renderer = QSvgRenderer(os.path.join(_ASSETS_DIR, filename))
+    if not renderer.isValid():
+        return None
+
+    bounds = renderer.defaultSize()
+    bounds.scale(size, size, Qt.AspectRatioMode.KeepAspectRatio)
+    target = QRectF(
+        (size - bounds.width()) / 2,
+        (size - bounds.height()) / 2,
+        bounds.width(),
+        bounds.height(),
+    )
+
+    pixmap = scaled_pixmap(size, size)
+    painter = QPainter(pixmap)
+    painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+    renderer.render(painter, target)
+    painter.end()
+    return pixmap
 
 
 def make_logo_label(filename, height=56):
@@ -29,8 +82,7 @@ def make_logo_label(filename, height=56):
         return label
 
     width = max(1, round(height * size.width() / size.height()))
-    pix = QPixmap(width, height)
-    pix.fill(Qt.GlobalColor.transparent)
+    pix = scaled_pixmap(width, height)
     painter = QPainter(pix)
     painter.setRenderHint(QPainter.RenderHint.Antialiasing)
     renderer.render(painter, QRectF(0, 0, width, height))
@@ -38,6 +90,32 @@ def make_logo_label(filename, height=56):
     label.setPixmap(pix)
     return label
 
+
+# A read-only path field — the download folder and the service-account key
+# picker are the same widget wearing the same clothes.
+STYLE_INPUT_READONLY = """
+    QLineEdit {
+        background-color: #f5f5f5;
+        color: #424242;
+        border: 1px solid #e0e0e0;
+        border-radius: 4px;
+        padding: 2px 8px;
+        font-size: 12px;
+    }
+"""
+
+# The sign-in status pill, shown on both the auth page and the welcome hub.
+STYLE_STATUS_PILL = """
+    QPushButton {
+        background-color: transparent;
+        color: #757575;
+        border: none;
+        font-size: 11px;
+        font-weight: bold;
+        padding: 0 10px;
+        text-align: center;
+    }
+"""
 
 STYLE_DIALOG = """
 QDialog {
@@ -313,3 +391,66 @@ QPushButton:hover {
     border-color: #bdbdbd;
 }
 """
+
+
+# The dropdown look every page shares. Pages splice it into their own
+# stylesheet, so a combo on the SAR page matches one on the Landsat page.
+STYLE_COMBO_FIELDS = """
+        QComboBox, QgsMapLayerComboBox {
+            combobox-popup: 0;
+            background-color: #ffffff;
+            color: #212121;
+            border: 1px solid #d0d0d0;
+            border-radius: 6px;
+            padding: 4px 9px;
+            font-size: 12px;
+        }
+        QComboBox:focus, QgsMapLayerComboBox:focus { border: 1.5px solid #1b6b39; }
+        QComboBox QAbstractItemView, QgsMapLayerComboBox QAbstractItemView {
+            background-color: #ffffff;
+            color: #212121;
+            border: 1px solid #bdbdbd;
+            selection-background-color: #e8f5e9;
+            selection-color: #1a1a1a;
+            outline: 0;
+        }"""
+
+TAB_BAR_HEIGHT_PX = 40
+_TAB_BAR_MARGIN_PX = 6
+_TAB_BAR_SPACING_PX = 8
+
+
+def tab_bar_stylesheet(object_name: str) -> str:
+    """The grey strip that carries a page's Intro / Inputs / Results buttons."""
+    return """
+        QFrame#%s {
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #e0e0e0;
+        }
+    """ % object_name
+
+
+def build_tab_bar(object_name: str):
+    """The page's tab strip and its layout, styled and sized the standard way."""
+    from qgis.PyQt.QtWidgets import QFrame, QHBoxLayout
+
+    tab_bar = QFrame()
+    tab_bar.setObjectName(object_name)
+    tab_bar.setFixedHeight(TAB_BAR_HEIGHT_PX)
+    tab_bar.setStyleSheet(tab_bar_stylesheet(object_name))
+
+    layout = QHBoxLayout(tab_bar)
+    layout.setContentsMargins(_TAB_BAR_MARGIN_PX, 0, _TAB_BAR_MARGIN_PX, 0)
+    layout.setSpacing(_TAB_BAR_SPACING_PX)
+    return tab_bar, layout
+
+
+def build_scroll_area():
+    """A frameless, white, width-following scroll area — every tab body sits in one."""
+    from qgis.PyQt.QtWidgets import QFrame, QScrollArea
+
+    scroll = QScrollArea()
+    scroll.setWidgetResizable(True)
+    scroll.setFrameShape(QFrame.Shape.NoFrame)
+    scroll.setStyleSheet("QScrollArea { background: #ffffff; border: none; }")
+    return scroll

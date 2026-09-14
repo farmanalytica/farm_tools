@@ -44,9 +44,17 @@ from ..services.mapbiomas_service import (
     MAPBIOMAS_TRANSITION_PALETTE,
     MAPBIOMAS_TRANSITION_PRESETS,
 )
-from ..tools.aoi_draw_tool import start_draw_aoi
+from .aoi_draw_mixin import AoiDrawMixin
 from ..view import plotly_render
-from ..workers.mapbiomas_worker import MapBiomasWorker
+from ..workers.mapbiomas_worker import (
+    MODE_COVERAGE,
+    MODE_DOWNLOAD,
+    MODE_DOWNLOAD_TRANSITION,
+    MODE_TRANSITION,
+    MODE_TRANSITION_MAP,
+    MapBiomasRequest,
+    MapBiomasWorker,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -55,7 +63,6 @@ def _tr(text):
     return QCoreApplication.translate("RAVI", text)
 
 
-_CANVAS_SCALE_FACTOR = 1.5
 
 # Plotly chart config (toolbar trimmed) — mirrors the ClimaPlots config.
 _PLOT_CONFIG = {
@@ -68,7 +75,7 @@ _PLOT_CONFIG = {
 }
 
 
-class MapBiomasCtrl:
+class MapBiomasCtrl(AoiDrawMixin):
     """Handles user interactions on the MapBiomas page."""
 
     def __init__(self, dialog, interface=None, gee_service=None):
@@ -78,8 +85,6 @@ class MapBiomasCtrl:
 
         self.aoi = None
         self._worker = None
-        self._draw_tool = None
-        self._skip_zoom_once = False
         self._tmp_dir = None
         self._active_progress = None  # the feature bar driven by _on_progress
 
@@ -133,38 +138,16 @@ class MapBiomasCtrl:
     # ------------------------------------------------------------------
 
     def handle_draw_aoi(self):
-        """Toggle rectangular AOI drawing on the canvas."""
-        canvas = self.interface.mapCanvas()
-        if self._draw_tool is not None and canvas.mapTool() is self._draw_tool:
-            canvas.unsetMapTool(self._draw_tool)
-            self._draw_tool = None
-            return
-        self._draw_tool = start_draw_aoi(
-            self.interface,
-            self.dialog.mb_layer_combo,
-            self.dialog.mb_btn_draw_aoi,
-            before_select=lambda: setattr(self, "_skip_zoom_once", True),
+        """Toggle polygon-AOI drawing on the canvas."""
+        self.toggle_draw_aoi(
+            self.dialog.mb_layer_combo, self.dialog.mb_btn_draw_aoi
         )
 
     def handle_layer_changed(self, layer=None):
         """Zoom the map canvas to the newly selected AOI layer."""
         if layer is None:
             layer = self.dialog.mb_layer_combo.currentLayer()
-        if not layer or not layer.isValid() or not self.interface:
-            return
-        if self._skip_zoom_once:
-            self._skip_zoom_once = False
-            return
-        canvas = self.interface.mapCanvas()
-        transform = QgsCoordinateTransform(
-            layer.crs(),
-            canvas.mapSettings().destinationCrs(),
-            QgsProject.instance(),
-        )
-        extent = transform.transformBoundingBox(layer.extent())
-        extent.scale(_CANVAS_SCALE_FACTOR)
-        canvas.setExtent(extent)
-        canvas.refresh()
+        self.zoom_to_aoi_layer(layer)
 
     # ------------------------------------------------------------------
     # Run guards + dispatch
@@ -191,7 +174,7 @@ class MapBiomasCtrl:
             return None
 
         try:
-            aoi, _bbox = AOIService.get_ee_feature_colection_from_layer(
+            aoi, _bbox = AOIService.get_ee_feature_collection_from_layer(
                 layer, use_selected_features=False
             )
         except Exception as exc:
@@ -220,7 +203,7 @@ class MapBiomasCtrl:
         if aoi is None:
             return
         self.aoi = aoi
-        self._start_worker(aoi, "coverage")
+        self._start_worker(aoi, MODE_COVERAGE)
 
     def handle_preset_changed(self):
         """Reveal the custom source/target pickers only for the Custom preset."""
@@ -276,8 +259,13 @@ class MapBiomasCtrl:
         self._set_busy(True)
         self._begin_progress(self.dialog.mb_tx_progress)
         self._worker = MapBiomasWorker(
-            aoi, "transition", output_dir=self._tmp(),
-            source_classes=source, target_classes=target,
+            MapBiomasRequest(
+                aoi=aoi,
+                mode=MODE_TRANSITION,
+                output_dir=self._tmp(),
+                source_classes=source,
+                target_classes=target,
+            )
         )
         self._worker.finished.connect(self._on_done)
         self._worker.failed.connect(self._on_failed)
@@ -304,9 +292,15 @@ class MapBiomasCtrl:
             fmt=_tr("Downloading transition {0}–{1}…").format(lo, hi),
         )
         self._worker = MapBiomasWorker(
-            aoi, "download_transition", output_folder=output_folder,
-            source_classes=source, target_classes=target,
-            year_min=lo, year_max=hi,
+            MapBiomasRequest(
+                aoi=aoi,
+                mode=MODE_DOWNLOAD_TRANSITION,
+                output_folder=output_folder,
+                source_classes=source,
+                target_classes=target,
+                year_min=lo,
+                year_max=hi,
+            )
         )
         self._worker.finished.connect(self._on_done)
         self._worker.failed.connect(self._on_failed)
@@ -337,7 +331,12 @@ class MapBiomasCtrl:
             fmt=_tr("Downloading {0}…").format(year),
         )
         self._worker = MapBiomasWorker(
-            aoi, "download", year=year, output_folder=output_folder
+            MapBiomasRequest(
+                aoi=aoi,
+                mode=MODE_DOWNLOAD,
+                year=year,
+                output_folder=output_folder,
+            )
         )
         self._worker.finished.connect(self._on_done)
         self._worker.failed.connect(self._on_failed)
@@ -348,11 +347,13 @@ class MapBiomasCtrl:
         self._set_busy(True)
         bar = (
             self.dialog.mb_cov_progress
-            if mode == "coverage"
+            if mode == MODE_COVERAGE
             else self.dialog.mb_tx_progress
         )
         self._begin_progress(bar)
-        self._worker = MapBiomasWorker(aoi, mode, output_dir=self._tmp())
+        self._worker = MapBiomasWorker(
+            MapBiomasRequest(aoi=aoi, mode=mode, output_dir=self._tmp())
+        )
         self._worker.finished.connect(self._on_done)
         self._worker.failed.connect(self._on_failed)
         self._worker.progress.connect(self._on_progress)
@@ -409,11 +410,11 @@ class MapBiomasCtrl:
         self._set_busy(False)
         self._release_worker()
         mode = result.get("mode")
-        if mode == "coverage":
+        if mode == MODE_COVERAGE:
             self._show_coverage(result.get("images") or {})
-        elif mode == "download":
+        elif mode == MODE_DOWNLOAD:
             self._load_qgis_raster(result.get("path"), result.get("year"))
-        elif mode == "download_transition":
+        elif mode == MODE_DOWNLOAD_TRANSITION:
             self._load_transition_qgis_raster(result.get("path"))
         else:
             self._show_transition(result.get("image"), result.get("stats") or {})
@@ -738,9 +739,15 @@ class MapBiomasCtrl:
             )
         )
         self._tx_map_worker = MapBiomasWorker(
-            self.aoi, "transition_map", output_dir=self._tmp(),
-            source_classes=self._tx_source, target_classes=self._tx_target,
-            year_min=lo, year_max=hi,
+            MapBiomasRequest(
+                aoi=self.aoi,
+                mode=MODE_TRANSITION_MAP,
+                output_dir=self._tmp(),
+                source_classes=self._tx_source,
+                target_classes=self._tx_target,
+                year_min=lo,
+                year_max=hi,
+            )
         )
         self._tx_map_worker.finished.connect(self._on_tx_map_done)
         self._tx_map_worker.failed.connect(self._on_tx_map_failed)

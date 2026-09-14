@@ -5,7 +5,16 @@ import re
 from qgis.PyQt.QtCore import QCoreApplication, QTimer
 from qgis.PyQt.QtWidgets import QFileDialog
 
-from ..workers.auth_worker import AuthWorker, AuthStatusWorker, CANCELLED
+from ..workers.auth_worker import (
+    CANCELLED,
+    STATE_AUTHENTICATED,
+    STATE_AUTHENTICATED_SA,
+    STATE_CHECKING,
+    STATE_NONE,
+    STATE_STORED,
+    AuthStatusWorker,
+    AuthWorker,
+)
 from ..managers.settings_manager import SettingsManager
 
 
@@ -40,8 +49,10 @@ class AuthCtrl:
     def _credential_state(self) -> str:
         if self._current_mode() == self.gee_service.MODE_SERVICE:
             key_path = self.gee_service.get_saved_sa_key_path()
-            return "stored" if key_path and os.path.exists(key_path) else "none"
-        return "stored" if self.gee_service.has_stored_credentials() else "none"
+            return STATE_STORED if key_path and os.path.exists(key_path) else STATE_NONE
+        return (
+            STATE_STORED if self.gee_service.has_stored_credentials() else STATE_NONE
+        )
 
     def _is_busy(self) -> bool:
         return (self._auth_worker is not None and self._auth_worker.isRunning()) or (
@@ -57,10 +68,10 @@ class AuthCtrl:
             return
 
         if self.gee_service.is_authenticated:
-            self.dialog.set_auth_state("authenticated")
+            self.dialog.set_auth_state(STATE_AUTHENTICATED)
             return
 
-        self.dialog.set_auth_state("checking")
+        self.dialog.set_auth_state(STATE_CHECKING)
 
         sa_key_path = (
             self.gee_service.get_saved_sa_key_path()
@@ -78,22 +89,23 @@ class AuthCtrl:
         self._status_timer.start()
 
     def _on_status_ready(self, state: str):
-
         self._status_timer.stop()
         self.dialog.set_auth_state(self._authenticated_state(state))
 
     def _authenticated_state(self, state: str) -> str:
         """Map a worker 'authenticated' result to the mode-specific badge."""
-        if state != "authenticated":
+        if state != STATE_AUTHENTICATED:
             return state
         if self._current_mode() == self.gee_service.MODE_SERVICE:
-            return "authenticated_sa"
-        return "authenticated"
+            return STATE_AUTHENTICATED_SA
+        return STATE_AUTHENTICATED
 
     def _on_status_timeout(self):
 
         if self.gee_service.is_authenticated:
-            self.dialog.set_auth_state(self._authenticated_state("authenticated"))
+            self.dialog.set_auth_state(
+                self._authenticated_state(STATE_AUTHENTICATED)
+            )
             return
 
         self.dialog.set_auth_state(self._credential_state())
@@ -153,12 +165,13 @@ class AuthCtrl:
     def _navigate_to_next(self):
         # Land on the first visible module — optical may be hidden in a branded
         # single-module build. Fall back to the welcome hub if none resolves.
-        from ..view.welcome import _ordered_visible_modules
+        from ..view.module_catalog import AUTH_KEY
+        from ..view.module_prefs import visible_modules
 
-        for kind, _name, _desc, nav_attr, _gee_free in _ordered_visible_modules():
-            if kind == "auth":
+        for module in visible_modules():
+            if module.key == AUTH_KEY:
                 continue
-            handler = getattr(self.dialog, nav_attr, None)
+            handler = getattr(self.dialog, module.nav_attr, None)
             if callable(handler):
                 handler()
                 return
@@ -174,7 +187,9 @@ class AuthCtrl:
             self._cleanup_worker(worker)
 
         if success:
-            self.dialog.set_auth_state(self._authenticated_state("authenticated"))
+            self.dialog.set_auth_state(
+                self._authenticated_state(STATE_AUTHENTICATED)
+            )
             self._navigate_to_next()
             self.dialog.pop_message(_tr("Authentication successful!"), "info")
         elif message != CANCELLED:

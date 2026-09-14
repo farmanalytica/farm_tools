@@ -23,7 +23,10 @@ from qgis.core import QgsProject, QgsRasterLayer
 
 from .. import extlibs_manager
 from ..managers.settings_manager import SettingsManager
-from ..renderers.raster_renderer_utils import RasterRendererUtils
+from ..renderers.raster_renderer_utils import (
+    PseudocolorStyle,
+    RasterRendererUtils,
+)
 from ..services.mzones import (
     clustering_service,
     export_service,
@@ -749,7 +752,10 @@ class ZonesController:
                     layer_title = tr("{} – majority (r={})").format(layer_title, raio)
 
             layer_raster = RasterRendererUtils.load_pseudocolor_raster(
-                out_path, layer_title, 1, dlg.mz_zones_ramp_combo.currentText())
+                out_path,
+                layer_title,
+                PseudocolorStyle(dlg.mz_zones_ramp_combo.currentText()),
+            )
             if layer_raster is None:
                 raise Exception(tr("Failed to load generated raster."))
             dlg.mz_refresh_rasters()
@@ -789,8 +795,10 @@ class FilterController:
 
             layer_name = tr("{} – majority (r={})").format(raster.name(), result.raio)
             out_layer = RasterRendererUtils.load_pseudocolor_raster(
-                result.out_path, layer_name, 1,
-                dlg.mz_filter_ramp_combo.currentText())
+                result.out_path,
+                layer_name,
+                PseudocolorStyle(dlg.mz_filter_ramp_combo.currentText()),
+            )
             if out_layer is None:
                 raise Exception(tr("Invalid/unreadable output."))
 

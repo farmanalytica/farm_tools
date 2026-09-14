@@ -127,6 +127,16 @@ def _install_misc_stubs():
         sys.modules["shapely"] = _AutoModule("shapely")
         sys.modules["shapely.geometry"] = _AutoModule("shapely.geometry")
 
+    # GDAL only ships with a full QGIS/OSGeo install, but the mzones raster
+    # helpers import it at module scope — stub it so their pure grid maths
+    # still runs in the headless unit tier.
+    if not _importable("osgeo"):
+        sys.modules["osgeo"] = _AutoModule("osgeo")
+        sys.modules["osgeo.gdal"] = _AutoModule("osgeo.gdal")
+        sys.modules["osgeo.osr"] = _AutoModule("osgeo.osr")
+        sys.modules["osgeo"].gdal = sys.modules["osgeo.gdal"]
+        sys.modules["osgeo"].osr = sys.modules["osgeo.osr"]
+
 
 # --------------------------------------------------------------------------- #
 # Session bootstrap

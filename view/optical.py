@@ -37,26 +37,29 @@ from qgis.PyQt.QtWidgets import (
     QWidget,
 )
 
-from .radar import (
-    _CALENDAR_STYLE,
-    _POPUP_VIEW_STYLE,
-    _SLIDER_STYLE,
-    _TAB_ACTIVE,
-    _TAB_INACTIVE,
-    _add_ramp_items,
-    _caption,
-    _field_label,
-    _flow,
-    _labeled,
-    _make_divider,
-    _prepare_field,
-    _section_panel,
+from .page_widgets import (
+    STYLE_CALENDAR,
+    STYLE_POPUP_VIEW,
+    STYLE_SLIDER,
+    STYLE_TAB_ACTIVE,
+    STYLE_TAB_INACTIVE,
+    add_ramp_items,
+    caption,
+    field_label,
+    flow,
+    labeled,
+    make_divider,
+    prepare_field,
+    section_panel,
 )
 from .styles import (
+    STYLE_BTN_DELETE_ACTIVE,
     STYLE_BTN_PRIMARY,
     STYLE_BTN_SECONDARY,
     STYLE_CHECKBOX,
-    STYLE_BTN_DELETE_ACTIVE,
+    STYLE_COMBO_FIELDS,
+    build_scroll_area,
+    build_tab_bar,
     make_logo_label,
 )
 from .optical_filter_dialog import OpticalFilterDialog
@@ -157,10 +160,7 @@ def _build_intro_tab(_dialog, parent):
     outer.setContentsMargins(0, 0, 0, 0)
     outer.setSpacing(0)
 
-    scroll = QScrollArea()
-    scroll.setWidgetResizable(True)
-    scroll.setFrameShape(QFrame.Shape.NoFrame)
-    scroll.setStyleSheet("QScrollArea { background: #ffffff; border: none; }")
+    scroll = build_scroll_area()
 
     w = QWidget()
     w.setStyleSheet("background: #ffffff;")
@@ -315,12 +315,12 @@ def _build_inputs_tab(dialog, parent):
     lay.setSpacing(12)
 
     # --- AOI + dates -----------------------------------------------------
-    inputs_panel = _section_panel()
+    inputs_panel = section_panel()
     inputs_lay = QVBoxLayout(inputs_panel)
     inputs_lay.setContentsMargins(16, 14, 16, 14)
     inputs_lay.setSpacing(10)
 
-    inputs_lay.addWidget(_field_label(_tr("AOI LAYER")))
+    inputs_lay.addWidget(field_label(_tr("AOI LAYER")))
 
     aoi_row = QWidget()
     aoi_row_lay = QHBoxLayout(aoi_row)
@@ -329,9 +329,9 @@ def _build_inputs_tab(dialog, parent):
 
     dialog.s2_layer_combo = QgsMapLayerComboBox()
     dialog.s2_layer_combo.setFilters(QgsMapLayerProxyModel.VectorLayer)
-    _prepare_field(dialog.s2_layer_combo)
+    prepare_field(dialog.s2_layer_combo)
     dialog.s2_layer_combo.setAllowEmptyLayer(True)
-    dialog.s2_layer_combo.view().setStyleSheet(_POPUP_VIEW_STYLE)
+    dialog.s2_layer_combo.view().setStyleSheet(STYLE_POPUP_VIEW)
     aoi_row_lay.addWidget(dialog.s2_layer_combo, 1)
 
     dialog.s2_btn_draw_aoi = QPushButton(_tr("Draw AOI"))
@@ -377,21 +377,21 @@ def _build_inputs_tab(dialog, parent):
     dialog.s2_date_start.setDisplayFormat("yyyy-MM-dd")
     dialog.s2_date_start.setCalendarPopup(True)
     dialog.s2_date_start.setDate(QDate.currentDate().addYears(-1))
-    _prepare_field(dialog.s2_date_start)
+    prepare_field(dialog.s2_date_start)
     dialog.s2_date_end = QDateEdit()
     dialog.s2_date_end.setDisplayFormat("yyyy-MM-dd")
     dialog.s2_date_end.setCalendarPopup(True)
     dialog.s2_date_end.setDate(QDate.currentDate())
-    _prepare_field(dialog.s2_date_end)
+    prepare_field(dialog.s2_date_end)
     for _cal in (
         dialog.s2_date_start.calendarWidget(),
         dialog.s2_date_end.calendarWidget(),
     ):
         if _cal is not None:
-            _cal.setStyleSheet(_CALENDAR_STYLE)
+            _cal.setStyleSheet(STYLE_CALENDAR)
 
-    fields_grid.addWidget(_field_label(_tr("START DATE")), 0, 0)
-    fields_grid.addWidget(_field_label(_tr("END DATE")), 0, 1)
+    fields_grid.addWidget(field_label(_tr("START DATE")), 0, 0)
+    fields_grid.addWidget(field_label(_tr("END DATE")), 0, 1)
     fields_grid.addWidget(dialog.s2_date_start, 1, 0)
     fields_grid.addWidget(dialog.s2_date_end, 1, 1)
     inputs_lay.addLayout(fields_grid)
@@ -399,20 +399,20 @@ def _build_inputs_tab(dialog, parent):
     lay.addWidget(inputs_panel)
 
     # --- Vegetation index ------------------------------------------------
-    index_panel = _section_panel()
+    index_panel = section_panel()
     index_lay = QVBoxLayout(index_panel)
     index_lay.setContentsMargins(16, 14, 16, 14)
     index_lay.setSpacing(10)
 
-    index_lay.addWidget(_field_label(_tr("VEGETATION INDEX")))
+    index_lay.addWidget(field_label(_tr("VEGETATION INDEX")))
 
     dialog.s2_index_combo = QComboBox()
     for name in INDEX_ORDER:
         dialog.s2_index_combo.addItem(name, name)
     dialog.s2_index_combo.addItem(_tr(CUSTOM_INDEX_LABEL), CUSTOM_INDEX_LABEL)
     dialog.s2_index_combo.setCurrentText("NDVI")
-    _prepare_field(dialog.s2_index_combo)
-    dialog.s2_index_combo.view().setStyleSheet(_POPUP_VIEW_STYLE)
+    prepare_field(dialog.s2_index_combo)
+    dialog.s2_index_combo.view().setStyleSheet(STYLE_POPUP_VIEW)
     index_lay.addWidget(dialog.s2_index_combo)
 
     dialog.s2_index_info = QLabel()
@@ -424,17 +424,17 @@ def _build_inputs_tab(dialog, parent):
     )
     index_lay.addWidget(dialog.s2_index_info)
 
-    index_lay.addWidget(_make_divider())
-    index_lay.addWidget(_field_label(_tr("TIME-SERIES SPATIAL REDUCER")))
+    index_lay.addWidget(make_divider())
+    index_lay.addWidget(field_label(_tr("TIME-SERIES SPATIAL REDUCER")))
     dialog.s2_ts_reducer_combo = QComboBox()
-    _prepare_field(dialog.s2_ts_reducer_combo)
+    prepare_field(dialog.s2_ts_reducer_combo)
     dialog.s2_ts_reducer_combo.setSizeAdjustPolicy(
         QComboBox.SizeAdjustPolicy.AdjustToContents
     )
     # Label, stable reducer key (matches OpticalService.get_time_series).
     for _label, _key in ((_tr("Mean"), "mean"), (_tr("Median"), "median")):
         dialog.s2_ts_reducer_combo.addItem(_label, _key)
-    dialog.s2_ts_reducer_combo.view().setStyleSheet(_POPUP_VIEW_STYLE)
+    dialog.s2_ts_reducer_combo.view().setStyleSheet(STYLE_POPUP_VIEW)
     index_lay.addWidget(dialog.s2_ts_reducer_combo)
 
     reducer_hint = QLabel(
@@ -457,21 +457,21 @@ def _build_inputs_tab(dialog, parent):
     custom_lay.setContentsMargins(0, 4, 0, 0)
     custom_lay.setSpacing(8)
 
-    custom_lay.addWidget(_make_divider())
+    custom_lay.addWidget(make_divider())
 
     name_row = QGridLayout()
     name_row.setContentsMargins(0, 0, 0, 0)
     name_row.setHorizontalSpacing(16)
     name_row.setColumnStretch(0, 1)
     name_row.setColumnStretch(1, 2)
-    name_row.addWidget(_field_label(_tr("INDEX NAME")), 0, 0)
-    name_row.addWidget(_field_label(_tr("EXPRESSION")), 0, 1)
+    name_row.addWidget(field_label(_tr("INDEX NAME")), 0, 0)
+    name_row.addWidget(field_label(_tr("EXPRESSION")), 0, 1)
     dialog.s2_custom_name = QLineEdit()
     dialog.s2_custom_name.setPlaceholderText(_tr("My Index"))
-    _prepare_field(dialog.s2_custom_name, 28)
+    prepare_field(dialog.s2_custom_name, 28)
     dialog.s2_custom_expression = QLineEdit()
     dialog.s2_custom_expression.setPlaceholderText("(B8 - B4) / (B8 + B4)")
-    _prepare_field(dialog.s2_custom_expression, 28)
+    prepare_field(dialog.s2_custom_expression, 28)
     name_row.addWidget(dialog.s2_custom_name, 1, 0)
     name_row.addWidget(dialog.s2_custom_expression, 1, 1)
     custom_lay.addLayout(name_row)
@@ -525,9 +525,9 @@ def _build_inputs_tab(dialog, parent):
     custom_lay.addWidget(dialog.s2_btn_custom_save, 0, Qt.AlignmentFlag.AlignLeft)
 
     # --- Delete a saved custom index ------------------------------------
-    custom_lay.addWidget(_make_divider())
+    custom_lay.addWidget(make_divider())
 
-    delete_label = _field_label(_tr("DELETE CUSTOM INDEX"))
+    delete_label = field_label(_tr("DELETE CUSTOM INDEX"))
     custom_lay.addWidget(delete_label)
 
     delete_row = QHBoxLayout()
@@ -535,8 +535,8 @@ def _build_inputs_tab(dialog, parent):
     delete_row.setSpacing(8)
 
     dialog.s2_custom_delete_combo = QComboBox()
-    _prepare_field(dialog.s2_custom_delete_combo, 28)
-    dialog.s2_custom_delete_combo.view().setStyleSheet(_POPUP_VIEW_STYLE)
+    prepare_field(dialog.s2_custom_delete_combo, 28)
+    dialog.s2_custom_delete_combo.view().setStyleSheet(STYLE_POPUP_VIEW)
     delete_row.addWidget(dialog.s2_custom_delete_combo, 1)
 
     dialog.s2_btn_custom_delete = QPushButton(_tr("Delete selected"))
@@ -596,11 +596,11 @@ def _build_inputs_tab(dialog, parent):
     # Masking SCL classes changes the pixels feeding the indices and the
     # downloaded imagery, so it must be chosen before the run — not in the
     # client-side filter popup (which only re-filters cached results).
-    scl_panel = _section_panel()
+    scl_panel = section_panel()
     scl_lay = QVBoxLayout(scl_panel)
     scl_lay.setContentsMargins(16, 14, 16, 14)
     scl_lay.setSpacing(10)
-    scl_lay.addWidget(_field_label(_tr("SCL CLOUD MASK")))
+    scl_lay.addWidget(field_label(_tr("SCL CLOUD MASK")))
 
     dialog.s2_chk_apply_scl = QCheckBox(_tr("Apply Scene Classification (SCL) mask"))
     dialog.s2_chk_apply_scl.setChecked(True)
@@ -757,11 +757,11 @@ def _build_results_tab(dialog, parent):
     lay.setSpacing(12)
 
     # --- Time series controls -------------------------------------------
-    ts_panel = _section_panel()
+    ts_panel = section_panel()
     ts_lay = QVBoxLayout(ts_panel)
     ts_lay.setContentsMargins(16, 14, 16, 14)
     ts_lay.setSpacing(10)
-    ts_lay.addWidget(_caption(_tr("TIME SERIES")))
+    ts_lay.addWidget(caption(_tr("TIME SERIES")))
 
     dialog.s2_btn_adjust_filter = QPushButton(_tr("Adjust filter"))
     dialog.s2_btn_adjust_filter.setFixedHeight(30)
@@ -779,7 +779,7 @@ def _build_results_tab(dialog, parent):
     dialog.s2_btn_batch_download.setFixedHeight(30)
     dialog.s2_btn_batch_download.setStyleSheet(STYLE_BTN_SECONDARY)
     ts_lay.addWidget(
-        _flow(
+        flow(
             [
                 dialog.s2_btn_adjust_filter,
                 dialog.s2_btn_filter_dates,
@@ -790,7 +790,7 @@ def _build_results_tab(dialog, parent):
         )
     )
 
-    ts_lay.addWidget(_make_divider())
+    ts_lay.addWidget(make_divider())
 
     # Savitzky-Golay smoothing acts on the already-computed series, so it lives
     # with the time-series controls (a render-time tweak, not a GEE filter). The
@@ -886,15 +886,15 @@ def _build_results_tab(dialog, parent):
     smooth_params_lay = QHBoxLayout(smooth_params)
     smooth_params_lay.setContentsMargins(0, 0, 0, 0)
     smooth_params_lay.setSpacing(12)
-    smooth_params_lay.addWidget(_labeled(_tr("Window"), window_widget, 56))
-    smooth_params_lay.addWidget(_labeled(_tr("Poly order"), polyorder_widget, 70))
+    smooth_params_lay.addWidget(labeled(_tr("Window"), window_widget, 56))
+    smooth_params_lay.addWidget(labeled(_tr("Poly order"), polyorder_widget, 70))
 
     def _sync_smoothing():
         smooth_params.setVisible(dialog.s2_chk_smoothing.isChecked())
 
     dialog.s2_chk_smoothing.toggled.connect(lambda _v: _sync_smoothing())
     ts_lay.addWidget(
-        _flow(
+        flow(
             [
                 dialog.s2_chk_smoothing,
                 smooth_params,
@@ -906,19 +906,19 @@ def _build_results_tab(dialog, parent):
     lay.addWidget(ts_panel)
 
     # --- Single-date image (shared date; RGB or VI output) --------------
-    single_panel = _section_panel()
+    single_panel = section_panel()
     single_lay = QVBoxLayout(single_panel)
     single_lay.setContentsMargins(16, 12, 16, 12)
     single_lay.setSpacing(6)
-    single_lay.addWidget(_caption(_tr("SINGLE-DATE IMAGE")))
+    single_lay.addWidget(caption(_tr("SINGLE-DATE IMAGE")))
 
     dialog.s2_result_date_combo = QComboBox()
-    _prepare_field(dialog.s2_result_date_combo, 30)
+    prepare_field(dialog.s2_result_date_combo, 30)
     dialog.s2_result_date_combo.setMinimumWidth(136)
     dialog.s2_result_date_combo.setSizeAdjustPolicy(
         QComboBox.SizeAdjustPolicy.AdjustToContents
     )
-    dialog.s2_result_date_combo.view().setStyleSheet(_POPUP_VIEW_STYLE)
+    dialog.s2_result_date_combo.view().setStyleSheet(STYLE_POPUP_VIEW)
 
     def _subrow(title, widgets):
         """A light inner card: an inline caption followed by the controls and
@@ -936,22 +936,22 @@ def _build_results_tab(dialog, parent):
         cap.setStyleSheet(
             "color: #1b6b39; font-size: 10px; font-weight: bold; letter-spacing: 1px;"
         )
-        box.addWidget(_flow([cap, *widgets], spacing=10))
+        box.addWidget(flow([cap, *widgets], spacing=10))
         return frame
 
     # Shared date selector for both single-date outputs.
-    single_lay.addWidget(_labeled(_tr("Date"), dialog.s2_result_date_combo, 34))
+    single_lay.addWidget(labeled(_tr("Date"), dialog.s2_result_date_combo, 34))
 
     # --- Multispectral (RGB) ---
     dialog.s2_rgb_render_combo = QComboBox()
-    _prepare_field(dialog.s2_rgb_render_combo, 30)
+    prepare_field(dialog.s2_rgb_render_combo, 30)
     dialog.s2_rgb_render_combo.setMinimumWidth(200)
     dialog.s2_rgb_render_combo.setSizeAdjustPolicy(
         QComboBox.SizeAdjustPolicy.AdjustToContents
     )
     for _label, _key in _RGB_RENDER_MODES:
         dialog.s2_rgb_render_combo.addItem(_label, _key)
-    dialog.s2_rgb_render_combo.view().setStyleSheet(_POPUP_VIEW_STYLE)
+    dialog.s2_rgb_render_combo.view().setStyleSheet(STYLE_POPUP_VIEW)
     dialog.s2_btn_rgb_preview = QPushButton(_tr("Preview"))
     dialog.s2_btn_rgb_preview.setFixedHeight(30)
     dialog.s2_btn_rgb_preview.setStyleSheet(STYLE_BTN_PRIMARY)
@@ -964,7 +964,7 @@ def _build_results_tab(dialog, parent):
         _subrow(
             _tr("RGB"),
             [
-                _labeled(_tr("Rendering"), dialog.s2_rgb_render_combo, 70),
+                labeled(_tr("Rendering"), dialog.s2_rgb_render_combo, 70),
                 dialog.s2_btn_rgb_preview,
                 dialog.s2_btn_rgb_download,
             ],
@@ -973,23 +973,23 @@ def _build_results_tab(dialog, parent):
 
     # --- Vegetation index ---
     dialog.s2_vi_index_combo = QComboBox()
-    _prepare_field(dialog.s2_vi_index_combo, 30)
+    prepare_field(dialog.s2_vi_index_combo, 30)
     dialog.s2_vi_index_combo.setMinimumWidth(76)
     dialog.s2_vi_index_combo.setSizeAdjustPolicy(
         QComboBox.SizeAdjustPolicy.AdjustToContents
     )
     for name in INDEX_ORDER:
         dialog.s2_vi_index_combo.addItem(name, name)
-    dialog.s2_vi_index_combo.view().setStyleSheet(_POPUP_VIEW_STYLE)
+    dialog.s2_vi_index_combo.view().setStyleSheet(STYLE_POPUP_VIEW)
     dialog.s2_vi_ramp_combo = QComboBox()
-    _prepare_field(dialog.s2_vi_ramp_combo, 30)
+    prepare_field(dialog.s2_vi_ramp_combo, 30)
     dialog.s2_vi_ramp_combo.setMinimumWidth(90)
     dialog.s2_vi_ramp_combo.setSizeAdjustPolicy(
         QComboBox.SizeAdjustPolicy.AdjustToContents
     )
-    _add_ramp_items(dialog.s2_vi_ramp_combo, _COLOR_RAMPS)
+    add_ramp_items(dialog.s2_vi_ramp_combo, _COLOR_RAMPS)
     dialog.s2_vi_ramp_combo.setCurrentText("RdYlGn")
-    dialog.s2_vi_ramp_combo.view().setStyleSheet(_POPUP_VIEW_STYLE)
+    dialog.s2_vi_ramp_combo.view().setStyleSheet(STYLE_POPUP_VIEW)
     dialog.s2_btn_vi_preview = QPushButton(_tr("Preview"))
     dialog.s2_btn_vi_preview.setFixedHeight(30)
     dialog.s2_btn_vi_preview.setStyleSheet(STYLE_BTN_PRIMARY)
@@ -1002,8 +1002,8 @@ def _build_results_tab(dialog, parent):
         _subrow(
             _tr("INDEX"),
             [
-                _labeled(_tr("Index"), dialog.s2_vi_index_combo, 44),
-                _labeled(_tr("Color Ramp"), dialog.s2_vi_ramp_combo, 80),
+                labeled(_tr("Index"), dialog.s2_vi_index_combo, 44),
+                labeled(_tr("Color Ramp"), dialog.s2_vi_ramp_combo, 80),
                 dialog.s2_btn_vi_preview,
                 dialog.s2_btn_vi_download,
             ],
@@ -1013,11 +1013,11 @@ def _build_results_tab(dialog, parent):
     lay.addWidget(single_panel)
 
     # --- Synthetic composite --------------------------------------------
-    composite_panel = _section_panel()
+    composite_panel = section_panel()
     composite_lay = QVBoxLayout(composite_panel)
     composite_lay.setContentsMargins(16, 14, 16, 14)
     composite_lay.setSpacing(10)
-    composite_lay.addWidget(_caption(_tr("SYNTHETIC IMAGE (COMPOSITE)")))
+    composite_lay.addWidget(caption(_tr("SYNTHETIC IMAGE (COMPOSITE)")))
     composite_hint = QLabel(
         _tr("Composite a vegetation index over the selected dates.")
     )
@@ -1028,34 +1028,34 @@ def _build_results_tab(dialog, parent):
     composite_lay.addWidget(composite_hint)
 
     dialog.s2_composite_index_combo = QComboBox()
-    _prepare_field(dialog.s2_composite_index_combo, 30)
+    prepare_field(dialog.s2_composite_index_combo, 30)
     dialog.s2_composite_index_combo.setMinimumWidth(76)
     dialog.s2_composite_index_combo.setSizeAdjustPolicy(
         QComboBox.SizeAdjustPolicy.AdjustToContents
     )
     for name in INDEX_ORDER:
         dialog.s2_composite_index_combo.addItem(name, name)
-    dialog.s2_composite_index_combo.view().setStyleSheet(_POPUP_VIEW_STYLE)
+    dialog.s2_composite_index_combo.view().setStyleSheet(STYLE_POPUP_VIEW)
 
     dialog.s2_composite_metric_combo = QComboBox()
-    _prepare_field(dialog.s2_composite_metric_combo, 30)
+    prepare_field(dialog.s2_composite_metric_combo, 30)
     dialog.s2_composite_metric_combo.setMinimumWidth(200)
     dialog.s2_composite_metric_combo.setSizeAdjustPolicy(
         QComboBox.SizeAdjustPolicy.AdjustToContents
     )
     for _metric_key in _COMPOSITE_METRICS:
         dialog.s2_composite_metric_combo.addItem(_tr(_metric_key), _metric_key)
-    dialog.s2_composite_metric_combo.view().setStyleSheet(_POPUP_VIEW_STYLE)
+    dialog.s2_composite_metric_combo.view().setStyleSheet(STYLE_POPUP_VIEW)
 
     dialog.s2_composite_ramp_combo = QComboBox()
-    _prepare_field(dialog.s2_composite_ramp_combo, 30)
+    prepare_field(dialog.s2_composite_ramp_combo, 30)
     dialog.s2_composite_ramp_combo.setMinimumWidth(200)
     dialog.s2_composite_ramp_combo.setSizeAdjustPolicy(
         QComboBox.SizeAdjustPolicy.AdjustToContents
     )
-    _add_ramp_items(dialog.s2_composite_ramp_combo, _COLOR_RAMPS)
+    add_ramp_items(dialog.s2_composite_ramp_combo, _COLOR_RAMPS)
     dialog.s2_composite_ramp_combo.setCurrentText("RdYlGn")
-    dialog.s2_composite_ramp_combo.view().setStyleSheet(_POPUP_VIEW_STYLE)
+    dialog.s2_composite_ramp_combo.view().setStyleSheet(STYLE_POPUP_VIEW)
 
     dialog.s2_btn_composite_preview = QPushButton(_tr("Preview Composite"))
     dialog.s2_btn_composite_preview.setFixedHeight(30)
@@ -1066,11 +1066,11 @@ def _build_results_tab(dialog, parent):
     dialog.s2_btn_composite_download.setFixedHeight(30)
     dialog.s2_btn_composite_download.setStyleSheet(STYLE_BTN_SECONDARY)
     composite_lay.addWidget(
-        _flow(
+        flow(
             [
-                _labeled(_tr("Index"), dialog.s2_composite_index_combo, 44),
-                _labeled(_tr("Metric"), dialog.s2_composite_metric_combo, 80),
-                _labeled(_tr("Color Ramp"), dialog.s2_composite_ramp_combo, 80),
+                labeled(_tr("Index"), dialog.s2_composite_index_combo, 44),
+                labeled(_tr("Metric"), dialog.s2_composite_metric_combo, 80),
+                labeled(_tr("Color Ramp"), dialog.s2_composite_ramp_combo, 80),
                 dialog.s2_btn_composite_preview,
                 dialog.s2_btn_composite_download,
             ],
@@ -1080,11 +1080,11 @@ def _build_results_tab(dialog, parent):
     lay.addWidget(composite_panel)
 
     # --- Climate (NASA POWER) -------------------------------------------
-    climate_panel = _section_panel()
+    climate_panel = section_panel()
     climate_lay = QVBoxLayout(climate_panel)
     climate_lay.setContentsMargins(16, 14, 16, 14)
     climate_lay.setSpacing(10)
-    climate_lay.addWidget(_caption(_tr("CLIMATE (NASA POWER)")))
+    climate_lay.addWidget(caption(_tr("CLIMATE (NASA POWER)")))
     climate_hint = QLabel(
         _tr(
             "Overlay accumulated monthly precipitation (NASA POWER) as bars on the "
@@ -1108,7 +1108,7 @@ def _build_results_tab(dialog, parent):
     dialog.s2_btn_climate_clear.setFixedHeight(30)
     dialog.s2_btn_climate_clear.setStyleSheet(STYLE_BTN_SECONDARY)
     climate_lay.addWidget(
-        _flow(
+        flow(
             [
                 dialog.s2_btn_climate_overlay,
                 dialog.s2_btn_climate_save,
@@ -1120,11 +1120,11 @@ def _build_results_tab(dialog, parent):
     lay.addWidget(climate_panel)
 
     # --- Point & per-feature analysis -----------------------------------
-    feature_panel = _section_panel()
+    feature_panel = section_panel()
     feature_lay = QVBoxLayout(feature_panel)
     feature_lay.setContentsMargins(16, 14, 16, 14)
     feature_lay.setSpacing(10)
-    feature_lay.addWidget(_caption(_tr("POINT & FEATURE ANALYSIS")))
+    feature_lay.addWidget(caption(_tr("POINT & FEATURE ANALYSIS")))
     feature_hint = QLabel(
         _tr(
             "Extract a time series per clicked map point, or one series per polygon "
@@ -1146,22 +1146,22 @@ def _build_results_tab(dialog, parent):
     dialog.s2_btn_clear_points.setStyleSheet(STYLE_BTN_SECONDARY)
 
     dialog.s2_feature_id_combo = QComboBox()
-    _prepare_field(dialog.s2_feature_id_combo, 30)
+    prepare_field(dialog.s2_feature_id_combo, 30)
     dialog.s2_feature_id_combo.setMinimumWidth(140)
     dialog.s2_feature_id_combo.setSizeAdjustPolicy(
         QComboBox.SizeAdjustPolicy.AdjustToContents
     )
-    dialog.s2_feature_id_combo.view().setStyleSheet(_POPUP_VIEW_STYLE)
+    dialog.s2_feature_id_combo.view().setStyleSheet(STYLE_POPUP_VIEW)
     dialog.s2_btn_plot_features = QPushButton(_tr("Plot per-feature series"))
     dialog.s2_btn_plot_features.setFixedHeight(30)
     dialog.s2_btn_plot_features.setStyleSheet(STYLE_BTN_PRIMARY)
 
     feature_lay.addWidget(
-        _flow(
+        flow(
             [
                 dialog.s2_btn_capture_points,
                 dialog.s2_btn_clear_points,
-                _labeled(_tr("Feature ID"), dialog.s2_feature_id_combo, 70),
+                labeled(_tr("Feature ID"), dialog.s2_feature_id_combo, 70),
                 dialog.s2_btn_plot_features,
             ],
             spacing=12,
@@ -1170,11 +1170,11 @@ def _build_results_tab(dialog, parent):
     lay.addWidget(feature_panel)
 
     # --- Download buffer -------------------------------------------------
-    buffer_panel = _section_panel()
+    buffer_panel = section_panel()
     buffer_lay = QVBoxLayout(buffer_panel)
     buffer_lay.setContentsMargins(16, 14, 16, 14)
     buffer_lay.setSpacing(10)
-    buffer_lay.addWidget(_caption(_tr("DOWNLOAD BUFFER")))
+    buffer_lay.addWidget(caption(_tr("DOWNLOAD BUFFER")))
     buffer_hint = QLabel(
         _tr(
             "Use a positive buffer to include terrain just outside your area, or a "
@@ -1202,7 +1202,7 @@ def _build_results_tab(dialog, parent):
     dialog.s2_buffer_slider.setSingleStep(1)
     dialog.s2_buffer_slider.setPageStep(10)
     dialog.s2_buffer_slider.setValue(0)
-    dialog.s2_buffer_slider.setStyleSheet(_SLIDER_STYLE)
+    dialog.s2_buffer_slider.setStyleSheet(STYLE_SLIDER)
     buffer_row.addWidget(dialog.s2_buffer_slider, 1)
     plus_lbl = QLabel("+300 m")
     plus_lbl.setStyleSheet(
@@ -1301,24 +1301,7 @@ def setup_optical_page(dialog, page):
     page.setObjectName("opticalPage")
     page.setStyleSheet("""
         QWidget#opticalPage { background-color: #ffffff; }
-        QComboBox, QgsMapLayerComboBox {
-            combobox-popup: 0;
-            background-color: #ffffff;
-            color: #212121;
-            border: 1px solid #d0d0d0;
-            border-radius: 6px;
-            padding: 4px 9px;
-            font-size: 12px;
-        }
-        QComboBox:focus, QgsMapLayerComboBox:focus { border: 1.5px solid #1b6b39; }
-        QComboBox QAbstractItemView, QgsMapLayerComboBox QAbstractItemView {
-            background-color: #ffffff;
-            color: #212121;
-            border: 1px solid #bdbdbd;
-            selection-background-color: #e8f5e9;
-            selection-color: #1a1a1a;
-            outline: 0;
-        }
+""" + STYLE_COMBO_FIELDS + """
         QLineEdit {
             background-color: #ffffff;
             color: #212121;
@@ -1388,18 +1371,7 @@ def setup_optical_page(dialog, page):
     outer.setContentsMargins(0, 0, 0, 0)
     outer.setSpacing(0)
 
-    tab_bar = QFrame()
-    tab_bar.setObjectName("opticalTabBar")
-    tab_bar.setFixedHeight(40)
-    tab_bar.setStyleSheet("""
-        QFrame#opticalTabBar {
-            background-color: #f8f9fa;
-            border-bottom: 1px solid #e0e0e0;
-        }
-    """)
-    tab_bar_lay = QHBoxLayout(tab_bar)
-    tab_bar_lay.setContentsMargins(6, 0, 6, 0)
-    tab_bar_lay.setSpacing(8)
+    tab_bar, tab_bar_lay = build_tab_bar("opticalTabBar")
 
     btn_tab_intro = QPushButton(_tr("Intro"))
     btn_tab_intro.setFixedHeight(40)
@@ -1483,9 +1455,9 @@ def setup_optical_page(dialog, page):
         step_lbl.setText(_tr("Step %d of 3") % (index + 1))
         btn_intro_next.setVisible(index == 0)
         btn_run.setVisible(index == 1)
-        btn_tab_intro.setStyleSheet(_TAB_ACTIVE if index == 0 else _TAB_INACTIVE)
-        btn_tab_inputs.setStyleSheet(_TAB_ACTIVE if index == 1 else _TAB_INACTIVE)
-        btn_tab_results.setStyleSheet(_TAB_ACTIVE if index == 2 else _TAB_INACTIVE)
+        btn_tab_intro.setStyleSheet(STYLE_TAB_ACTIVE if index == 0 else STYLE_TAB_INACTIVE)
+        btn_tab_inputs.setStyleSheet(STYLE_TAB_ACTIVE if index == 1 else STYLE_TAB_INACTIVE)
+        btn_tab_results.setStyleSheet(STYLE_TAB_ACTIVE if index == 2 else STYLE_TAB_INACTIVE)
 
     dialog.s2_set_tab = _set_tab
 

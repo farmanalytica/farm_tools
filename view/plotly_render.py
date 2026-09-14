@@ -27,24 +27,10 @@ import numpy as np
 
 from qgis.PyQt.QtCore import QUrl
 
+from .plotly_js import plotly_js
 from .webcompat import USING_WEBENGINE
 
 logger = logging.getLogger(__name__)
-
-_PLOTLY_JS_PATH = os.path.join(
-    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-    "assets",
-    "plotly-1.58.5.min.js",
-)
-_plotly_js_cache = None
-
-
-def _plotly_js():
-    global _plotly_js_cache
-    if _plotly_js_cache is None:
-        with open(_PLOTLY_JS_PATH, "r", encoding="utf-8") as f:
-            _plotly_js_cache = f.read()
-    return _plotly_js_cache
 
 
 def _decode_typed_arrays(obj):
@@ -87,7 +73,7 @@ def render_html(fig, config):
     return f"""<!DOCTYPE html>
 <html><head><meta charset="utf-8">
 <style>html,body{{height:100%;width:100%;margin:0;padding:0}}#chart{{width:100%;height:100%}}</style>
-<script>{_plotly_js()}</script>
+<script>{plotly_js()}</script>
 </head><body>
 <div id="chart"></div>
 <script>

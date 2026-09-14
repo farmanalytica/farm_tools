@@ -23,7 +23,12 @@ from qgis.PyQt.QtWidgets import (
 )
 from qgis.gui import QgsPasswordLineEdit
 
-from .styles import STYLE_BTN_PRIMARY, STYLE_BTN_SECONDARY
+from .styles import (
+    STYLE_BTN_PRIMARY,
+    STYLE_BTN_SECONDARY,
+    STYLE_INPUT_READONLY,
+    STYLE_STATUS_PILL,
+)
 
 
 def _tr(text):
@@ -139,19 +144,7 @@ def setup_auth_page(dialog, page):
         _tr("Click to re-check your Earth Engine sign-in status")
     )
     dialog.auth_status_badge.setFixedHeight(22)
-    dialog.auth_status_badge.setStyleSheet(
-        """
-        QPushButton {
-            background-color: transparent;
-            color: #757575;
-            border: none;
-            font-size: 11px;
-            font-weight: bold;
-            padding: 0 10px;
-            text-align: center;
-        }
-        """
-    )
+    dialog.auth_status_badge.setStyleSheet(STYLE_STATUS_PILL)
     card_lay.addWidget(dialog.auth_status_badge)
     card_lay.addSpacing(4)
 
@@ -177,16 +170,7 @@ def setup_auth_page(dialog, page):
     dialog.sa_key_input.setReadOnly(True)
     dialog.sa_key_input.setPlaceholderText(_tr("No key file selected"))
     dialog.sa_key_input.setFixedHeight(28)
-    dialog.sa_key_input.setStyleSheet("""
-        QLineEdit {
-            background-color: #f5f5f5;
-            color: #424242;
-            border: 1px solid #e0e0e0;
-            border-radius: 4px;
-            padding: 2px 8px;
-            font-size: 12px;
-        }
-    """)
+    dialog.sa_key_input.setStyleSheet(STYLE_INPUT_READONLY)
     sa_input_row.addWidget(dialog.sa_key_input, 1)
 
     dialog.btn_browse_key = QPushButton(_tr("Browse"))

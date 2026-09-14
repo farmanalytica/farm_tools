@@ -7,16 +7,16 @@ The worker does network + disk I/O only. Building the KML and loading the layer
 into QGIS stay on the main thread (the caller handles that on completion).
 """
 
-from qgis.PyQt.QtCore import QThread, pyqtSignal
+from qgis.PyQt.QtCore import pyqtSignal
 
 from ..services.car_service import CarService
+from .background_worker import BackgroundWorker
 
 
-class CarFetchWorker(QThread):
+class CarFetchWorker(BackgroundWorker):
     """Resolves a CAR code to a GeoJSON file off the UI thread."""
 
     finished = pyqtSignal(str, str)  # geojson_path, car_code
-    failed = pyqtSignal(str)
 
     def __init__(self, car_code, output_folder, proxy):
         super().__init__()
@@ -24,13 +24,10 @@ class CarFetchWorker(QThread):
         self._output_folder = output_folder
         self._proxy = proxy
 
-    def run(self):
-        try:
-            geojson_path = CarService.fetch_geojson(
-                self._car_code,
-                output_folder=self._output_folder,
-                proxy=self._proxy,
-            )
-            self.finished.emit(geojson_path, CarService.normalize_code(self._car_code))
-        except Exception as e:
-            self.failed.emit(str(e))
+    def work(self):
+        geojson_path = CarService.fetch_geojson(
+            self._car_code,
+            output_folder=self._output_folder,
+            proxy=self._proxy,
+        )
+        self.finished.emit(geojson_path, CarService.normalize_code(self._car_code))

@@ -5,11 +5,8 @@ Point capture for the Optical (Sentinel-2) point analysis.
 A ``QgsMapToolEmitPoint`` subclass that drops a coloured dot on each click and
 reports the clicked location in WGS84 to a callback. Dot colours are pulled from
 the same palette the multi-series plot uses, so the dot on the map matches the
-line colour in the chart.
-
-Improvement over the legacy CoordinateCaptureTool: colours come from the shared
-plot palette (deterministic, dot == line) instead of random bright colours, the
-tool keeps no global state, and ``clear`` removes every rubber band in one call.
+line colour in the chart. The tool keeps no global state, and ``clear`` removes
+every rubber band in one call.
 """
 
 from qgis.PyQt.QtCore import QCoreApplication, Qt
@@ -29,6 +26,7 @@ def _tr(text):
 
 
 _WGS84 = "EPSG:4326"
+_DOT_WIDTH_PX = 6
 
 
 class PointCaptureTool(QgsMapToolEmitPoint):
@@ -73,7 +71,7 @@ class PointCaptureTool(QgsMapToolEmitPoint):
     def _draw_dot(self, point_project, color_hex):
         band = QgsRubberBand(self.canvas, QgsWkbTypes.PointGeometry)
         band.setColor(QColor(color_hex))
-        band.setWidth(6)
+        band.setWidth(_DOT_WIDTH_PX)
         band.setIcon(QgsRubberBand.ICON_CIRCLE)
         band.setToGeometry(QgsGeometry.fromPointXY(point_project), None)
         band.show()
@@ -84,6 +82,3 @@ class PointCaptureTool(QgsMapToolEmitPoint):
         for band in self._bands:
             band.reset(QgsWkbTypes.PointGeometry)
         self._bands = []
-
-    def deactivate(self):
-        super().deactivate()

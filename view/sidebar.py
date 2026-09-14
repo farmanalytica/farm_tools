@@ -12,13 +12,13 @@ import re
 from qgis.PyQt.QtCore import (
     QCoreApplication,
     QEasingCurve,
+    QPointF,
     QRectF,
-    Qt,
     QSize,
+    Qt,
     QVariantAnimation,
     pyqtSignal,
 )
-from qgis.PyQt.QtCore import QPointF
 from qgis.PyQt.QtGui import (
     QColor,
     QFont,
@@ -28,9 +28,6 @@ from qgis.PyQt.QtGui import (
     QPen,
     QPixmap,
 )
-from qgis.PyQt.QtSvg import QSvgRenderer
-
-from . import module_prefs
 from qgis.PyQt.QtWidgets import (
     QButtonGroup,
     QDialog,
@@ -47,28 +44,35 @@ from qgis.PyQt.QtWidgets import (
     QWidget,
 )
 
+from . import module_prefs
+from .module_catalog import MODULES
+from .module_prefs import needs_auth_entry
+from .styles import render_svg_pixmap, scaled_pixmap
+
 
 def _tr(text):
     return QCoreApplication.translate("RAVI", text)
 
 
 # Nav kinds that carry their own brand logo (SVG) instead of a drawn line icon.
-# Mirrors welcome.py's _LOGO_SVGS so the sidebar and hub stay visually in sync.
+# The rail wants the white-background RAVI mark, so each module names its own.
 _LOGO_SVGS = {
-    "optical": "ravi_white_background.svg",
-    "climaplots": "climaplots.svg",
-    "radar": "sentinel1.svg",
-    "fieldguide": "fieldguide.svg",
-    "download": "easydem.svg",
+    module.key: module.sidebar_logo_svg
+    for module in MODULES
+    if module.sidebar_logo_svg
 }
+
+
+def _metadata_path() -> str:
+    """Path to the plugin's metadata.txt, one level above view/."""
+    plugin_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    return os.path.join(plugin_dir, "metadata.txt")
 
 
 def _read_plugin_version() -> str:
     """Read ``version=`` from the plugin's metadata.txt; empty string if missing."""
-    plugin_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    metadata_path = os.path.join(plugin_dir, "metadata.txt")
     try:
-        with open(metadata_path, "r", encoding="utf-8") as handle:
+        with open(_metadata_path(), "r", encoding="utf-8") as handle:
             for line in handle:
                 stripped = line.strip()
                 if stripped.startswith("version="):
@@ -84,11 +88,9 @@ def _read_plugin_changelog() -> str:
     Re-reads the file on every call so the dialog always reflects the current
     metadata.txt. Returns the de-indented changelog text, empty if missing.
     """
-    plugin_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    metadata_path = os.path.join(plugin_dir, "metadata.txt")
     raw_lines = []
     try:
-        with open(metadata_path, "r", encoding="utf-8") as handle:
+        with open(_metadata_path(), "r", encoding="utf-8") as handle:
             in_block = False
             for raw in handle:
                 line = raw.rstrip("\n")
@@ -119,6 +121,13 @@ def _read_plugin_changelog() -> str:
     return "\n".join(entries).strip()
 
 
+# Every nav button is a 42px square when collapsed, and its icon a 20px tile.
+NAV_BUTTON_SIZE = 42
+NAV_ICON_SIZE = 20
+_EXPANDED_MARGIN_PX = 14
+_COLLAPSED_MARGIN_PX = 11
+_VERTICAL_MARGIN_PX = 18
+_DIVIDER_COLLAPSED_PX = 28
 SIDEBAR_COLLAPSED_WIDTH = 64
 SIDEBAR_EXPANDED_WIDTH = 208
 SIDEBAR_EXPANDED_CONTENT_WIDTH = 176
@@ -160,18 +169,8 @@ class Sidebar(QFrame):
     """
     Permanent left navigation with two checkable page buttons.
 
-    Signals:
-        welcome_requested: emitted when the user clicks the FARM tools brand.
-        auth_requested: emitted when the user clicks Auth.
-        optical_requested: emitted when the user clicks Optical (Sentinel-2).
-        sysi_requested: emitted when the user clicks SYSI.
-        radar_requested: emitted when the user clicks Radar (SAR) data.
-        dem_requested: emitted when the user clicks Download DEM.
-        landsat_requested: emitted when the user clicks Landsat (Super-Res).
-        fieldguide_requested: emitted when the user clicks Field Guide.
-        climaplots_requested: emitted when the user clicks ClimaPlots.
-        mapbiomas_requested: emitted when the user clicks MapBiomas.
-        mzones_requested: emitted when the user clicks Management Zones.
+    One ``*_requested`` signal per navigable page, emitted when its button is
+    clicked; the dialog connects them to the matching ``show_*_page``.
     """
 
     welcome_requested = pyqtSignal()
@@ -466,9 +465,9 @@ class Sidebar(QFrame):
         btn.setProperty("navText", text)
         btn.setCheckable(True)
         btn.setCursor(Qt.CursorShape.PointingHandCursor)
-        btn.setFixedHeight(42)
+        btn.setFixedHeight(NAV_BUTTON_SIZE)
         btn.setIcon(self._make_icon(icon_kind))
-        btn.setIconSize(QSize(20, 20))
+        btn.setIconSize(QSize(NAV_ICON_SIZE, NAV_ICON_SIZE))
         btn.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         btn.setToolTip(text)
         return btn
@@ -483,12 +482,10 @@ class Sidebar(QFrame):
         while lay.count():
             lay.takeAt(0)
 
-        from .welcome import visible_set_needs_auth
-
         hidden = module_prefs.get_hidden()
         # Auth is pinned first, but only when a visible module actually needs a
         # GEE sign-in — a no-login-only build hides it entirely.
-        needs_auth = visible_set_needs_auth()
+        needs_auth = needs_auth_entry()
         for key in ["auth"] + module_prefs.get_order():
             btn = self._buttons.get(key)
             if btn is None:
@@ -511,7 +508,11 @@ class Sidebar(QFrame):
         self._apply_expanded_state(self._expanded)
 
     def set_active_page(self, page: str) -> None:
-        """Highlight the button matching ``page`` (``'auth'``, ``'optical'``, ``'sysi'``, ``'radar'``, ``'download'``, ``'landsat'`` or ``'fieldguide'``)."""
+        """Highlight the nav button whose module key matches ``page``.
+
+        ``'welcome'`` selects the brand button; an unknown key clears the
+        selection, which is what the hub wants.
+        """
         self._active_page = page
         # An exclusive QButtonGroup ignores setChecked(False) on the currently
         # checked button, so it could never reach a no-selection state (needed
@@ -522,7 +523,6 @@ class Sidebar(QFrame):
         for key, btn in self._buttons.items():
             btn.setChecked(page == key)
         self._group.setExclusive(True)
-        self._sync_brand_visibility()
 
     def _show_changelog(self) -> None:
         """Open a modal dialog with the changelog, re-read from metadata.txt."""
@@ -567,25 +567,24 @@ class Sidebar(QFrame):
 
     def _apply_expanded_state(self, expanded: bool) -> None:
         self._expanded = expanded
-        side_margin = 14 if expanded else 11
-        self._layout.setContentsMargins(side_margin, 18, side_margin, 18)
+        side_margin = _EXPANDED_MARGIN_PX if expanded else _COLLAPSED_MARGIN_PX
+        self._layout.setContentsMargins(
+            side_margin, _VERTICAL_MARGIN_PX, side_margin, _VERTICAL_MARGIN_PX
+        )
 
+        content_width = (
+            SIDEBAR_EXPANDED_CONTENT_WIDTH if expanded else NAV_BUTTON_SIZE
+        )
         for btn in self._buttons.values():
             btn.setText(btn.property("navText") if expanded else "")
             btn.setToolTip("" if expanded else btn.property("navText"))
-            btn.setFixedWidth(SIDEBAR_EXPANDED_CONTENT_WIDTH if expanded else 42)
+            btn.setFixedWidth(content_width)
 
-        self.btn_welcome.setFixedWidth(
-            SIDEBAR_EXPANDED_CONTENT_WIDTH if expanded else 42
-        )
-        self.brand_header.setFixedWidth(
-            SIDEBAR_EXPANDED_CONTENT_WIDTH if expanded else 42
-        )
-        self.brand_block.setFixedWidth(
-            SIDEBAR_EXPANDED_CONTENT_WIDTH if expanded else 42
-        )
+        self.btn_welcome.setFixedWidth(content_width)
+        self.brand_header.setFixedWidth(content_width)
+        self.brand_block.setFixedWidth(content_width)
         self.brand_divider.setFixedWidth(
-            SIDEBAR_EXPANDED_CONTENT_WIDTH if expanded else 28
+            SIDEBAR_EXPANDED_CONTENT_WIDTH if expanded else _DIVIDER_COLLAPSED_PX
         )
         toggle_text = "‹" if expanded else "›"
         toggle_tip = _tr("Collapse sidebar") if expanded else _tr("Expand sidebar")
@@ -609,7 +608,6 @@ class Sidebar(QFrame):
             )
         # The link only fits the expanded rail; collapsed shows version alone.
         self.whats_new_label.setVisible(expanded)
-        self._sync_brand_visibility()
 
         self.setStyleSheet(self._stylesheet(expanded))
         self._animate_width(
@@ -626,8 +624,6 @@ class Sidebar(QFrame):
         self.nav_scrollbar.setSingleStep(internal.singleStep())
         self.nav_scrollbar.setVisible(self._expanded and max_val > 0)
 
-    def _sync_brand_visibility(self) -> None:
-        self.brand_block.setVisible(True)
 
     def _animate_width(self, target_width: int) -> None:
         if self.width() == target_width:
@@ -778,8 +774,7 @@ class Sidebar(QFrame):
         return icon
 
     def _draw_key_emoji_icon(self) -> QPixmap:
-        pix = QPixmap(20, 20)
-        pix.fill(Qt.GlobalColor.transparent)
+        pix = scaled_pixmap(NAV_ICON_SIZE, NAV_ICON_SIZE)
 
         painter = QPainter(pix)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
@@ -791,35 +786,11 @@ class Sidebar(QFrame):
         return pix
 
     def _draw_logo_icon(self, filename: str):
-        """Render an assets/ brand SVG to a 20px transparent icon pixmap.
+        """A brand SVG as a nav-sized icon pixmap, or ``None`` if unusable.
 
-        The source SVGs are trimmed to their artwork, so render into a square
-        tile keeping aspect ratio and centre the result.
-
-        Returns ``None`` if the asset is missing/invalid so ``_make_icon`` can
-        fall back to the drawn line icon rather than showing a blank tile."""
-        plugin_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        path = os.path.join(plugin_dir, "assets", filename)
-        renderer = QSvgRenderer(path)
-        if not renderer.isValid():
-            return None
-
-        pix = QPixmap(20, 20)
-        pix.fill(Qt.GlobalColor.transparent)
-        # Fit the trimmed (non-square) artwork inside the 20px tile, centred.
-        size = renderer.defaultSize()
-        size.scale(20, 20, Qt.AspectRatioMode.KeepAspectRatio)
-        target = QRectF(
-            (20 - size.width()) / 2,
-            (20 - size.height()) / 2,
-            size.width(),
-            size.height(),
-        )
-        painter = QPainter(pix)
-        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
-        renderer.render(painter, target)
-        painter.end()
-        return pix
+        ``_make_icon`` falls back to the drawn line icon on ``None`` rather
+        than showing a blank tile."""
+        return render_svg_pixmap(filename, NAV_ICON_SIZE)
 
     def _load_brand_pixmap(self):
         plugin_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -844,8 +815,7 @@ class Sidebar(QFrame):
         )
 
     def _draw_icon(self, kind: str, color: str) -> QPixmap:
-        pix = QPixmap(20, 20)
-        pix.fill(Qt.GlobalColor.transparent)
+        pix = scaled_pixmap(NAV_ICON_SIZE, NAV_ICON_SIZE)
 
         painter = QPainter(pix)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)

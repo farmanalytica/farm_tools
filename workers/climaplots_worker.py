@@ -2,51 +2,69 @@
 """Background worker for the ClimaPlots analysis pipeline.
 
 Runs the climate-data fetch + climate-index computation off the GUI thread so
-QGIS stays responsive. Uniform ``finished_ok`` / ``failed`` / ``progress``
-signals, with the whole ``run`` body wrapped so any failure is surfaced to the
-UI instead of crashing the thread.
+QGIS stays responsive, with the whole run wrapped so any failure is surfaced to
+the UI instead of crashing the thread.
 
-The orchestrator import lives inside ``run()`` because it pulls extlibs
+The orchestrator import lives inside ``work()`` because it pulls extlibs
 packages (climdex, pymannkendall, pyhomogeneity) that may not be provisioned
 yet.
 """
+
 import traceback
+from dataclasses import dataclass
+from typing import Optional
 
-from qgis.PyQt.QtCore import QThread, pyqtSignal
+from qgis.PyQt.QtCore import pyqtSignal
+
+from .background_worker import BackgroundWorker
+
+DEFAULT_SOURCE = "power"
 
 
-class ClimaPlotsAnalysisWorker(QThread):
+@dataclass
+class ClimaPlotsRequest:
+    """One analysis run: a primary coordinate, an optional comparison, a period."""
+
+    longitude: str
+    latitude: str
+    proxy: str = ""
+    start_year: Optional[int] = None
+    end_year: Optional[int] = None
+    longitude_b: Optional[str] = None
+    latitude_b: Optional[str] = None
+    source: str = DEFAULT_SOURCE
+    source_b: Optional[str] = None
+
+
+class ClimaPlotsAnalysisWorker(BackgroundWorker):
     """Fetch climate data and compute indices for one coordinate."""
 
     finished_ok = pyqtSignal(object)   # ClimateData
-    failed = pyqtSignal(str)           # error message
     progress = pyqtSignal(str)         # human-readable status / per-index warning
 
-    def __init__(self, longitude, latitude, proxy="", start_year=None, end_year=None,
-                 longitude_b=None, latitude_b=None, source="power", source_b=None, parent=None):
+    def __init__(self, request, parent=None):
         super().__init__(parent)
-        self._longitude = longitude
-        self._latitude = latitude
-        self._proxy = proxy
-        self._start_year = start_year
-        self._end_year = end_year
-        self._longitude_b = longitude_b
-        self._latitude_b = latitude_b
-        self._source = source
-        self._source_b = source_b
+        self._request = request
 
-    def run(self):
-        try:
-            from ..services.climaplots import orchestrator  # lazy: needs extlibs
+    def work(self):
+        from ..services.climaplots import orchestrator  # lazy: needs extlibs
 
-            self.progress.emit("Fetching climate data...")
-            data = orchestrator.run_analysis(
-                self._longitude, self._latitude, self._proxy,
-                warn=lambda msg: self.progress.emit(msg),
-                start_year=self._start_year, end_year=self._end_year,
-                longitude_b=self._longitude_b, latitude_b=self._latitude_b,
-                source=self._source, source_b=self._source_b,
-            )
-            self.finished_ok.emit(data)
-        except Exception:  # noqa: BLE001 - surface any failure to the UI
-            self.failed.emit(traceback.format_exc())
+        request = self._request
+        self.progress.emit("Fetching climate data...")
+        data = orchestrator.run_analysis(
+            request.longitude,
+            request.latitude,
+            request.proxy,
+            warn=self.progress.emit,
+            start_year=request.start_year,
+            end_year=request.end_year,
+            longitude_b=request.longitude_b,
+            latitude_b=request.latitude_b,
+            source=request.source,
+            source_b=request.source_b,
+        )
+        self.finished_ok.emit(data)
+
+    def describe_failure(self, exc):
+        """The UI shows the whole traceback: these failures are usually in extlibs."""
+        return traceback.format_exc()

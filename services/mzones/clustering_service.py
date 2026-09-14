@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """KMeans clustering, elbow + silhouette (pure backend, no UI)."""
 from dataclasses import dataclass
-from typing import Any
 
 import numpy as np
 

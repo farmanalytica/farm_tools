@@ -17,7 +17,7 @@ from farm_tools.tools import indexes
 # normalizedDifference family — assert the exact band pair + rename("index")
 # --------------------------------------------------------------------------- #
 NORMALIZED_DIFF = {
-    "nvdi": ["B8", "B4"],  # NDVI
+    "ndvi": ["B8", "B4"],
     "gndvi": ["B8", "B3"],
     "ndre": ["B8", "B5"],
     "ndmi": ["B8", "B11"],

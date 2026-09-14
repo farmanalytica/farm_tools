@@ -19,9 +19,34 @@ from qgis.core import (
 )
 from qgis.gui import QgsMapCanvasAnnotationItem, QgsMapToolEmitPoint, QgsVertexMarker
 
+_WGS84 = "EPSG:4326"
+
+_MARKER_COLOR = QColor(220, 40, 40)
+_MARKER_SIZE_PX = 12
+_MARKER_PEN_PX = 3
+
+# The numbered badge sits up and to the right of its marker so it never covers
+# the point it labels, and widens by one digit's worth per extra digit.
+_BADGE_OFFSET_MM = QPointF(4, -5)
+_BADGE_HEIGHT_MM = 8
+_BADGE_BASE_WIDTH_MM = 8
+_BADGE_WIDTH_PER_EXTRA_DIGIT_MM = 2
+
+_ENABLED_HINT_DURATION_S = 3
+_POINT_SAVED_DURATION_S = 2
+
 
 def _tr(text):
     return QCoreApplication.translate("RAVI", text)
+
+
+def _badge_html(label_text):
+    """High-contrast badge markup, styled on the document for QGIS build portability."""
+    return (
+        '<div style="font-weight:700; font-size:12pt; color:#111; '
+        'text-align:center; background:#FFFFFF; border:1px solid #222; '
+        'border-radius:4px; padding:1px 4px;">{}</div>'.format(label_text)
+    )
 
 
 class CanvasMarkerTool(QtCore.QObject):
@@ -38,7 +63,7 @@ class CanvasMarkerTool(QtCore.QObject):
         self._label_items = []
         self._map_tool = None
         self._previous_map_tool = None
-        self._wgs84 = QgsCoordinateReferenceSystem("EPSG:4326")
+        self._wgs84 = QgsCoordinateReferenceSystem(_WGS84)
         # Optional callback invoked when another tool displaces the capture
         # tool, so the owning controller can sync its toggle button.
         self.on_deactivated = None
@@ -50,10 +75,6 @@ class CanvasMarkerTool(QtCore.QObject):
             self._map_tool.canvasClicked.connect(self._on_canvas_clicked)
             self._map_tool.deactivated.connect(self._on_tool_deactivated)
 
-    def is_active(self):
-        """Return True when the capture tool currently owns the canvas."""
-        return self._map_tool is not None and self.canvas.mapTool() is self._map_tool
-
     def enable(self):
         """Activate capture mode and keep current map tool for later restore."""
         self._ensure_map_tool()
@@ -64,7 +85,7 @@ class CanvasMarkerTool(QtCore.QObject):
             _tr("FARM tools"),
             _tr("Marking mode enabled. Click on the map to add points."),
             level=Qgis.Info,
-            duration=3,
+            duration=_ENABLED_HINT_DURATION_S,
         )
 
     def disable(self):
@@ -86,17 +107,20 @@ class CanvasMarkerTool(QtCore.QObject):
         if button != Qt.MouseButton.LeftButton:
             return
 
-        source_crs = self.canvas.mapSettings().destinationCrs()
-        transform = QgsCoordinateTransform(source_crs, self._wgs84, QgsProject.instance())
+        transform = self._transform_to_wgs84()
         wgs84_point = transform.transform(point)
-        self._store_coordinate_with_visuals(point, wgs84_point.x(), wgs84_point.y())
+        self._add_point(point, wgs84_point.x(), wgs84_point.y())
+        self._announce_last_point()
+        self.coordinates_changed.emit(list(self.coordinates))
 
     def add_wgs84_point(self, latitude, longitude):
         """Add a point from manual WGS84 input and render visuals on canvas."""
-        destination_crs = self.canvas.mapSettings().destinationCrs()
-        transform = QgsCoordinateTransform(self._wgs84, destination_crs, QgsProject.instance())
-        map_point = transform.transform(QgsPointXY(longitude, latitude))
-        self._store_coordinate_with_visuals(map_point, longitude, latitude)
+        map_point = self._transform_from_wgs84().transform(
+            QgsPointXY(longitude, latitude)
+        )
+        self._add_point(map_point, longitude, latitude)
+        self._announce_last_point()
+        self.coordinates_changed.emit(list(self.coordinates))
 
     def add_wgs84_points(self, lat_lon_pairs):
         """Add multiple WGS84 points while emitting only one UI refresh."""
@@ -104,74 +128,73 @@ class CanvasMarkerTool(QtCore.QObject):
         if not lat_lon_pairs:
             return 0
 
-        destination_crs = self.canvas.mapSettings().destinationCrs()
-        transform = QgsCoordinateTransform(self._wgs84, destination_crs, QgsProject.instance())
-
+        transform = self._transform_from_wgs84()
         for latitude, longitude in lat_lon_pairs:
             map_point = transform.transform(QgsPointXY(longitude, latitude))
-            self._store_coordinate_with_visuals(
-                map_point,
-                longitude,
-                latitude,
-                emit_signal=False,
-                show_message=False,
-            )
+            self._add_point(map_point, longitude, latitude)
 
         self.canvas.refresh()
         self.coordinates_changed.emit(list(self.coordinates))
         return len(lat_lon_pairs)
 
-    def _store_coordinate_with_visuals(
-        self,
-        map_point,
-        longitude,
-        latitude,
-        emit_signal=True,
-        show_message=True,
-    ):
-        """Persist WGS84 tuple, draw marker/label, and show capture feedback."""
-        self.coordinates.append((longitude, latitude))
+    def _transform_to_wgs84(self):
+        return QgsCoordinateTransform(
+            self.canvas.mapSettings().destinationCrs(),
+            self._wgs84,
+            QgsProject.instance(),
+        )
 
+    def _transform_from_wgs84(self):
+        return QgsCoordinateTransform(
+            self._wgs84,
+            self.canvas.mapSettings().destinationCrs(),
+            QgsProject.instance(),
+        )
+
+    def _add_point(self, map_point, longitude, latitude):
+        """Store the WGS84 pair and draw its marker and numbered badge."""
+        self.coordinates.append((longitude, latitude))
+        self._draw_marker(map_point)
+        self._draw_badge(map_point, str(len(self.coordinates)))
+
+    def _draw_marker(self, map_point):
         marker = QgsVertexMarker(self.canvas)
         marker.setCenter(map_point)
-        marker.setColor(QColor(220, 40, 40))
+        marker.setColor(_MARKER_COLOR)
         marker.setIconType(QgsVertexMarker.ICON_X)
-        marker.setIconSize(12)
-        marker.setPenWidth(3)
+        marker.setIconSize(_MARKER_SIZE_PX)
+        marker.setPenWidth(_MARKER_PEN_PX)
         self._markers.append(marker)
 
-        label_text = str(len(self.coordinates))
+    def _draw_badge(self, map_point, label_text):
+        document = QTextDocument()
+        document.setHtml(_badge_html(label_text))
+
+        extra_digits = max(0, len(label_text) - 1)
+        width_mm = (
+            _BADGE_BASE_WIDTH_MM + extra_digits * _BADGE_WIDTH_PER_EXTRA_DIGIT_MM
+        )
+
         annotation = QgsTextAnnotation()
         annotation.setMapPosition(map_point)
-        annotation.setFrameOffsetFromReferencePointMm(QPointF(4, -5))
+        annotation.setFrameOffsetFromReferencePointMm(_BADGE_OFFSET_MM)
+        annotation.setDocument(document)
+        annotation.setFrameSizeMm(QSizeF(width_mm, _BADGE_HEIGHT_MM))
 
-        # High-contrast badge so numbers stay readable over any basemap.
-        # We style the document itself for compatibility across QGIS builds.
-        doc = QTextDocument()
-        doc.setHtml(
-            '<div style="font-weight:700; font-size:12pt; color:#111; '
-            'text-align:center; background:#FFFFFF; border:1px solid #222; '
-            'border-radius:4px; padding:1px 4px;">{}</div>'.format(label_text)
+        self._label_items.append(
+            QgsMapCanvasAnnotationItem(annotation, self.canvas)
         )
-        annotation.setDocument(doc)
 
-        frame_width_mm = 8 + max(0, len(label_text) - 1) * 2
-        annotation.setFrameSizeMm(QSizeF(frame_width_mm, 8))
-
-        label_item = QgsMapCanvasAnnotationItem(annotation, self.canvas)
-        self._label_items.append(label_item)
-
-        if show_message:
-            self.iface.messageBar().pushMessage(
-                _tr("FARM tools"),
-                _tr("Point {0} saved in WGS84: ({1:.6f}, {2:.6f})").format(
-                    len(self.coordinates), longitude, latitude
-                ),
-                level=Qgis.Success,
-                duration=2,
-            )
-        if emit_signal:
-            self.coordinates_changed.emit(list(self.coordinates))
+    def _announce_last_point(self):
+        longitude, latitude = self.coordinates[-1]
+        self.iface.messageBar().pushMessage(
+            _tr("FARM tools"),
+            _tr("Point {0} saved in WGS84: ({1:.6f}, {2:.6f})").format(
+                len(self.coordinates), longitude, latitude
+            ),
+            level=Qgis.Success,
+            duration=_POINT_SAVED_DURATION_S,
+        )
 
     def clear(self):
         """Remove all marker graphics and reset captured coordinates."""
@@ -198,12 +221,10 @@ class CanvasMarkerTool(QtCore.QObject):
         self.coordinates.pop()
 
         if self._markers:
-            marker = self._markers.pop()
-            self.canvas.scene().removeItem(marker)
+            self.canvas.scene().removeItem(self._markers.pop())
 
         if self._label_items:
-            label_item = self._label_items.pop()
-            self.canvas.scene().removeItem(label_item)
+            self.canvas.scene().removeItem(self._label_items.pop())
 
         self.coordinates_changed.emit(list(self.coordinates))
         return True
@@ -213,7 +234,7 @@ class CanvasMarkerTool(QtCore.QObject):
         if index < 0 or index >= len(self.coordinates):
             return False
 
-        remaining_points = [
+        surviving_lat_lon = [
             (latitude, longitude)
             for point_index, (longitude, latitude) in enumerate(self.coordinates)
             if point_index != index
@@ -222,8 +243,8 @@ class CanvasMarkerTool(QtCore.QObject):
         self._clear_visuals()
         self.coordinates = []
 
-        if remaining_points:
-            self.add_wgs84_points(remaining_points)
+        if surviving_lat_lon:
+            self.add_wgs84_points(surviving_lat_lon)
         else:
             self.coordinates_changed.emit(list(self.coordinates))
         return True

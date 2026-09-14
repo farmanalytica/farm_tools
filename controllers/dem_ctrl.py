@@ -6,11 +6,10 @@ Orchestrates DEM operations, AOI management, and coordinates between
 services for dataset loading and layer rendering.
 """
 
-from qgis.core import Qgis, QgsProject, QgsCoordinateTransform
+from qgis.core import Qgis
 from qgis.PyQt.QtCore import QTimer, QCoreApplication
 
-from ..renderers.base_maps import add_google_hybrid_layer
-from ..tools.aoi_draw_tool import start_draw_aoi
+from .aoi_draw_mixin import AoiDrawMixin
 from ..services.aoi_service import AOIService
 from ..renderers.dem_renderer import DEMRenderer
 from ..managers.dataset_manager import DatasetManager
@@ -22,7 +21,7 @@ def _tr(text):
     return QCoreApplication.translate("RAVI", text)
 
 
-class DEMCtrl:
+class DEMCtrl(AoiDrawMixin):
     """
     Orchestrates DEM operations and coordinates between services.
 
@@ -31,7 +30,7 @@ class DEMCtrl:
     """
 
     _LAYER_DEBOUNCE_MS = 300
-    _CANVAS_SCALE_FACTOR = 1.8
+    canvas_zoom_padding = 1.8
 
     def __init__(self, dialog, gee_service, interface):
         self.dialog = dialog
@@ -45,8 +44,6 @@ class DEMCtrl:
         self._dem_worker: DemDownloadWorker | None = None
         self._dataset_worker: DatasetAvailabilityWorker | None = None
         self._dem_btn_text: str | None = None
-        self._draw_tool = None
-        self._skip_zoom_once = False
 
         self._debounce_timer = QTimer()
         self._debounce_timer.setSingleShot(True)
@@ -147,25 +144,9 @@ class DEMCtrl:
                 self.dialog.dem_combo.clear()
             return
 
-        self._zoom_to_layer(layer)
+        self.zoom_to_aoi_layer(layer)
         self._pending_layer = layer
         self._debounce_timer.start()
-
-    def _zoom_to_layer(self, layer):
-        if self._skip_zoom_once:
-            self._skip_zoom_once = False
-            return
-
-        canvas = self.interface.mapCanvas()
-        transform = QgsCoordinateTransform(
-            layer.crs(),
-            canvas.mapSettings().destinationCrs(),
-            QgsProject.instance(),
-        )
-        extent = transform.transformBoundingBox(layer.extent())
-        extent.scale(self._CANVAS_SCALE_FACTOR)
-        canvas.setExtent(extent)
-        canvas.refresh()
 
     def _load_aoi_for_pending_layer(self):
 
@@ -175,7 +156,7 @@ class DEMCtrl:
 
         try:
             self.current_aoi, self.current_aoi_bbox = (
-                AOIService.get_ee_feature_colection_from_layer(layer)
+                AOIService.get_ee_feature_collection_from_layer(layer)
             )
             self.load_available_datasets()
         except Exception as e:
@@ -183,7 +164,6 @@ class DEMCtrl:
                 self.dialog.pop_message(str(e), "critical")
 
     def load_available_datasets(self):
-
         combobox = self.dialog.dem_combo
         combobox.clear()
 
@@ -194,7 +174,6 @@ class DEMCtrl:
 
         if not self.current_aoi:
             return
-
 
         combobox.blockSignals(True)
         combobox.addItem(_tr("Checking available datasets…"))
@@ -240,26 +219,8 @@ class DEMCtrl:
         """Update the dataset info panel when the selected dataset changes."""
         DatasetManager.update_dataset_info(self.dialog.dem_combo, self.dialog.dem_info)
 
-    def handle_hybrid_layer(self):
-
-        add_google_hybrid_layer()
-        self.interface.messageBar().pushMessage(
-            "FARM tools", _tr("Google Hybrid Layer loaded successfully"),
-            level=Qgis.Success,
-        )
-
     def handle_draw_aoi(self):
-        """Toggle rectangular AOI drawing on the canvas."""
-
-        canvas = self.interface.mapCanvas()
-
-        if self._draw_tool is not None and canvas.mapTool() is self._draw_tool:
-            canvas.unsetMapTool(self._draw_tool)
-            self._draw_tool = None
-            return
-        self._draw_tool = start_draw_aoi(
-            self.interface,
-            self.dialog.layer_combo,
-            self.dialog.btn_draw_aoi,
-            before_select=lambda: setattr(self, "_skip_zoom_once", True),
+        """Toggle polygon-AOI drawing on the canvas."""
+        self.toggle_draw_aoi(
+            self.dialog.layer_combo, self.dialog.btn_draw_aoi
         )

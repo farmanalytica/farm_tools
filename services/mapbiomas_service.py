@@ -17,9 +17,14 @@ inside methods so the dialog loads before the extlibs bundle is provisioned.
 """
 
 import os
-import tempfile
 
 import requests
+
+from .downloads import (
+    MAPBIOMAS_SCALE_M,
+    GeoTiffRequest,
+    download_geotiff,
+)
 
 
 # --- MapBiomas constants (ported from the FARM web app) ----------------------
@@ -441,31 +446,16 @@ class MapBiomasService:
             .rename("classification")
             .clip(geometry)
         )
-        url = image.getDownloadURL({
-            "scale": 30,
-            "region": geometry.bounds().getInfo(),
-            "format": "GeoTIFF",
-            "crs": "EPSG:4326",
-        })
-        response = requests.get(url, timeout=300)
-        if not response.ok:
-            raise RuntimeError(
-                "MapBiomas download failed (HTTP {}): {}".format(
-                    response.status_code, response.reason
-                )
-            )
-
-        target_dir = (
-            output_folder
-            if (output_folder and os.path.isdir(output_folder))
-            else tempfile.gettempdir()
+        return download_geotiff(
+            image,
+            GeoTiffRequest(
+                region=geometry,
+                filename=f"MapBiomas_coverage_{year}.tif",
+                output_folder=output_folder,
+                scale=MAPBIOMAS_SCALE_M,
+                product="MapBiomas",
+            ),
         )
-        output_path = MapBiomasService._get_unique_path(
-            target_dir, f"MapBiomas_coverage_{year}.tif"
-        )
-        with open(output_path, "wb") as fh:
-            fh.write(response.content)
-        return output_path
 
     @staticmethod
     def download_transition_geotiff(
@@ -489,40 +479,14 @@ class MapBiomasService:
         ):
             in_range = first_year.gte(year_min).And(first_year.lte(year_max))
             first_year = first_year.updateMask(in_range)
-        url = first_year.getDownloadURL({
-            "scale": 30,
-            "region": aoi.geometry().bounds().getInfo(),
-            "format": "GeoTIFF",
-            "crs": "EPSG:4326",
-        })
-        response = requests.get(url, timeout=300)
-        if not response.ok:
-            raise RuntimeError(
-                "MapBiomas transition download failed (HTTP {}): {}".format(
-                    response.status_code, response.reason
-                )
-            )
-        target_dir = (
-            output_folder
-            if (output_folder and os.path.isdir(output_folder))
-            else tempfile.gettempdir()
+        return download_geotiff(
+            first_year,
+            GeoTiffRequest(
+                region=aoi.geometry(),
+                filename="MapBiomas_transition.tif",
+                output_folder=output_folder,
+                scale=MAPBIOMAS_SCALE_M,
+                product="MapBiomas transition",
+            ),
         )
-        output_path = MapBiomasService._get_unique_path(
-            target_dir, "MapBiomas_transition.tif"
-        )
-        with open(output_path, "wb") as fh:
-            fh.write(response.content)
-        return output_path
 
-    @staticmethod
-    def _get_unique_path(folder, filename):
-        candidate = os.path.join(folder, filename)
-        if not os.path.exists(candidate):
-            return candidate
-        basename, ext = os.path.splitext(filename)
-        counter = 1
-        while True:
-            candidate = os.path.join(folder, f"{basename}_{counter}{ext}")
-            if not os.path.exists(candidate):
-                return candidate
-            counter += 1
