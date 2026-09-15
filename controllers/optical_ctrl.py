@@ -14,49 +14,44 @@ import tempfile
 from datetime import datetime, timedelta
 
 import pandas as pd
-
-from qgis.PyQt.QtCore import QCoreApplication, QTimer, QUrl
-from qgis.PyQt.QtGui import QDesktopServices
-from qgis.PyQt.QtWidgets import QFileDialog, QMessageBox, QProgressDialog
 from qgis.core import (
     Qgis,
     QgsContrastEnhancement,
+    QgsCoordinateReferenceSystem,
     QgsCoordinateTransform,
+    QgsGeometry,
+    QgsMapLayer,
     QgsMultiBandColorRenderer,
     QgsProject,
     QgsRasterLayer,
-)
-
-from qgis.core import (
-    QgsCoordinateReferenceSystem,
-    QgsGeometry,
-    QgsMapLayer,
     QgsWkbTypes,
 )
+from qgis.PyQt.QtCore import QCoreApplication, QTimer, QUrl
+from qgis.PyQt.QtGui import QDesktopServices
+from qgis.PyQt.QtWidgets import QFileDialog, QMessageBox, QProgressDialog
 
 from ..managers.settings_manager import SettingsManager
-from ..services.aoi_service import AOIService, remove_z_dimension
-from ..services.optical_service import OpticalService
-from .aoi_draw_mixin import AoiDrawMixin
-from ..tools.point_capture_tool import PointCaptureTool
-from ..tools.indexes import (
-    delete_custom_index,
-    validate_custom,
-    save_custom_indexes,
-    load_custom_indexes,
-)
-from ..view.optical_filter_dialog import DEFAULT_FILTER_SETTINGS
-from ..view.optical_index_info import CUSTOM_INDEX_LABEL, INDEX_ORDER
 from ..renderers.raster_renderer_utils import (
     PseudocolorStyle,
     RasterRendererUtils,
 )
+from ..services.aoi_service import AOIService, remove_z_dimension
+from ..services.nasa_power_service import NasaPowerService
+from ..services.optical_service import OpticalService
+from ..tools.indexes import (
+    delete_custom_index,
+    load_custom_indexes,
+    save_custom_indexes,
+    validate_custom,
+)
+from ..tools.point_capture_tool import PointCaptureTool
+from ..view.optical_filter_dialog import DEFAULT_FILTER_SETTINGS
+from ..view.optical_index_info import CUSTOM_INDEX_LABEL, INDEX_ORDER
 from ..view.sar_plot import (
     MULTISERIES_PALETTE,
     render_chart_html,
     render_multiseries_chart_html,
 )
-from ..services.nasa_power_service import NasaPowerService
 from ..workers.batch_download_worker import BatchDownloadWorker
 from ..workers.climate_worker import ClimateWorker
 from ..workers.optical_analysis_worker import OpticalAnalysisWorker
@@ -69,6 +64,7 @@ from ..workers.optical_preview_worker import (
     OpticalPreviewWorker,
 )
 from ..workers.optical_worker import OpticalWorker
+from .aoi_draw_mixin import AoiDrawMixin
 
 logger = logging.getLogger(__name__)
 
@@ -1570,7 +1566,7 @@ class OpticalCtrl(AoiDrawMixin):
         for name in INDEX_ORDER:
             combo.addItem(name, name)
         for name in customs.keys():
-            combo.addItem(name)
+            combo.addItem(name, name)
         if with_builder:
             combo.addItem(_tr(CUSTOM_INDEX_LABEL), CUSTOM_INDEX_LABEL)
         if previous is not None:
