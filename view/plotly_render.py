@@ -28,7 +28,7 @@ import numpy as np
 from qgis.PyQt.QtCore import QUrl
 
 from .plotly_js import plotly_js
-from .webcompat import USING_WEBENGINE
+from .webcompat import HAS_WEB_BACKEND, USING_WEBENGINE
 
 logger = logging.getLogger(__name__)
 
@@ -91,6 +91,8 @@ def show_in_webview(web_view, fig, config, previous_path=None):
     Deletes ``previous_path`` (the temp file from the last render for this view)
     and returns the new temp path so the caller can track it for cleanup.
     """
+    if not HAS_WEB_BACKEND:
+        return previous_path
     _safe_remove(previous_path)
     html = render_html(fig, config)
     fd, path = tempfile.mkstemp(suffix=".html", prefix="farm_tools_climaplots_")
@@ -107,6 +109,8 @@ def run_js(web_view, js):
     ``page().mainFrame().evaluateJavaScript``. Best-effort — silently no-ops if
     the page isn't ready or the backend rejects the call.
     """
+    if not HAS_WEB_BACKEND:
+        return
     try:
         if USING_WEBENGINE:
             web_view.page().runJavaScript(js)
