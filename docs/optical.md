@@ -181,9 +181,18 @@ Finally the time dimension can be collapsed into a single map. Using only the da
 - **Amplitude** — max − min, a measure of seasonal dynamic range;
 - **Standard deviation** — temporal variability;
 - **Sum** — accumulated index;
+- **Productivity Index (PI)** — each pixel is compared against the AOI mean on each date and the relative deviations are averaged over the selected dates.
 - **Area Under Curve (AUC)** — the index integrated over time.
 
-The AUC uses the **trapezoidal rule**: acquisition dates are converted to day-offsets $t_i$, and for each pixel consecutive index values $v_i$ are integrated as
+The Productivity Index follows the field-normalized formulation:
+
+$$\mathrm{NDVI}_t = \frac{1}{n_t}\sum_{p=1}^{n_t}\mathrm{NDVI}_{p,t}$$
+
+$$\mathrm{RPI}_{p,t} = 100\times\frac{\mathrm{NDVI}_{p,t}-\overline{\mathrm{NDVI}}_t}{\overline{\mathrm{NDVI}}_t}$$
+
+$$\mathrm{PI}_p = \frac{1}{T}\sum_{t=1}^{T}\mathrm{RPI}_{p,t}$$
+
+This highlights zones that are consistently above or below the field mean over the season, while remaining tied to the same temporal coverage used for the plot. The AUC uses the **trapezoidal rule**: acquisition dates are converted to day-offsets $t_i$, and for each pixel consecutive index values $v_i$ are integrated as
 
 $$\mathrm{AUC}=\sum_{i=1}^{n-1}\frac{(v_i+v_{i+1})}{2}\,(t_{i+1}-t_i),$$
 
