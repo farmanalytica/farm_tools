@@ -539,11 +539,13 @@ class OpticalService:
                 scale=10,
                 maxPixels=1e9,
             ).get("index")
-            mean_number = ee.Number(mean_value)
+            mean_number = ee.Number(
+                ee.Algorithms.If(mean_value, mean_value, 0)
+            )
             mean_image = ee.Image.constant(mean_number)
             relative = image.subtract(mean_image).multiply(100).divide(mean_image)
             mask = ee.Image.constant(mean_number.abs().gte(ee.Number(1e-6)))
-            return relative.updateMask(mask).rename("index")
+            return relative.updateMask(mask).toFloat().rename("index")
 
         relative_collection = index_collection.map(_relative_productivity)
         result_image = relative_collection.mean()
