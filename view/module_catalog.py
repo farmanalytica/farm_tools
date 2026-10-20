@@ -13,7 +13,7 @@ Which ones a given user sees, and in what order, is :mod:`module_prefs`.
 
 from typing import NamedTuple, Optional
 
-AUTH_KEY = "auth"  # noqa: S105  # not a secret — module dict key
+AUTH_MODULE = "auth"
 FARM_GREEN = "#1b6b39"
 
 
@@ -98,7 +98,7 @@ MODULES = (
         "show_car_page", False,
     ),
     Module(
-        AUTH_KEY, "GEE Configuration",
+        AUTH_MODULE, "GEE Configuration",
         "Connect to Google Earth Engine — sign in and set your project ID",
         "show_auth_page", True,
     ),
@@ -108,13 +108,13 @@ BY_KEY = {module.key: module for module in MODULES}
 
 # Auth is pinned (always shown, never reordered), so it is not manageable.
 MANAGEABLE_KEYS = tuple(
-    module.key for module in MODULES if module.key != AUTH_KEY
+    module.key for module in MODULES if module.key != AUTH_MODULE
 )
 
 FLAVOR_LABELS = {
     module.key: module.flavor_label
     for module in MODULES
-    if module.key != AUTH_KEY
+    if module.key != AUTH_MODULE
 }
 
 

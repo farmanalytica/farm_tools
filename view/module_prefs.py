@@ -11,7 +11,7 @@ rail, pinned last on the hub) — so it is NOT part of the manageable set here.
 
 from qgis.core import QgsSettings
 
-from .module_catalog import AUTH_KEY, BY_KEY, FLAVOR_LABELS, MANAGEABLE_KEYS
+from .module_catalog import AUTH_MODULE, BY_KEY, FLAVOR_LABELS, MANAGEABLE_KEYS
 
 # Build flavor: a single-module plugin build (e.g. the standalone RAVI / EasyDEM
 # / ClimaPlots packages) ships a generated ``_build_flavor.py`` naming the one
@@ -130,8 +130,8 @@ def _in_user_order(wanted_hidden):
 def visible_modules():
     """Shown modules in user order, with the pinned auth entry last when needed."""
     modules = _in_user_order(wanted_hidden=False)
-    if AUTH_KEY in BY_KEY and needs_auth_entry():
-        modules.append(BY_KEY[AUTH_KEY])
+    if AUTH_MODULE in BY_KEY and needs_auth_entry():
+        modules.append(BY_KEY[AUTH_MODULE])
     return modules
 
 

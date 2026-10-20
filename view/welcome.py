@@ -36,7 +36,7 @@ from qgis.PyQt.QtWidgets import (
 )
 
 from . import module_prefs
-from .module_catalog import AUTH_KEY, FARM_GREEN
+from .module_catalog import AUTH_MODULE, FARM_GREEN
 from .module_icons import LOGO_SVGS, draw_module_icon, svg_pixmap
 from .module_prefs import hidden_modules, needs_auth_entry, visible_modules
 from .styles import STYLE_BTN_SECONDARY, STYLE_INPUT_READONLY, STYLE_STATUS_PILL
@@ -310,7 +310,7 @@ def _reorder_from_drop(dialog, key, point):
     keys, target = [], None
     for i in range(grid.count()):
         widget = grid.itemAt(i).widget()
-        if not isinstance(widget, _ModuleCard) or widget.module_key == AUTH_KEY:
+        if not isinstance(widget, _ModuleCard) or widget.module_key == AUTH_MODULE:
             continue
         keys.append(widget.module_key)
         rect = widget.geometry()
@@ -338,7 +338,7 @@ def _reorder_from_drop(dialog, key, point):
 def _build_module_card(dialog, module):
     """One clickable card. The whole card is a button that navigates on click."""
     kind, name, desc = module.key, module.name, module.description
-    card = _ModuleCard(kind, draggable=(kind != AUTH_KEY))
+    card = _ModuleCard(kind, draggable=(kind != AUTH_MODULE))
     card.setObjectName("moduleCard")
     card.setCursor(Qt.CursorShape.PointingHandCursor)
     card.setMinimumWidth(_CARD_WIDTH)

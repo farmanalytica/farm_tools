@@ -165,11 +165,11 @@ class AuthCtrl:
     def _navigate_to_next(self):
         # Land on the first visible module — optical may be hidden in a branded
         # single-module build. Fall back to the welcome hub if none resolves.
-        from ..view.module_catalog import AUTH_KEY
+        from ..view.module_catalog import AUTH_MODULE
         from ..view.module_prefs import visible_modules
 
         for module in visible_modules():
-            if module.key == AUTH_KEY:
+            if module.key == AUTH_MODULE:
                 continue
             handler = getattr(self.dialog, module.nav_attr, None)
             if callable(handler):
