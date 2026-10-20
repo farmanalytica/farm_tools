@@ -19,6 +19,7 @@ QGIS Python upgrade (different tag) re-provisions automatically.
 """
 import hashlib
 import importlib
+import importlib.metadata
 import logging
 import os
 import shutil
@@ -45,10 +46,20 @@ EXTLIBS_PATH = os.path.join(_PLUGIN_DIR, "extlibs")
 _SENTINEL = os.path.join(EXTLIBS_PATH, ".ready")
 _REQUIREMENTS = os.path.join(_PLUGIN_DIR, "requirements.txt")
 
+# QGIS user-profile dependencies directory — packages here are on sys.path and
+# merge with QGIS's own site-packages via pkgutil.extend_path.  Used for
+# PyQt6-WebEngine which must live alongside the existing PyQt6 namespace.
+_PROFILE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(_PLUGIN_DIR)))
+_DEPS_PATH = os.path.join(
+    _PROFILE_DIR, "python", "dependencies",
+    f"{sys.version_info.major}.{sys.version_info.minor}",
+)
+_WEBENGINE_SENTINEL = os.path.join(EXTLIBS_PATH, ".webengine_checked")
+
 # Deps shipped with QGIS itself — never keep them in extlibs/ (ABI shadowing).
 _QGIS_PROVIDED = (
     "numpy", "pandas", "scipy", "matplotlib", "requests", "certifi",
-    "urllib3", "idna", "charset_normalizer", "plotly",
+    "urllib3", "idna", "charset_normalizer",
 )
 
 # Import names that MUST exist in extlibs/ for the plugin to work, mapped to
@@ -103,6 +114,33 @@ def _missing_pip_specs():
             return None  # core package missing -> full reinstall
         specs.append(pip_name)
     return specs
+
+
+def _has_web_backend():
+    """True if any Qt web view backend is importable."""
+    for mod in ("PyQt6.QtWebEngineCore", "PyQt6.QtWebKitWidgets"):
+        try:
+            importlib.import_module(mod)
+            return True
+        except ImportError:
+            continue
+    return False
+
+
+def _webengine_checked():
+    """True if we already attempted WebEngine installation for this tag."""
+    try:
+        with open(_WEBENGINE_SENTINEL, "r", encoding="utf-8") as f:
+            return f.read().strip() == current_tag()
+    except Exception:
+        return False
+
+
+def _mark_webengine_checked():
+    os.makedirs(EXTLIBS_PATH, exist_ok=True)
+    with open(_WEBENGINE_SENTINEL, "w", encoding="utf-8") as f:
+        f.write(current_tag())
+
 
 _downloader = None
 
@@ -183,6 +221,10 @@ def needs_provision() -> bool:
     # Sentinel can match while the bundle is missing newly-added packages.
     if not bundle_complete():
         return True
+    # Some QGIS builds (e.g. macOS 4.2.x) ship without QtWebEngine bindings.
+    # Trigger provisioning once to pip-install them into the user deps path.
+    if not _has_web_backend() and not _webengine_checked():
+        return True
     return False
 
 
@@ -240,6 +282,24 @@ def _python_executable():
     return None
 
 
+def _subprocess_env():
+    """Environment for running the QGIS Python as a subprocess.
+
+    macOS QGIS 4.x vcpkg builds embed a Python whose compiled-in prefix
+    references the CI build host, so the subprocess crashes with
+    ``ModuleNotFoundError: encodings`` unless PYTHONHOME is set to the
+    real Frameworks directory.
+    """
+    env = os.environ.copy()
+    if sys.platform == "darwin":
+        stdlib_dir = os.path.dirname(os.__file__)
+        home = os.path.dirname(os.path.dirname(stdlib_dir))
+        pyver = f"python{sys.version_info.major}.{sys.version_info.minor}"
+        if os.path.isdir(os.path.join(home, "lib", pyver)):
+            env["PYTHONHOME"] = home
+    return env
+
+
 def _strip_qgis_provided(target):
     """Remove QGIS-provided packages from a target dir (avoid ABI shadowing)."""
     try:
@@ -271,6 +331,56 @@ def _patch_climdex():
                     fh.write(c.replace("'1M'", "'ME'"))
         except Exception:
             logger.debug("Failed to patch climdex '1M' offset in %s", f, exc_info=True)
+
+
+def _ensure_webengine():
+    """Install PyQt6-WebEngine if no Qt web backend is available.
+
+    Targets the QGIS user-profile dependencies directory so the new
+    ``PyQt6.QtWebEngineCore`` merges into the existing PyQt6 namespace
+    via ``pkgutil.extend_path``.  A QGIS restart is required afterwards.
+    """
+    if _has_web_backend():
+        _mark_webengine_checked()
+        return True
+    if _webengine_checked():
+        return False
+
+    py = _python_executable()
+    if not py:
+        logger.warning("Cannot install PyQt6-WebEngine: no Python executable")
+        _mark_webengine_checked()
+        return False
+
+    os.makedirs(_DEPS_PATH, exist_ok=True)
+
+    try:
+        ver = importlib.metadata.version("PyQt6")
+        mm = ".".join(ver.split(".")[:2])
+        specs = [f"PyQt6-WebEngine~={mm}.0", f"PyQt6-WebEngine-Qt6~={mm}.0"]
+    except Exception:
+        specs = ["PyQt6-WebEngine", "PyQt6-WebEngine-Qt6"]
+
+    try:
+        subprocess.run(  # nosec B603
+            [py, "-m", "pip", "install", "--target", _DEPS_PATH, "--no-deps",
+             *specs, "--no-warn-script-location"],
+            check=True,
+            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+            creationflags=_NO_WINDOW,
+            env=_subprocess_env(),
+        )
+        logger.info(
+            "Installed PyQt6-WebEngine into %s — restart QGIS to enable"
+            " embedded charts",
+            _DEPS_PATH,
+        )
+        _mark_webengine_checked()
+        return True
+    except Exception:
+        logger.warning("Failed to install PyQt6-WebEngine", exc_info=True)
+        _mark_webengine_checked()
+        return False
 
 
 class ExtlibsDownloader(QThread):
@@ -362,7 +472,8 @@ class ExtlibsDownloader(QThread):
                  *install_args, "--no-warn-script-location"],
                 check=True,
                 stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
-                creationflags=_NO_WINDOW,  # don't flash a console on Windows
+                creationflags=_NO_WINDOW,
+                env=_subprocess_env(),
             )
         except Exception:
             return False
@@ -375,4 +486,5 @@ class ExtlibsDownloader(QThread):
         with open(_SENTINEL, "w", encoding="utf-8") as f:
             f.write(_expected_sentinel())
         ensure_on_path()
+        _ensure_webengine()
         self.download_done.emit(True, "")

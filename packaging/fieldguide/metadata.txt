@@ -3,7 +3,7 @@ name=Field Guide
 qgisMinimumVersion=3.28
 qgisMaximumVersion=4.99
 description=Field routes, polygon sampling, raster-based optimal sampling points, CSV/GPX export and PDF reports in QGIS / Rotas de campo, amostragem por polígonos, pontos ótimos baseados em raster, exportação CSV/GPX e relatórios PDF no QGIS
-version=9.5
+version=9.6
 author=FARM Analytica
 email=contato@farmanalytica.com.br
 
@@ -17,6 +17,15 @@ repository=https://github.com/farmanalytica/farm_tools
 
 hasProcessingProvider=no
 changelog=
+    9.6 - QGIS 4 macOS compatibility: the plugin now loads on QGIS builds
+          that ship without QtWebEngine Python bindings (e.g. macOS 4.2.x).
+          Embedded chart views degrade gracefully to a placeholder on first
+          launch while PyQt6-WebEngine is automatically installed into the
+          user profile; charts work after restarting QGIS. The dependency
+          provisioner now sets PYTHONHOME when spawning the QGIS Python as
+          a subprocess, fixing pip on macOS vcpkg builds where the
+          compiled-in prefix references the CI build host. Plotly is no
+          longer assumed to be QGIS-provided and is provisioned when absent.
     9.5 - AOI drawing: the "Draw AOI" tool (DEM, RAVI, SAR, Multi-Satellite,
           Bare Soil, MapBiomas) now lets you click a sequence of points to
           draw an arbitrary polygon instead of only a rectangle.
