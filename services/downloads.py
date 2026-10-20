@@ -80,9 +80,11 @@ def download_geotiff(image, request: GeoTiffRequest) -> str:
         image.getDownloadURL(parameters), timeout=_DOWNLOAD_TIMEOUT_S
     )
     if not response.ok:
+        # Earth Engine puts the actual cause (e.g. a failed computation) in the
+        # body; the reason phrase alone is just "Bad Request".
         raise RuntimeError(
             f"{request.product} download failed "
-            f"(HTTP {response.status_code}): {response.reason}"
+            f"(HTTP {response.status_code}): {response.text[:500] or response.reason}"
         )
 
     output_path = unique_path(
