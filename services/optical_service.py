@@ -486,7 +486,15 @@ class OpticalService:
 
         index_collection = ee.ImageCollection(collection.map(add_index))
 
-        if metric == "Area Under Curve (AUC)":
+        if metric == "Productivity Index (PI)":
+            first_image = index_collection.first()
+            result_image = OpticalService._calculate_productivity_index(
+                index_collection, aoi
+            )
+            result_image = result_image.setDefaultProjection(
+                first_image.projection()
+            ).clip(first_image.geometry())
+        elif metric == "Area Under Curve (AUC)":
             first_image = index_collection.first()
             result_image = OpticalService._calculate_auc(index_collection, start)
             result_image = result_image.setDefaultProjection(
@@ -503,6 +511,47 @@ class OpticalService:
         mask = ee.Image(1).clip(aoi.geometry()).mask()
         final_image = final_image.updateMask(mask).clip(region)
         return final_image.rename("index"), region
+
+    @staticmethod
+    def _calculate_productivity_index(
+        index_collection: ee.ImageCollection,
+        aoi: ee.FeatureCollection,
+    ):
+        """Field-relative productivity index (PI) over a selected date window.
+
+        For each date t, compute the field mean NDVI_t and convert every pixel to
+        a relative productivity index:
+            RPI_p,t = 100 * (NDVI_p,t - NDVI_t) / NDVI_t
+        The final PI is the average RPI across all dates with a valid field mean.
+        Values near +100 indicate a pixel is substantially above the field mean,
+        while negative values indicate below-average relative productivity.
+        """
+        first_image = index_collection.first()
+        if first_image is None:
+            raise ValueError(
+                "At least one valid image is required to calculate the Productivity Index."
+            )
+
+        def _relative_productivity(image):
+            mean_value = image.reduceRegion(
+                reducer=ee.Reducer.mean(),
+                geometry=aoi.geometry(),
+                scale=10,
+                maxPixels=1e9,
+            ).get("index")
+            mean_number = ee.Number(
+                ee.Algorithms.If(mean_value, mean_value, 0)
+            )
+            mean_image = ee.Image.constant(mean_number)
+            relative = image.subtract(mean_image).multiply(100).divide(mean_image)
+            mask = ee.Image.constant(mean_number.abs().gte(ee.Number(1e-6)))
+            return relative.updateMask(mask).toFloat().rename("index")
+
+        relative_collection = index_collection.map(_relative_productivity)
+        result_image = relative_collection.mean()
+        return result_image.setDefaultProjection(first_image.projection()).clip(
+            first_image.geometry()
+        )
 
     @staticmethod
     def _aggregate_index_collection(index_collection: ee.ImageCollection, metric: str):
@@ -528,7 +577,10 @@ class OpticalService:
             "Sum": lambda: index_collection.sum(),
         }
         if metric not in metric_functions:
-            valid = ", ".join(list(metric_functions.keys()) + ["Area Under Curve (AUC)"])
+            valid = ", ".join(
+                list(metric_functions.keys())
+                + ["Productivity Index (PI)", "Area Under Curve (AUC)"]
+            )
             raise ValueError(f"Invalid metric: {metric}. Valid metrics are: {valid}")
 
         result_image = metric_functions[metric]()

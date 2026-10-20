@@ -113,6 +113,24 @@ def current_tag() -> str:
     return f"cp{sys.version_info.major}{sys.version_info.minor}-{plat}"
 
 
+def _bundle_tags():
+    """Tags to try when fetching a prebuilt zip, most specific first.
+
+    macOS builds report the build host's deployment target and a single arch
+    (e.g. 'macosx-15.7-x86_64' on the vcpkg QGIS 3.44 bundle), but releases
+    only publish universal2 macOS zips, so fall back to that tag.
+    """
+    tags = [current_tag()]
+    if sys.platform == "darwin":
+        universal = (
+            f"cp{sys.version_info.major}{sys.version_info.minor}"
+            "-macosx_10_13_universal2"
+        )
+        if universal not in tags:
+            tags.append(universal)
+    return tags
+
+
 def _req_fingerprint() -> str:
     """Short hash of requirements.txt so a dependency change re-provisions."""
     try:
@@ -180,11 +198,22 @@ def get_downloader():
     return _downloader
 
 
-def start_download():
+def start_download(on_done=None):
+    """Start (or join) the provisioning thread.
+
+    ``on_done`` is connected BEFORE the thread starts: a fast failure (404 +
+    pip unavailable) can emit ``download_done`` within milliseconds, and a
+    slot connected after that emission never fires, leaving the loading page
+    up forever.
+    """
     global _downloader
     if _downloader is not None and _downloader.isRunning():
+        if on_done is not None:
+            _downloader.download_done.connect(on_done)
         return _downloader
     _downloader = ExtlibsDownloader()
+    if on_done is not None:
+        _downloader.download_done.connect(on_done)
     _downloader.start()
     return _downloader
 
@@ -288,12 +317,15 @@ class ExtlibsDownloader(QThread):
 
     # -- step 1: tagged prebuilt zip ------------------------------------
     def _try_tagged_zip(self) -> bool:
-        url = BASE_URL + f"extlibs-{current_tag()}.zip"
+        return any(self._try_zip(tag) for tag in _bundle_tags())
+
+    def _try_zip(self, tag) -> bool:
+        url = BASE_URL + f"extlibs-{tag}.zip"
         if not url.startswith("https://"):
             return False
         zip_path = os.path.join(_PLUGIN_DIR, "_extlibs_dl.zip")
         try:
-            with urllib.request.urlopen(url) as resp, open(zip_path, "wb") as f:  # nosec B310
+            with urllib.request.urlopen(url, timeout=120) as resp, open(zip_path, "wb") as f:  # nosec B310
                 f.write(resp.read())
             with zipfile.ZipFile(zip_path, "r") as zf:
                 names = zf.namelist()

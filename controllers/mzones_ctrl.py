@@ -102,8 +102,7 @@ class DepsController:
 
     def install(self):
         self.dialog.mz_set_deps_installing(True)
-        self._dl = extlibs_manager.start_download()
-        self._dl.download_done.connect(self._on_done)
+        self._dl = extlibs_manager.start_download(self._on_done)
 
     def _on_done(self, ok: bool, msg: str):
         self.dialog.mz_set_deps_installing(False)

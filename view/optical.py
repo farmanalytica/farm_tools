@@ -97,6 +97,7 @@ _COMPOSITE_METRICS = [
     "Amplitude",
     "Standard Deviation",
     "Sum",
+    "Productivity Index (PI)",
     "Area Under Curve (AUC)",
 ]
 

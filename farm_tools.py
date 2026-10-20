@@ -685,10 +685,9 @@ class FarmTools:
                 self._finish_init()
             else:
                 self.dialog.show_loading_page()
-                downloader = extlibs_manager.get_downloader()
-                if downloader and not self._waiting_for_extlibs:
+                if not self._waiting_for_extlibs:
                     self._waiting_for_extlibs = True
-                    downloader.download_done.connect(self._on_extlibs_ready)
+                    extlibs_manager.start_download(self._on_extlibs_ready)
 
         self.dialog.show()
         self.dialog.raise_()
