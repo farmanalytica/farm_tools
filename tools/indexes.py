@@ -54,7 +54,7 @@ _SAVI_SOIL_FACTOR = 0.5
 _INDEX_BAND_NAME = "index"
 
 _TOKEN_PATTERN = r"\b({})\b".format("|".join(SENTINEL2_BANDS + tuple(FUNCTION_ARITY)))
-_ALLOWED_NON_TOKEN_CHARS = r"[+/*()., 0-9-]"
+_ALLOWED_NON_TOKEN_CHARS = r"[+/*()., 0-9-]"  # nosec B105
 
 
 def _scaled(image, band):

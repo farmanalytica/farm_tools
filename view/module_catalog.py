@@ -13,7 +13,7 @@ Which ones a given user sees, and in what order, is :mod:`module_prefs`.
 
 from typing import NamedTuple, Optional
 
-AUTH_KEY = "auth"
+AUTH_KEY = "auth"  # noqa: S105  # not a secret — module dict key
 FARM_GREEN = "#1b6b39"
 
 
